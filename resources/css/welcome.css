@@ -1,0 +1,149 @@
+/* Welcome Page Specific CSS Classes */
+
+/* Background Effects */
+.welcome-bg-effect {
+    @apply fixed inset-0 z-0;
+}
+
+.welcome-bg-effect-1 {
+    @apply absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-kraftdo-blue to-kraftdo-green rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse;
+}
+
+.welcome-bg-effect-2 {
+    @apply absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-kraftdo-green to-kraftdo-lime rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse;
+}
+
+.welcome-bg-effect-3 {
+    @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-kraftdo-blue to-kraftdo-green rounded-full mix-blend-multiply filter blur-xl opacity-10 animate-pulse;
+}
+
+/* Header */
+.welcome-header {
+    @apply bg-kraftdo-dark/95 backdrop-blur-sm border-b border-kraftdo-navy/20 shadow relative z-50;
+}
+
+.welcome-nav {
+    @apply max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8;
+}
+
+.welcome-brand {
+    @apply text-3xl font-bold bg-gradient-to-r from-kraftdo-blue to-kraftdo-green bg-clip-text text-transparent;
+}
+
+.welcome-tagline {
+    @apply text-gray-300 mt-1;
+}
+
+/* Navigation Buttons */
+.welcome-nav-btn {
+    @apply text-gray-300 hover:text-kraftdo-green px-4 py-2 rounded-lg text-sm font-medium transition duration-300;
+}
+
+.welcome-nav-btn-primary {
+    @apply bg-gradient-to-r from-kraftdo-blue to-kraftdo-green text-white px-6 py-2 rounded-full text-sm font-medium hover:scale-105 transition duration-300;
+}
+
+/* Main Content */
+.welcome-main {
+    @apply py-8 relative z-40;
+}
+
+.welcome-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+/* Hero Section */
+.welcome-hero {
+    @apply text-center mb-16;
+}
+
+.welcome-hero-title {
+    @apply text-5xl font-bold text-white mb-6;
+}
+
+.welcome-hero-subtitle {
+    @apply text-xl text-gray-400 mb-8 max-w-3xl mx-auto;
+}
+
+.welcome-hero-btn-primary {
+    @apply bg-gradient-to-r from-kraftdo-blue to-kraftdo-green text-white px-8 py-4 rounded-full text-lg font-medium hover:scale-105 hover:shadow-2xl hover:shadow-kraftdo-green/25 transition duration-300 inline-block;
+}
+
+.welcome-hero-btn-secondary {
+    @apply border-2 border-kraftdo-green text-kraftdo-green px-8 py-4 rounded-full text-lg font-medium hover:bg-kraftdo-green hover:text-kraftdo-dark transition duration-300 inline-block;
+}
+
+/* Feature Cards */
+.welcome-features-grid {
+    @apply grid grid-cols-1 md:grid-cols-3 gap-8 mb-16;
+}
+
+.welcome-feature-card {
+    @apply bg-kraftdo-dark/50 backdrop-blur-sm rounded-3xl shadow-xl p-8 border border-kraftdo-navy/30 hover:border-kraftdo-green/50 transition-all duration-300 hover:transform hover:scale-105 text-center;
+}
+
+.welcome-feature-icon {
+    @apply w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-6;
+}
+
+.welcome-feature-title {
+    @apply text-xl font-bold text-white mb-4;
+}
+
+.welcome-feature-description {
+    @apply text-gray-400;
+}
+
+/* Use Cases Section */
+.welcome-use-cases {
+    @apply bg-kraftdo-navy/30 rounded-3xl p-12 mb-16;
+}
+
+.welcome-use-cases-header {
+    @apply text-center mb-12;
+}
+
+.welcome-use-cases-title {
+    @apply text-3xl font-bold text-white mb-4;
+}
+
+.welcome-use-cases-subtitle {
+    @apply text-lg text-gray-400;
+}
+
+.welcome-use-cases-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
+}
+
+.welcome-use-case-card {
+    @apply text-center;
+}
+
+.welcome-use-case-icon {
+    @apply bg-kraftdo-dark/50 border border-kraftdo-green/20 p-4 rounded-2xl shadow-lg mb-4;
+}
+
+.welcome-use-case-title {
+    @apply font-semibold text-white mb-2;
+}
+
+.welcome-use-case-description {
+    @apply text-sm text-gray-400;
+}
+
+/* CTA Section */
+.welcome-cta {
+    @apply text-center bg-kraftdo-navy/50 backdrop-blur-sm rounded-3xl shadow-xl p-12 border border-kraftdo-green/20;
+}
+
+.welcome-cta-title {
+    @apply text-3xl font-bold text-white mb-4;
+}
+
+.welcome-cta-description {
+    @apply text-lg text-gray-400 mb-8;
+}
+
+.welcome-cta-btn {
+    @apply bg-gradient-to-r from-kraftdo-blue to-kraftdo-green text-white px-10 py-4 rounded-full text-lg font-medium hover:scale-105 hover:shadow-2xl hover:shadow-kraftdo-green/25 transition duration-300 inline-block;
+}

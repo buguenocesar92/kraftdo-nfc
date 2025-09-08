@@ -1,0 +1,88 @@
+/* Video styling and responsive behavior */
+
+.video-container {
+    position: relative;
+    width: 100%;
+    height: auto;
+}
+
+.video-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f3f4f6;
+    min-height: 200px;
+}
+
+.video-element {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Portrait video styles */
+.video-element.portrait {
+    max-height: 400px;
+    width: auto;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Landscape video styles */  
+.video-element.landscape {
+    width: 100%;
+    height: auto;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .video-element.portrait {
+        max-height: 300px;
+        max-width: 100%;
+    }
+    
+    .video-element.landscape {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* Video overlay for loading states */
+.video-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    z-index: 10;
+}
+
+.video-overlay.hidden {
+    display: none;
+}
+
+/* Video controls styling */
+.video-controls {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 4px;
+    padding: 5px 10px;
+    color: white;
+    font-size: 12px;
+}
+
+/* Video metadata display */
+.video-metadata {
+    margin-top: 8px;
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: center;
+}

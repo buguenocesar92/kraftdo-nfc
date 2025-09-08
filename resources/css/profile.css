@@ -1,0 +1,77 @@
+/* Profile Specific CSS Classes */
+
+.profile-card {
+    @apply rounded-3xl shadow-2xl p-8 sm:p-12 border-2 relative overflow-hidden;
+}
+
+.profile-header-card {
+    @apply rounded-3xl shadow-2xl p-8 sm:p-12 border-2 relative overflow-hidden;
+}
+
+.profile-section-card {
+    @apply rounded-3xl shadow-xl p-8 sm:p-10 border relative overflow-hidden;
+}
+
+.profile-avatar {
+    @apply w-40 h-40 sm:w-48 sm:h-48 rounded-full mx-auto object-cover shadow-2xl ring-4 ring-white/50 hover:scale-105 transition-transform duration-500;
+}
+
+.profile-avatar-placeholder {
+    @apply inline-flex items-center justify-center w-40 h-40 sm:w-48 sm:h-48 rounded-full shadow-2xl;
+}
+
+.profile-status-indicator {
+    @apply absolute bottom-4 right-4 w-6 h-6 bg-emerald-500 rounded-full border-4 border-white shadow-lg animate-pulse-slow;
+}
+
+.profile-title {
+    @apply text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 font-serif;
+}
+
+.profile-description {
+    @apply text-lg sm:text-xl leading-relaxed max-w-3xl mx-auto mb-6;
+}
+
+.profile-badge {
+    @apply inline-flex items-center px-4 py-2 text-white rounded-full text-sm font-semibold shadow-lg;
+}
+
+.profile-section-title {
+    @apply text-2xl sm:text-3xl font-bold mb-8 text-center;
+}
+
+.profile-bio-quote {
+    @apply text-lg sm:text-xl leading-relaxed font-medium italic relative z-10 px-4 sm:px-6;
+}
+
+.profile-social-button {
+    @apply group text-white py-4 px-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center;
+}
+
+.profile-contact-button {
+    @apply group py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-center;
+}
+
+.profile-contact-button-large {
+    @apply group py-6 px-8 rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-center;
+}
+
+.profile-decorative-icon {
+    @apply absolute opacity-10;
+}
+
+.profile-decorative-icon-large {
+    @apply text-4xl sm:text-6xl;
+}
+
+.profile-decorative-icon-medium {
+    @apply text-3xl sm:text-4xl;
+}
+
+.profile-decorative-icon-small {
+    @apply text-4xl;
+}
+
+.profile-top-border {
+    @apply absolute top-0 left-0 w-full h-2;
+}

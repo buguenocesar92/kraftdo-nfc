@@ -1,0 +1,190 @@
+/* Video container styling and responsive behavior for all orientations */
+
+.video-container-enhanced {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.video-container-enhanced video {
+    border-radius: 8px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    background-color: #000;
+    transition: all 0.3s ease;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Orientation-specific styles */
+.video-container-enhanced.landscape {
+    aspect-ratio: 16/9;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.video-container-enhanced.landscape video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.video-container-enhanced.portrait {
+    max-width: 400px;
+    aspect-ratio: 9/16;
+    margin: 0 auto;
+}
+
+.video-container-enhanced.portrait video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.video-container-enhanced.square {
+    aspect-ratio: 1/1;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.video-container-enhanced.square video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Loading state */
+.video-container-enhanced.loading {
+    background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    animation: loading-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes loading-shimmer {
+    0% { background-position: 0 0, 0 10px, 10px -10px, -10px 0px; }
+    100% { background-position: 20px 0, 20px 10px, 30px -10px, 10px 0px; }
+}
+
+.video-container-enhanced.loading::after {
+    content: "Cargando video...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .video-container-enhanced.landscape {
+        aspect-ratio: 16/10;
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    .video-container-enhanced.portrait {
+        max-width: 100%;
+        aspect-ratio: 3/4;
+        max-height: 60vh;
+    }
+    
+    .video-container-enhanced.square {
+        max-width: 100%;
+        aspect-ratio: 1/1;
+        max-height: 350px;
+    }
+}
+
+@media (max-width: 480px) {
+    .video-container-enhanced.portrait {
+        aspect-ratio: 4/5;
+        max-height: 50vh;
+    }
+    
+    .video-container-enhanced.landscape {
+        aspect-ratio: 16/12;
+    }
+}
+
+/* Video controls overlay */
+.video-container-enhanced .video-controls {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+}
+
+/* Video metadata display */
+.video-container-enhanced .video-metadata {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 10px;
+    font-weight: 600;
+    color: #374151;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+}
+
+/* Hover effects */
+.video-container-enhanced:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.video-container-enhanced:hover video {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Focus states for accessibility */
+.video-container-enhanced video:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .video-container-enhanced {
+        border: 2px solid #000;
+    }
+    
+    .video-container-enhanced video {
+        border: 1px solid #333;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .video-container-enhanced,
+    .video-container-enhanced video,
+    .loading-shimmer {
+        animation: none;
+        transition: none;
+    }
+    
+    .video-container-enhanced:hover {
+        transform: none;
+    }
+}

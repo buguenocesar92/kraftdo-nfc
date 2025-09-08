@@ -1,0 +1,166 @@
+/**
+ * Gift Tailwind Configuration Styles
+ * Custom configurations and extensions for gift view
+ */
+
+/* Custom Animation Keyframes */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+/* Animation Classes */
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-bounce-slow {
+    animation: bounce 2s infinite;
+}
+
+/* Font Family Classes */
+.font-script {
+    font-family: 'Dancing Script', cursive;
+}
+
+/* Audio Overlay Styles */
+.audio-overlay-active {
+    overflow: hidden;
+}
+
+.audio-overlay-active * {
+    pointer-events: none;
+}
+
+.audio-overlay-active #audio-overlay,
+.audio-overlay-active #audio-overlay * {
+    pointer-events: all;
+}
+
+/* Video Container Loading States */
+.video-container-public.loading::after {
+    content: "Cargando video...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+/* Video Player Enhanced Styles */
+.video-player-public {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Gallery Item Hover Effects */
+.gallery-item:hover .gallery-overlay {
+    opacity: 1;
+}
+
+/* Custom Scrollbar for Modal */
+.modal-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.modal-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Responsive Text Scaling */
+@screen sm {
+    .responsive-text-base {
+        font-size: 1rem;
+    }
+}
+
+@screen lg {
+    .responsive-text-lg {
+        font-size: 1.25rem;
+    }
+}
+
+/* Theme-specific Gradients (can be overridden by inline styles) */
+.gradient-love {
+    background: linear-gradient(to bottom right, #fce7f3, #e879f9, #a855f7);
+}
+
+.gradient-friendship {
+    background: linear-gradient(to bottom right, #fef3c7, #fbbf24, #f59e0b);
+}
+
+.gradient-family {
+    background: linear-gradient(to bottom right, #dcfce7, #22c55e, #16a34a);
+}
+
+.gradient-celebration {
+    background: linear-gradient(to bottom right, #ddd6fe, #8b5cf6, #7c3aed);
+}
+
+/* Gift reusable component styles */
+.gift-container {
+    @apply relative z-10 w-full max-w-4xl mx-auto px-3 py-4 sm:px-6 lg:px-8 min-h-screen;
+}
+
+.gift-header {
+    @apply text-center mb-8;
+}
+
+.gift-icon-wrapper {
+    @apply inline-flex items-center justify-center w-20 h-20 sm:w-28 sm:h-28 rounded-full shadow-2xl animate-pulse-slow;
+}
+
+.gift-icon {
+    @apply text-3xl sm:text-5xl text-white;
+}
+
+.gift-title {
+    @apply text-2xl sm:text-3xl font-bold bg-clip-text text-transparent mb-2;
+}
+
+.gift-subtitle {
+    @apply text-sm font-medium;
+}
+
+.gift-sender-card {
+    @apply rounded-2xl p-6 text-center shadow-lg border;
+}
+
+.gift-sender-label {
+    @apply text-sm font-medium mb-2;
+}
+
+.gift-sender-name {
+    @apply text-xl font-bold;
+}
+
+.gift-main-image {
+    @apply w-full h-80 object-cover rounded-3xl shadow-2xl ring-4 ring-white/50 hover:scale-105 transition-transform duration-500;
+}
+
+.gift-section {
+    @apply mb-8;
+}
+
+.gift-footer-wrapper {
+    @apply font-['Inter',_sans-serif];
+}

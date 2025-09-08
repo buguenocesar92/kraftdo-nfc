@@ -1,0 +1,25 @@
+  @import '@fortawesome/fontawesome-free/css/all.css';
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  @import './dashboard.css';
+  @import 'tailwindcss';
+
+  /* KRAFTDO Brand Styles */
+  @layer base {
+      body {
+          @apply font-kraftdo;
+      }
+  }
+
+  @layer components {
+      .kraftdo-gradient {
+          background: linear-gradient(to right, #0f3460, #00ff88);
+      }
+
+      .kraftdo-gradient-reverse {
+          background: linear-gradient(to right, #00ff88, #7fff00);
+      }
+
+      .kraftdo-bg-pattern {
+          @apply bg-gradient-to-br from-kraftdo-dark via-kraftdo-navy to-kraftdo-dark;
+      }
+  }
