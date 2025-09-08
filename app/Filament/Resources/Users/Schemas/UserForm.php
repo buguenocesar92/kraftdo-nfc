@@ -49,15 +49,23 @@ class UserForm
                     ->schema([
                         CheckboxList::make('roles')
                             ->label('Asignar Roles')
-                            ->relationship('roles', 'name')
-                            ->options(Role::all()->pluck('name', 'name'))
-                            ->descriptions([
-                                'Super Admin' => '🔴 Acceso completo al sistema - ¡Usar con precaución!',
-                                'Admin' => '🟠 Gestión completa de contenido y usuarios limitada',
-                                'Editor' => '🟡 Crear y editar su propio contenido',
-                                'Viewer' => '🟢 Solo lectura de contenido',
-                                'Content Manager' => '🔵 Gestión especializada de contenido sin acceso a usuarios',
-                            ])
+                            ->options(function () {
+                                return Role::all()->pluck('name', 'id');
+                            })
+                            ->descriptions(function () {
+                                $descriptions = [];
+                                foreach (Role::all() as $role) {
+                                    $descriptions[$role->id] = match($role->name) {
+                                        'Super Admin' => '🔴 Acceso completo al sistema - ¡Usar con precaución!',
+                                        'Admin' => '🟠 Gestión completa de contenido y usuarios limitada',
+                                        'Editor' => '🟡 Crear y editar su propio contenido',
+                                        'Viewer' => '🟢 Solo lectura de contenido',
+                                        'Content Manager' => '🔵 Gestión especializada de contenido sin acceso a usuarios',
+                                        default => '📋 Rol personalizado'
+                                    };
+                                }
+                                return $descriptions;
+                            })
                             ->columns(2)
                             ->columnSpanFull()
                             ->helperText('Los roles determinan qué acciones puede realizar el usuario en el sistema'),

@@ -41,7 +41,12 @@ class EditRole extends EditRecord
     {
         // Sync permissions after saving the role
         if (isset($this->permissionsData)) {
-            $this->record->syncPermissions($this->permissionsData);
+            // Convert permission IDs to permission names for syncPermissions
+            $permissionNames = \Spatie\Permission\Models\Permission::whereIn('id', $this->permissionsData)
+                ->pluck('name')
+                ->toArray();
+            
+            $this->record->syncPermissions($permissionNames);
         }
     }
 

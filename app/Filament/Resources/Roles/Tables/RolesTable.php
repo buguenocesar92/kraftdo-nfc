@@ -24,13 +24,12 @@ class RolesTable
 
                 BadgeColumn::make('permissions_count')
                     ->label('Permisos')
-                    ->counts('permissions')
                     ->color('success')
-                    ->formatStateUsing(fn ($state) => $state . ' permisos'),
+                    ->formatStateUsing(fn ($state) => $state . ' permisos')
+                    ->sortable(),
 
                 TextColumn::make('users_count')
                     ->label('Usuarios')
-                    ->counts('users')
                     ->sortable()
                     ->formatStateUsing(fn ($state) => $state . ' usuarios'),
 

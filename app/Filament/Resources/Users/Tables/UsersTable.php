@@ -29,16 +29,20 @@ class UsersTable
                     ->sortable()
                     ->copyable(),
 
-                BadgeColumn::make('roles.name')
+                TextColumn::make('roles')
                     ->label('Roles')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        return $record->roles->pluck('name')->toArray();
+                    })
                     ->colors([
-                        'danger' => 'Super Admin',
-                        'warning' => 'Admin', 
-                        'info' => 'Content Manager',
-                        'success' => 'Editor',
-                        'gray' => 'Viewer',
+                        'danger' => fn ($state) => in_array('Super Admin', (array) $state),
+                        'warning' => fn ($state) => in_array('Admin', (array) $state),
+                        'info' => fn ($state) => in_array('Content Manager', (array) $state),
+                        'success' => fn ($state) => in_array('Editor', (array) $state),
+                        'gray' => fn ($state) => in_array('Viewer', (array) $state),
                     ])
-                    ->separator(','),
+                    ->separator(' '),
 
                 IconColumn::make('email_verified_at')
                     ->label('Verificado')

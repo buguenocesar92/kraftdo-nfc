@@ -22,8 +22,18 @@ class CreateRole extends CreateRecord
     {
         // Assign permissions after creating the role
         if (!empty($this->permissionsData)) {
-            $this->record->syncPermissions($this->permissionsData);
+            // Convert permission IDs to permission names for syncPermissions
+            $permissionNames = \Spatie\Permission\Models\Permission::whereIn('id', $this->permissionsData)
+                ->pluck('name')
+                ->toArray();
+            
+            $this->record->syncPermissions($permissionNames);
         }
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 
     private $permissionsData = [];
