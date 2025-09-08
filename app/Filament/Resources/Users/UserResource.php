@@ -35,6 +35,36 @@ class UserResource extends Resource
         return 2;
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_user') || auth()->user()->can('view_user');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_user');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_user', $record) || auth()->user()->can('view_any_user');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_user', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_user', $record) || auth()->user()->can('delete_any_user');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_user');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return UserForm::configure($schema);

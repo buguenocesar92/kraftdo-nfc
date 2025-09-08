@@ -30,6 +30,36 @@ class ContentMenuResource extends Resource
         return 'Restaurantes';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_content_menu') || auth()->user()->can('view_content_menu');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_content_menu');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_content_menu', $record) || auth()->user()->can('view_any_content_menu');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_content_menu', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_content_menu', $record) || auth()->user()->can('delete_any_content_menu');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_content_menu');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ContentMenuForm::configure($schema);

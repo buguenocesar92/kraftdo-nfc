@@ -30,6 +30,36 @@ class ContentMultimediaResource extends Resource
         return 'Multimedia';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_dynamic_content') || auth()->user()->can('view_dynamic_content');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_dynamic_content');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_dynamic_content', $record) || auth()->user()->can('view_any_dynamic_content');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_dynamic_content', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_dynamic_content', $record) || auth()->user()->can('delete_any_dynamic_content');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_dynamic_content');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ContentMultimediaForm::configure($schema);

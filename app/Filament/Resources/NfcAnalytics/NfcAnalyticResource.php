@@ -20,6 +20,36 @@ class NfcAnalyticResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_analytics');
+    }
+
+    public static function canCreate(): bool
+    {
+        return false; // Analytics are typically generated automatically
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_analytics');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false; // Analytics are typically read-only
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('manage_system_settings');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('manage_system_settings');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return NfcAnalyticForm::configure($schema);

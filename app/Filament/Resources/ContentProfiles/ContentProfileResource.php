@@ -30,6 +30,36 @@ class ContentProfileResource extends Resource
         return 'Perfiles';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_content_profile') || auth()->user()->can('view_content_profile');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_content_profile');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_content_profile', $record) || auth()->user()->can('view_any_content_profile');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_content_profile', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_content_profile', $record) || auth()->user()->can('delete_any_content_profile');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_content_profile');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ContentProfileForm::configure($schema);

@@ -26,6 +26,36 @@ class NfcTokenResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_nfc_token') || auth()->user()->can('view_nfc_token');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_nfc_token');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_nfc_token', $record) || auth()->user()->can('view_any_nfc_token');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_nfc_token', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_nfc_token', $record) || auth()->user()->can('delete_any_nfc_token');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_nfc_token');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return NfcTokenForm::configure($schema);

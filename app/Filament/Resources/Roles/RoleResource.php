@@ -35,6 +35,36 @@ class RoleResource extends Resource
         return 1;
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_role') || auth()->user()->can('view_role');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_role');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_role', $record) || auth()->user()->can('view_any_role');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_role', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_role', $record) || auth()->user()->can('delete_any_role');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_role');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return RoleForm::configure($schema);

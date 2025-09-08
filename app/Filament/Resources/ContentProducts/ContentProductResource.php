@@ -30,6 +30,36 @@ class ContentProductResource extends Resource
         return 'Productos';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_content_product') || auth()->user()->can('view_content_product');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_content_product');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_content_product', $record) || auth()->user()->can('view_any_content_product');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_content_product', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_content_product', $record) || auth()->user()->can('delete_any_content_product');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_content_product');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ContentProductForm::configure($schema);

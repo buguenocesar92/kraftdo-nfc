@@ -30,6 +30,36 @@ class ContentEventResource extends Resource
         return 'Eventos';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_content_event') || auth()->user()->can('view_content_event');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_content_event');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_content_event', $record) || auth()->user()->can('view_any_content_event');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_content_event', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_content_event', $record) || auth()->user()->can('delete_any_content_event');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_content_event');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ContentEventForm::configure($schema);

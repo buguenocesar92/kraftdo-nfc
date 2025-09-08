@@ -30,6 +30,36 @@ class ContentTouristResource extends Resource
         return 'Lugares Turísticos';
     }
 
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_content_tourist') || auth()->user()->can('view_content_tourist');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_content_tourist');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_content_tourist', $record) || auth()->user()->can('view_any_content_tourist');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_content_tourist', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_content_tourist', $record) || auth()->user()->can('delete_any_content_tourist');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_content_tourist');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return ContentTouristForm::configure($schema);
