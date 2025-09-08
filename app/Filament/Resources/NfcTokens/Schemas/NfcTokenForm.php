@@ -32,24 +32,41 @@ class NfcTokenForm
                     ->helperText('Solo se muestran tipos con recursos especializados implementados'),
                 TextInput::make('customization_plan')
                     ->required()
-                    ->default('BASIC'),
+                    ->default('BASIC')
+                    ->hidden()
+                    ->dehydrated(),
                 TextInput::make('purchase_price')
-                    ->numeric(),
-                DateTimePicker::make('purchased_at'),
+                    ->numeric()
+                    ->hidden()
+                    ->dehydrated(),
+                DateTimePicker::make('purchased_at')
+                    ->hidden()
+                    ->dehydrated(),
                 Textarea::make('purchase_notes')
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->hidden()
+                    ->dehydrated(),
                 TextInput::make('purchase_currency')
                     ->required()
-                    ->default('USD'),
+                    ->default('USD')
+                    ->hidden()
+                    ->dehydrated(),
                 TextInput::make('cost_per_view')
-                    ->numeric(),
+                    ->numeric()
+                    ->hidden()
+                    ->dehydrated(),
                 TextInput::make('total_investment_views')
                     ->required()
                     ->numeric()
-                    ->default(0),
+                    ->default(0)
+                    ->hidden()
+                    ->dehydrated(),
                 Toggle::make('is_active')
-                    ->required(),
-                DateTimePicker::make('last_used_at'),
+                    ->required()
+                    ->default(true),
+                DateTimePicker::make('last_used_at')
+                    ->hidden()
+                    ->dehydrated(),
             ]);
     }
 }
