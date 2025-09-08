@@ -16,7 +16,7 @@ class GallerySection
     {
         return Section::make('Galería de Imágenes')
             ->schema([
-                Repeater::make('dynamicContent.multimedia.galleryImages')
+                Repeater::make('galleryImages')
                     ->label('Imágenes de la Galería')
                     ->schema([
                         Select::make('type')
