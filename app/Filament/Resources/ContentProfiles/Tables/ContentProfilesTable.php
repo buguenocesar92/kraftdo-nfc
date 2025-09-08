@@ -22,6 +22,11 @@ class ContentProfilesTable
                     ->searchable(),
                 TextColumn::make('contact_website')
                     ->searchable(),
+                TextColumn::make('socialLinks_count')
+                    ->label('Redes Sociales')
+                    ->counts('socialLinks')
+                    ->badge()
+                    ->color('success'),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

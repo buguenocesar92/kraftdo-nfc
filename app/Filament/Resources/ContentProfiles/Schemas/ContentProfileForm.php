@@ -2,7 +2,9 @@
 
 namespace App\Filament\Resources\ContentProfiles\Schemas;
 
+use App\Filament\Components\GallerySection;
 use App\Filament\Components\MultimediaSection;
+use App\Filament\Components\SocialLinksSection;
 use App\Models\DynamicContent;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -45,6 +47,10 @@ class ContentProfileForm
                     ->columns(2),
 
                 MultimediaSection::make(),
+
+                GallerySection::make(),
+
+                SocialLinksSection::make(),
             ]);
     }
 }

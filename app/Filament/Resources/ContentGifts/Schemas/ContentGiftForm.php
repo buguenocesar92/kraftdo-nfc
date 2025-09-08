@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ContentGifts\Schemas;
 
+use App\Filament\Components\GallerySection;
 use App\Filament\Components\MultimediaSection;
 use App\Models\DynamicContent;
 use Filament\Forms\Components\Select;
@@ -40,6 +41,8 @@ class ContentGiftForm
                     ->columns(2),
 
                 MultimediaSection::make(),
+
+                GallerySection::make(),
             ]);
     }
 }

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContentProfile extends Model
@@ -24,6 +25,21 @@ class ContentProfile extends Model
     public function dynamicContent(): BelongsTo
     {
         return $this->belongsTo(DynamicContent::class);
+    }
+
+    /**
+     * Relación directa con enlaces sociales a través de DynamicContent
+     */
+    public function socialLinks(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            ContentSocialLink::class,
+            DynamicContent::class,
+            'id', // Foreign key on DynamicContent table
+            'dynamic_content_id', // Foreign key on ContentSocialLink table
+            'dynamic_content_id', // Local key on ContentProfile table
+            'id' // Local key on DynamicContent table
+        );
     }
 
     /**
