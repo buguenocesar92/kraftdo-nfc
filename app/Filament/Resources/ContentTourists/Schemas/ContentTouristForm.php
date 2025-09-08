@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ContentTourists\Schemas;
 
+use App\Models\DynamicContent;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -14,7 +15,14 @@ class ContentTouristForm
         return $schema
             ->components([
                 Select::make('dynamic_content_id')
-                    ->relationship('dynamicContent', 'title')
+                    ->relationship(
+                        name: 'dynamicContent', 
+                        titleAttribute: 'title',
+                        modifyQueryUsing: fn ($query) => $query->where('type', DynamicContent::TYPE_TOURIST)
+                    )
+                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->title} - {$record->content_id}")
+                    ->searchable()
+                    ->preload()
                     ->required(),
                 TextInput::make('location_name')
                     ->required(),
