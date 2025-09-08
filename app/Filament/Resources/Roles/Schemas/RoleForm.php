@@ -36,38 +36,89 @@ class RoleForm
                             ->label('Seleccionar Permisos')
                             ->relationship('permissions', 'name')
                             ->options(function () {
-                                $permissions = Permission::all();
-                                $grouped = [];
-                                
-                                foreach ($permissions as $permission) {
-                                    $parts = explode('_', $permission->name);
-                                    if (in_array($parts[0], ['view', 'create', 'update', 'delete'])) {
-                                        $category = implode('_', array_slice($parts, 1));
-                                    } else {
-                                        $category = 'general';
-                                    }
-                                    
-                                    $grouped[$category][$permission->name] = $permission->name;
-                                }
-                                
-                                return $grouped;
+                                return Permission::all()->pluck('name', 'name');
                             })
-                            ->descriptions([
-                                'access_admin_panel' => 'Acceder al panel de administración',
-                                'view_analytics' => 'Ver análisis y estadísticas',
-                                'manage_system_settings' => 'Gestionar configuración del sistema',
-                                'bulk_actions' => 'Realizar acciones en lote',
-                                'view_dynamic_content' => 'Ver contenido dinámico propio',
-                                'view_any_dynamic_content' => 'Ver todo el contenido dinámico',
-                                'create_dynamic_content' => 'Crear contenido dinámico',
-                                'update_dynamic_content' => 'Editar contenido dinámico',
-                                'delete_dynamic_content' => 'Eliminar contenido dinámico propio',
-                                'delete_any_dynamic_content' => 'Eliminar cualquier contenido dinámico',
-                            ])
-                            ->columns(3)
+                            ->descriptions(function () {
+                                $descriptions = [];
+                                foreach (Permission::all() as $permission) {
+                                    $name = $permission->name;
+                                    
+                                    // Descripciones específicas para cada permiso
+                                    $descriptions[$name] = match($name) {
+                                        // Sistema general
+                                        'access_admin_panel' => '🔑 Acceder al panel de administración',
+                                        'view_analytics' => '📊 Ver análisis y estadísticas del sistema',
+                                        'manage_system_settings' => '⚙️ Gestionar configuración del sistema',
+                                        'bulk_actions' => '📦 Realizar acciones masivas en registros',
+                                        
+                                        // Dynamic Content
+                                        'view_dynamic_content' => '👁️ Ver su propio contenido dinámico',
+                                        'view_any_dynamic_content' => '🌐 Ver todo el contenido dinámico del sistema',
+                                        'create_dynamic_content' => '➕ Crear nuevo contenido dinámico',
+                                        'update_dynamic_content' => '✏️ Editar contenido dinámico',
+                                        'delete_dynamic_content' => '🗑️ Eliminar su propio contenido dinámico',
+                                        'delete_any_dynamic_content' => '❌ Eliminar cualquier contenido dinámico',
+                                        
+                                        // Content Gift
+                                        'view_content_gift' => '🎁 Ver sus propios regalos',
+                                        'view_any_content_gift' => '🎁 Ver todos los regalos del sistema',
+                                        'create_content_gift' => '➕ Crear nuevos regalos',
+                                        'update_content_gift' => '✏️ Editar regalos',
+                                        'delete_content_gift' => '🗑️ Eliminar sus propios regalos',
+                                        'delete_any_content_gift' => '❌ Eliminar cualquier regalo',
+                                        
+                                        // Content Profile
+                                        'view_content_profile' => '👤 Ver sus propios perfiles',
+                                        'view_any_content_profile' => '👥 Ver todos los perfiles del sistema',
+                                        'create_content_profile' => '➕ Crear nuevos perfiles',
+                                        'update_content_profile' => '✏️ Editar perfiles',
+                                        'delete_content_profile' => '🗑️ Eliminar sus propios perfiles',
+                                        'delete_any_content_profile' => '❌ Eliminar cualquier perfil',
+                                        
+                                        // Content Menu
+                                        'view_content_menu' => '🍽️ Ver sus propios menús',
+                                        'view_any_content_menu' => '🍽️ Ver todos los menús del sistema',
+                                        'create_content_menu' => '➕ Crear nuevos menús',
+                                        'update_content_menu' => '✏️ Editar menús',
+                                        'delete_content_menu' => '🗑️ Eliminar sus propios menús',
+                                        'delete_any_content_menu' => '❌ Eliminar cualquier menú',
+                                        
+                                        // NFC Token
+                                        'view_nfc_token' => '🔖 Ver tokens NFC',
+                                        'view_any_nfc_token' => '🔖 Ver todos los tokens NFC',
+                                        'create_nfc_token' => '➕ Crear nuevos tokens NFC',
+                                        'update_nfc_token' => '✏️ Editar tokens NFC',
+                                        'delete_nfc_token' => '🗑️ Eliminar tokens NFC',
+                                        'delete_any_nfc_token' => '❌ Eliminar cualquier token NFC',
+                                        
+                                        // Usuarios
+                                        'view_user' => '👤 Ver usuarios',
+                                        'view_any_user' => '👥 Ver todos los usuarios',
+                                        'create_user' => '➕ Crear nuevos usuarios',
+                                        'update_user' => '✏️ Editar usuarios',
+                                        'delete_user' => '🗑️ Eliminar usuarios',
+                                        'delete_any_user' => '❌ Eliminar cualquier usuario',
+                                        
+                                        // Roles
+                                        'view_role' => '🛡️ Ver roles',
+                                        'view_any_role' => '🛡️ Ver todos los roles',
+                                        'create_role' => '➕ Crear nuevos roles',
+                                        'update_role' => '✏️ Editar roles',
+                                        'delete_role' => '🗑️ Eliminar roles',
+                                        'delete_any_role' => '❌ Eliminar cualquier rol',
+                                        
+                                        // Default para otros permisos
+                                        default => '📋 ' . ucfirst(str_replace('_', ' ', $name))
+                                    };
+                                }
+                                return $descriptions;
+                            })
+                            ->columns(2)
                             ->columnSpanFull()
                             ->searchable()
-                            ->bulkToggleable(),
+                            ->bulkToggleable()
+                            ->gridDirection('row')
+                            ->helperText('Selecciona los permisos que tendrá este rol. Los permisos "any" permiten acciones sobre todos los registros, mientras que los normales solo sobre los propios.'),
                     ]),
             ]);
     }
