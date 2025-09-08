@@ -11,9 +11,9 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Group;
-use Filament\Forms\Get;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Group;
 use Filament\Schemas\Schema;
 
 class DynamicContentForm
@@ -26,7 +26,7 @@ class DynamicContentForm
                     ->schema([
                         TextInput::make('content_id')
                             ->required()
-                            ->default(fn () => \Illuminate\Support\Str::uuid()),
+                            ->default(fn () => (string) \Illuminate\Support\Str::uuid()),
                         Select::make('type')
                             ->options(DynamicContent::TYPES)
                             ->required()
@@ -47,10 +47,10 @@ class DynamicContentForm
 
                 Section::make('Contenido Multimedia')
                     ->schema([
-                        TextInput::make('multimedia.video_url')
+                        TextInput::make('video_url')
                             ->label('URL del Video')
                             ->url(),
-                        Select::make('multimedia.video_type')
+                        Select::make('video_type')
                             ->label('Tipo de Video')
                             ->options([
                                 'file_upload' => 'Archivo subido',
@@ -58,10 +58,10 @@ class DynamicContentForm
                                 'vimeo' => 'Vimeo',
                                 'direct' => 'URL directa'
                             ]),
-                        TextInput::make('multimedia.audio_url')
+                        TextInput::make('audio_url')
                             ->label('URL del Audio')
                             ->url(),
-                        Select::make('multimedia.audio_type')
+                        Select::make('audio_type')
                             ->label('Tipo de Audio')
                             ->options([
                                 'file_upload' => 'Archivo subido',
@@ -70,28 +70,23 @@ class DynamicContentForm
                                 'soundcloud' => 'SoundCloud',
                                 'direct' => 'URL directa'
                             ]),
-                        Repeater::make('multimedia.gallery_images')
-                            ->label('Galería de Imágenes')
-                            ->schema([
-                                TextInput::make('url')
-                                    ->label('URL de la imagen')
-                                    ->url()
-                                    ->required(),
-                                TextInput::make('alt')
-                                    ->label('Texto alternativo'),
-                            ])
+                        Textarea::make('gallery_images')
+                            ->label('URLs de Galería (una por línea)')
+                            ->rows(4)
+                            ->helperText('Ingresa una URL por línea')
                             ->columnSpanFull(),
                     ])
+                    ->visible(fn (Get $get) => in_array($get('type'), [DynamicContent::TYPE_GIFT, DynamicContent::TYPE_MENU, DynamicContent::TYPE_PROFILE, DynamicContent::TYPE_EVENT, DynamicContent::TYPE_PRODUCT, DynamicContent::TYPE_TOURIST]))
                     ->columns(2)
                     ->collapsible(),
 
                 Section::make('Datos de Regalo')
                     ->schema([
-                        TextInput::make('gift.sender_name')
+                        TextInput::make('sender_name')
                             ->label('Nombre del remitente'),
-                        TextInput::make('gift.recipient_name')
+                        TextInput::make('recipient_name')
                             ->label('Nombre del destinatario'),
-                        Textarea::make('gift.message')
+                        Textarea::make('gift_message')
                             ->label('Mensaje')
                             ->columnSpanFull(),
                     ])
@@ -101,26 +96,18 @@ class DynamicContentForm
 
                 Section::make('Datos del Menú')
                     ->schema([
-                        TextInput::make('menu.restaurant_name')
+                        TextInput::make('restaurant_name')
                             ->label('Nombre del restaurante'),
-                        TextInput::make('menu.restaurant_phone')
+                        TextInput::make('restaurant_phone')
                             ->label('Teléfono del restaurante'),
-                        Textarea::make('menu.restaurant_address')
+                        Textarea::make('restaurant_address')
                             ->label('Dirección del restaurante'),
-                        TextInput::make('menu.restaurant_hours')
+                        TextInput::make('restaurant_hours')
                             ->label('Horarios del restaurante'),
-                        Repeater::make('menu.menu_items')
-                            ->label('Items del menú')
-                            ->schema([
-                                TextInput::make('name')
-                                    ->label('Nombre del plato')
-                                    ->required(),
-                                TextInput::make('price')
-                                    ->label('Precio')
-                                    ->numeric(),
-                                Textarea::make('description')
-                                    ->label('Descripción'),
-                            ])
+                        Textarea::make('menu_items')
+                            ->label('Items del menú (JSON)')
+                            ->rows(8)
+                            ->helperText('Formato JSON: [{"name": "Plato", "price": 15.99, "description": "Descripción"}]')
                             ->columnSpanFull(),
                     ])
                     ->visible(fn (Get $get) => $get('type') === DynamicContent::TYPE_MENU)
@@ -129,45 +116,26 @@ class DynamicContentForm
 
                 Section::make('Datos del Perfil')
                     ->schema([
-                        TextInput::make('profile.contact_email')
+                        TextInput::make('contact_email')
                             ->label('Email de contacto')
                             ->email(),
-                        TextInput::make('profile.contact_phone')
+                        TextInput::make('contact_phone')
                             ->label('Teléfono de contacto'),
-                        TextInput::make('profile.contact_website')
+                        TextInput::make('contact_website')
                             ->label('Sitio web')
                             ->url(),
-                        Textarea::make('profile.bio')
+                        Textarea::make('profile_bio')
                             ->label('Biografía')
                             ->columnSpanFull(),
-                        Repeater::make('socialLinks')
-                            ->label('Enlaces sociales')
-                            ->relationship()
-                            ->schema([
-                                TextInput::make('platform')
-                                    ->label('Plataforma')
-                                    ->required(),
-                                TextInput::make('url')
-                                    ->label('URL')
-                                    ->url()
-                                    ->required(),
-                                TextInput::make('username')
-                                    ->label('Nombre de usuario'),
-                            ])
+                        Textarea::make('social_links_json')
+                            ->label('Enlaces sociales (JSON)')
+                            ->rows(6)
+                            ->helperText('Formato JSON: [{"platform": "Instagram", "url": "https://...", "username": "@user"}]')
                             ->columnSpanFull(),
-                        Repeater::make('skills')
-                            ->label('Habilidades')
-                            ->relationship()
-                            ->schema([
-                                TextInput::make('name')
-                                    ->label('Habilidad')
-                                    ->required(),
-                                TextInput::make('level')
-                                    ->label('Nivel')
-                                    ->numeric()
-                                    ->minValue(1)
-                                    ->maxValue(10),
-                            ])
+                        Textarea::make('skills_json')
+                            ->label('Habilidades (JSON)')
+                            ->rows(6)
+                            ->helperText('Formato JSON: [{"name": "PHP", "level": 8}]')
                             ->columnSpanFull(),
                     ])
                     ->visible(fn (Get $get) => $get('type') === DynamicContent::TYPE_PROFILE)
@@ -176,26 +144,26 @@ class DynamicContentForm
 
                 Section::make('Datos del Evento')
                     ->schema([
-                        TextInput::make('event.event_location')
+                        TextInput::make('event_location')
                             ->label('Ubicación del evento'),
-                        DateTimePicker::make('event.event_start_date')
+                        DateTimePicker::make('event_start_date')
                             ->label('Fecha y hora de inicio'),
-                        DateTimePicker::make('event.event_end_date')
+                        DateTimePicker::make('event_end_date')
                             ->label('Fecha y hora de fin'),
-                        TextInput::make('event.event_organizer')
+                        TextInput::make('event_organizer')
                             ->label('Organizador del evento'),
-                        Textarea::make('event.event_description')
+                        Textarea::make('event_description')
                             ->label('Descripción del evento')
                             ->columnSpanFull(),
-                        TextInput::make('event.event_capacity')
+                        TextInput::make('event_capacity')
                             ->label('Capacidad')
                             ->numeric(),
-                        Toggle::make('event.registration_required')
+                        Toggle::make('registration_required')
                             ->label('Requiere registro'),
-                        TextInput::make('event.registration_url')
+                        TextInput::make('registration_url')
                             ->label('URL de registro')
                             ->url(),
-                        TextInput::make('event.ticket_price')
+                        TextInput::make('ticket_price')
                             ->label('Precio del boleto')
                             ->numeric()
                             ->prefix('$'),
@@ -206,11 +174,11 @@ class DynamicContentForm
 
                 Section::make('Datos del Producto')
                     ->schema([
-                        TextInput::make('product.product_price')
+                        TextInput::make('product_price')
                             ->label('Precio')
                             ->numeric()
                             ->prefix('$'),
-                        Select::make('product.product_currency')
+                        Select::make('product_currency')
                             ->label('Moneda')
                             ->options([
                                 'USD' => 'Dólares (USD)',
@@ -219,18 +187,18 @@ class DynamicContentForm
                                 'MXN' => 'Pesos mexicanos (MXN)',
                             ])
                             ->default('USD'),
-                        TextInput::make('product.product_sku')
+                        TextInput::make('product_sku')
                             ->label('SKU'),
-                        TextInput::make('product.product_stock')
+                        TextInput::make('product_stock')
                             ->label('Stock disponible')
                             ->numeric(),
-                        Textarea::make('product.product_description')
+                        Textarea::make('product_description')
                             ->label('Descripción del producto')
                             ->columnSpanFull(),
-                        TextInput::make('product.product_weight')
+                        TextInput::make('product_weight')
                             ->label('Peso (kg)')
                             ->numeric(),
-                        Select::make('product.availability_status')
+                        Select::make('availability_status')
                             ->label('Estado de disponibilidad')
                             ->options([
                                 'available' => 'Disponible',
@@ -245,32 +213,27 @@ class DynamicContentForm
 
                 Section::make('Información Turística')
                     ->schema([
-                        TextInput::make('tourist.location_name')
+                        TextInput::make('location_name')
                             ->label('Nombre del lugar'),
-                        Textarea::make('tourist.location_address')
+                        Textarea::make('location_address')
                             ->label('Dirección'),
-                        TextInput::make('tourist.contact_phone')
+                        TextInput::make('tourist_contact_phone')
                             ->label('Teléfono de contacto'),
-                        TextInput::make('tourist.contact_email')
+                        TextInput::make('tourist_contact_email')
                             ->label('Email de contacto')
                             ->email(),
-                        TextInput::make('tourist.website_url')
+                        TextInput::make('website_url')
                             ->label('Sitio web')
                             ->url(),
-                        Textarea::make('tourist.description')
+                        Textarea::make('tourist_description')
                             ->label('Descripción')
                             ->columnSpanFull(),
-                        TextInput::make('tourist.best_time_to_visit')
+                        TextInput::make('best_time_to_visit')
                             ->label('Mejor época para visitar'),
-                        Repeater::make('tourist.attractions')
-                            ->label('Atracciones principales')
-                            ->schema([
-                                TextInput::make('name')
-                                    ->label('Nombre')
-                                    ->required(),
-                                Textarea::make('description')
-                                    ->label('Descripción'),
-                            ])
+                        Textarea::make('attractions')
+                            ->label('Atracciones principales (JSON)')
+                            ->rows(6)
+                            ->helperText('Formato JSON: [{"name": "Atracción", "description": "Descripción"}]')
                             ->columnSpanFull(),
                     ])
                     ->visible(fn (Get $get) => $get('type') === DynamicContent::TYPE_TOURIST)
@@ -313,10 +276,12 @@ class DynamicContentForm
                             ->numeric()
                             ->default(0)
                             ->disabled(),
-                        Select::make('user_id')
-                            ->relationship('user', 'name'),
-                        Select::make('nfc_token_id')
-                            ->relationship('nfcToken', 'name'),
+                        TextInput::make('user_id')
+                            ->label('User ID')
+                            ->numeric(),
+                        TextInput::make('nfc_token_id')
+                            ->label('NFC Token ID')
+                            ->numeric(),
                     ])
                     ->columns(2)
                     ->collapsible()

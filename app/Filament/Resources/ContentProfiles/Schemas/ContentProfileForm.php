@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\ContentMenus\Schemas;
+namespace App\Filament\Resources\ContentProfiles\Schemas;
 
 use App\Models\DynamicContent;
 use Filament\Forms\Components\Select;
@@ -8,7 +8,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
 
-class ContentMenuForm
+class ContentProfileForm
 {
     public static function configure(Schema $schema): Schema
     {
@@ -18,18 +18,20 @@ class ContentMenuForm
                     ->relationship(
                         name: 'dynamicContent', 
                         titleAttribute: 'title',
-                        modifyQueryUsing: fn ($query) => $query->where('type', DynamicContent::TYPE_MENU)
+                        modifyQueryUsing: fn ($query) => $query->where('type', DynamicContent::TYPE_PROFILE)
                     )
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->title} - {$record->content_id}")
                     ->searchable()
                     ->preload()
                     ->required(),
-                TextInput::make('restaurant_name'),
-                TextInput::make('restaurant_phone')
+                TextInput::make('contact_email')
+                    ->email(),
+                TextInput::make('contact_phone')
                     ->tel(),
-                Textarea::make('restaurant_address')
+                TextInput::make('contact_website')
+                    ->url(),
+                Textarea::make('bio')
                     ->columnSpanFull(),
-                TextInput::make('restaurant_hours'),
             ]);
     }
 }

@@ -19,6 +19,16 @@ class ContentMenuResource extends Resource
     protected static ?string $model = ContentMenu::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Contenido Especializado';
+    }
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Restaurantes';
+    }
 
     public static function form(Schema $schema): Schema
     {

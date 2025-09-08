@@ -19,6 +19,16 @@ class ContentTouristResource extends Resource
     protected static ?string $model = ContentTourist::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Contenido Especializado';
+    }
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Lugares Turísticos';
+    }
 
     public static function form(Schema $schema): Schema
     {

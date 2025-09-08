@@ -19,6 +19,16 @@ class ContentGiftResource extends Resource
     protected static ?string $model = ContentGift::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Contenido Especializado';
+    }
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Regalos';
+    }
 
     public static function form(Schema $schema): Schema
     {

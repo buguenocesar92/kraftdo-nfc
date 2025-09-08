@@ -5,7 +5,7 @@ namespace App\Filament\Resources\DynamicContents;
 use App\Filament\Resources\DynamicContents\Pages\CreateDynamicContent;
 use App\Filament\Resources\DynamicContents\Pages\EditDynamicContent;
 use App\Filament\Resources\DynamicContents\Pages\ListDynamicContents;
-use App\Filament\Resources\DynamicContents\Schemas\DynamicContentForm;
+use App\Filament\Resources\DynamicContents\Schemas\DynamicContentFormSimple;
 use App\Filament\Resources\DynamicContents\Tables\DynamicContentsTable;
 use App\Models\DynamicContent;
 use BackedEnum;
@@ -19,10 +19,25 @@ class DynamicContentResource extends Resource
     protected static ?string $model = DynamicContent::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Contenido Principal';
+    }
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Contenido Dinámico';
+    }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
 
     public static function form(Schema $schema): Schema
     {
-        return DynamicContentForm::configure($schema);
+        return DynamicContentFormSimple::configure($schema);
     }
 
     public static function table(Table $table): Table
