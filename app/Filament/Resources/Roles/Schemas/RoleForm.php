@@ -36,15 +36,16 @@ class RoleForm
                             ->label('Seleccionar Permisos')
                             ->relationship('permissions', 'name')
                             ->options(function () {
-                                return Permission::all()->pluck('name', 'name');
+                                return Permission::all()->pluck('name', 'id');
                             })
+                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
                             ->descriptions(function () {
                                 $descriptions = [];
                                 foreach (Permission::all() as $permission) {
                                     $name = $permission->name;
                                     
                                     // Descripciones específicas para cada permiso
-                                    $descriptions[$name] = match($name) {
+                                    $descriptions[$permission->id] = match($name) {
                                         // Sistema general
                                         'access_admin_panel' => '🔑 Acceder al panel de administración',
                                         'view_analytics' => '📊 Ver análisis y estadísticas del sistema',
