@@ -18,7 +18,7 @@ class ContentGiftResource extends Resource
 {
     protected static ?string $model = ContentGift::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedGift;
     
     public static function getNavigationGroup(): ?string
     {
@@ -28,6 +28,36 @@ class ContentGiftResource extends Resource
     public static function getNavigationLabel(): string
     {
         return 'Regalos';
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('view_any_content_gift') || auth()->user()->can('view_content_gift');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('create_content_gift');
+    }
+
+    public static function canView($record): bool
+    {
+        return auth()->user()->can('view_content_gift', $record) || auth()->user()->can('view_any_content_gift');
+    }
+
+    public static function canEdit($record): bool
+    {
+        return auth()->user()->can('update_content_gift', $record);
+    }
+
+    public static function canDelete($record): bool
+    {
+        return auth()->user()->can('delete_content_gift', $record) || auth()->user()->can('delete_any_content_gift');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->can('delete_any_content_gift');
     }
 
     public static function form(Schema $schema): Schema
