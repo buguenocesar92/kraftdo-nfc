@@ -37,7 +37,8 @@ class ContentMenuResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ContentMenusTable::configure($table);
+        return ContentMenusTable::configure($table)
+            ->modifyQueryUsing(fn ($query) => $query->with(['dynamicContent']));
     }
 
     public static function getRelations(): array

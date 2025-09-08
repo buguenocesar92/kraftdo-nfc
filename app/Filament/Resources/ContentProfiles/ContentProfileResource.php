@@ -37,7 +37,8 @@ class ContentProfileResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ContentProfilesTable::configure($table);
+        return ContentProfilesTable::configure($table)
+            ->modifyQueryUsing(fn ($query) => $query->with(['dynamicContent']));
     }
 
     public static function getRelations(): array

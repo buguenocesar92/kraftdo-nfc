@@ -37,7 +37,8 @@ class ContentTouristResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ContentTouristsTable::configure($table);
+        return ContentTouristsTable::configure($table)
+            ->modifyQueryUsing(fn ($query) => $query->with(['dynamicContent']));
     }
 
     public static function getRelations(): array

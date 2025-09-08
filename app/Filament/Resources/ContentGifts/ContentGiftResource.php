@@ -37,7 +37,8 @@ class ContentGiftResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ContentGiftsTable::configure($table);
+        return ContentGiftsTable::configure($table)
+            ->modifyQueryUsing(fn ($query) => $query->with(['dynamicContent']));
     }
 
     public static function getRelations(): array

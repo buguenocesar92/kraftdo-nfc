@@ -37,7 +37,8 @@ class ContentEventResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ContentEventsTable::configure($table);
+        return ContentEventsTable::configure($table)
+            ->modifyQueryUsing(fn ($query) => $query->with(['dynamicContent']));
     }
 
     public static function getRelations(): array

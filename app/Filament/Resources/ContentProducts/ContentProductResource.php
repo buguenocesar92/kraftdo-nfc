@@ -37,7 +37,8 @@ class ContentProductResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return ContentProductsTable::configure($table);
+        return ContentProductsTable::configure($table)
+            ->modifyQueryUsing(fn ($query) => $query->with(['dynamicContent']));
     }
 
     public static function getRelations(): array
