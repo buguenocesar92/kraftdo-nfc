@@ -33,7 +33,7 @@ class DynamicContentResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            // Relaciones con las tablas normalizadas se manejan en el formulario principal
         ];
     }
 

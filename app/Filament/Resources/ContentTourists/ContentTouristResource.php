@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Filament\Resources\ContentTourists;
+
+use App\Filament\Resources\ContentTourists\Pages\CreateContentTourist;
+use App\Filament\Resources\ContentTourists\Pages\EditContentTourist;
+use App\Filament\Resources\ContentTourists\Pages\ListContentTourists;
+use App\Filament\Resources\ContentTourists\Schemas\ContentTouristForm;
+use App\Filament\Resources\ContentTourists\Tables\ContentTouristsTable;
+use App\Models\ContentTourist;
+use BackedEnum;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Table;
+
+class ContentTouristResource extends Resource
+{
+    protected static ?string $model = ContentTourist::class;
+
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+
+    public static function form(Schema $schema): Schema
+    {
+        return ContentTouristForm::configure($schema);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return ContentTouristsTable::configure($table);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => ListContentTourists::route('/'),
+            'create' => CreateContentTourist::route('/create'),
+            'edit' => EditContentTourist::route('/{record}/edit'),
+        ];
+    }
+}

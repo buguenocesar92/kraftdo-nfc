@@ -184,17 +184,55 @@ class NfcContentController extends Controller
         
         switch ($content->type) {
             case DynamicContent::TYPE_GIFT:
-                // Extraer datos multimedia para gifts
-                $multimedia = $content->data['multimedia'] ?? [];
-                $data['multimedia'] = $multimedia;
+                // Usar tablas normalizadas con fallback a campos temporales
+                $multimedia = $content->multimedia;
+                $gift = $content->gift;
+                
+                if ($multimedia) {
+                    // Usar datos de tabla normalizada
+                    $multimediaData = [
+                        'video' => $multimedia->video_config,
+                        'audio' => $multimedia->audio_config,
+                        'gallery' => $multimedia->gallery_images ?? [],
+                        'design' => $multimedia->settings['design'] ?? $content->data['multimedia']['design'] ?? []
+                    ];
+                } else {
+                    // Fallback a campos temporales para retrocompatibilidad
+                    $multimediaData = [
+                        'video' => array_merge(
+                            ['url' => $content->video_url, 'type' => $content->video_type],
+                            $content->data['multimedia']['video'] ?? []
+                        ),
+                        'audio' => array_merge(
+                            ['url' => $content->audio_url, 'type' => $content->audio_type],
+                            $content->data['multimedia']['audio'] ?? []
+                        ),
+                        'gallery' => $content->gallery_images ?? $content->data['multimedia']['gallery'] ?? [],
+                        'design' => $content->data['multimedia']['design'] ?? []
+                    ];
+                }
+                
+                $data['multimedia'] = $multimediaData;
                 $data['theme'] = $this->getGiftTheme($content);
                 $data['currentSubtype'] = DynamicContent::getGiftSubtypes()[$content->gift_subtype] ?? [];
                 
-                // Configuración JavaScript para multimedia
+                // Datos de regalo
+                if ($gift) {
+                    $data['sender_name'] = $gift->sender_name;
+                    $data['recipient_name'] = $gift->recipient_name;
+                    $data['message'] = $gift->message;
+                } else {
+                    // Fallback
+                    $data['sender_name'] = $content->sender_name ?? $content->data['from'] ?? null;
+                    $data['recipient_name'] = $content->recipient_name ?? $content->data['to'] ?? null;
+                    $data['message'] = $content->message ?? $content->data['love_message'] ?? null;
+                }
+                
+                // Configuración JavaScript
                 $data['jsConfig'] = [
-                    'audio' => $multimedia['audio'] ?? [],
-                    'video' => $multimedia['video'] ?? [],
-                    'gallery' => $multimedia['gallery'] ?? [],
+                    'audio' => $multimediaData['audio'],
+                    'video' => $multimediaData['video'],
+                    'gallery' => $multimediaData['gallery'],
                     'theme' => [
                         'primary_gradient' => 'from-pink-600 to-purple-600',
                         'accent_color' => 'text-pink-600'
@@ -203,17 +241,70 @@ class NfcContentController extends Controller
                 break;
                 
             case DynamicContent::TYPE_MENU:
-                // Datos para menús de restaurantes
-                $data['restaurant_info'] = $content->data['restaurant_info'] ?? [];
-                $data['menu_items'] = $content->data['menu_items'] ?? [];
+                // Usar tabla normalizada
+                $menu = $content->menu;
+                if ($menu) {
+                    $data['restaurant_info'] = $menu->restaurant_info;
+                    $data['menu_items'] = $menu->menuItems->map(function ($item) {
+                        return [
+                            'name' => $item->name,
+                            'description' => $item->description,
+                            'price' => $item->price,
+                            'currency' => $item->currency,
+                            'category' => $item->category,
+                            'image' => $item->image_url,
+                            'available' => $item->available,
+                        ];
+                    })->toArray();
+                } else {
+                    // Fallback
+                    $data['restaurant_info'] = [
+                        'phone' => $content->restaurant_phone,
+                        'address' => $content->restaurant_address,
+                        'hours' => $content->restaurant_hours,
+                    ];
+                    $data['menu_items'] = $content->menu_items ?? $content->data['menu_items'] ?? [];
+                }
                 break;
                 
             case DynamicContent::TYPE_PROFILE:
-                // Datos para perfiles
-                $data['contact_info'] = $content->data['contact_info'] ?? [];
-                $data['social_links'] = $content->data['social_links'] ?? [];
-                $data['skills'] = $content->data['skills'] ?? [];
-                $data['bio'] = $content->data['bio'] ?? '';
+                // Usar tabla normalizada
+                $profile = $content->profile;
+                if ($profile) {
+                    $data['contact_info'] = $profile->contact_info;
+                    $data['bio'] = $profile->bio;
+                } else {
+                    // Fallback
+                    $data['contact_info'] = [
+                        'email' => $content->contact_email,
+                        'phone' => $content->contact_phone,
+                        'website' => $content->contact_website,
+                    ];
+                    $data['bio'] = $content->bio ?? $content->data['bio'] ?? '';
+                }
+                
+                // Enlaces sociales
+                $data['social_links'] = $content->socialLinks->ordered()->map(function ($link) {
+                    return [
+                        'platform' => $link->platform,
+                        'url' => $link->url,
+                        'username' => $link->username,
+                        'icon' => $link->platform_icon,
+                        'color' => $link->platform_color,
+                    ];
+                })->toArray();
+                
+                // Habilidades agrupadas por categoría
+                $data['skills'] = $content->skills->ordered()->groupBy('category')->map(function ($skills) {
+                    return $skills->map(function ($skill) {
+                        return [
+                            'name' => $skill->name,
+                            'level' => $skill->level,
+                            'level_percentage' => $skill->level_percentage,
+                            'level_description' => $skill->level_description,
+                        ];
+                    });
+                })->toArray();
                 break;
         }
         

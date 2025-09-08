@@ -30,6 +30,15 @@ class DynamicContent extends Model
         'published_snapshot',
         'user_id',
         'nfc_token_id',
+        
+        // Referencias a tablas especializadas
+        'multimedia_id',
+        'gift_id',
+        'menu_id',
+        'profile_id',
+        'event_id',
+        'product_id',
+        'tourist_id',
     ];
 
     protected $casts = [
@@ -71,6 +80,230 @@ class DynamicContent extends Model
     public function nfcToken(): BelongsTo
     {
         return $this->belongsTo(NfcToken::class);
+    }
+
+    // ========================================
+    // RELACIONES CON TABLAS NORMALIZADAS
+    // ========================================
+
+    /**
+     * Relación con contenido multimedia
+     */
+    public function multimedia()
+    {
+        return $this->hasOne(ContentMultimedia::class);
+    }
+
+    /**
+     * Relación con contenido gift
+     */
+    public function gift()
+    {
+        return $this->hasOne(ContentGift::class);
+    }
+
+    /**
+     * Relación con contenido menu
+     */
+    public function menu()
+    {
+        return $this->hasOne(ContentMenu::class);
+    }
+
+    /**
+     * Relación con contenido profile
+     */
+    public function profile()
+    {
+        return $this->hasOne(ContentProfile::class);
+    }
+
+    /**
+     * Relación con enlaces sociales
+     */
+    public function socialLinks()
+    {
+        return $this->hasMany(ContentSocialLink::class);
+    }
+
+    /**
+     * Relación con habilidades
+     */
+    public function skills()
+    {
+        return $this->hasMany(ContentSkill::class);
+    }
+
+    /**
+     * Relación con contenido event
+     */
+    public function event()
+    {
+        return $this->hasOne(ContentEvent::class);
+    }
+
+    /**
+     * Relación con contenido product
+     */
+    public function product()
+    {
+        return $this->hasOne(ContentProduct::class);
+    }
+
+    /**
+     * Relación con contenido tourist
+     */
+    public function tourist()
+    {
+        return $this->hasOne(ContentTourist::class);
+    }
+
+    // ========================================
+    // MÉTODOS PARA SINCRONIZACIÓN DE REFERENCIAS
+    // ========================================
+
+    /**
+     * Sincronizar referencias después de crear contenido especializado
+     */
+    public function syncReferences(): void
+    {
+        $updates = [];
+        
+        // Multimedia
+        if ($this->multimedia) {
+            $updates['multimedia_id'] = $this->multimedia->id;
+        }
+        
+        // Tipo específico
+        switch ($this->type) {
+            case self::TYPE_GIFT:
+                if ($this->gift) $updates['gift_id'] = $this->gift->id;
+                break;
+            case self::TYPE_MENU:
+                if ($this->menu) $updates['menu_id'] = $this->menu->id;
+                break;
+            case self::TYPE_PROFILE:
+                if ($this->profile) $updates['profile_id'] = $this->profile->id;
+                break;
+            case self::TYPE_EVENT:
+                if ($this->event) $updates['event_id'] = $this->event->id;
+                break;
+            case self::TYPE_PRODUCT:
+                if ($this->product) $updates['product_id'] = $this->product->id;
+                break;
+            case self::TYPE_TOURIST:
+                if ($this->tourist) $updates['tourist_id'] = $this->tourist->id;
+                break;
+        }
+        
+        if (!empty($updates)) {
+            $this->update($updates);
+        }
+    }
+
+    /**
+     * Crear o actualizar contenido multimedia
+     */
+    public function createOrUpdateMultimedia(array $data): ContentMultimedia
+    {
+        $multimedia = $this->multimedia ?? new ContentMultimedia(['dynamic_content_id' => $this->id]);
+        $multimedia->fill($data);
+        $multimedia->save();
+        
+        // Sincronizar referencia
+        $this->update(['multimedia_id' => $multimedia->id]);
+        
+        return $multimedia;
+    }
+
+    /**
+     * Crear o actualizar contenido gift
+     */
+    public function createOrUpdateGift(array $data): ContentGift
+    {
+        $gift = $this->gift ?? new ContentGift(['dynamic_content_id' => $this->id]);
+        $gift->fill($data);
+        $gift->save();
+        
+        // Sincronizar referencia
+        $this->update(['gift_id' => $gift->id]);
+        
+        return $gift;
+    }
+
+    /**
+     * Crear o actualizar contenido menu
+     */
+    public function createOrUpdateMenu(array $data): ContentMenu
+    {
+        $menu = $this->menu ?? new ContentMenu(['dynamic_content_id' => $this->id]);
+        $menu->fill($data);
+        $menu->save();
+        
+        // Sincronizar referencia
+        $this->update(['menu_id' => $menu->id]);
+        
+        return $menu;
+    }
+
+    /**
+     * Crear o actualizar contenido profile
+     */
+    public function createOrUpdateProfile(array $data): ContentProfile
+    {
+        $profile = $this->profile ?? new ContentProfile(['dynamic_content_id' => $this->id]);
+        $profile->fill($data);
+        $profile->save();
+        
+        // Sincronizar referencia
+        $this->update(['profile_id' => $profile->id]);
+        
+        return $profile;
+    }
+
+    /**
+     * Crear o actualizar contenido event
+     */
+    public function createOrUpdateEvent(array $data): ContentEvent
+    {
+        $event = $this->event ?? new ContentEvent(['dynamic_content_id' => $this->id]);
+        $event->fill($data);
+        $event->save();
+        
+        // Sincronizar referencia
+        $this->update(['event_id' => $event->id]);
+        
+        return $event;
+    }
+
+    /**
+     * Crear o actualizar contenido product
+     */
+    public function createOrUpdateProduct(array $data): ContentProduct
+    {
+        $product = $this->product ?? new ContentProduct(['dynamic_content_id' => $this->id]);
+        $product->fill($data);
+        $product->save();
+        
+        // Sincronizar referencia
+        $this->update(['product_id' => $product->id]);
+        
+        return $product;
+    }
+
+    /**
+     * Crear o actualizar contenido tourist
+     */
+    public function createOrUpdateTourist(array $data): ContentTourist
+    {
+        $tourist = $this->tourist ?? new ContentTourist(['dynamic_content_id' => $this->id]);
+        $tourist->fill($data);
+        $tourist->save();
+        
+        // Sincronizar referencia
+        $this->update(['tourist_id' => $tourist->id]);
+        
+        return $tourist;
     }
 
     // ========================================
@@ -249,7 +482,8 @@ class DynamicContent extends Model
             return collect([]);
         }
 
-        $items = $this->data['menu_items'] ?? [];
+        // Usar datos normalizados o fallback a JSON para retrocompatibilidad
+        $items = $this->menu?->menu_items ?? $this->data['menu_items'] ?? [];
         
         return collect($items)->map(function ($item, $index) {
             return (object) array_merge($item, [
@@ -260,6 +494,51 @@ class DynamicContent extends Model
                 'updated_at' => $this->updated_at,
             ]);
         });
+    }
+
+    /**
+     * Obtener datos de multimedia con retrocompatibilidad
+     */
+    public function getMultimediaDataAttribute()
+    {
+        $multimedia = $this->multimedia;
+        
+        return [
+            'video' => array_merge(
+                ['url' => $multimedia?->video_url, 'type' => $multimedia?->video_type],
+                $this->data['multimedia']['video'] ?? []
+            ),
+            'audio' => array_merge(
+                ['url' => $multimedia?->audio_url, 'type' => $multimedia?->audio_type],
+                $this->data['multimedia']['audio'] ?? []
+            ),
+            'gallery' => $multimedia?->gallery_images ?? $this->data['multimedia']['gallery'] ?? [],
+            'design' => $this->data['multimedia']['design'] ?? []
+        ];
+    }
+
+    /**
+     * Obtener nombre del remitente con retrocompatibilidad
+     */
+    public function getSenderDisplayNameAttribute()
+    {
+        return $this->gift?->sender_name ?? $this->data['from'] ?? null;
+    }
+
+    /**
+     * Obtener nombre del destinatario con retrocompatibilidad
+     */
+    public function getRecipientDisplayNameAttribute()
+    {
+        return $this->gift?->recipient_name ?? $this->data['to'] ?? null;
+    }
+
+    /**
+     * Obtener mensaje con retrocompatibilidad
+     */
+    public function getDisplayMessageAttribute()
+    {
+        return $this->gift?->message ?? $this->data['love_message'] ?? $this->data['gift_message'] ?? null;
     }
 
     // ========================================

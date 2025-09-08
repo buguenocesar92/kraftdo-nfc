@@ -15,6 +15,7 @@ class DynamicContentsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn ($query) => $query->with(['multimedia', 'gift', 'menu', 'profile', 'event', 'product', 'tourist', 'socialLinks', 'skills']))
             ->columns([
                 TextColumn::make('content_id')
                     ->searchable(),
@@ -29,29 +30,68 @@ class DynamicContentsTable
                 TextColumn::make('data')
                     ->label('Resumen de Datos')
                     ->formatStateUsing(function ($state, $record) {
-                        if (!is_array($state)) return $state;
-                        
                         $summary = [];
                         
-                        // Mostrar información relevante según el tipo
+                        // Mostrar información relevante según el tipo usando tablas normalizadas
                         switch ($record->type) {
                             case 'GIFT':
-                                if (isset($state['from'])) $summary[] = "De: {$state['from']}";
-                                if (isset($state['to'])) $summary[] = "Para: {$state['to']}";
-                                if (isset($state['multimedia']['gallery'])) $summary[] = count($state['multimedia']['gallery']) . " fotos";
-                                if (isset($state['multimedia']['video'])) $summary[] = "Video";
-                                if (isset($state['multimedia']['audio'])) $summary[] = "Audio: " . $state['multimedia']['audio']['type'];
+                                if ($record->gift) {
+                                    if ($record->gift->sender_name) $summary[] = "De: {$record->gift->sender_name}";
+                                    if ($record->gift->recipient_name) $summary[] = "Para: {$record->gift->recipient_name}";
+                                }
+                                if ($record->multimedia) {
+                                    if ($record->multimedia->gallery_images) $summary[] = count($record->multimedia->gallery_images) . " fotos";
+                                    if ($record->multimedia->video_url) $summary[] = "Video";
+                                    if ($record->multimedia->audio_url) $summary[] = "Audio: " . $record->multimedia->audio_type;
+                                }
                                 break;
                                 
                             case 'MENU':
-                                if (isset($state['restaurant_info']['phone'])) $summary[] = "Tel: {$state['restaurant_info']['phone']}";
-                                if (isset($state['menu_items'])) $summary[] = count($state['menu_items']) . " platos";
+                                if ($record->menu) {
+                                    if ($record->menu->restaurant_phone) $summary[] = "Tel: {$record->menu->restaurant_phone}";
+                                    if ($record->menu->menu_items) $summary[] = count($record->menu->menu_items) . " platos";
+                                }
                                 break;
                                 
                             case 'PROFILE':
-                                if (isset($state['contact_info']['email'])) $summary[] = "Email: {$state['contact_info']['email']}";
-                                if (isset($state['social_links'])) $summary[] = count($state['social_links']) . " redes";
+                                if ($record->profile) {
+                                    if ($record->profile->contact_email) $summary[] = "Email: {$record->profile->contact_email}";
+                                }
+                                if ($record->socialLinks) {
+                                    $summary[] = $record->socialLinks->count() . " redes";
+                                }
                                 break;
+                                
+                            case 'EVENT':
+                                if ($record->event) {
+                                    if ($record->event->event_location) $summary[] = "Lugar: {$record->event->event_location}";
+                                    if ($record->event->event_start_date) $summary[] = "Fecha: {$record->event->event_start_date->format('d/m/Y')}";
+                                    if ($record->event->event_organizer) $summary[] = "Org: {$record->event->event_organizer}";
+                                }
+                                break;
+                                
+                            case 'PRODUCT':
+                                if ($record->product) {
+                                    if ($record->product->product_price) $summary[] = "Precio: {$record->product->getFormattedPrice()}";
+                                    if ($record->product->product_stock) $summary[] = "Stock: {$record->product->product_stock}";
+                                    if ($record->product->product_sku) $summary[] = "SKU: {$record->product->product_sku}";
+                                }
+                                break;
+                                
+                            case 'TOURIST':
+                                if ($record->tourist) {
+                                    if ($record->tourist->location_name) $summary[] = "Lugar: {$record->tourist->location_name}";
+                                    if ($record->tourist->contact_phone) $summary[] = "Tel: {$record->tourist->contact_phone}";
+                                    if ($record->tourist->website_url) $summary[] = "Web";
+                                }
+                                break;
+                        }
+                        
+                        // Fallback a JSON para retrocompatibilidad
+                        if (empty($summary) && is_array($state)) {
+                            if (isset($state['from'])) $summary[] = "De: {$state['from']}";
+                            if (isset($state['to'])) $summary[] = "Para: {$state['to']}";
+                            if (isset($state['multimedia']['gallery'])) $summary[] = count($state['multimedia']['gallery']) . " fotos";
                         }
                         
                         return empty($summary) ? 'Datos disponibles' : implode(" | ", $summary);
@@ -83,6 +123,30 @@ class DynamicContentsTable
                     ->searchable(),
                 TextColumn::make('nfcToken.name')
                     ->searchable(),
+                TextColumn::make('gift.sender_name')
+                    ->label('De (Gift)')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                TextColumn::make('gift.recipient_name')
+                    ->label('Para (Gift)')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                TextColumn::make('menu.restaurant_name')
+                    ->label('Restaurante')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                TextColumn::make('profile.contact_email')
+                    ->label('Email (Profile)')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+                TextColumn::make('multimedia.video_url')
+                    ->label('Video')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->limit(30),
+                TextColumn::make('multimedia.audio_url')
+                    ->label('Audio')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->limit(30),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
