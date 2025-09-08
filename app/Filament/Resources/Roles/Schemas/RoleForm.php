@@ -34,11 +34,9 @@ class RoleForm
                     ->schema([
                         CheckboxList::make('permissions')
                             ->label('Seleccionar Permisos')
-                            ->relationship('permissions', 'name')
                             ->options(function () {
                                 return Permission::all()->pluck('name', 'id');
                             })
-                            ->getOptionLabelFromRecordUsing(fn ($record) => $record->name)
                             ->descriptions(function () {
                                 $descriptions = [];
                                 foreach (Permission::all() as $permission) {

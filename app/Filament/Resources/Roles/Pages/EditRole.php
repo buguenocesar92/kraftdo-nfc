@@ -22,17 +22,19 @@ class EditRole extends EditRecord
         // Load the permissions relationship
         $this->record->load('permissions');
         
-        // Set the permissions as an array of IDs
+        // Set the permissions as an array of IDs for the CheckboxList
         $data['permissions'] = $this->record->permissions->pluck('id')->toArray();
+        
         
         return $data;
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Remove permissions from data as they're handled by relationship
+        // Store permissions data for later processing
         $this->permissionsData = $data['permissions'] ?? [];
         unset($data['permissions']);
+        
         
         return $data;
     }
@@ -47,7 +49,13 @@ class EditRole extends EditRecord
                 ->toArray();
             
             $this->record->syncPermissions($permissionNames);
+            $this->record->load('permissions');
         }
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 
     private $permissionsData = [];
