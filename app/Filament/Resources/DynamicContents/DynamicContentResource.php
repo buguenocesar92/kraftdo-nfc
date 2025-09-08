@@ -20,6 +20,8 @@ class DynamicContentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
     
+    protected static bool $shouldRegisterNavigation = false;
+    
     public static function getNavigationGroup(): ?string
     {
         return 'Contenido Principal';

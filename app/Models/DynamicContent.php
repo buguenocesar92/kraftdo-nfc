@@ -49,22 +49,72 @@ class DynamicContent extends Model
         'published_snapshot' => 'array',
     ];
 
-    // Constantes para tipos de contenido
+    // Constantes para tipos de contenido existentes
     public const TYPE_MENU = 'MENU';
     public const TYPE_GIFT = 'GIFT';
     public const TYPE_TOURIST = 'TOURIST';
     public const TYPE_PROFILE = 'PROFILE';
     public const TYPE_EVENT = 'EVENT';
     public const TYPE_PRODUCT = 'PRODUCT';
+    
+    // Constantes para futuros tipos de contenido
+    public const TYPE_BUSINESS = 'BUSINESS';
+    public const TYPE_PORTFOLIO = 'PORTFOLIO';
+    public const TYPE_CONTACT = 'CONTACT';
+    public const TYPE_MULTIMEDIA = 'MULTIMEDIA';
+    public const TYPE_SOCIAL = 'SOCIAL';
+    public const TYPE_REVIEW = 'REVIEW';
+    public const TYPE_CUSTOM = 'CUSTOM';
 
     public const TYPES = [
-        self::TYPE_MENU => 'Menú de Restaurante',
-        self::TYPE_GIFT => 'Regalo Personalizado',
-        self::TYPE_TOURIST => 'Información Turística',
-        self::TYPE_PROFILE => 'Perfil Personal',
-        self::TYPE_EVENT => 'Evento',
-        self::TYPE_PRODUCT => 'Producto',
+        // Tipos activos (con recursos especializados)
+        self::TYPE_GIFT => '🎁 Regalo Personalizado',
+        self::TYPE_PROFILE => '👤 Perfil Personal',
+        self::TYPE_MENU => '🍽️ Menú de Restaurante',
+        self::TYPE_EVENT => '📅 Evento',
+        self::TYPE_PRODUCT => '📦 Producto',
+        self::TYPE_TOURIST => '🗺️ Información Turística',
+        
+        // Tipos futuros (listos para implementar)
+        self::TYPE_BUSINESS => '🏢 Tarjeta de Negocio',
+        self::TYPE_PORTFOLIO => '🎨 Portafolio Creativo',
+        self::TYPE_CONTACT => '📞 Información de Contacto',
+        self::TYPE_MULTIMEDIA => '📱 Contenido Multimedia',
+        self::TYPE_SOCIAL => '🌐 Redes Sociales',
+        self::TYPE_REVIEW => '⭐ Reseñas y Testimonios',
+        self::TYPE_CUSTOM => '⚙️ Contenido Personalizado',
     ];
+
+    /**
+     * Obtener solo los tipos que tienen recursos especializados implementados
+     */
+    public static function getActiveTypes(): array
+    {
+        return [
+            self::TYPE_GIFT => self::TYPES[self::TYPE_GIFT],
+            self::TYPE_PROFILE => self::TYPES[self::TYPE_PROFILE],
+            self::TYPE_MENU => self::TYPES[self::TYPE_MENU],
+            self::TYPE_EVENT => self::TYPES[self::TYPE_EVENT],
+            self::TYPE_PRODUCT => self::TYPES[self::TYPE_PRODUCT],
+            self::TYPE_TOURIST => self::TYPES[self::TYPE_TOURIST],
+        ];
+    }
+
+    /**
+     * Obtener tipos futuros que están listos para implementar
+     */
+    public static function getFutureTypes(): array
+    {
+        return [
+            self::TYPE_BUSINESS => self::TYPES[self::TYPE_BUSINESS],
+            self::TYPE_PORTFOLIO => self::TYPES[self::TYPE_PORTFOLIO],
+            self::TYPE_CONTACT => self::TYPES[self::TYPE_CONTACT],
+            self::TYPE_MULTIMEDIA => self::TYPES[self::TYPE_MULTIMEDIA],
+            self::TYPE_SOCIAL => self::TYPES[self::TYPE_SOCIAL],
+            self::TYPE_REVIEW => self::TYPES[self::TYPE_REVIEW],
+            self::TYPE_CUSTOM => self::TYPES[self::TYPE_CUSTOM],
+        ];
+    }
 
     /**
      * Relación con el usuario propietario del contenido

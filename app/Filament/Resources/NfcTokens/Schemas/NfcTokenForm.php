@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\NfcTokens\Schemas;
 
+use App\Models\DynamicContent;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -23,7 +24,12 @@ class NfcTokenForm
                 Select::make('user_id')
                     ->relationship('user', 'name'),
                 TextInput::make('name'),
-                TextInput::make('content_type'),
+                Select::make('content_type')
+                    ->label('Tipo de Contenido')
+                    ->options(DynamicContent::getActiveTypes())
+                    ->required()
+                    ->searchable()
+                    ->helperText('Solo se muestran tipos con recursos especializados implementados'),
                 TextInput::make('customization_plan')
                     ->required()
                     ->default('BASIC'),
