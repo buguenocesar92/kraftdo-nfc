@@ -32,7 +32,7 @@ class MyTokens extends Page implements HasForms, HasActions
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $slug = 'my-tokens/{tokenId}';
+    protected static ?string $slug = 'my-tokens/{tokenId}/configure';
 
     protected static bool $shouldRegisterNavigation = false;
 
