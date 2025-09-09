@@ -45,6 +45,78 @@ class NfcContentController extends Controller
     }
 
     /**
+     * Mostrar contenido NFC por ID usando formato limpio /nfc/{id}
+     * Detecta automáticamente si es content_id o token_id
+     */
+    public function showById(string $id): View|Response|RedirectResponse
+    {
+        // Primero intentar como content_id (UUID formato completo)
+        if (preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/', $id)) {
+            $content = DynamicContent::findActiveByContentId($id);
+            
+            if ($content) {
+                // Registrar el acceso en analytics
+                NfcAnalytic::recordAccess(
+                    $id,
+                    $content->type,
+                    $content->nfc_token_id
+                );
+
+                // Seleccionar vista según el tipo de contenido
+                $viewName = $this->getViewForContentType($content->type);
+                
+                // Preparar datos adicionales según el tipo de contenido
+                $additionalData = $this->prepareViewData($content);
+                
+                return view($viewName, array_merge(compact('content'), $additionalData));
+            }
+        }
+        
+        // Intentar como token_id
+        $token = NfcToken::findActiveByTokenId($id);
+        
+        if ($token && $token->hasContent()) {
+            $content = $token->dynamicContent;
+            
+            if ($content->isPubliclyAccessible()) {
+                // Registrar el acceso en analytics
+                NfcAnalytic::recordAccess(
+                    $content->content_id,
+                    $content->type,
+                    $token->id
+                );
+
+                // Actualizar último uso del token
+                $token->updateLastUsed();
+
+                // Seleccionar vista según el tipo de contenido
+                $viewName = $this->getViewForContentType($content->type);
+                
+                // Preparar datos adicionales según el tipo de contenido
+                $additionalData = $this->prepareViewData($content);
+                
+                return view($viewName, array_merge(compact('content', 'token'), $additionalData));
+            }
+        }
+        
+        // Si llegamos aquí, buscar si existe un token sin contenido para onboarding
+        $token = NfcToken::where('token_id', $id)->first();
+        
+        if ($token && !$token->user_id) {
+            // Chip existe pero no está asignado - mostrar onboarding
+            return $this->showOnboarding($token->content_type, $id);
+        }
+        
+        if ($token && !$token->hasContent()) {
+            // Chip asignado pero sin contenido
+            return $this->showContentNotAvailable($token->content_type, $id, $token, 'Contenido no configurado');
+        }
+        
+        // No encontrado
+        abort(404, 'Contenido no encontrado');
+    }
+
+    /**
      * RETROCOMPATIBILIDAD: Manejar formato antiguo /nfc?TYPE=X&ID=uuid
      * Incluye sistema de onboarding para chips sin configurar
      */
@@ -53,9 +125,9 @@ class NfcContentController extends Controller
         $type = strtoupper($request->get('TYPE', ''));
         $id = $request->get('ID', '');
         
-        if (!$type || !$id) {
+        if (!$id) {
             return view('nfc.error', [
-                'message' => 'URL inválida. Faltan parámetros TYPE o ID.',
+                'message' => 'URL inválida. Falta el parámetro ID.',
                 'suggestions' => [
                     'Verifica que la URL esté completa',
                     'Asegúrate de escanear el chip correctamente',
@@ -64,13 +136,33 @@ class NfcContentController extends Controller
             ]);
         }
         
-        // Buscar token NFC primero
-        $token = NfcToken::where('token_id', $id)
-                        ->where('content_type', $type)
-                        ->first();
+        // Buscar token NFC - primero con TYPE si se proporciona, sino solo por ID
+        $token = null;
+        if ($type) {
+            $token = NfcToken::where('token_id', $id)
+                            ->where('content_type', $type)
+                            ->first();
+        } else {
+            // Si no se proporciona TYPE, buscar solo por ID (para tokens existentes)
+            $token = NfcToken::where('token_id', $id)->first();
+            if ($token) {
+                $type = $token->content_type; // Obtener el TYPE desde la BD
+            }
+        }
         
         // Si no hay token, mostrar onboarding para que el usuario lo reclame
         if (!$token) {
+            // Si no tenemos TYPE y no encontramos el token, no podemos continuar
+            if (!$type) {
+                return view('nfc.error', [
+                    'message' => 'Chip no encontrado. Se requiere el parámetro TYPE para chips nuevos.',
+                    'suggestions' => [
+                        'Verifica que la URL esté completa con TYPE e ID',
+                        'Si es un chip nuevo, asegúrate de incluir TYPE=GIFT (o el tipo correcto)',
+                        'Contacta al administrador si el problema persiste'
+                    ]
+                ]);
+            }
             return $this->showOnboarding($type, $id);
         }
         
@@ -494,11 +586,22 @@ class NfcContentController extends Controller
      */
     public function onboarding(Request $request): View|RedirectResponse
     {
-        $type = $request->get('TYPE');
+        $type = strtoupper($request->get('TYPE', ''));
         $id = $request->get('ID');
         
-        if (!$type || !$id) {
+        if (!$id) {
             return redirect()->route('nfc.legacy');
+        }
+        
+        // Si no se proporciona TYPE, intentar obtenerlo desde la BD
+        if (!$type) {
+            $token = NfcToken::where('token_id', $id)->first();
+            if ($token) {
+                $type = $token->content_type;
+            } else {
+                // Si no encontramos el token y no tenemos TYPE, redirigir con error
+                return redirect()->route('nfc.legacy')->with('error', 'Chip no encontrado. Se requiere TYPE para chips nuevos.');
+            }
         }
         
         return view('nfc.onboarding-form', [

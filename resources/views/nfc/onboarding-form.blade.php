@@ -39,7 +39,7 @@
                            value="{{ old('name') }}"
                            required
                            maxlength="255"
-                           class="w-full px-4 py-3 kraftdo-glass border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all backdrop-blur-sm"
+                           class="w-full px-4 py-3 rounded-xl kraftdo-input"
                            placeholder="Tu nombre completo">
                     @error('name')
                         <p class="mt-2 text-sm text-red-300">{{ $message }}</p>
@@ -59,7 +59,7 @@
                            value="{{ old('email') }}"
                            required
                            maxlength="255"
-                           class="w-full px-4 py-3 kraftdo-glass border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all backdrop-blur-sm"
+                           class="w-full px-4 py-3 rounded-xl kraftdo-input"
                            placeholder="tu@email.com">
                     @error('email')
                         <p class="mt-2 text-sm text-red-300">{{ $message }}</p>
@@ -78,7 +78,7 @@
                                name="password"
                                x-model="form.password"
                                required
-                               class="w-full px-4 py-3 pr-12 kraftdo-glass border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all backdrop-blur-sm"
+                               class="w-full px-4 py-3 pr-12 rounded-xl kraftdo-input"
                                placeholder="Tu contraseña segura">
                         <button type="button" 
                                 @click="showPassword = !showPassword"
@@ -104,7 +104,7 @@
                                name="password_confirmation"
                                x-model="form.passwordConfirm"
                                required
-                               class="w-full px-4 py-3 pr-12 kraftdo-glass border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all backdrop-blur-sm"
+                               class="w-full px-4 py-3 pr-12 rounded-xl kraftdo-input"
                                placeholder="Confirma tu contraseña">
                         <button type="button" 
                                 @click="showPasswordConfirm = !showPasswordConfirm"
@@ -161,9 +161,9 @@
                 <div>
                     <button type="submit" 
                             x-bind:disabled="!isFormValid"
-                            x-bind:class="!isFormValid ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'"
-                            class="w-full font-semibold transition-all duration-300 transform focus:outline-none focus:ring-4 focus:ring-white/20 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white kraftdo-shadow hover:shadow-xl px-8 py-4 text-lg rounded-xl">
-                        <i class="fas fa-magic mr-3"></i>
+                            x-bind:class="!isFormValid ? 'opacity-50 cursor-not-allowed' : 'hover:scale-110'"
+                            class="w-full kraftdo-btn-primary px-8 py-4 text-lg rounded-xl inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-magic mr-3 animate-pulse"></i>
                         ¡Crear Mi Cuenta y Personalizar!
                     </button>
                 </div>

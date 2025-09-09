@@ -19,8 +19,8 @@
                 <!-- Step Number -->
                 <div class="w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3 transition-all duration-500"
                      :class="currentStep >= {{ $stepNumber }} ? 
-                             'bg-gradient-to-br from-green-500 to-teal-600 kraftdo-animate-pulse-slow' : 
-                             'bg-gradient-to-br {{ $step['gradient'] ?? 'from-indigo-500 to-purple-600' }}'">
+                             'bg-gradient-to-br from-green-500 to-lime-500 kraftdo-animate-pulse-slow' : 
+                             'bg-gradient-to-br {{ $step['gradient'] ?? 'from-navy-500 to-blue-500' }}'">
                     
                     <!-- Check icon for completed steps -->
                     <template x-if="currentStep > {{ $stepNumber }}">

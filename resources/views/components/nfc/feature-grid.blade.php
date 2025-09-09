@@ -16,14 +16,14 @@ $gridClasses = match($columns) {
 
 <div class="grid {{ $gridClasses }} gap-4 mb-8" 
      x-data="kraftdoFeatureGrid()" 
-     @if($animated) x-intersect="animateFeatures()" @endif>
+     x-init="@if($animated) setTimeout(() => animateFeatures(), 300) @endif">
     
     @if(!empty($features))
         @foreach($features as $index => $feature)
             <div class="kraftdo-glass rounded-xl p-4 sm:p-6 border border-white/20 kraftdo-feature-item"
                  @if($animated) style="opacity: 0; transform: translateY(20px);" @endif
                  data-index="{{ $index }}">
-                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br {{ $feature['gradient'] ?? 'from-indigo-500 to-purple-600' }} rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 kraftdo-animate-pulse-slow">
+                <div class="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-br {{ $feature['gradient'] ?? 'from-blue-500 to-green-500' }} rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 kraftdo-animate-pulse-slow">
                     <i class="{{ $feature['icon'] }} text-white text-xl sm:text-2xl"></i>
                 </div>
                 <h4 class="font-bold text-white mb-2 text-center">{{ $feature['title'] }}</h4>

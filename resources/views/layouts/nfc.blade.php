@@ -20,85 +20,15 @@
     <!-- Icons -->
     <script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
     
-    <!-- Alpine.js -->
+    <!-- Alpine.js with plugins -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     
-    <style>
-        :root {
-            --kraftdo-primary: #6366f1;
-            --kraftdo-secondary: #8b5cf6;
-            --kraftdo-accent: #06b6d4;
-            --kraftdo-success: #10b981;
-            --kraftdo-warning: #f59e0b;
-            --kraftdo-error: #ef4444;
-            --kraftdo-dark: #1f2937;
-            --kraftdo-light: #f8fafc;
-        }
-        
-        .kraftdo-gradient {
-            background: linear-gradient(135deg, var(--kraftdo-primary) 0%, var(--kraftdo-secondary) 50%, var(--kraftdo-accent) 100%);
-        }
-        
-        .kraftdo-glass {
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .kraftdo-shadow {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-        }
-        
-        .kraftdo-animate-float {
-            animation: kraftdoFloat 6s ease-in-out infinite;
-        }
-        
-        .kraftdo-animate-pulse-slow {
-            animation: kraftdoPulse 4s ease-in-out infinite;
-        }
-        
-        .kraftdo-animate-fade-in {
-            animation: kraftdoFadeIn 0.8s ease-out forwards;
-        }
-        
-        .kraftdo-animate-scale-in {
-            animation: kraftdoScaleIn 0.6s ease-out forwards;
-        }
-        
-        @keyframes kraftdoFloat {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            25% { transform: translateY(-10px) rotate(1deg); }
-            50% { transform: translateY(-20px) rotate(0deg); }
-            75% { transform: translateY(-10px) rotate(-1deg); }
-        }
-        
-        @keyframes kraftdoPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
-        }
-        
-        @keyframes kraftdoFadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes kraftdoScaleIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        
-        .kraftdo-bg-pattern {
-            background-image: 
-                radial-gradient(circle at 25% 25%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 75% 75%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 50%);
-        }
-    </style>
+    
     
     @stack('styles')
 </head>
-<body class="kraftdo-gradient min-h-screen text-white font-['Inter'] antialiased kraftdo-bg-pattern" x-data="kraftdoApp()">
+<body class="min-h-screen text-white font-kraftdo antialiased" style="background: linear-gradient(135deg, #2A3441 0%, #3B4A6B 100%) !important; background-attachment: fixed !important; background-image: radial-gradient(circle at 25% 25%, rgba(74, 144, 226, 0.15) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(0, 255, 127, 0.12) 0%, transparent 50%), radial-gradient(circle at 50% 50%, rgba(50, 255, 50, 0.08) 0%, transparent 50%), radial-gradient(circle at 10% 80%, rgba(59, 74, 107, 0.1) 0%, transparent 50%) !important;" x-data="kraftdoApp()">
     
     <!-- Background Elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none" x-show="showDecorations">
@@ -117,46 +47,20 @@
 
     <!-- Kraftdo Branding Footer -->
     <div class="fixed bottom-4 right-4 z-20" x-show="showBranding">
-        <div class="kraftdo-glass rounded-full px-4 py-2 kraftdo-shadow">
+        <div class="kraftdo-glass rounded-full px-4 py-2 kraftdo-brand-shadow border border-white/20">
             <div class="flex items-center space-x-2">
-                <div class="w-6 h-6 kraftdo-gradient rounded-full flex items-center justify-center">
-                    <i class="fas fa-bolt text-white text-xs"></i>
+                <div class="w-6 h-6 kraftdo-gradient rounded-full flex items-center justify-center animate-pulse">
+                    <span class="text-white font-black text-xs">K</span>
                 </div>
-                <span class="text-sm font-medium text-white/90">Powered by Kraftdo</span>
+                <span class="text-sm font-bold text-white/95 tracking-wide">KRAFTDO</span>
+                <span class="text-xs text-white/60">NFC</span>
             </div>
         </div>
     </div>
 
-    <!-- Toast Notifications -->
-    <div x-data="kraftdoToast()" class="fixed top-4 right-4 z-50 space-y-2">
-        <template x-for="toast in toasts" :key="toast.id">
-            <div x-show="toast.show" 
-                 x-transition:enter="transform ease-out duration-300 transition"
-                 x-transition:enter-start="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-                 x-transition:enter-end="translate-y-0 opacity-100 sm:translate-x-0"
-                 x-transition:leave="transition ease-in duration-100"
-                 x-transition:leave-start="opacity-100"
-                 x-transition:leave-end="opacity-0"
-                 class="max-w-sm w-full kraftdo-glass rounded-xl kraftdo-shadow p-4 border"
-                 :class="toast.type === 'success' ? 'border-green-400' : toast.type === 'error' ? 'border-red-400' : 'border-blue-400'">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0">
-                        <i :class="toast.type === 'success' ? 'fas fa-check-circle text-green-400' : 
-                                   toast.type === 'error' ? 'fas fa-exclamation-circle text-red-400' : 
-                                   'fas fa-info-circle text-blue-400'"></i>
-                    </div>
-                    <div class="ml-3 w-0 flex-1">
-                        <p class="text-sm font-medium text-white" x-text="toast.title"></p>
-                        <p class="mt-1 text-sm text-white/80" x-text="toast.message" x-show="toast.message"></p>
-                    </div>
-                    <div class="ml-4 flex-shrink-0 flex">
-                        <button @click="removeToast(toast.id)" class="text-white/60 hover:text-white/80 focus:outline-none">
-                            <i class="fas fa-times text-sm"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </template>
+    <!-- Toast Notifications (simplified) -->
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2">
+        <!-- Toasts will be inserted here via JavaScript -->
     </div>
 
     <!-- Loading Overlay -->
@@ -212,60 +116,15 @@
             }
         }
         
-        function kraftdoToast() {
-            return {
-                toasts: [],
-                
-                addToast(type, title, message = '', duration = 5000) {
-                    const id = Date.now();
-                    const toast = { id, type, title, message, show: true };
-                    this.toasts.push(toast);
-                    
-                    setTimeout(() => {
-                        this.removeToast(id);
-                    }, duration);
-                },
-                
-                removeToast(id) {
-                    const index = this.toasts.findIndex(toast => toast.id === id);
-                    if (index > -1) {
-                        this.toasts[index].show = false;
-                        setTimeout(() => {
-                            this.toasts.splice(index, 1);
-                        }, 300);
-                    }
-                },
-                
-                success(title, message = '') {
-                    this.addToast('success', title, message);
-                },
-                
-                error(title, message = '') {
-                    this.addToast('error', title, message);
-                },
-                
-                info(title, message = '') {
-                    this.addToast('info', title, message);
-                }
-            }
-        }
-        
-        // Global toast function
+        // Simplified toast system
         window.kraftdoToast = function(type, title, message = '') {
-            const event = new CustomEvent('kraftdo-toast', {
-                detail: { type, title, message }
-            });
-            document.dispatchEvent(event);
-        };
-        
-        document.addEventListener('kraftdo-toast', (e) => {
-            const { type, title, message } = e.detail;
-            // Find toast component and trigger
-            const toastEl = document.querySelector('[x-data*="kraftdoToast"]');
-            if (toastEl && toastEl._x_dataStack) {
-                toastEl._x_dataStack[0].addToast(type, title, message);
+            console.log(`[${type.toUpperCase()}] ${title}${message ? ': ' + message : ''}`);
+            
+            // Simple alert for now - can be enhanced later
+            if (type === 'error') {
+                alert(`Error: ${title}${message ? '\n' + message : ''}`);
             }
-        });
+        };
     </script>
 
     @stack('scripts')

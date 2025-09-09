@@ -62,19 +62,19 @@
                         'title' => 'Personalizable',
                         'description' => 'Agrega tu toque personal',
                         'icon' => 'fas fa-paint-brush',
-                        'gradient' => 'from-blue-500 to-purple-600'
+                        'gradient' => 'from-blue-500 to-green-500'
                     ],
                     [
                         'title' => 'Compartible',
                         'description' => 'URL pública permanente',
                         'icon' => 'fas fa-share-alt',
-                        'gradient' => 'from-green-500 to-teal-600'
+                        'gradient' => 'from-green-500 to-lime-500'
                     ],
                     [
                         'title' => 'Responsive',
                         'description' => 'Funciona en cualquier dispositivo',
                         'icon' => 'fas fa-mobile-alt',
-                        'gradient' => 'from-pink-500 to-red-600'
+                        'gradient' => 'from-navy-500 to-blue-500'
                     ]
                 ]"
                 columns="3" />
@@ -105,19 +105,19 @@
                             'title' => 'Asignación Inmediata',
                             'description' => 'Se asigna al instante',
                             'icon' => 'fas fa-check-circle',
-                            'gradient' => 'from-green-500 to-teal-600'
+                            'gradient' => 'from-green-500 to-emerald-600'
                         ],
                         [
                             'title' => 'Personalización Total',
                             'description' => 'Controla cada detalle',
                             'icon' => 'fas fa-palette',
-                            'gradient' => 'from-blue-500 to-indigo-600'
+                            'gradient' => 'from-blue-500 to-green-500'
                         ],
                         [
                             'title' => 'Dashboard Completo',
                             'description' => 'Gestiona todos tus chips',
                             'icon' => 'fas fa-tachometer-alt',
-                            'gradient' => 'from-purple-500 to-pink-600'
+                            'gradient' => 'from-green-500 to-lime-500'
                         ]
                     ]"
                     columns="3" />
@@ -129,7 +129,7 @@
                     
                     <x-nfc.kraftdo-button 
                         type="submit"
-                        variant="primary"
+                        variant="kraftdo"
                         size="lg"
                         icon="fas fa-link"
                         class="group">
@@ -180,7 +180,7 @@
                 <div class="mb-6">
                     <x-nfc.kraftdo-button 
                         href="{{ route('nfc.onboarding') }}?TYPE={{ $type }}&ID={{ $id }}"
-                        variant="primary"
+                        variant="kraftdo"
                         size="lg"
                         icon="fas fa-magic"
                         class="group">
@@ -212,37 +212,46 @@
                     'title' => 'Escanea',
                     'description' => 'Con cualquier teléfono',
                     'icon' => 'fas fa-mobile-alt',
-                    'gradient' => 'from-blue-500 to-purple-600'
+                    'gradient' => 'from-navy-500 to-blue-500'
                 ],
                 [
                     'title' => 'Personaliza',
                     'description' => 'Tu contenido único',
                     'icon' => 'fas fa-edit',
-                    'gradient' => 'from-green-500 to-teal-600'
+                    'gradient' => 'from-green-500 to-lime-500'
                 ],
                 [
                     'title' => 'Comparte',
                     'description' => 'Con quien quieras',
                     'icon' => 'fas fa-share-alt',
-                    'gradient' => 'from-pink-500 to-red-600'
+                    'gradient' => 'from-blue-500 to-green-500'
                 ],
                 [
                     'title' => 'Disfruta',
                     'description' => 'Momentos especiales',
                     'icon' => 'fas fa-heart',
-                    'gradient' => 'from-yellow-500 to-orange-600'
+                    'gradient' => 'from-green-500 to-lime-500'
                 ]
             ]"
             columns="4" />
     </x-nfc.glass-card>
 
     <!-- Footer -->
-    <div class="text-center text-white/70 text-sm kraftdo-animate-fade-in" style="animation-delay: 1.2s;">
-        <p class="mb-2">
-            <i class="fas fa-shield-alt text-green-400 mr-2"></i>
-            Seguro • Privado • Fácil de usar
-        </p>
-        <p>Powered by Kraftdo NFC Technology ✨</p>
+    <div class="text-center text-white/80 text-sm kraftdo-animate-fade-in" style="animation-delay: 1.2s;">
+        <div class="kraftdo-glass rounded-2xl p-6 border border-white/20">
+            <div class="flex items-center justify-center mb-3">
+                <div class="w-8 h-8 kraftdo-gradient rounded-full flex items-center justify-center mr-3">
+                    <span class="text-white font-black text-sm">K</span>
+                </div>
+                <span class="text-lg font-bold text-white tracking-wide">KRAFTDO</span>
+                <span class="text-xs text-green-300 ml-2 font-semibold">NFC</span>
+            </div>
+            <p class="mb-2">
+                <i class="fas fa-shield-alt text-green-400 mr-2"></i>
+                Seguro • Privado • Fácil de usar
+            </p>
+            <p class="text-green-200 font-medium">Tecnología NFC de próxima generación ✨</p>
+        </div>
     </div>
 </div>
 

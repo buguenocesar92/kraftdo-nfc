@@ -14,10 +14,11 @@
 $baseClasses = 'font-semibold transition-all duration-300 transform focus:outline-none focus:ring-4 focus:ring-white/20 disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center';
 
 $variants = [
-    'primary' => 'bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white kraftdo-shadow hover:shadow-xl hover:scale-105',
-    'secondary' => 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white kraftdo-shadow hover:shadow-xl hover:scale-105',
-    'outline' => 'bg-white/20 hover:bg-white/30 border-2 border-white/30 hover:border-white/50 text-white backdrop-blur-sm',
-    'danger' => 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white kraftdo-shadow hover:shadow-xl hover:scale-105'
+    'primary' => 'bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white kraftdo-brand-shadow hover:shadow-2xl hover:scale-105 font-bold tracking-wide',
+    'secondary' => 'bg-gradient-to-r from-navy-500 to-blue-500 hover:from-navy-600 hover:to-blue-600 text-white kraftdo-shadow hover:shadow-xl hover:scale-105',
+    'outline' => 'bg-white/20 hover:bg-blue-500/20 border-2 border-blue-400/50 hover:border-blue-400/80 text-white backdrop-blur-sm hover:text-blue-100',
+    'danger' => 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white kraftdo-shadow hover:shadow-xl hover:scale-105',
+    'kraftdo' => 'bg-gradient-to-r from-blue-500 via-green-500 to-lime-500 hover:from-blue-600 hover:via-green-600 hover:to-lime-600 text-white kraftdo-brand-shadow hover:shadow-2xl hover:scale-110 font-black tracking-wider transform-gpu'
 ];
 
 $sizes = [

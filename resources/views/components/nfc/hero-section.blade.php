@@ -8,8 +8,7 @@
 
 <div class="text-center mb-12 kraftdo-animate-fade-in" x-data="kraftdoHero()" x-init="init('{{ $emoji }}')">
     <div class="mb-6">
-        <div class="inline-flex items-center justify-center w-28 h-28 sm:w-36 sm:h-36 kraftdo-glass rounded-full kraftdo-shadow backdrop-blur-sm"
-             :class="$animated && 'kraftdo-animate-float'">
+        <div class="inline-flex items-center justify-center w-28 h-28 sm:w-36 sm:h-36 kraftdo-glass rounded-full kraftdo-shadow backdrop-blur-sm {{ $animated ? 'kraftdo-animate-float' : '' }}">
             <i class="{{ $icon }} text-4xl sm:text-6xl text-white"></i>
         </div>
     </div>

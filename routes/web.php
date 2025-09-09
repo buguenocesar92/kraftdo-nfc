@@ -24,6 +24,11 @@ Route::middleware(['auth'])->group(function () {
 // RUTAS PÚBLICAS PARA CONTENIDO NFC
 // ========================================
 
+// FORMATO LIMPIO: /nfc/{id} - Ruta principal más SEO-friendly
+Route::get('/nfc/{id}', [NfcContentController::class, 'showById'])
+    ->name('nfc.show')
+    ->where('id', '[A-Za-z0-9\-]+');
+
 // RETROCOMPATIBILIDAD: Formato antiguo /nfc?TYPE=X&ID=uuid
 Route::get('/nfc', [NfcContentController::class, 'showLegacy'])
     ->name('nfc.legacy');
