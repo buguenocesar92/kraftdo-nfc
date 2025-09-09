@@ -1,0 +1,185 @@
+/* Token Gift Styles - Professional Implementation */
+
+/* Base Gradient Background */
+.gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Card Shadow */
+.card-shadow {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Animation Classes */
+.animate-fade-in {
+    animation: fadeIn 0.8s ease-in-out;
+    animation-fill-mode: both;
+}
+
+.animate-delay-200 {
+    animation-delay: 0.2s;
+}
+
+.animate-delay-300 {
+    animation-delay: 0.3s;
+}
+
+.animate-delay-400 {
+    animation-delay: 0.4s;
+}
+
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Component Styles */
+.token-header {
+    @apply text-center;
+}
+
+.token-title {
+    @apply text-4xl font-bold text-white mb-2;
+}
+
+.token-subtitle {
+    @apply text-xl text-indigo-100;
+}
+
+.token-main-card {
+    @apply bg-white rounded-2xl p-8;
+}
+
+.token-recipient-section {
+    @apply text-center mb-8;
+}
+
+.token-recipient-title {
+    @apply text-3xl font-bold text-gray-800 mb-2;
+}
+
+.token-sender-info {
+    @apply text-lg text-gray-600;
+}
+
+.token-message-card {
+    @apply bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl p-6 mb-8;
+}
+
+.token-message-title {
+    @apply text-xl font-semibold text-gray-800 mb-3;
+}
+
+.token-message-content {
+    @apply text-gray-700 leading-relaxed text-lg;
+}
+
+.token-multimedia-wrapper {
+    @apply space-y-6;
+}
+
+.token-video-card {
+    @apply bg-gray-50 rounded-xl p-6;
+}
+
+.token-audio-card {
+    @apply bg-blue-50 rounded-xl p-6;
+}
+
+.token-gallery-card {
+    @apply bg-yellow-50 rounded-xl p-6;
+}
+
+.token-section-title {
+    @apply text-xl font-semibold text-gray-800 mb-4;
+}
+
+.token-video-container {
+    @apply aspect-video rounded-lg overflow-hidden bg-black;
+}
+
+.token-video-frame {
+    @apply w-full h-full;
+}
+
+.token-audio-container {
+    @apply bg-white rounded-lg p-4;
+}
+
+.token-audio-player {
+    @apply w-full;
+}
+
+.token-audio-link {
+    @apply inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold rounded-lg hover:from-green-600 hover:to-blue-600 transition-colors;
+}
+
+.token-gallery-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+.token-gallery-item {
+    @apply relative group cursor-pointer;
+}
+
+.token-gallery-image {
+    @apply w-full h-48 object-cover rounded-lg group-hover:opacity-80 transition-opacity;
+}
+
+.token-gallery-caption {
+    @apply absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-2 rounded-b-lg;
+}
+
+.token-gallery-caption-text {
+    @apply text-sm;
+}
+
+.token-footer {
+    @apply mt-8 pt-6 border-t border-gray-200 text-center;
+}
+
+.token-footer-text {
+    @apply text-gray-500 text-sm;
+}
+
+/* Modal Styles */
+.token-modal {
+    @apply fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4;
+}
+
+.token-modal-content {
+    @apply max-w-4xl max-h-full relative;
+}
+
+.token-modal-image {
+    @apply max-w-full max-h-full object-contain rounded-lg;
+}
+
+.token-modal-close {
+    @apply absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75;
+}
+
+.token-modal-close-icon {
+    @apply w-6 h-6;
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+    .token-title {
+        @apply text-3xl;
+    }
+    
+    .token-recipient-title {
+        @apply text-2xl;
+    }
+    
+    .token-main-card {
+        @apply p-6;
+    }
+}
