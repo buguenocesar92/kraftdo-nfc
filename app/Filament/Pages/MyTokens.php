@@ -234,7 +234,8 @@ class MyTokens extends Page implements HasForms, HasActions
                             ->rows(4)
                             ->columnSpanFull(),
                     ])
-                    ->columns(2),
+                    ->columns(2)
+                    ->collapsible(),
 
                 Section::make('Contenido Multimedia')
                     ->description('Agrega video y audio a tu regalo')
@@ -249,14 +250,12 @@ class MyTokens extends Page implements HasForms, HasActions
                                 'vimeo' => 'Vimeo',
                             ])
                             ->default('direct')
-                            ->live()
                             ->columnSpan(1),
                         
                         TextInput::make('video_url')
                             ->label('URL del video')
                             ->placeholder('https://www.youtube.com/watch?v=...')
                             ->url()
-                            ->visible(fn ($get) => in_array($get('video_type'), ['direct', 'youtube', 'vimeo']))
                             ->columnSpan(1),
                         
                         FileUpload::make('video_file')
@@ -267,8 +266,7 @@ class MyTokens extends Page implements HasForms, HasActions
                             ->disk('public')
                             ->visibility('public')
                             ->preserveFilenames()
-                            ->visible(fn ($get) => $get('video_type') === 'file_upload')
-                            ->columnSpan(1),
+                            ->columnSpanFull(),
 
                         // Audio
                         Select::make('audio_type')
@@ -281,14 +279,12 @@ class MyTokens extends Page implements HasForms, HasActions
                                 'soundcloud' => 'SoundCloud',
                             ])
                             ->default('direct')
-                            ->live()
                             ->columnSpan(1),
                         
                         TextInput::make('audio_url')
                             ->label('URL del audio')
                             ->placeholder('https://example.com/audio.mp3')
                             ->url()
-                            ->visible(fn ($get) => in_array($get('audio_type'), ['direct', 'youtube_music', 'spotify', 'soundcloud']))
                             ->columnSpan(1),
                         
                         FileUpload::make('audio_file')
@@ -299,8 +295,7 @@ class MyTokens extends Page implements HasForms, HasActions
                             ->disk('public')
                             ->visibility('public')
                             ->preserveFilenames()
-                            ->visible(fn ($get) => $get('audio_type') === 'file_upload')
-                            ->columnSpan(1),
+                            ->columnSpanFull(),
                     ])
                     ->columns(2)
                     ->collapsible(),
