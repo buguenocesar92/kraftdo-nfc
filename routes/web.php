@@ -28,6 +28,15 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/nfc', [NfcContentController::class, 'showLegacy'])
     ->name('nfc.legacy');
 
+// 🎯 Rutas de Onboarding NFC
+Route::get('/nfc/onboarding', [NfcContentController::class, 'onboarding'])->name('nfc.onboarding');
+Route::post('/nfc/onboarding', [NfcContentController::class, 'createAccount'])->name('nfc.create-account');
+
+// 🔗 Ruta para asignar chip a usuario autenticado
+Route::post('/nfc/assign-token', [NfcContentController::class, 'assignTokenToAuthenticatedUser'])
+    ->middleware('auth')
+    ->name('nfc.assign-token');
+
 // Mostrar contenido por content_id (UUID)
 Route::get('/c/{contentId}', [NfcContentController::class, 'show'])
     ->name('nfc.content')

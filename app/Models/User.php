@@ -59,4 +59,20 @@ class User extends Authenticatable
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
     }
+
+    /**
+     * Get all dynamic contents belonging to this user
+     */
+    public function dynamicContents()
+    {
+        return $this->hasMany(DynamicContent::class);
+    }
+
+    /**
+     * Get all NFC tokens belonging to this user
+     */
+    public function nfcTokens()
+    {
+        return $this->hasMany(NfcToken::class);
+    }
 }

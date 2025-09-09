@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateNfcAccountRequest;
 use App\Models\DynamicContent;
 use App\Models\NfcAnalytic;
 use App\Models\NfcToken;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
 
 class NfcContentController extends Controller
 {
@@ -41,39 +46,66 @@ class NfcContentController extends Controller
 
     /**
      * RETROCOMPATIBILIDAD: Manejar formato antiguo /nfc?TYPE=X&ID=uuid
+     * Incluye sistema de onboarding para chips sin configurar
      */
-    public function showLegacy(Request $request): View|Response|\Illuminate\Http\RedirectResponse
+    public function showLegacy(Request $request): View|Response|RedirectResponse
     {
-        $type = $request->get('TYPE');
-        $id = $request->get('ID');
+        $type = strtoupper($request->get('TYPE', ''));
+        $id = $request->get('ID', '');
         
         if (!$type || !$id) {
-            abort(404, 'Parámetros requeridos: TYPE e ID');
+            return view('nfc.error', [
+                'message' => 'URL inválida. Faltan parámetros TYPE o ID.',
+                'suggestions' => [
+                    'Verifica que la URL esté completa',
+                    'Asegúrate de escanear el chip correctamente',
+                    'Contacta al administrador si el problema persiste'
+                ]
+            ]);
         }
         
-        // Validar que el ID sea un UUID válido
-        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $id)) {
-            abort(404, 'ID no válido');
+        // Buscar token NFC primero
+        $token = NfcToken::where('token_id', $id)
+                        ->where('content_type', $type)
+                        ->first();
+        
+        // Si no hay token, mostrar onboarding para que el usuario lo reclame
+        if (!$token) {
+            return $this->showOnboarding($type, $id);
         }
         
-        // Buscar contenido por content_id (UUID)
-        $content = DynamicContent::findActiveByContentId($id);
+        // Si el token no está asignado a ningún usuario, mostrar onboarding
+        if (!$token->user_id) {
+            return $this->showOnboarding($type, $id);
+        }
         
-        if (!$content) {
-            abort(404, 'Contenido no encontrado o no disponible');
+        // Si el chip existe pero está DESACTIVADO
+        if (!$token->is_active) {
+            return $this->showContentNotAvailable($type, $id, $token, 'Chip desactivado');
+        }
+        
+        // Buscar contenido a través de la relación
+        $content = $token->dynamicContent;
+        
+        // Si no hay contenido o no está publicado, mostrar mensaje apropiado
+        if (!$content || !$content->isPubliclyAccessible()) {
+            // Si hay contenido pero está en borrador, mostrar mensaje especial
+            if ($content && $content->isDraft()) {
+                return view('nfc.draft-preview', [
+                    'type' => $type,
+                    'id' => $id,
+                    'message' => 'El contenido aún está en preparación... ¡Pronto estará listo! 🎁'
+                ]);
+            }
+            
+            return $this->showContentNotAvailable($type, $id, $token, 'Contenido no configurado');
         }
         
         // Registrar el acceso en analytics
-        NfcAnalytic::recordAccess(
-            $id,
-            $content->type,
-            $content->nfc_token_id
-        );
+        NfcAnalytic::recordAccess($id, $content->type, $token->id);
         
-        // Actualizar último uso del token si existe
-        if ($content->nfcToken) {
-            $content->nfcToken->updateLastUsed();
-        }
+        // Actualizar último uso del token
+        $token->updateLastUsed();
         
         // Seleccionar vista según el tipo de contenido
         $viewName = $this->getViewForContentType($content->type);
@@ -81,7 +113,7 @@ class NfcContentController extends Controller
         // Preparar datos adicionales según el tipo de contenido
         $additionalData = $this->prepareViewData($content);
         
-        return view($viewName, array_merge(compact('content'), $additionalData));
+        return view($viewName, array_merge(compact('content', 'token'), $additionalData));
     }
 
     /**
@@ -361,5 +393,320 @@ class NfcContentController extends Controller
             'content_ready' => $token?->isContentReady() ?? false,
             'content_type' => $token?->content_type,
         ]);
+    }
+
+    // ========================================
+    // SISTEMA DE ONBOARDING
+    // ========================================
+
+    /**
+     * Mostrar pantalla de onboarding cuando no hay contenido configurado
+     */
+    private function showOnboarding(string $type, string $id): View
+    {
+        $typeConfig = [
+            'GIFT' => [
+                'title' => 'Regalo Especial',
+                'icon' => 'fas fa-gift',
+                'color' => 'pink',
+                'gradient' => 'from-pink-50 to-red-50',
+                'border' => 'border-pink-200',
+                'primary' => 'text-pink-600',
+                'message' => 'Este es un regalo especial hecho con amor',
+                'emoji' => '🎁💕'
+            ],
+            'MENU' => [
+                'title' => 'Menú Digital',
+                'icon' => 'fas fa-utensils',
+                'color' => 'orange',
+                'gradient' => 'from-orange-50 to-yellow-50',
+                'border' => 'border-orange-200',
+                'primary' => 'text-orange-600',
+                'message' => 'Descubre nuestra deliciosa carta',
+                'emoji' => '🍽️👨‍🍳'
+            ],
+            'PROFILE' => [
+                'title' => 'Perfil Profesional',
+                'icon' => 'fas fa-user',
+                'color' => 'indigo',
+                'gradient' => 'from-indigo-50 to-blue-50',
+                'border' => 'border-indigo-200',
+                'primary' => 'text-indigo-600',
+                'message' => 'Conecta conmigo profesionalmente',
+                'emoji' => '👤💼'
+            ],
+            'EVENT' => [
+                'title' => 'Evento Especial',
+                'icon' => 'fas fa-calendar-alt',
+                'color' => 'green',
+                'gradient' => 'from-green-50 to-emerald-50',
+                'border' => 'border-green-200',
+                'primary' => 'text-green-600',
+                'message' => 'Un evento que no te puedes perder',
+                'emoji' => '🎉📅'
+            ],
+            'TOURIST' => [
+                'title' => 'Guía Turística',
+                'icon' => 'fas fa-map-marked-alt',
+                'color' => 'blue',
+                'gradient' => 'from-blue-50 to-cyan-50',
+                'border' => 'border-blue-200',
+                'primary' => 'text-blue-600',
+                'message' => 'Descubre lugares increíbles',
+                'emoji' => '🗺️✈️'
+            ],
+            'PRODUCT' => [
+                'title' => 'Producto Especial',
+                'icon' => 'fas fa-shopping-cart',
+                'color' => 'yellow',
+                'gradient' => 'from-yellow-50 to-amber-50',
+                'border' => 'border-yellow-200',
+                'primary' => 'text-yellow-600',
+                'message' => 'Un producto que te va a encantar',
+                'emoji' => '🛍️✨'
+            ]
+        ];
+        
+        $config = $typeConfig[$type] ?? $typeConfig['GIFT'];
+        
+        return view('nfc.onboarding', [
+            'type' => $type,
+            'id' => $id,
+            'config' => $config
+        ]);
+    }
+
+    /**
+     * Mostrar pantalla cuando el contenido no está disponible
+     */
+    private function showContentNotAvailable(string $type, string $id, ?NfcToken $token, string $reason = 'Contenido no disponible'): View
+    {
+        return view('nfc.content-not-available', [
+            'type' => $type,
+            'id' => $id,
+            'token' => $token,
+            'reason' => $reason
+        ]);
+    }
+
+    /**
+     * Mostrar formulario de onboarding
+     */
+    public function onboarding(Request $request): View|RedirectResponse
+    {
+        $type = $request->get('TYPE');
+        $id = $request->get('ID');
+        
+        if (!$type || !$id) {
+            return redirect()->route('nfc.legacy');
+        }
+        
+        return view('nfc.onboarding-form', [
+            'type' => $type,
+            'id' => $id
+        ]);
+    }
+
+    /**
+     * Crear cuenta de usuario a través del onboarding
+     */
+    public function createAccount(CreateNfcAccountRequest $request): RedirectResponse
+    {
+        $validated = $request->validated();
+        
+        // Verificar si el usuario ya existe
+        $existingUser = User::where('email', $validated['email'])->first();
+        
+        if ($existingUser) {
+            // Usuario existe - asignar nuevo chip a cuenta existente
+            return $this->assignTokenToExistingUser($existingUser, $validated);
+        }
+        
+        // Crear nuevo usuario
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password'])
+        ]);
+        
+        // Asignar chip automáticamente
+        $token = NfcToken::where('token_id', $validated['id'])
+                         ->where('content_type', $validated['type'])
+                         ->whereNull('user_id')
+                         ->first();
+        
+        if ($token) {
+            $token->update([
+                'user_id' => $user->id,
+                'purchased_at' => now(),
+                'purchase_notes' => 'Asignado vía onboarding - primera compra'
+            ]);
+        }
+        
+        // Crear contenido básico en modo borrador
+        $content = DynamicContent::create([
+            'content_id' => $validated['id'],
+            'type' => $validated['type'],
+            'title' => 'Mi ' . ucfirst(strtolower($validated['type'])),
+            'description' => "Contenido personalizado",
+            'data' => $this->getDefaultDataForType($validated['type']),
+            'status' => 'draft', // Comienza como borrador
+            'is_active' => false, // Inactivo hasta que se publique
+            'user_id' => $user->id,
+            'nfc_token_id' => $token->id ?? null
+        ]);
+        
+        // Login automático
+        Auth::login($user);
+        
+        // Redirigir al dashboard con mensaje de éxito
+        return redirect('/admin')
+                        ->with('success', '¡Cuenta creada! Ahora personaliza tu contenido desde el panel de administración.');
+    }
+
+    /**
+     * Asignar token a usuario autenticado (flujo simple)
+     */
+    public function assignTokenToAuthenticatedUser(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'type' => 'required|string|in:GIFT,MENU,PROFILE,EVENT,TOURIST,PRODUCT',
+            'id' => 'required|string|max:255',
+        ]);
+        
+        $user = Auth::user();
+        
+        // Buscar chip disponible
+        $token = NfcToken::where('token_id', $request->id)
+                         ->where('content_type', $request->type)
+                         ->whereNull('user_id')
+                         ->first();
+        
+        if (!$token) {
+            return redirect()->back()
+                           ->withErrors(['error' => 'Este chip no está disponible para asignación.'])
+                           ->withInput();
+        }
+        
+        // Asignar chip al usuario
+        $token->update([
+            'user_id' => $user->id,
+            'purchased_at' => now(),
+            'purchase_notes' => 'Asignado a usuario autenticado'
+        ]);
+        
+        // Crear contenido básico en modo borrador
+        $content = DynamicContent::create([
+            'content_id' => $request->id,
+            'type' => $request->type,
+            'title' => 'Mi ' . ucfirst(strtolower($request->type)) . ' #' . ($user->dynamicContents()->count() + 1),
+            'description' => "Contenido personalizado",
+            'data' => $this->getDefaultDataForType($request->type),
+            'status' => 'draft', // Comienza como borrador
+            'is_active' => false, // Inactivo hasta que se publique
+            'user_id' => $user->id,
+            'nfc_token_id' => $token->id
+        ]);
+        
+        // Redirigir al dashboard con mensaje de éxito
+        return redirect('/admin')
+                        ->with('success', '¡Chip asignado a tu cuenta! Ahora personaliza tu contenido desde el panel de administración.');
+    }
+
+    /**
+     * Asignar nuevo chip a usuario existente
+     */
+    private function assignTokenToExistingUser(User $user, array $validated): RedirectResponse
+    {
+        // Buscar chip disponible
+        $token = NfcToken::where('token_id', $validated['id'])
+                         ->where('content_type', $validated['type'])
+                         ->whereNull('user_id')
+                         ->first();
+        
+        if (!$token) {
+            return redirect()->back()
+                           ->withErrors(['error' => 'Este chip no está disponible para asignación.'])
+                           ->withInput();
+        }
+        
+        // Asignar chip al usuario existente
+        $token->update([
+            'user_id' => $user->id,
+            'purchased_at' => now(),
+            'purchase_notes' => 'Asignado vía onboarding - usuario existente'
+        ]);
+        
+        // Crear contenido básico en modo borrador
+        $content = DynamicContent::create([
+            'content_id' => $validated['id'],
+            'type' => $validated['type'],
+            'title' => 'Mi ' . ucfirst(strtolower($validated['type'])) . ' #' . ($user->dynamicContents()->count() + 1),
+            'description' => "Contenido personalizado",
+            'data' => $this->getDefaultDataForType($validated['type']),
+            'status' => 'draft', // Comienza como borrador
+            'is_active' => false, // Inactivo hasta que se publique
+            'user_id' => $user->id,
+            'nfc_token_id' => $token->id
+        ]);
+        
+        // Login automático
+        Auth::login($user);
+        
+        // Redirigir al dashboard con mensaje de éxito
+        return redirect('/admin')
+                        ->with('success', '¡Nuevo chip asignado a tu cuenta! Ahora personaliza tu contenido desde el panel de administración.');
+    }
+
+    /**
+     * Obtener datos por defecto según el tipo de contenido
+     */
+    private function getDefaultDataForType(string $type): array
+    {
+        return match($type) {
+            'GIFT' => [
+                'from' => 'Tu nombre',
+                'to' => 'Persona especial',
+                'love_message' => 'Un regalo especial hecho con amor'
+            ],
+            'MENU' => [
+                'restaurant_info' => [
+                    'address' => 'Av. Principal 123, Santiago',
+                    'phone' => '+56 9 1234 5678',
+                    'hours' => 'Lun-Dom 12:00-22:00',
+                    'whatsapp' => '+56 9 1234 5678'
+                ],
+                'menu_items' => []
+            ],
+            'PROFILE' => [
+                'bio' => 'Tu biografía profesional',
+                'location' => 'Tu ubicación',
+                'job_title' => 'Tu cargo',
+                'company' => 'Tu empresa'
+            ],
+            'EVENT' => [
+                'event_info' => [
+                    'date' => 'Fecha del evento',
+                    'time' => 'Hora del evento',
+                    'location' => 'Lugar del evento'
+                ],
+                'contact' => [
+                    'organizer' => 'Organizador',
+                    'phone' => 'Teléfono de contacto'
+                ]
+            ],
+            'TOURIST' => [
+                'location_name' => 'Nombre del lugar',
+                'description' => 'Descripción turística',
+                'highlights' => ['Punto destacado 1', 'Punto destacado 2']
+            ],
+            'PRODUCT' => [
+                'product_name' => 'Nombre del producto',
+                'description' => 'Descripción del producto',
+                'price' => 'Precio',
+                'features' => ['Característica 1', 'Característica 2']
+            ],
+            default => []
+        };
     }
 }
