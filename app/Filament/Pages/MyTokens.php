@@ -3,8 +3,10 @@
 namespace App\Filament\Pages;
 
 use App\Models\ContentGift;
+use App\Models\ContentMultimedia;
 use App\Models\DynamicContent;
 use App\Models\NfcToken;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -36,6 +38,7 @@ class MyTokens extends Page implements HasForms, HasActions
     public ?array $data = [];
     public ?NfcToken $token = null;
     public ?ContentGift $contentGift = null;
+    public ?ContentMultimedia $contentMultimedia = null;
     public ?int $selectedTokenId = null;
 
     public function getView(): string
@@ -96,12 +99,24 @@ class MyTokens extends Page implements HasForms, HasActions
             $this->contentGift = $this->getOrCreateContentGift();
             
             if ($this->contentGift) {
-                // Llenar el formulario con los datos existentes
-                $data = array_merge($this->contentGift->toArray(), [
-                    'selectedTokenId' => $this->selectedTokenId,
-                    'token_name' => $this->token->name,
-                    'token_id' => $this->token->token_id,
-                ]);
+                // Intentar cargar contenido multimedia (sin fallar si hay error)
+                try {
+                    $this->contentMultimedia = $this->getOrCreateContentMultimedia();
+                } catch (\Exception $e) {
+                    \Log::warning('Error loading multimedia content', ['error' => $e->getMessage()]);
+                    $this->contentMultimedia = null;
+                }
+                
+                // Combinar datos de regalo y multimedia
+                $data = array_merge(
+                    $this->contentGift->toArray(),
+                    $this->contentMultimedia ? $this->contentMultimedia->toArray() : [],
+                    [
+                        'selectedTokenId' => $this->selectedTokenId,
+                        'token_name' => $this->token->name,
+                        'token_id' => $this->token->token_id,
+                    ]
+                );
                 $this->form->fill($data);
                 
                 Notification::make()
@@ -154,6 +169,37 @@ class MyTokens extends Page implements HasForms, HasActions
         return $contentGift;
     }
 
+    protected function getOrCreateContentMultimedia(): ?ContentMultimedia
+    {
+        if (!$this->token) {
+            return null;
+        }
+
+        // Obtener el DynamicContent del token
+        $dynamicContent = $this->token->dynamicContent;
+        
+        if (!$dynamicContent) {
+            return null;
+        }
+
+        // Buscar o crear el ContentMultimedia
+        $contentMultimedia = ContentMultimedia::where('dynamic_content_id', $dynamicContent->id)->first();
+        
+        if (!$contentMultimedia) {
+            $contentMultimedia = ContentMultimedia::create([
+                'dynamic_content_id' => $dynamicContent->id,
+                'video_url' => null,
+                'video_file' => null,
+                'video_type' => 'direct',
+                'audio_url' => null,
+                'audio_file' => null,
+                'audio_type' => 'direct',
+                'settings' => [],
+            ]);
+        }
+
+        return $contentMultimedia;
+    }
 
     public function form(Schema $schema): Schema
     {
@@ -174,6 +220,75 @@ class MyTokens extends Page implements HasForms, HasActions
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
+
+                Section::make('Contenido Multimedia')
+                    ->description('Agrega video y audio a tu regalo')
+                    ->schema([
+                        // Video
+                        Select::make('video_type')
+                            ->label('Tipo de video')
+                            ->options([
+                                'direct' => 'URL externa',
+                                'file_upload' => 'Archivo subido',
+                                'youtube' => 'YouTube',
+                                'vimeo' => 'Vimeo',
+                            ])
+                            ->default('direct')
+                            ->live()
+                            ->columnSpan(1),
+                        
+                        TextInput::make('video_url')
+                            ->label('URL del video')
+                            ->placeholder('https://www.youtube.com/watch?v=...')
+                            ->url()
+                            ->visible(fn ($get) => in_array($get('video_type'), ['direct', 'youtube', 'vimeo']))
+                            ->columnSpan(1),
+                        
+                        FileUpload::make('video_file')
+                            ->label('Archivo de video')
+                            ->directory('videos')
+                            ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/ogg'])
+                            ->maxSize(50 * 1024) // 50MB
+                            ->disk('public')
+                            ->visibility('public')
+                            ->preserveFilenames()
+                            ->visible(fn ($get) => $get('video_type') === 'file_upload')
+                            ->columnSpan(1),
+
+                        // Audio
+                        Select::make('audio_type')
+                            ->label('Tipo de audio')
+                            ->options([
+                                'direct' => 'URL externa',
+                                'file_upload' => 'Archivo subido',
+                                'youtube_music' => 'YouTube Music',
+                                'spotify' => 'Spotify',
+                                'soundcloud' => 'SoundCloud',
+                            ])
+                            ->default('direct')
+                            ->live()
+                            ->columnSpan(1),
+                        
+                        TextInput::make('audio_url')
+                            ->label('URL del audio')
+                            ->placeholder('https://example.com/audio.mp3')
+                            ->url()
+                            ->visible(fn ($get) => in_array($get('audio_type'), ['direct', 'youtube_music', 'spotify', 'soundcloud']))
+                            ->columnSpan(1),
+                        
+                        FileUpload::make('audio_file')
+                            ->label('Archivo de audio')
+                            ->directory('audio')
+                            ->acceptedFileTypes(['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/x-m4a', 'audio/aac'])
+                            ->maxSize(20 * 1024) // 20MB
+                            ->disk('public')
+                            ->visibility('public')
+                            ->preserveFilenames()
+                            ->visible(fn ($get) => $get('audio_type') === 'file_upload')
+                            ->columnSpan(1),
+                    ])
+                    ->columns(2)
+                    ->collapsible(),
             ])
             ->statePath('data')
             ->model(ContentGift::class);
@@ -206,13 +321,38 @@ class MyTokens extends Page implements HasForms, HasActions
 
         $data = $this->form->getState();
         
-        // Remover campos que no pertenecen al ContentGift
-        unset($data['token_name'], $data['token_id'], $data['selectedTokenId']);
+        // Separar datos por modelo
+        $giftData = [
+            'sender_name' => $data['sender_name'] ?? '',
+            'recipient_name' => $data['recipient_name'] ?? '',
+            'message' => $data['message'] ?? '',
+        ];
         
-        $this->contentGift->update($data);
+        // Actualizar ContentGift
+        $this->contentGift->update($giftData);
+        
+        // Crear o actualizar ContentMultimedia si hay datos multimedia
+        if (!$this->contentMultimedia) {
+            $this->contentMultimedia = $this->getOrCreateContentMultimedia();
+        }
+        
+        if ($this->contentMultimedia) {
+            $multimediaData = [
+                'video_url' => $data['video_url'] ?? null,
+                'video_file' => $data['video_file'] ?? null,
+                'video_type' => $data['video_type'] ?? 'direct',
+                'audio_url' => $data['audio_url'] ?? null,
+                'audio_file' => $data['audio_file'] ?? null,
+                'audio_type' => $data['audio_type'] ?? 'direct',
+                'settings' => $data['settings'] ?? [],
+            ];
+            
+            $this->contentMultimedia->update($multimediaData);
+        }
         
         Notification::make()
-            ->title('Regalo actualizado exitosamente')
+            ->title('Contenido actualizado exitosamente')
+            ->body('Se ha guardado toda la información del regalo y multimedia.')
             ->success()
             ->send();
     }
