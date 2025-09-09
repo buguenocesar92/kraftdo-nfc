@@ -24,18 +24,21 @@ Route::middleware(['auth'])->group(function () {
 // RUTAS PÚBLICAS PARA CONTENIDO NFC
 // ========================================
 
-// FORMATO LIMPIO: /nfc/{id} - Ruta principal más SEO-friendly
-Route::get('/nfc/{id}', [NfcContentController::class, 'showById'])
-    ->name('nfc.show')
+// 🎯 Rutas específicas ANTES de las dinámicas (orden importa en Laravel)
+Route::get('/nfc/onboarding/{id}', [NfcContentController::class, 'onboardingById'])->name('nfc.onboarding.by-id')
     ->where('id', '[A-Za-z0-9\-]+');
+Route::get('/nfc/onboarding', [NfcContentController::class, 'onboarding'])->name('nfc.onboarding');
+Route::post('/nfc/onboarding', [NfcContentController::class, 'createAccount'])->name('nfc.create-account');
+Route::get('/nfc/info', [NfcContentController::class, 'info'])->name('nfc.info');
 
 // RETROCOMPATIBILIDAD: Formato antiguo /nfc?TYPE=X&ID=uuid
 Route::get('/nfc', [NfcContentController::class, 'showLegacy'])
     ->name('nfc.legacy');
 
-// 🎯 Rutas de Onboarding NFC
-Route::get('/nfc/onboarding', [NfcContentController::class, 'onboarding'])->name('nfc.onboarding');
-Route::post('/nfc/onboarding', [NfcContentController::class, 'createAccount'])->name('nfc.create-account');
+// FORMATO LIMPIO: /nfc/{id} - Ruta principal más SEO-friendly (DEBE IR AL FINAL)
+Route::get('/nfc/{id}', [NfcContentController::class, 'showById'])
+    ->name('nfc.show')
+    ->where('id', '[A-Za-z0-9\-]+');
 
 // 🔗 Ruta para asignar chip a usuario autenticado
 Route::post('/nfc/assign-token', [NfcContentController::class, 'assignTokenToAuthenticatedUser'])
@@ -52,9 +55,6 @@ Route::get('/t/{tokenId}', [NfcContentController::class, 'showByToken'])
     ->name('nfc.token')
     ->where('tokenId', '[A-Za-z0-9\-]+');
 
-// Información sobre NFC
-Route::get('/nfc/info', [NfcContentController::class, 'info'])
-    ->name('nfc.info');
 
 // API para validación de contenido (público)
 Route::get('/api/validate/content/{contentId}', [NfcContentController::class, 'validateContent'])

@@ -179,7 +179,7 @@
                 
                 <div class="mb-6">
                     <x-nfc.kraftdo-button 
-                        href="{{ route('nfc.onboarding') }}?TYPE={{ $type }}&ID={{ $id }}"
+                        href="{{ route('nfc.onboarding.by-id', $id) }}"
                         variant="kraftdo"
                         size="lg"
                         icon="fas fa-magic"

@@ -150,20 +150,17 @@ class NfcContentController extends Controller
             }
         }
         
-        // Si no hay token, mostrar onboarding para que el usuario lo reclame
+        // Si no hay token, mostrar error
         if (!$token) {
-            // Si no tenemos TYPE y no encontramos el token, no podemos continuar
-            if (!$type) {
-                return view('nfc.error', [
-                    'message' => 'Chip no encontrado. Se requiere el parámetro TYPE para chips nuevos.',
-                    'suggestions' => [
-                        'Verifica que la URL esté completa con TYPE e ID',
-                        'Si es un chip nuevo, asegúrate de incluir TYPE=GIFT (o el tipo correcto)',
-                        'Contacta al administrador si el problema persiste'
-                    ]
-                ]);
-            }
-            return $this->showOnboarding($type, $id);
+            return view('nfc.error', [
+                'message' => 'Chip NFC no encontrado',
+                'suggestions' => [
+                    'Verifica que el ID del chip esté correcto: ' . $id,
+                    'Asegúrate de escanear el chip NFC correctamente',
+                    'Si el problema persiste, contacta al administrador',
+                    $type ? 'Tipo especificado: ' . $type : 'No se especificó TYPE en la URL'
+                ]
+            ]);
         }
         
         // Si el token no está asignado a ningún usuario, mostrar onboarding
@@ -578,6 +575,35 @@ class NfcContentController extends Controller
             'id' => $id,
             'token' => $token,
             'reason' => $reason
+        ]);
+    }
+
+    /**
+     * Mostrar formulario de onboarding con formato limpio /nfc/onboarding/{id}
+     */
+    public function onboardingById(string $id): View|RedirectResponse
+    {
+        // Buscar el token para obtener el TYPE
+        $token = NfcToken::where('token_id', $id)->first();
+        
+        if (!$token) {
+            // Si no existe el token, mostrar página de error amigable
+            return view('nfc.error', [
+                'message' => 'Chip NFC no encontrado',
+                'suggestions' => [
+                    'Verifica que el ID del chip esté correcto',
+                    'Asegúrate de escanear el chip NFC correctamente',
+                    'Si el problema persiste, contacta al administrador',
+                    'Puedes intentar acceder usando el formato: /nfc?TYPE=GIFT&ID=' . $id
+                ]
+            ]);
+        }
+        
+        $type = $token->content_type;
+        
+        return view('nfc.onboarding-form', [
+            'type' => $type,
+            'id' => $id
         ]);
     }
 
