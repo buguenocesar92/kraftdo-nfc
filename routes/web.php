@@ -57,7 +57,7 @@ Route::get('/t/{tokenId}', [NfcContentController::class, 'showByToken'])
 
 
 // API para validación de contenido (público)
-Route::get('/api/validate/content/{contentId}', [NfcContentController::class, 'validateContent'])
+Route::get('/api/validate/content/{contentId}', [NfcContentController::class, 'validateToken'])
     ->name('api.validate.content');
 
 Route::get('/api/validate/token/{tokenId}', [NfcContentController::class, 'validateToken'])
@@ -78,5 +78,11 @@ Route::middleware(['auth'])->group(function () {
         ->name('api.content.stats')
         ->where('contentId', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
 });
+
+// ========================================
+// RUTAS GESTIONADAS AUTOMÁTICAMENTE POR FILAMENT
+// ========================================
+// Las rutas para my-tokens son manejadas automáticamente por Filament
+// usando el slug definido en la página: 'my-tokens/{tokenId?}'
 
 require __DIR__.'/auth.php';
