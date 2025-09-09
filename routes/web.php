@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\NfcContentController;
+use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -23,6 +24,10 @@ Route::middleware(['auth'])->group(function () {
 // ========================================
 // RUTAS PÚBLICAS PARA CONTENIDO NFC
 // ========================================
+
+// 🎁 NUEVA RUTA PARA TOKENS/REGALOS
+Route::get('/token/{tokenId}', [TokenController::class, 'show'])->name('token.show')
+    ->where('tokenId', '[A-Za-z0-9\-]+');
 
 // 🎯 Rutas específicas ANTES de las dinámicas (orden importa en Laravel)
 Route::get('/nfc/onboarding/{id}', [NfcContentController::class, 'onboardingById'])->name('nfc.onboarding.by-id')
@@ -72,6 +77,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/preview/{contentId}', [NfcContentController::class, 'preview'])
         ->name('nfc.preview')
         ->where('contentId', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
+    
+    // Vista previa de token (solo propietarios)
+    Route::get('/preview/token/{tokenId}', [TokenController::class, 'preview'])
+        ->name('token.preview')
+        ->where('tokenId', '[0-9]+');
     
     // Estadísticas de contenido (solo propietarios)
     Route::get('/api/stats/{contentId}', [NfcContentController::class, 'getStats'])

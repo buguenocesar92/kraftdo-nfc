@@ -107,10 +107,17 @@ class MyTokensList extends Page implements HasTable
                     ->url(fn (NfcToken $record): string => "/admin/my-tokens/{$record->id}/configure")
                     ->openUrlInNewTab(false),
 
-                Action::make('view')
-                    ->label('Ver')
+                Action::make('preview')
+                    ->label('Vista Previa')
                     ->icon('heroicon-o-eye')
                     ->color('secondary')
+                    ->url(fn (NfcToken $record): string => "/token/{$record->token_id}")
+                    ->openUrlInNewTab(true),
+
+                Action::make('view')
+                    ->label('Info')
+                    ->icon('heroicon-o-information-circle')
+                    ->color('gray')
                     ->action(function (NfcToken $record) {
                         Notification::make()
                             ->title('Token: ' . $record->name)
