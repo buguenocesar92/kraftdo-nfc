@@ -28,7 +28,7 @@ class MyTokens extends Page implements HasForms, HasActions
 
     protected static ?string $title = 'Configurar Token';
 
-    protected static ?string $navigationLabel = 'Mis Tokens';
+    protected static ?string $navigationLabel = 'Configurar Token';
 
     protected static ?int $navigationSort = 2;
 
@@ -57,6 +57,11 @@ class MyTokens extends Page implements HasForms, HasActions
 
     public function mount($tokenId): void
     {
+        // Verificar permisos antes de proceder
+        if (!auth()->user()->can('configure_own_tokens')) {
+            abort(403, 'No tienes permisos para configurar tokens.');
+        }
+
         // El tokenId es requerido ahora
         $this->selectedTokenId = $tokenId;
         $this->loadToken($this->selectedTokenId);
@@ -417,6 +422,6 @@ class MyTokens extends Page implements HasForms, HasActions
 
     public static function canAccess(): bool
     {
-        return true;
+        return auth()->check() && auth()->user()->can('configure_own_tokens');
     }
 }

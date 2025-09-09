@@ -100,21 +100,26 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_analytics',
             'manage_system_settings',
             'bulk_actions',
+
+            // Token management permissions for users
+            'view_own_tokens',
+            'configure_own_tokens',
+            'manage_own_token_content',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
+            Permission::firstOrCreate(['name' => $permission]);
         }
 
         // Create roles with permissions
 
         // 1. Super Admin - Full access
-        $superAdmin = Role::create(['name' => 'Super Admin']);
-        $superAdmin->givePermissionTo(Permission::all());
+        $superAdmin = Role::firstOrCreate(['name' => 'Super Admin']);
+        $superAdmin->syncPermissions(Permission::all());
 
         // 2. Admin - Can manage content and users
-        $admin = Role::create(['name' => 'Admin']);
-        $admin->givePermissionTo([
+        $admin = Role::firstOrCreate(['name' => 'Admin']);
+        $admin->syncPermissions([
             'access_admin_panel',
             'view_analytics',
             
@@ -137,8 +142,8 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // 3. Editor - Can create and edit content
-        $editor = Role::create(['name' => 'Editor']);
-        $editor->givePermissionTo([
+        $editor = Role::firstOrCreate(['name' => 'Editor']);
+        $editor->syncPermissions([
             'access_admin_panel',
             
             // Content management (own content)
@@ -152,11 +157,16 @@ class RolesAndPermissionsSeeder extends Seeder
             
             // Can view but not manage tokens
             'view_nfc_token',
+            
+            // Own tokens management
+            'view_own_tokens',
+            'configure_own_tokens',
+            'manage_own_token_content',
         ]);
 
         // 4. Viewer - Read-only access
-        $viewer = Role::create(['name' => 'Viewer']);
-        $viewer->givePermissionTo([
+        $viewer = Role::firstOrCreate(['name' => 'Viewer']);
+        $viewer->syncPermissions([
             'access_admin_panel',
             
             // View-only permissions
@@ -171,8 +181,8 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // 5. Content Manager - Specialized for content types
-        $contentManager = Role::create(['name' => 'Content Manager']);
-        $contentManager->givePermissionTo([
+        $contentManager = Role::firstOrCreate(['name' => 'Content Manager']);
+        $contentManager->syncPermissions([
             'access_admin_panel',
             'view_analytics',
             
@@ -192,9 +202,12 @@ class RolesAndPermissionsSeeder extends Seeder
         ]);
 
         // 6. NFC User - Rol por defecto para usuarios registrados vía onboarding
-        $nfcUser = Role::create(['name' => 'NFC']);
-        $nfcUser->givePermissionTo([
-            'access_admin_panel'
+        $nfcUser = Role::firstOrCreate(['name' => 'NFC']);
+        $nfcUser->syncPermissions([
+            'access_admin_panel',
+            'view_own_tokens',
+            'configure_own_tokens',
+            'manage_own_token_content',
         ]);
 
         $this->command->info('Roles and permissions created successfully!');
