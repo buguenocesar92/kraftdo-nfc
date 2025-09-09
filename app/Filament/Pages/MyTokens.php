@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\ContentGift;
 use App\Models\ContentMultimedia;
+use App\Models\ContentGalleryImage;
 use App\Models\DynamicContent;
 use App\Models\NfcToken;
 use Filament\Forms\Components\FileUpload;
@@ -108,9 +109,23 @@ class MyTokens extends Page implements HasForms, HasActions
                 }
                 
                 // Combinar datos de regalo y multimedia
+                $multimediaData = $this->contentMultimedia ? $this->contentMultimedia->toArray() : [];
+                
+                // Agregar imágenes de galería si existen
+                if ($this->contentMultimedia) {
+                    $galleryImages = $this->contentMultimedia->galleryImages()
+                        ->orderBy('sort_order')
+                        ->orderBy('id')
+                        ->pluck('image_path')
+                        ->filter()
+                        ->values()
+                        ->toArray();
+                    $multimediaData['gallery_images'] = $galleryImages;
+                }
+                
                 $data = array_merge(
                     $this->contentGift->toArray(),
-                    $this->contentMultimedia ? $this->contentMultimedia->toArray() : [],
+                    $multimediaData,
                     [
                         'selectedTokenId' => $this->selectedTokenId,
                         'token_name' => $this->token->name,
@@ -289,6 +304,27 @@ class MyTokens extends Page implements HasForms, HasActions
                     ])
                     ->columns(2)
                     ->collapsible(),
+
+                Section::make('Galería de Imágenes')
+                    ->description('Agrega imágenes a tu regalo')
+                    ->schema([
+                        FileUpload::make('gallery_images')
+                            ->label('Imágenes')
+                            ->directory('gallery')
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
+                            ->maxSize(10 * 1024) // 10MB por imagen
+                            ->maxFiles(10)
+                            ->multiple()
+                            ->reorderable()
+                            ->disk('public')
+                            ->visibility('public')
+                            ->preserveFilenames()
+                            ->imageEditor()
+                            ->imagePreviewHeight('150')
+                            ->panelLayout('grid')
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsible(),
             ])
             ->statePath('data')
             ->model(ContentGift::class);
@@ -348,6 +384,26 @@ class MyTokens extends Page implements HasForms, HasActions
             ];
             
             $this->contentMultimedia->update($multimediaData);
+            
+            // Manejar galería de imágenes
+            if (isset($data['gallery_images']) && is_array($data['gallery_images'])) {
+                // Eliminar imágenes existentes
+                $this->contentMultimedia->galleryImages()->delete();
+                
+                // Crear nuevas imágenes
+                foreach ($data['gallery_images'] as $index => $imagePath) {
+                    if ($imagePath) {
+                        ContentGalleryImage::create([
+                            'content_multimedia_id' => $this->contentMultimedia->id,
+                            'image_path' => $imagePath,
+                            'image_url' => null,
+                            'type' => ContentGalleryImage::TYPE_UPLOAD,
+                            'sort_order' => $index + 1,
+                            'alt_text' => "Imagen " . ($index + 1),
+                        ]);
+                    }
+                }
+            }
         }
         
         Notification::make()
