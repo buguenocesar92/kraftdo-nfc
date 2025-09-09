@@ -1,8 +1,10 @@
 // Token Gift Professional JavaScript with Alpine.js
+// Este archivo se carga antes de Alpine.start() para registrar componentes
 
-document.addEventListener('alpine:init', () => {
-    // Main Token Gift Component
-    Alpine.data('tokenGift', () => ({
+// Función que registra el componente cuando Alpine esté disponible
+function registerTokenGiftComponent() {
+    if (typeof window.Alpine !== 'undefined') {
+        window.Alpine.data('tokenGift', () => ({
         // Gallery modal state
         modalOpen: false,
         currentImage: {
@@ -12,6 +14,7 @@ document.addEventListener('alpine:init', () => {
         
         init() {
             this.setupKeyboardHandlers();
+            console.log('Token Gift Alpine component initialized');
         },
         
         // Gallery Modal Functions
@@ -41,8 +44,21 @@ document.addEventListener('alpine:init', () => {
                 }
             });
         }
-    }));
-});
+        }));
+    } else {
+        console.warn('Alpine.js no está disponible aún');
+    }
+}
+
+// Intentar registrar inmediatamente o esperar a que Alpine esté disponible
+if (typeof window.Alpine !== 'undefined') {
+    registerTokenGiftComponent();
+} else {
+    // Esperar a que Alpine esté disponible
+    document.addEventListener('alpine:init', () => {
+        registerTokenGiftComponent();
+    });
+}
 
 // Utility functions
 window.TokenUtils = {

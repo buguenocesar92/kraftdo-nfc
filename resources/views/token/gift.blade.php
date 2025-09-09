@@ -25,9 +25,6 @@
         'resources/js/app.js',
         'resources/js/token-gift.js'
     ])
-    
-    {{-- Alpine.js --}}
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="h-full gradient-bg" x-data="tokenGift()">
