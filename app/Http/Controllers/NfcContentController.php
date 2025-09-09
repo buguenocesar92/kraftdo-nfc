@@ -529,6 +529,9 @@ class NfcContentController extends Controller
             'password' => Hash::make($validated['password'])
         ]);
         
+        // Asignar rol por defecto para usuarios NFC
+        $this->assignDefaultNfcRole($user);
+        
         // Asignar chip automáticamente
         $token = NfcToken::where('token_id', $validated['id'])
                          ->where('content_type', $validated['type'])
@@ -650,6 +653,11 @@ class NfcContentController extends Controller
             'nfc_token_id' => $token->id
         ]);
         
+        // Asignar rol por defecto si el usuario no tiene roles
+        if ($user->roles()->count() === 0) {
+            $this->assignDefaultNfcRole($user);
+        }
+        
         // Login automático
         Auth::login($user);
         
@@ -708,5 +716,51 @@ class NfcContentController extends Controller
             ],
             default => []
         };
+    }
+
+    /**
+     * Asignar rol por defecto a usuarios creados vía onboarding NFC
+     */
+    private function assignDefaultNfcRole(User $user): void
+    {
+        try {
+            // Asignar rol "NFC" específico para usuarios registrados vía onboarding
+            $nfcRole = \Spatie\Permission\Models\Role::where('name', 'NFC')->first();
+            
+            if ($nfcRole) {
+                $user->assignRole($nfcRole);
+                \Log::info('Rol NFC asignado a usuario', [
+                    'user_id' => $user->id,
+                    'email' => $user->email,
+                    'role' => 'NFC'
+                ]);
+            } else {
+                // Fallback: Si no existe el rol NFC, crear uno temporal
+                \Log::warning('Rol NFC no encontrado, creando fallback');
+                
+                $fallbackRole = \Spatie\Permission\Models\Role::firstOrCreate(['name' => 'NFC']);
+                
+                // Asignar permisos básicos si es un rol nuevo
+                if ($fallbackRole->wasRecentlyCreated) {
+                    $basicPermissions = \Spatie\Permission\Models\Permission::whereIn('name', [
+                        'access_admin_panel'
+                    ])->get();
+                    
+                    if ($basicPermissions->isNotEmpty()) {
+                        $fallbackRole->syncPermissions($basicPermissions);
+                    }
+                }
+                
+                $user->assignRole($fallbackRole);
+            }
+        } catch (\Exception $e) {
+            // Si hay algún problema con los roles, registrar el error pero continuar
+            // No queremos que falle la creación del usuario por problemas de permisos
+            \Log::error('Error asignando rol NFC a usuario', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $e->getMessage()
+            ]);
+        }
     }
 }

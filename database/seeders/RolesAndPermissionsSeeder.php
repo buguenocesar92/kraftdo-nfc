@@ -191,6 +191,12 @@ class RolesAndPermissionsSeeder extends Seeder
             'bulk_actions',
         ]);
 
+        // 6. NFC User - Rol por defecto para usuarios registrados vía onboarding
+        $nfcUser = Role::create(['name' => 'NFC']);
+        $nfcUser->givePermissionTo([
+            'access_admin_panel'
+        ]);
+
         $this->command->info('Roles and permissions created successfully!');
     }
 }
