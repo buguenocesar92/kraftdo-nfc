@@ -182,4 +182,11 @@
     .token-main-card {
         @apply p-6;
     }
+    
+    .token-video-fullwidth {
+        margin-left: calc(-1.5rem - 1rem);
+        margin-right: calc(-1.5rem - 1rem);
+        width: calc(100vw - 2rem);
+        max-width: none;
+    }
 }

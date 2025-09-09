@@ -6,7 +6,7 @@
 @if($contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file))
     <div class="bg-gray-50 rounded-xl p-6">
         <h3 class="text-xl font-semibold text-gray-800 mb-4">🎬 Video</h3>
-        <div class="aspect-video rounded-lg overflow-hidden bg-black">
+        <div class="aspect-video overflow-hidden bg-black w-screen sm:w-full relative left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:rounded-lg">
             @if($contentMultimedia->video_type === 'youtube' && $contentMultimedia->video_url)
                 @php
                     $videoId = '';
