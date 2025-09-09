@@ -72,12 +72,12 @@ class MyTokensList extends Page implements HasTable
                         'danger' => 'TOURIST',
                     ]),
 
-                BadgeColumn::make('status')
+                BadgeColumn::make('is_active')
                     ->label('Estado')
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Activo' : 'Inactivo')
                     ->colors([
-                        'success' => 'active',
-                        'warning' => 'inactive',
-                        'danger' => 'disabled',
+                        'success' => true,
+                        'danger' => false,
                     ]),
 
                 TextColumn::make('created_at')

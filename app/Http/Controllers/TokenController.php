@@ -24,7 +24,7 @@ class TokenController extends Controller
         }
 
         // Verificar que el token esté activo
-        if ($token->status !== 'active') {
+        if (!$token->is_active) {
             return view('token.inactive', compact('token'));
         }
 
