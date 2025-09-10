@@ -107,21 +107,6 @@
                 });
              ">
             
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                    <span class="text-2xl">🎬</span>
-                    <span>Video</span>
-                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full capitalize">{{ $videoType }}</span>
-                    <span x-show="isVerticalVideo" class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">📱 Vertical</span>
-                </h3>
-                
-                <!-- Video Quality/Info -->
-                <div class="flex items-center gap-2 text-sm text-gray-600">
-                    <span x-show="currentVideo.duration > 0" x-text="formatTime(currentVideo.duration)" class="bg-gray-100 px-2 py-1 rounded"></span>
-                    <span x-show="currentVideo.quality !== 'auto'" x-text="currentVideo.quality" class="bg-gray-100 px-2 py-1 rounded"></span>
-                </div>
-            </div>
 
             <!-- Video Container -->
             <div class="relative w-screen overflow-hidden bg-black left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-full sm:rounded-lg"
@@ -386,47 +371,6 @@
                 </div>
             </div>
 
-            <!-- Video Info Panel -->
-            <div class="mt-4 bg-white bg-opacity-60 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-4 text-sm text-gray-600">
-                        <span class="flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span x-show="duration > 0" x-text="Math.floor(duration / 60) + ':' + Math.floor(duration % 60).toString().padStart(2, '0')">Duración</span>
-                        </span>
-                        
-                        <span x-show="videoWidth > 0 && videoHeight > 0" class="flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                            </svg>
-                            <span x-text="videoWidth + 'x' + videoHeight">Resolución</span>
-                        </span>
-                        
-                        <span x-show="currentVideo.playbackRate !== 1" class="flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                            </svg>
-                            <span x-text="currentVideo.playbackRate + 'x'">Velocidad</span>
-                        </span>
-
-                        <span x-show="currentVideo.quality !== 'auto'" class="flex items-center gap-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2M7 4h10M7 4l-1 16h12L17 4"></path>
-                            </svg>
-                            <span x-text="currentVideo.quality">Calidad</span>
-                        </span>
-                    </div>
-
-                    <!-- Keyboard Shortcuts Hint -->
-                    <div class="hidden lg:block text-xs text-gray-500">
-                        <span class="mr-4">Espacio: Play/Pausa</span>
-                        <span class="mr-4">F: Pantalla completa</span>
-                        <span>M: Silenciar</span>
-                    </div>
-                </div>
-            </div>
         </div>
     @endif
 @endif

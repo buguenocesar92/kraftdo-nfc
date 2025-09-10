@@ -186,43 +186,6 @@
                 });
              ">
             
-            <!-- Header -->
-            <div class="flex items-center justify-between mb-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                            <span>Audio Player</span>
-                            <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full capitalize">{{ $audioType }}</span>
-                        </h3>
-                        <div class="text-sm text-gray-600" x-show="metadata.title">
-                            <span x-text="metadata.title"></span>
-                            <span x-show="metadata.artist" x-text="' - ' + metadata.artist"></span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Visualization Mode Toggle -->
-                <div class="flex items-center gap-2">
-                    <button x-on:click="visualMode = visualMode === 'waveform' ? 'bars' : visualMode === 'bars' ? 'circle' : 'waveform'"
-                            class="p-2 rounded-lg bg-white bg-opacity-60 hover:bg-opacity-80 transition-all"
-                            :title="'Modo: ' + visualMode">
-                        <svg x-show="visualMode === 'waveform'" class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M3 9v6h4l5 5V4L7 9H3z"/>
-                        </svg>
-                        <svg x-show="visualMode === 'bars'" class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M6 2h2v20H6V2zm4 4h2v16h-2V6zm4-2h2v18h-2V4zm4 6h2v8h-2v-8z"/>
-                        </svg>
-                        <svg x-show="visualMode === 'circle'" class="w-5 h-5 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
 
             <!-- Audio Element -->
             <audio x-ref="audioElement"
@@ -393,17 +356,6 @@
     @elseif(in_array($audioType, ['youtube_music', 'spotify', 'soundcloud']) && $contentMultimedia->audio_url)
         <!-- External Audio Services -->
         <div class="bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 rounded-xl p-6">
-            <div class="flex items-center gap-3 mb-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl flex items-center justify-center">
-                    <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-800">🎵 Audio Externo</h3>
-                    <p class="text-sm text-gray-600">{{ ucfirst(str_replace('_', ' ', $audioType)) }}</p>
-                </div>
-            </div>
             
             <div class="bg-white bg-opacity-70 backdrop-blur-sm rounded-2xl p-6 text-center">
                 <a href="{{ $contentMultimedia->audio_url }}" 
