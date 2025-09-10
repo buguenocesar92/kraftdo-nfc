@@ -178,21 +178,15 @@
                 audio.play()
                     .then(() => {
                         console.log('Audio started playing successfully');
-                        
-                        // Scroll to center the audio player in the viewport
-                        scrollToMedia(audio);
                     })
                     .catch(e => {
                         console.log('Audio play failed:', e);
                         // Fallback: try with muted
                         audio.muted = true;
                         audio.play().then(() => {
-                            // Still scroll even if muted
-                            scrollToMedia(audio);
+                            console.log('Audio started playing muted');
                         }).catch(err => {
                             console.error('Even muted audio playback failed:', err);
-                            // Scroll anyway to show the audio player
-                            scrollToMedia(audio);
                         });
                     });
             } else {
