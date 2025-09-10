@@ -42,7 +42,7 @@ function registerTokenGiftComponent() {
                 src: src,
                 alt: alt,
                 caption: caption,
-                loading: true,
+                loading: !this.imagesLoaded.has(src), // Solo loading si no está cargada
                 error: false
             };
             this.galleryImages = images;
@@ -52,8 +52,10 @@ function registerTokenGiftComponent() {
             this.imagePosition = { x: 0, y: 0 };
             document.body.style.overflow = 'hidden';
             
-            // Preload current image
-            this.loadImage(src);
+            // Solo cargar si no está en cache
+            if (!this.imagesLoaded.has(src)) {
+                this.loadImage(src);
+            }
             // Preload adjacent images
             this.preloadAdjacentImages();
         },
@@ -76,17 +78,20 @@ function registerTokenGiftComponent() {
         
         updateCurrentImage() {
             const img = this.galleryImages[this.currentImageIndex];
+            const isLoaded = this.imagesLoaded.has(img.src);
+            
             this.currentImage = {
                 src: img.src,
                 alt: img.alt,
                 caption: img.caption || '',
-                loading: !this.imagesLoaded.has(img.src),
+                loading: !isLoaded,
                 error: false
             };
             this.zoomLevel = 1;
             this.imagePosition = { x: 0, y: 0 };
             
-            if (!this.imagesLoaded.has(img.src)) {
+            // Solo cargar si no está en cache
+            if (!isLoaded) {
                 this.loadImage(img.src);
             }
         },
@@ -98,6 +103,19 @@ function registerTokenGiftComponent() {
             this.zoomLevel = 1;
             this.imagePosition = { x: 0, y: 0 };
             this.currentImage = { src: '', alt: '', caption: '', loading: false, error: false };
+        },
+        
+        // Debug method to check cache state
+        debugImageCache() {
+            console.log('Images loaded cache:', Array.from(this.imagesLoaded));
+            console.log('Current image:', this.currentImage);
+        },
+        
+        // Method to clear cache if needed
+        clearImageCache() {
+            this.imagesLoaded.clear();
+            this.preloadedImages.clear();
+            console.log('Image cache cleared');
         },
         
         handleModalBackdrop(event) {
@@ -181,12 +199,20 @@ function registerTokenGiftComponent() {
         
         // Image loading and preloading
         loadImage(src) {
-            if (this.imagesLoaded.has(src)) return Promise.resolve();
+            if (this.imagesLoaded.has(src)) {
+                // Si ya está cargada, actualizar estado inmediatamente
+                if (this.currentImage.src === src) {
+                    this.currentImage.loading = false;
+                    this.currentImage.error = false;
+                }
+                return Promise.resolve();
+            }
             
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => {
                     this.imagesLoaded.add(src);
+                    // Actualizar estado solo si es la imagen actual
                     if (this.currentImage.src === src) {
                         this.currentImage.loading = false;
                         this.currentImage.error = false;
@@ -194,6 +220,7 @@ function registerTokenGiftComponent() {
                     resolve();
                 };
                 img.onerror = () => {
+                    // Actualizar estado solo si es la imagen actual
                     if (this.currentImage.src === src) {
                         this.currentImage.loading = false;
                         this.currentImage.error = true;

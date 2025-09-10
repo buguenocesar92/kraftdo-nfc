@@ -21,15 +21,15 @@
             </h3>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 gallery-masonry">
             @foreach($galleryImages as $index => $image)
-                <div class="relative group cursor-pointer transform transition-all duration-300 hover:scale-105" 
+                <div class="relative group cursor-pointer gallery-item" 
                      x-on:click="openImageModal('{{ $image->image_source }}', '{{ $image->alt_text ?? '' }}', images, {{ $index }}, '{{ $image->caption ?? '' }}')">
                     
                     <!-- Skeleton Loader -->
-                    <div class="absolute inset-0 bg-gray-200 rounded-lg animate-pulse z-10"
+                    <div class="bg-gray-200 rounded-lg animate-pulse aspect-[4/3] z-10"
                          x-show="!imageLoaded['img_{{ $index }}'] && !imageError['img_{{ $index }}']">
-                        <div class="flex items-center justify-center h-48">
+                        <div class="flex items-center justify-center h-full">
                             <svg class="w-8 h-8 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -38,7 +38,7 @@
                     </div>
                     
                     <!-- Error State -->
-                    <div class="absolute inset-0 bg-red-50 rounded-lg border-2 border-red-200 flex items-center justify-center z-10"
+                    <div class="bg-red-50 rounded-lg border-2 border-red-200 flex items-center justify-center aspect-[4/3] z-10"
                          x-show="imageError['img_{{ $index }}']">
                         <div class="text-center p-4">
                             <svg class="w-12 h-12 text-red-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,7 +51,7 @@
                     <!-- Main Image -->
                     <img data-src="{{ $image->image_source }}" 
                          alt="{{ $image->alt_text }}" 
-                         class="w-full h-48 object-cover rounded-lg opacity-0 transition-all duration-500 group-hover:scale-110"
+                         class="w-full h-auto object-cover rounded-lg opacity-0 transition-all duration-500 group-hover:scale-110"
                          x-intersect.once="
                             $el.src = $el.dataset.src;
                             $el.onload = () => {

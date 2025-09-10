@@ -169,6 +169,36 @@
     @apply w-6 h-6;
 }
 
+/* Masonry Gallery Styles */
+.gallery-masonry {
+    column-fill: auto;
+}
+
+.gallery-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+/* Prevent awkward breaks */
+.gallery-item img {
+    max-width: 100%;
+    height: auto;
+    vertical-align: top;
+}
+
+/* Smooth transitions for masonry items */
+.gallery-item {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
 /* Responsive Design */
 @media (max-width: 640px) {
     .token-title {
@@ -188,5 +218,10 @@
         margin-right: calc(-1.5rem - 1rem);
         width: calc(100vw - 2rem);
         max-width: none;
+    }
+    
+    /* Single column on mobile for better masonry */
+    .gallery-masonry {
+        column-count: 1 !important;
     }
 }
