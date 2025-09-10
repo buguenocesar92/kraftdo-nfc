@@ -4,6 +4,7 @@
 ])
 
 @if($galleryImages && count($galleryImages) > 0)
+    <!-- Gallery container with proper spacing -->
     <div class="bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 rounded-xl p-6" x-data="{
         images: [
             @foreach($galleryImages as $image)
@@ -21,7 +22,7 @@
             </h3>
         </div>
         
-        <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 gallery-masonry">
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 gallery-masonry w-screen left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-full relative px-4 sm:px-0">
             @foreach($galleryImages as $index => $image)
                 <div class="relative group cursor-pointer gallery-item" 
                      x-on:click="openImageModal('{{ $image->image_source }}', '{{ $image->alt_text ?? '' }}', images, {{ $index }}, '{{ $image->caption ?? '' }}')">
