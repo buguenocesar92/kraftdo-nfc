@@ -909,10 +909,357 @@ function registerTokenGiftComponent() {
             });
         }
         }));
+
+        // Voice Selector Component
+        window.Alpine.data('voiceSelector', () => ({
+            showVoiceSelector: false,
+            availableVoices: [],
+            selectedVoice: null,
+
+            initVoiceSelector() {
+                this.loadVoices();
+                speechSynthesis.addEventListener('voiceschanged', () => this.loadVoices());
+            },
+
+            loadVoices() {
+                this.availableVoices = speechSynthesis.getVoices().filter(voice => 
+                    voice.lang.startsWith('es') || voice.lang.startsWith('en')
+                );
+                if (this.availableVoices.length > 0 && !this.selectedVoice) {
+                    this.selectedVoice = this.availableVoices.find(v => v.lang === 'es-ES') || this.availableVoices[0];
+                    window.selectedTTSVoice = this.selectedVoice;
+                }
+            },
+
+            selectVoice(voice) {
+                this.selectedVoice = voice;
+                window.selectedTTSVoice = voice;
+                console.log('Selected voice:', voice.name);
+            },
+
+            testVoice() {
+                if (this.selectedVoice) {
+                    const testText = 'Hola, esta es una prueba de voz.';
+                    const utterance = new SpeechSynthesisUtterance(testText);
+                    utterance.voice = this.selectedVoice;
+                    utterance.lang = this.selectedVoice.lang;
+                    utterance.rate = 0.9;
+                    speechSynthesis.speak(utterance);
+                }
+            },
+
+            playMessage() {
+                if (window.readMessageAloud) {
+                    window.readMessageAloud();
+                }
+            }
+        }));
+
+        // Autoplay Overlay Component
+        window.Alpine.data('autoplayOverlay', (hasAudio, hasVideo) => ({
+            showAutoplayOverlay: true,
+            hasAudio: hasAudio,
+            hasVideo: hasVideo,
+
+            initOverlay() {
+                console.log('Overlay init:', { hasAudio: this.hasAudio, hasVideo: this.hasVideo, showOverlay: !this.hasAudio });
+                this.showAutoplayOverlay = !this.hasAudio;
+            },
+
+            getTitle() {
+                return this.hasVideo ? '¡Activa tu Video!' : '¡Escucha tu Mensaje!';
+            },
+
+            getDescription() {
+                return this.hasVideo ? 
+                    'Para brindarte la mejor experiencia, necesitamos activar la reproducción automática del video.' : 
+                    'Te leeremos el mensaje personalizado en voz alta para una experiencia única.';
+            },
+
+            getButtonText() {
+                return this.hasVideo ? 'Activar Video' : 'Escuchar Mensaje';
+            },
+
+            activateAutoplay() {
+                this.showAutoplayOverlay = false;
+                if (window.enableAutoplay) {
+                    window.enableAutoplay();
+                }
+            }
+        }));
     } else {
         console.warn('Alpine.js no está disponible aún');
     }
 }
+
+// TTS Functions - moved from inline JS
+window.enableAutoplay = function() {
+    console.log('Starting media playback...');
+    
+    // Try to find and start video first
+    const video = document.querySelector('video[x-ref="videoElement"]');
+    if (video) {
+        console.log('Found video, starting video playback');
+        
+        // Set video properties for better playback
+        video.muted = false; // Can unmute since user interacted
+        video.controls = true; // Show controls
+        
+        // Start playing the video
+        video.play()
+            .then(() => {
+                console.log('Video started playing successfully');
+                
+                // Scroll to center the video in the viewport
+                scrollToVideo(video);
+            })
+            .catch(e => {
+                console.log('Video play failed:', e);
+                // Fallback: try with muted
+                video.muted = true;
+                video.play().then(() => {
+                    // Still scroll even if muted
+                    scrollToVideo(video);
+                }).catch(err => {
+                    console.error('Even muted playback failed:', err);
+                    // Scroll anyway to show the video
+                    scrollToVideo(video);
+                });
+            });
+        return; // Exit early if video found
+    }
+    
+    // If no video, try to find and start audio
+    const audio = document.querySelector('audio[x-ref="audioElement"]');
+    if (audio) {
+        console.log('Found audio, starting audio playback');
+        
+        // Set audio properties for better playback
+        audio.muted = false; // Can unmute since user interacted
+        audio.controls = true; // Show controls
+        
+        // Start playing the audio
+        audio.play()
+            .then(() => {
+                console.log('Audio started playing successfully');
+            })
+            .catch(e => {
+                console.log('Audio play failed:', e);
+                // Fallback: try with muted
+                audio.muted = true;
+                audio.play().then(() => {
+                    console.log('Audio started playing muted');
+                }).catch(err => {
+                    console.error('Even muted audio playback failed:', err);
+                });
+            });
+        return; // Exit early if audio found
+    }
+    
+    // If no video/audio found, use text-to-speech for the message
+    console.log('No media elements found, starting text-to-speech');
+    window.readMessageAloud();
+}
+
+// Text-to-Speech functionality
+window.readMessageAloud = function() {
+    if (speechSynthesis.speaking) {
+        speechSynthesis.cancel(); // Stop current speech
+    }
+    
+    // Collect all text content from the gift
+    let fullText = '';
+    
+    console.log('=== DEBUGGING TTS ===');
+    
+    // Get recipient info - try multiple selectors
+    let recipientElement = document.querySelector('main h2');
+    if (!recipientElement) {
+        recipientElement = document.querySelector('.max-w-2xl h2');
+    }
+    if (!recipientElement) {
+        recipientElement = document.querySelector('h2');
+    }
+    
+    if (recipientElement) {
+        console.log('Found recipient:', recipientElement.textContent);
+        fullText += recipientElement.textContent.trim() + '. ';
+    } else {
+        console.log('No recipient element found');
+    }
+    
+    // Get sender info - look for p element that contains "De:"
+    const allParagraphs = document.querySelectorAll('p');
+    console.log('Found paragraphs:', allParagraphs.length);
+    allParagraphs.forEach((p, index) => {
+        console.log(`Paragraph ${index}:`, p.textContent);
+        if (p.textContent.includes('De:')) {
+            console.log('Found sender:', p.textContent);
+            fullText += p.textContent.trim() + '. ';
+        }
+    });
+    
+    // Get the personal message section - try multiple approaches
+    let messageSection = document.querySelector('.bg-gradient-to-r');
+    if (!messageSection) {
+        messageSection = document.querySelector('[class*="gradient"]');
+    }
+    if (!messageSection) {
+        messageSection = document.querySelector('.from-pink-50');
+    }
+    
+    console.log('Message section found:', !!messageSection);
+    console.log('All gradient elements:', document.querySelectorAll('[class*="gradient"]').length);
+    
+    if (messageSection) {
+        const messageTitle = messageSection.querySelector('h3');
+        const messageContent = messageSection.querySelector('.text-gray-700');
+        
+        console.log('Message title found:', !!messageTitle);
+        console.log('Message content found:', !!messageContent);
+        
+        if (messageTitle) {
+            console.log('Message title text:', messageTitle.textContent);
+            fullText += messageTitle.textContent.replace('💌', '').trim() + ': ';
+        }
+        
+        if (messageContent) {
+            console.log('Message content text:', messageContent.textContent);
+            fullText += messageContent.textContent.trim();
+        }
+    }
+    
+    // Always try fallback to ensure we get the message
+    console.log('Trying fallback selectors anyway...');
+    const allH3 = document.querySelectorAll('h3');
+    const allTextElements = document.querySelectorAll('.text-gray-700');
+    
+    console.log('Found h3 elements:', allH3.length);
+    console.log('Found .text-gray-700 elements:', allTextElements.length);
+    
+    allH3.forEach((h3, index) => {
+        console.log(`H3 ${index}:`, h3.textContent);
+        if (h3.textContent.includes('Mensaje') && !fullText.includes('Mensaje Personal')) {
+            fullText += h3.textContent.replace('💌', '').trim() + ': ';
+        }
+    });
+    
+    allTextElements.forEach((el, index) => {
+        console.log(`Text element ${index}:`, el.textContent);
+        const trimmedText = el.textContent.trim();
+        
+        // Skip if it's part of controls, navigation, or already included
+        if (!el.closest('button') && !el.closest('nav') && 
+            trimmedText.length > 3 && // Cambié de 10 a 3 para incluir mensajes cortos
+            !trimmedText.includes('Para:') && 
+            !trimmedText.includes('De:') &&
+            !trimmedText.includes('Error') &&
+            !trimmedText.includes('Cargando') &&
+            !trimmedText.includes('Regalo creado') &&
+            !trimmedText.includes('Te leeremos') &&
+            !trimmedText.includes('Esto iniciará') &&
+            !fullText.includes(trimmedText)) {
+            console.log(`Adding text element ${index}: "${trimmedText}"`);
+            fullText += trimmedText + '. ';
+        }
+    });
+
+    console.log('Final text to speak:', fullText);
+    console.log('Text length:', fullText.length);
+
+    if (fullText && fullText.length > 3) {
+        console.log('Starting speech synthesis...');
+        const utterance = new SpeechSynthesisUtterance(fullText);
+        
+        // Use selected voice if available
+        if (window.selectedTTSVoice) {
+            utterance.voice = window.selectedTTSVoice;
+            utterance.lang = window.selectedTTSVoice.lang;
+            console.log('Using selected voice:', window.selectedTTSVoice.name);
+        } else {
+            utterance.lang = 'es-ES';
+        }
+        
+        utterance.rate = 0.9;
+        utterance.pitch = 1.0;
+        utterance.volume = 0.8;
+        
+        utterance.onstart = () => console.log('TTS started');
+        utterance.onend = () => console.log('TTS ended');
+        utterance.onerror = (e) => console.error('TTS error:', e);
+        
+        speechSynthesis.speak(utterance);
+    } else {
+        console.log('No content to speak');
+        alert('No se encontró contenido para reproducir');
+    }
+    
+    console.log('=== END DEBUGGING ===');
+}
+
+// Function to scroll to video and center it
+function scrollToVideo(video) {
+    scrollToMedia(video, 'video');
+}
+
+// Generic function to scroll to any media element and center it
+function scrollToMedia(mediaElement, mediaType = 'media') {
+    console.log(`Scrolling to ${mediaType}...`);
+    
+    // Get media container (the parent div that contains the media)
+    const mediaContainer = mediaElement.closest('.relative') || 
+                          mediaElement.closest('[class*="bg-gradient"]') || 
+                          mediaElement.parentElement;
+    
+    if (mediaContainer) {
+        // Calculate position to center the media in viewport
+        const rect = mediaContainer.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const containerHeight = rect.height;
+        
+        // Calculate offset to center the media
+        const offsetTop = window.pageYOffset + rect.top;
+        const centerOffset = (windowHeight - containerHeight) / 2;
+        const scrollToPosition = Math.max(0, offsetTop - centerOffset);
+        
+        // Smooth scroll to the calculated position
+        window.scrollTo({
+            top: scrollToPosition,
+            behavior: 'smooth'
+        });
+        
+        console.log(`Scrolled to ${mediaType} position:`, scrollToPosition);
+    } else {
+        // Fallback: scroll to media element directly
+        mediaElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+        });
+        
+        console.log(`Used fallback scroll method for ${mediaType}`);
+    }
+}
+
+// Prevent scrolling when overlay is visible
+document.addEventListener('alpine:init', function() {
+    // Setup scroll prevention
+    const checkOverlay = () => {
+        const hasOverlay = document.querySelector('[x-show="showAutoplayOverlay"]');
+        const isVisible = hasOverlay && hasOverlay.style.display !== 'none' && 
+                         (!hasOverlay.__x || hasOverlay.__x.$data.showAutoplayOverlay !== false);
+        
+        if (isVisible) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'auto';
+        }
+    };
+    
+    // Check immediately and periodically
+    checkOverlay();
+    setInterval(checkOverlay, 100);
+});
 
 // Intentar registrar inmediatamente o esperar a que Alpine esté disponible
 if (typeof window.Alpine !== 'undefined') {
