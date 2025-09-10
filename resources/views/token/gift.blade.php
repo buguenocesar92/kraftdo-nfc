@@ -47,11 +47,15 @@
                 @if($contentMultimedia)
                     <div class="space-y-6">
                         {{-- Video Player --}}
+                        @if($contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file))
                         <h1 class="text-lg font-semibold text-gray-900">Video Especial</h1>
+                        @endif
                         <x-token-gift.video-player :content-multimedia="$contentMultimedia" />
 
                         {{-- Audio Player --}}
+                        @if($contentMultimedia && ($contentMultimedia->audio_url || $contentMultimedia->audio_file))
                         <h1 class="text-lg font-semibold text-gray-900">Audio Especial</h1>
+                        @endif
                         <x-token-gift.audio-player :content-multimedia="$contentMultimedia" />
                     </div>
                 @endif
@@ -75,7 +79,7 @@
         hasAudio: {{ $contentMultimedia && ($contentMultimedia->audio_url || $contentMultimedia->audio_file) ? 'true' : 'false' }},
         hasVideo: {{ $contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file) ? 'true' : 'false' }}
     }" 
-         x-init="console.log('Overlay init:', { hasAudio, hasVideo, showOverlay: hasVideo && !hasAudio }); showAutoplayOverlay = true;"
+         x-init="console.log('Overlay init:', { hasAudio, hasVideo, showOverlay: hasVideo || hasAudio }); showAutoplayOverlay = hasVideo || hasAudio;"
          x-show="showAutoplayOverlay" 
          class="fixed inset-0 flex items-center justify-center"
          style="z-index: 9999; display: block !important; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);"
@@ -99,7 +103,7 @@
             
             <!-- Description -->
             <p class="text-gray-600 mb-6 leading-relaxed">
-                Para brindarte la mejor experiencia, necesitamos activar la reproducción automática de videos.
+                Para brindarte la mejor experiencia, necesitamos activar la reproducción automática del contenido multimedia.
             </p>
             
             <!-- Debug Info -->
@@ -112,13 +116,13 @@
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M8 5v14l11-7z"/>
                     </svg>
-                    Activar Reproducción
+                    Activar Multimedia
                 </span>
             </button>
             
             <!-- Info Text -->
             <p class="text-xs text-gray-500 mt-4">
-                Esto permitirá que los videos se reproduzcan automáticamente
+                Esto iniciará la reproducción del contenido multimedia disponible
             </p>
         </div>
     </div>
@@ -126,12 +130,12 @@
     <!-- JavaScript for Autoplay -->
     <script>
         window.enableAutoplay = function() {
-            console.log('Starting video playback...');
+            console.log('Starting media playback...');
             
-            // Find and start playing the video immediately
+            // Try to find and start video first
             const video = document.querySelector('video[x-ref="videoElement"]');
             if (video) {
-                console.log('Found video, starting playback');
+                console.log('Found video, starting video playback');
                 
                 // Set video properties for better playback
                 video.muted = false; // Can unmute since user interacted
@@ -158,25 +162,65 @@
                             scrollToVideo(video);
                         });
                     });
+                return; // Exit early if video found
+            }
+            
+            // If no video, try to find and start audio
+            const audio = document.querySelector('audio[x-ref="audioElement"]');
+            if (audio) {
+                console.log('Found audio, starting audio playback');
+                
+                // Set audio properties for better playback
+                audio.muted = false; // Can unmute since user interacted
+                audio.controls = true; // Show controls
+                
+                // Start playing the audio
+                audio.play()
+                    .then(() => {
+                        console.log('Audio started playing successfully');
+                        
+                        // Scroll to center the audio player in the viewport
+                        scrollToMedia(audio);
+                    })
+                    .catch(e => {
+                        console.log('Audio play failed:', e);
+                        // Fallback: try with muted
+                        audio.muted = true;
+                        audio.play().then(() => {
+                            // Still scroll even if muted
+                            scrollToMedia(audio);
+                        }).catch(err => {
+                            console.error('Even muted audio playback failed:', err);
+                            // Scroll anyway to show the audio player
+                            scrollToMedia(audio);
+                        });
+                    });
             } else {
-                console.log('No video element found');
+                console.log('No media elements found');
             }
         }
 
         // Function to scroll to video and center it
         function scrollToVideo(video) {
-            console.log('Scrolling to video...');
+            scrollToMedia(video, 'video');
+        }
+        
+        // Generic function to scroll to any media element and center it
+        function scrollToMedia(mediaElement, mediaType = 'media') {
+            console.log(`Scrolling to ${mediaType}...`);
             
-            // Get video container (the parent div that contains the video)
-            const videoContainer = video.closest('.relative') || video.parentElement;
+            // Get media container (the parent div that contains the media)
+            const mediaContainer = mediaElement.closest('.relative') || 
+                                  mediaElement.closest('[class*="bg-gradient"]') || 
+                                  mediaElement.parentElement;
             
-            if (videoContainer) {
-                // Calculate position to center the video in viewport
-                const rect = videoContainer.getBoundingClientRect();
+            if (mediaContainer) {
+                // Calculate position to center the media in viewport
+                const rect = mediaContainer.getBoundingClientRect();
                 const windowHeight = window.innerHeight;
                 const containerHeight = rect.height;
                 
-                // Calculate offset to center the video
+                // Calculate offset to center the media
                 const offsetTop = window.pageYOffset + rect.top;
                 const centerOffset = (windowHeight - containerHeight) / 2;
                 const scrollToPosition = Math.max(0, offsetTop - centerOffset);
@@ -187,16 +231,16 @@
                     behavior: 'smooth'
                 });
                 
-                console.log('Scrolled to video position:', scrollToPosition);
+                console.log(`Scrolled to ${mediaType} position:`, scrollToPosition);
             } else {
-                // Fallback: scroll to video element directly
-                video.scrollIntoView({ 
+                // Fallback: scroll to media element directly
+                mediaElement.scrollIntoView({ 
                     behavior: 'smooth', 
                     block: 'center',
                     inline: 'nearest'
                 });
                 
-                console.log('Used fallback scroll method');
+                console.log(`Used fallback scroll method for ${mediaType}`);
             }
         }
 
