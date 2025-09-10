@@ -383,7 +383,7 @@
                                    step="0.1"
                                    :value="volume"
                                    x-on:input="setVolume($event.target.value)"
-                                   class="w-16 opacity-0 group-hover:opacity-100 transition-opacity accent-blue-500">
+                                   class="w-16 opacity-60 group-hover:opacity-100 transition-opacity accent-blue-500">
                         </div>
 
                     </div>
