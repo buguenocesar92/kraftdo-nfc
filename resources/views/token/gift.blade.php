@@ -141,17 +141,62 @@
                 video.play()
                     .then(() => {
                         console.log('Video started playing successfully');
+                        
+                        // Scroll to center the video in the viewport
+                        scrollToVideo(video);
                     })
                     .catch(e => {
                         console.log('Video play failed:', e);
                         // Fallback: try with muted
                         video.muted = true;
-                        video.play().catch(err => {
+                        video.play().then(() => {
+                            // Still scroll even if muted
+                            scrollToVideo(video);
+                        }).catch(err => {
                             console.error('Even muted playback failed:', err);
+                            // Scroll anyway to show the video
+                            scrollToVideo(video);
                         });
                     });
             } else {
                 console.log('No video element found');
+            }
+        }
+
+        // Function to scroll to video and center it
+        function scrollToVideo(video) {
+            console.log('Scrolling to video...');
+            
+            // Get video container (the parent div that contains the video)
+            const videoContainer = video.closest('.relative') || video.parentElement;
+            
+            if (videoContainer) {
+                // Calculate position to center the video in viewport
+                const rect = videoContainer.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+                const containerHeight = rect.height;
+                
+                // Calculate offset to center the video
+                const offsetTop = window.pageYOffset + rect.top;
+                const centerOffset = (windowHeight - containerHeight) / 2;
+                const scrollToPosition = Math.max(0, offsetTop - centerOffset);
+                
+                // Smooth scroll to the calculated position
+                window.scrollTo({
+                    top: scrollToPosition,
+                    behavior: 'smooth'
+                });
+                
+                console.log('Scrolled to video position:', scrollToPosition);
+            } else {
+                // Fallback: scroll to video element directly
+                video.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center',
+                    inline: 'nearest'
+                });
+                
+                console.log('Used fallback scroll method');
             }
         }
 
