@@ -44,10 +44,10 @@
                 <div class="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-50 via-indigo-50 to-transparent rounded-full blur-2xl opacity-40 -z-10"></div>
                 
                 {{-- Recipient Information --}}
-                <x-token-gift.recipient :content-gift="$contentGift" />
+                <x-token-gift.recipient :content-gift="$contentGift" :theme="$theme" />
 
                 {{-- Personal Message --}}
-                <x-token-gift.message :content-gift="$contentGift" />
+                <x-token-gift.message :content-gift="$contentGift" :theme="$theme" />
 
                 {{-- Multimedia Content --}}
                 @if($contentMultimedia)

@@ -51,7 +51,7 @@ class TokenController extends Controller
         }
 
         // Obtener el tema configurado
-        $theme = $contentMultimedia->settings['theme'] ?? 'love';
+        $theme = $contentMultimedia ? ($contentMultimedia->settings['theme'] ?? 'love') : 'love';
         $themeConfig = ThemeHelper::getThemeConfig($theme);
 
         // Datos para la vista
