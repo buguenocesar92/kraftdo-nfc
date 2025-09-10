@@ -77,8 +77,8 @@
     }" 
          x-init="console.log('Overlay init:', { hasAudio, hasVideo, showOverlay: hasVideo && !hasAudio }); showAutoplayOverlay = true;"
          x-show="showAutoplayOverlay" 
-         class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center"
-         style="z-index: 9999; display: block !important;"
+         class="fixed inset-0 flex items-center justify-center"
+         style="z-index: 9999; display: block !important; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);"
          x-transition>
         
         <!-- Overlay Content -->
