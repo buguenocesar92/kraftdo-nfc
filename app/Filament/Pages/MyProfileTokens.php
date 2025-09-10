@@ -224,6 +224,7 @@ class MyProfileTokens extends Page implements HasForms, HasActions
             if (!$contentProfile) {
                 $contentProfile = ContentProfile::create([
                     'dynamic_content_id' => $dynamicContent->id,
+                    'name' => $this->token->name ?? '',
                     'contact_email' => '',
                     'contact_phone' => '',
                     'contact_website' => '',
@@ -285,6 +286,13 @@ class MyProfileTokens extends Page implements HasForms, HasActions
                 Section::make('Información del Perfil')
                     ->description('Configura la información básica de tu perfil')
                     ->schema([
+                        TextInput::make('name')
+                            ->label('Nombre completo')
+                            ->placeholder('Tu nombre completo')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        
                         Textarea::make('bio')
                             ->label('Biografía')
                             ->placeholder('Cuéntanos sobre ti...')
@@ -455,6 +463,7 @@ class MyProfileTokens extends Page implements HasForms, HasActions
         
         // Separar datos por modelo
         $profileData = [
+            'name' => $data['name'] ?? '',
             'bio' => $data['bio'] ?? '',
             'contact_email' => $data['contact_email'] ?? '',
             'contact_phone' => $data['contact_phone'] ?? '',

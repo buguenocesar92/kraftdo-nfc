@@ -14,6 +14,7 @@ class ContentProfile extends Model
 
     protected $fillable = [
         'dynamic_content_id',
+        'name',
         'contact_email',
         'contact_phone',
         'contact_website',

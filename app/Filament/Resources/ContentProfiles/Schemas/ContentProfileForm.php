@@ -31,6 +31,13 @@ class ContentProfileForm
                             ->preload()
                             ->required()
                             ->columnSpanFull(),
+                        
+                        TextInput::make('name')
+                            ->label('Nombre completo')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        
                         TextInput::make('contact_email')
                             ->label('Email de contacto')
                             ->email(),

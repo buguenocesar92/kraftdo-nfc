@@ -15,12 +15,24 @@ class ContentProfilesTable
         return $table
             ->columns([
                 TextColumn::make('dynamicContent.title')
-                    ->searchable(),
+                    ->label('Título')
+                    ->searchable()
+                    ->sortable(),
+                    
+                TextColumn::make('name')
+                    ->label('Nombre completo')
+                    ->searchable()
+                    ->sortable()
+                    ->weight('bold'),
+                    
                 TextColumn::make('contact_email')
+                    ->label('Email')
                     ->searchable(),
                 TextColumn::make('contact_phone')
+                    ->label('Teléfono')
                     ->searchable(),
                 TextColumn::make('contact_website')
+                    ->label('Sitio Web')
                     ->searchable(),
                 TextColumn::make('socialLinks_count')
                     ->label('Redes Sociales')

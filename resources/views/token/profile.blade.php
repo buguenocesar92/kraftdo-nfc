@@ -61,7 +61,7 @@
                     {{-- Name --}}
                     <div class="text-center mb-4">
                         <h1 class="text-2xl font-bold text-gray-900 mb-1">
-                            {{ $token->name ?? 'Mi Perfil' }}
+                            {{ $contentProfile->name ?? $token->name ?? 'Mi Perfil' }}
                         </h1>
                     </div>
                     
@@ -208,7 +208,7 @@
         function downloadVCard() {
             // Generate vCard content
             let vcard = "BEGIN:VCARD\nVERSION:3.0\n";
-            vcard += "FN:{{ $token->name ?? 'Contacto' }}\n";
+            vcard += "FN:{{ $contentProfile->name ?? $token->name ?? 'Contacto' }}\n";
             
             @if($contentProfile)
                 @if($contentProfile->contact_email)
@@ -231,7 +231,7 @@
             const element = document.createElement('a');
             const file = new Blob([vcard], {type: 'text/vcard'});
             element.href = URL.createObjectURL(file);
-            element.download = "{{ Str::slug($token->name ?? 'contacto') }}.vcf";
+            element.download = "{{ Str::slug($contentProfile->name ?? $token->name ?? 'contacto') }}.vcf";
             document.body.appendChild(element);
             element.click();
             document.body.removeChild(element);
