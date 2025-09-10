@@ -50,7 +50,10 @@
                 currentTime: 0,
                 duration: 0,
                 playing: false,
-                muted: false
+                muted: false,
+                isVerticalVideo: false,
+                videoWidth: 0,
+                videoHeight: 0
              }"
              x-init="
                 // Initialize video player when component loads
@@ -67,6 +70,14 @@
                             
                             video.addEventListener('loadedmetadata', () => {
                                 duration = video.duration;
+                                videoWidth = video.videoWidth;
+                                videoHeight = video.videoHeight;
+                                isVerticalVideo = video.videoHeight > video.videoWidth;
+                                
+                                // Auto-fullscreen for vertical videos
+                                if (isVerticalVideo) {
+                                    console.log('Vertical video detected:', videoWidth + 'x' + videoHeight);
+                                }
                             });
                             
                             video.addEventListener('play', () => {
@@ -102,6 +113,7 @@
                     <span class="text-2xl">🎬</span>
                     <span>Video</span>
                     <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full capitalize">{{ $videoType }}</span>
+                    <span x-show="isVerticalVideo" class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">📱 Vertical</span>
                 </h3>
                 
                 <!-- Video Quality/Info -->
@@ -112,7 +124,12 @@
             </div>
 
             <!-- Video Container -->
-            <div class="relative w-screen sm:w-full aspect-video overflow-hidden bg-black sm:rounded-lg left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0">
+            <div class="relative w-screen sm:w-full overflow-hidden bg-black sm:rounded-lg left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0"
+                 :class="{
+                     'aspect-video': !isVerticalVideo,
+                     'aspect-[9/16] max-h-[70vh] mx-auto': isVerticalVideo,
+                 }"
+                 :style="isVerticalVideo ? 'max-width: min(100vw, 70vh * 9/16);' : ''">
                 
                 <!-- Loading State -->
                 <div x-show="currentVideo.loading" 
@@ -282,8 +299,8 @@
                         </div>
 
                         <!-- Control Buttons -->
-                        <div class="flex items-center justify-between text-white">
-                            <div class="flex items-center space-x-4">
+                        <div class="flex items-center text-white">
+                            <div class="flex items-center space-x-4 flex-1">
                                 <!-- Play/Pause -->
                                 <button x-on:click="
                                     if ($refs.videoElement.paused) {
@@ -322,34 +339,16 @@
                                            x-on:input="$refs.videoElement.volume = $event.target.value"
                                            class="w-20 opacity-0 group-hover/volume:opacity-100 transition-opacity accent-blue-500">
                                 </div>
+                            </div>
 
-                                <!-- Time Display -->
-                                <div class="text-sm font-mono">
-                                    <span x-text="Math.floor(currentTime / 60) + ':' + Math.floor(currentTime % 60).toString().padStart(2, '0')">0:00</span>
-                                    <span class="text-gray-400"> / </span>
-                                    <span x-text="duration ? Math.floor(duration / 60) + ':' + Math.floor(duration % 60).toString().padStart(2, '0') : '0:00'">0:00</span>
+                            <!-- Time Display (absolute centered) -->
+                            <div class="absolute left-1/2 transform -translate-x-1/2">
+                                <div class="text-sm font-mono whitespace-nowrap">
+                                    <span x-text="Math.floor(currentTime / 60) + ':' + Math.floor(currentTime % 60).toString().padStart(2, '0')">0:00</span><span class="text-gray-400"> / </span><span x-text="duration ? Math.floor(duration / 60) + ':' + Math.floor(duration % 60).toString().padStart(2, '0') : '0:00'">0:00</span>
                                 </div>
                             </div>
 
-                            <div class="flex items-center space-x-2">
-                                <!-- Playback Speed -->
-                                <div class="relative group/speed">
-                                    <button class="hover:bg-white hover:bg-opacity-20 rounded px-3 py-1 text-sm transition-colors"
-                                            x-text="currentVideo.playbackRate === 1 ? '1x' : currentVideo.playbackRate + 'x'">
-                                    </button>
-                                    <div class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-black bg-opacity-90 rounded-lg p-2 opacity-0 group-hover/speed:opacity-100 transition-opacity min-w-max">
-                                        <div class="space-y-1">
-                                            <template x-for="rate in [0.5, 0.75, 1, 1.25, 1.5, 2]">
-                                                <button x-on:click="setPlaybackRate(rate, videoId)"
-                                                        class="block w-full text-left px-3 py-1 text-sm hover:bg-white hover:bg-opacity-20 rounded"
-                                                        :class="{ 'bg-blue-600': currentVideo.playbackRate === rate }"
-                                                        x-text="rate + 'x'">
-                                                </button>
-                                            </template>
-                                        </div>
-                                    </div>
-                                </div>
-
+                            <div class="flex items-center space-x-2 flex-1 justify-end">
                                 <!-- Picture-in-Picture -->
                                 <button x-show="'pictureInPictureEnabled' in document" 
                                         x-on:click="togglePictureInPicture(videoId)"
@@ -396,7 +395,14 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span x-show="currentVideo.duration > 0" x-text="formatTime(currentVideo.duration)">Duración</span>
+                            <span x-show="duration > 0" x-text="Math.floor(duration / 60) + ':' + Math.floor(duration % 60).toString().padStart(2, '0')">Duración</span>
+                        </span>
+                        
+                        <span x-show="videoWidth > 0 && videoHeight > 0" class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span x-text="videoWidth + 'x' + videoHeight">Resolución</span>
                         </span>
                         
                         <span x-show="currentVideo.playbackRate !== 1" class="flex items-center gap-1">
