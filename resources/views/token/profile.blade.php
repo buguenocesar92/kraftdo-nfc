@@ -22,17 +22,17 @@
     {{-- CSS --}}
     @vite([
         'resources/css/app.css',
-        'resources/css/token-gift.css'
+        'resources/css/multimedia-components.css'
     ])
     
     {{-- JavaScript --}}
     @vite([
         'resources/js/app.js',
-        'resources/js/token-gift.js'
+        'resources/js/multimedia-components.js'
     ])
 </head>
 
-<body class="h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500" x-data="tokenGift()">
+<body class="h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-6">
             
@@ -145,7 +145,14 @@
                                 Video de Presentación
                             </h3>
                             <div class="rounded-xl overflow-hidden">
-                                <x-token-gift.video-player :content-multimedia="$contentMultimedia" />
+                                <x-multimedia.video-player 
+                                    :video="$contentMultimedia"
+                                    :theme="[
+                                        'background' => 'from-blue-50 via-purple-50 to-pink-50',
+                                        'primary' => 'blue-500',
+                                        'secondary' => 'purple-600'
+                                    ]"
+                                    size="contained" />
                             </div>
                         </div>
                     @endif
@@ -156,7 +163,14 @@
                             <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
                                 Galería
                             </h3>
-                            <x-token-gift.gallery :gallery-images="$galleryImages" />
+                            <x-multimedia.gallery 
+                                :images="$galleryImages"
+                                :theme="[
+                                    'background' => 'from-blue-50 via-purple-50 to-pink-50',
+                                    'text' => 'text-gray-600'
+                                ]"
+                                layout="masonry"
+                                :show-stats="true" />
                         </div>
                     @endif
                     
@@ -172,8 +186,6 @@
         </div>
     </div>
 
-    {{-- Modal Component --}}
-    <x-token-gift.modal />
 
     <script>
         function downloadVCard() {

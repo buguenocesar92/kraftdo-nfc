@@ -1,0 +1,256 @@
+/* Multimedia Components Bundle CSS */
+/* This file imports all multimedia component styles */
+
+/* Import individual component styles */
+@import 'components/multimedia-gallery.css';
+@import 'components/multimedia-video.css';
+@import 'components/multimedia-audio.css';
+
+/* Global multimedia component styles */
+.multimedia-component {
+    position: relative;
+    width: 100%;
+}
+
+.multimedia-component * {
+    box-sizing: border-box;
+}
+
+/* Common animations */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Apply animations to components */
+.animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+}
+
+.animate-slide-up {
+    animation: slide-up 0.4s ease-out;
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* Responsive utilities */
+.multimedia-full-width {
+    width: 100vw;
+    margin-left: 50%;
+    transform: translateX(-50%);
+}
+
+@media (min-width: 640px) {
+    .multimedia-full-width {
+        width: 100%;
+        margin-left: 0;
+        transform: none;
+    }
+}
+
+/* Common button styles */
+.multimedia-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease-in-out;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+}
+
+.multimedia-button:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.multimedia-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Primary button */
+.multimedia-button-primary {
+    background: linear-gradient(to right, #3b82f6, #8b5cf6);
+    color: white;
+    padding: 0.5rem 1rem;
+}
+
+.multimedia-button-primary:hover:not(:disabled) {
+    background: linear-gradient(to right, #2563eb, #7c3aed);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Secondary button */
+.multimedia-button-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    padding: 0.5rem 1rem;
+    backdrop-filter: blur(4px);
+}
+
+.multimedia-button-secondary:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Icon button */
+.multimedia-button-icon {
+    padding: 0.5rem;
+    border-radius: 50%;
+    background: transparent;
+}
+
+.multimedia-button-icon:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+/* Common loading states */
+.multimedia-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #6b7280;
+}
+
+.multimedia-spinner {
+    width: 2rem;
+    height: 2rem;
+    border: 2px solid #e5e7eb;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Common error states */
+.multimedia-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    text-align: center;
+    color: #dc2626;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 0.5rem;
+}
+
+.multimedia-error-icon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Theme utilities */
+.theme-blue {
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --secondary-color: #8b5cf6;
+}
+
+.theme-purple {
+    --primary-color: #8b5cf6;
+    --primary-hover: #7c3aed;
+    --secondary-color: #3b82f6;
+}
+
+.theme-green {
+    --primary-color: #10b981;
+    --primary-hover: #059669;
+    --secondary-color: #3b82f6;
+}
+
+.theme-red {
+    --primary-color: #ef4444;
+    --primary-hover: #dc2626;
+    --secondary-color: #f97316;
+}
+
+.theme-pink {
+    --primary-color: #ec4899;
+    --primary-hover: #db2777;
+    --secondary-color: #f97316;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .multimedia-component *,
+    .animate-fade-in,
+    .animate-slide-up,
+    .animate-pulse {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+@media (prefers-contrast: high) {
+    .multimedia-button {
+        border: 2px solid;
+    }
+    
+    .multimedia-loading,
+    .multimedia-error {
+        border-width: 2px;
+    }
+}
+
+/* Print optimizations */
+@media print {
+    .multimedia-component {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    
+    .multimedia-button {
+        display: none;
+    }
+    
+    .multimedia-loading::after {
+        content: " (Loading...)";
+    }
+    
+    .multimedia-error::after {
+        content: " (Error loading content)";
+    }
+}

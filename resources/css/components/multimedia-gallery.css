@@ -1,0 +1,211 @@
+/* Multimedia Gallery Component Styles */
+
+/* Gallery container animations */
+.gallery-masonry {
+    column-fill: balance;
+}
+
+.gallery-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+}
+
+/* Image loading animations */
+.gallery-item img {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
+}
+
+/* Skeleton loading animation */
+@keyframes skeleton-loading {
+    0% {
+        background-color: #e2e8f0;
+    }
+    50% {
+        background-color: #cbd5e1;
+    }
+    100% {
+        background-color: #e2e8f0;
+    }
+}
+
+.skeleton-loading {
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+/* Modal animations */
+.modal-fade-enter {
+    opacity: 0;
+}
+
+.modal-fade-enter-active {
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-fade-leave-active {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* Image zoom and pan styles */
+.modal-image {
+    transition: transform 0.2s ease;
+    cursor: grab;
+}
+
+.modal-image:active {
+    cursor: grabbing;
+}
+
+.modal-image.zoomed {
+    cursor: move;
+}
+
+/* Thumbnail grid responsiveness */
+@media (max-width: 640px) {
+    .gallery-masonry {
+        columns: 1;
+        gap: 0.5rem;
+    }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+    .gallery-masonry {
+        columns: 2;
+    }
+}
+
+@media (min-width: 1025px) {
+    .gallery-masonry {
+        columns: 3;
+    }
+}
+
+/* Hover effects */
+.gallery-item .hover-overlay {
+    background: linear-gradient(
+        45deg,
+        rgba(0, 0, 0, 0.1) 0%,
+        rgba(0, 0, 0, 0.3) 100%
+    );
+    transition: all 0.3s ease;
+}
+
+/* Caption styles */
+.image-caption {
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.8) 0%,
+        rgba(0, 0, 0, 0.4) 50%,
+        transparent 100%
+    );
+    backdrop-filter: blur(2px);
+}
+
+/* Loading spinner for images */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.image-spinner {
+    animation: spin 1s linear infinite;
+}
+
+/* Error state styles */
+.image-error {
+    background: linear-gradient(
+        135deg,
+        #fef2f2 0%,
+        #fee2e2 100%
+    );
+    border: 2px dashed #fca5a5;
+}
+
+/* Counter badge */
+.image-counter {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Navigation buttons in modal */
+.modal-nav-button {
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    transition: all 0.2s ease;
+}
+
+.modal-nav-button:hover {
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+}
+
+/* Zoom controls */
+.zoom-controls {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    border-radius: 2rem;
+}
+
+/* Slideshow indicator */
+.slideshow-indicator {
+    background: rgba(59, 130, 246, 0.9);
+    backdrop-filter: blur(4px);
+}
+
+/* Grid layout alternative */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.gallery-grid .gallery-item {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 0.5rem;
+}
+
+/* Accessibility improvements */
+.gallery-item:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.modal-close:focus {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+    .gallery-item {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+    
+    .modal-overlay {
+        display: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .gallery-item {
+        border: 1px solid;
+    }
+    
+    .image-caption {
+        background: rgba(0, 0, 0, 0.9);
+    }
+}
