@@ -124,12 +124,11 @@
             </div>
 
             <!-- Video Container -->
-            <div class="relative w-screen sm:w-full overflow-hidden bg-black sm:rounded-lg left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0"
+            <div class="relative w-screen overflow-hidden bg-black left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-full sm:rounded-lg"
                  :class="{
                      'aspect-video': !isVerticalVideo,
-                     'aspect-[9/16] max-h-[70vh] mx-auto': isVerticalVideo,
-                 }"
-                 :style="isVerticalVideo ? 'max-width: min(100vw, 70vh * 9/16);' : ''">
+                     'aspect-[9/16] max-h-[70vh]': isVerticalVideo,
+                 }">
                 
                 <!-- Loading State -->
                 <div x-show="currentVideo.loading" 
