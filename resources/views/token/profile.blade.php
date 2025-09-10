@@ -32,7 +32,7 @@
     ])
 </head>
 
-<body class="h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500" x-data="tokenProfile()">
+<body class="h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500" x-data="tokenGift()">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-6">
             
@@ -156,21 +156,7 @@
                             <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
                                 Galería
                             </h3>
-                            <div class="grid grid-cols-3 gap-2">
-                                @foreach($galleryImages->take(6) as $image)
-                                    <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                                         onclick="openImageModal('{{ Storage::url($image->image_path) }}')">
-                                        <img src="{{ Storage::url($image->image_path) }}" 
-                                             alt="{{ $image->alt_text }}"
-                                             class="w-full h-full object-cover">
-                                    </div>
-                                @endforeach
-                            </div>
-                            @if(count($galleryImages) > 6)
-                                <p class="text-center text-sm text-gray-500 mt-2">
-                                    +{{ count($galleryImages) - 6 }} más
-                                </p>
-                            @endif
+                            <x-token-gift.gallery :gallery-images="$galleryImages" />
                         </div>
                     @endif
                     
@@ -186,25 +172,10 @@
         </div>
     </div>
 
-    {{-- Image Modal --}}
-    <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50" onclick="closeImageModal()">
-        <div class="max-w-4xl max-h-4xl p-4">
-            <img id="modalImage" src="" alt="" class="max-w-full max-h-full rounded-lg">
-        </div>
-    </div>
+    {{-- Modal Component --}}
+    <x-token-gift.modal />
 
     <script>
-        function openImageModal(imageSrc) {
-            document.getElementById('modalImage').src = imageSrc;
-            document.getElementById('imageModal').classList.remove('hidden');
-            document.getElementById('imageModal').classList.add('flex');
-        }
-        
-        function closeImageModal() {
-            document.getElementById('imageModal').classList.add('hidden');
-            document.getElementById('imageModal').classList.remove('flex');
-        }
-        
         function downloadVCard() {
             // Generate vCard content
             let vcard = "BEGIN:VCARD\nVERSION:3.0\n";
@@ -237,14 +208,6 @@
             document.body.removeChild(element);
         }
         
-        // Alpine.js component for profile
-        function tokenProfile() {
-            return {
-                init() {
-                    console.log('Profile loaded');
-                }
-            }
-        }
     </script>
 </body>
 </html>
