@@ -9,15 +9,40 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Perfil Digital NFC - {{ $contentProfile?->contact_name ?? 'Perfil profesional' }}">
+    <meta name="description" content="{{ $contentProfile?->bio ?? 'Perfil digital profesional de ' . ($contentProfile?->name ?? $token->name ?? 'usuario') . '. Conecta conmigo a través de mi tarjeta digital NFC.' }}">
+    <meta name="keywords" content="perfil digital, NFC, tarjeta digital, contacto profesional, {{ $contentProfile?->name ?? $token->name ?? '' }}">
+    <meta name="author" content="{{ $contentProfile?->name ?? $token->name ?? 'Usuario' }}">
+    <meta name="robots" content="index, follow">
+    <meta name="theme-color" content="#3b82f6">
     
     {{-- Page Title --}}
-    <title>{{ $token->name ? $token->name . ' - Perfil NFC' : 'Perfil NFC' }}</title>
+    <title>{{ $contentProfile?->name ?? $token->name ?? 'Perfil Digital' }} | Tarjeta Digital NFC</title>
     
     {{-- Open Graph Meta Tags --}}
-    <meta property="og:title" content="{{ $token->name ?? 'Perfil Digital' }}">
-    <meta property="og:description" content="{{ $contentProfile?->bio ?? 'Perfil digital profesional' }}">
+    <meta property="og:title" content="{{ $contentProfile?->name ?? $token->name ?? 'Perfil Digital' }}">
+    <meta property="og:description" content="{{ $contentProfile?->bio ?? 'Conecta conmigo a través de mi perfil digital profesional' }}">
     <meta property="og:type" content="profile">
+    <meta property="og:url" content="{{ request()->url() }}">
+    <meta property="og:site_name" content="Kraftdo NFC">
+    @if($contentMultimedia && isset($contentMultimedia->settings['profile_image']))
+        <meta property="og:image" content="{{ asset(Storage::url($contentMultimedia->settings['profile_image'])) }}">
+        <meta property="og:image:width" content="400">
+        <meta property="og:image:height" content="400">
+        <meta property="og:image:type" content="image/jpeg">
+    @endif
+    
+    {{-- Twitter Card Meta Tags --}}
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{ $contentProfile?->name ?? $token->name ?? 'Perfil Digital' }}">
+    <meta name="twitter:description" content="{{ $contentProfile?->bio ?? 'Conecta conmigo a través de mi perfil digital profesional' }}">
+    @if($contentMultimedia && isset($contentMultimedia->settings['profile_image']))
+        <meta name="twitter:image" content="{{ asset(Storage::url($contentMultimedia->settings['profile_image'])) }}">
+    @endif
+    
+    {{-- Additional Meta Tags --}}
+    <meta name="format-detection" content="telephone=yes">
+    <meta name="format-detection" content="email=yes">
+    <link rel="canonical" href="{{ request()->url() }}">
     
     {{-- CSS --}}
     @vite([
