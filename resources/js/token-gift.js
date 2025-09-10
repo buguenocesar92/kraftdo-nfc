@@ -29,10 +29,30 @@ function registerTokenGiftComponent() {
         imagesLoaded: new Set(),
         preloadedImages: new Set(),
         
+        // Video player state
+        videoPlayers: new Map(),
+        currentVideo: {
+            id: null,
+            playing: false,
+            muted: false,
+            volume: 1,
+            currentTime: 0,
+            duration: 0,
+            buffered: 0,
+            quality: 'auto',
+            playbackRate: 1,
+            fullscreen: false,
+            pip: false,
+            loading: false,
+            error: null
+        },
+        
         init() {
             this.setupKeyboardHandlers();
             this.setupTouchHandlers();
             this.setupIntersectionObserver();
+            this.setupVideoHandlers();
+            this.loadVideoPreferences();
             console.log('Token Gift Alpine component initialized');
         },
         
@@ -126,18 +146,84 @@ function registerTokenGiftComponent() {
         
         setupKeyboardHandlers() {
             document.addEventListener('keydown', (e) => {
-                if (!this.modalOpen) return;
+                // Gallery shortcuts (when modal is open)
+                if (this.modalOpen) {
+                    switch(e.key) {
+                        case 'Escape':
+                            this.closeImageModal();
+                            break;
+                        case 'ArrowLeft':
+                            this.prevImage();
+                            break;
+                        case 'ArrowRight':
+                            this.nextImage();
+                            break;
+                    }
+                    return;
+                }
                 
-                switch(e.key) {
-                    case 'Escape':
-                        this.closeImageModal();
-                        break;
-                    case 'ArrowLeft':
-                        this.prevImage();
-                        break;
-                    case 'ArrowRight':
-                        this.nextImage();
-                        break;
+                // Video shortcuts (when video is active)
+                if (this.currentVideo.id && !e.target.matches('input, textarea, select')) {
+                    switch(e.key) {
+                        case ' ':
+                        case 'k':
+                            e.preventDefault();
+                            this.toggleVideoPlayback(this.currentVideo.id);
+                            break;
+                        case 'f':
+                            e.preventDefault();
+                            this.toggleFullscreen(this.currentVideo.id);
+                            break;
+                        case 'm':
+                            e.preventDefault();
+                            this.toggleMute(this.currentVideo.id);
+                            break;
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            this.seekTo(Math.max(0, this.currentVideo.currentTime - 10), this.currentVideo.id);
+                            break;
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            this.seekTo(Math.min(this.currentVideo.duration, this.currentVideo.currentTime + 10), this.currentVideo.id);
+                            break;
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            this.setVolume(Math.min(1, this.currentVideo.volume + 0.1), this.currentVideo.id);
+                            break;
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            this.setVolume(Math.max(0, this.currentVideo.volume - 0.1), this.currentVideo.id);
+                            break;
+                        case ',':
+                            // Previous frame (when paused)
+                            if (!this.currentVideo.playing) {
+                                e.preventDefault();
+                                this.seekTo(Math.max(0, this.currentVideo.currentTime - 1/30), this.currentVideo.id);
+                            }
+                            break;
+                        case '.':
+                            // Next frame (when paused)
+                            if (!this.currentVideo.playing) {
+                                e.preventDefault();
+                                this.seekTo(Math.min(this.currentVideo.duration, this.currentVideo.currentTime + 1/30), this.currentVideo.id);
+                            }
+                            break;
+                        case '0':
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                            // Seek to percentage
+                            e.preventDefault();
+                            const percentage = parseInt(e.key) * 10;
+                            this.seekTo((percentage / 100) * this.currentVideo.duration, this.currentVideo.id);
+                            break;
+                    }
                 }
             });
         },
@@ -340,6 +426,487 @@ function registerTokenGiftComponent() {
             if (this.observer && img) {
                 this.observer.observe(img);
             }
+        },
+        
+        // ========================
+        // VIDEO PLAYER METHODS
+        // ========================
+        
+        // Setup video event handlers
+        setupVideoHandlers() {
+            // Fullscreen change events
+            document.addEventListener('fullscreenchange', () => {
+                this.currentVideo.fullscreen = !!document.fullscreenElement;
+            });
+            
+            // Picture-in-picture events
+            document.addEventListener('enterpictureinpicture', () => {
+                this.currentVideo.pip = true;
+            });
+            
+            document.addEventListener('leavepictureinpicture', () => {
+                this.currentVideo.pip = false;
+            });
+            
+            // Visibility change for video optimization
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden && this.currentVideo.playing) {
+                    // Optionally pause video when tab is hidden
+                    this.pauseCurrentVideo();
+                }
+            });
+        },
+        
+        // Load video preferences from localStorage
+        loadVideoPreferences() {
+            const savedPrefs = localStorage.getItem('tokenGift_videoPrefs');
+            if (savedPrefs) {
+                const prefs = JSON.parse(savedPrefs);
+                this.currentVideo.volume = prefs.volume || 1;
+                this.currentVideo.muted = prefs.muted || false;
+                this.currentVideo.playbackRate = prefs.playbackRate || 1;
+                this.currentVideo.quality = prefs.quality || 'auto';
+            }
+        },
+        
+        // Save video preferences
+        saveVideoPreferences() {
+            const prefs = {
+                volume: this.currentVideo.volume,
+                muted: this.currentVideo.muted,
+                playbackRate: this.currentVideo.playbackRate,
+                quality: this.currentVideo.quality
+            };
+            localStorage.setItem('tokenGift_videoPrefs', JSON.stringify(prefs));
+        },
+        
+        // Initialize video player
+        initVideoPlayer(videoElement, videoId, videoType) {
+            if (!videoElement) return;
+            
+            this.currentVideo.id = videoId;
+            this.currentVideo.loading = false;
+            this.currentVideo.error = null;
+            
+            // Store video element reference
+            this.videoPlayers.set(videoId, {
+                element: videoElement,
+                type: videoType,
+                initialized: true
+            });
+            
+            // Apply saved preferences for HTML5 videos
+            if (videoType === 'html5') {
+                videoElement.volume = this.currentVideo.volume;
+                videoElement.muted = this.currentVideo.muted;
+                videoElement.playbackRate = this.currentVideo.playbackRate;
+                
+                // Add event listeners
+                this.addVideoEventListeners(videoElement, videoId);
+            }
+            
+            console.log(`Video player initialized: ${videoId} (${videoType})`);
+        },
+        
+        // Add event listeners to HTML5 video
+        addVideoEventListeners(video, videoId) {
+            // Basic playback events
+            video.addEventListener('loadstart', () => {
+                this.currentVideo.loading = true;
+                this.currentVideo.error = null;
+            });
+            
+            video.addEventListener('loadedmetadata', () => {
+                this.currentVideo.duration = video.duration;
+                this.currentVideo.loading = false;
+            });
+            
+            video.addEventListener('loadeddata', () => {
+                this.currentVideo.loading = false;
+            });
+            
+            video.addEventListener('canplay', () => {
+                this.currentVideo.loading = false;
+            });
+            
+            video.addEventListener('play', () => {
+                this.currentVideo.playing = true;
+                this.trackVideoEvent('play', videoId);
+            });
+            
+            video.addEventListener('pause', () => {
+                this.currentVideo.playing = false;
+                this.trackVideoEvent('pause', videoId);
+            });
+            
+            video.addEventListener('ended', () => {
+                this.currentVideo.playing = false;
+                this.trackVideoEvent('ended', videoId);
+            });
+            
+            video.addEventListener('timeupdate', () => {
+                this.currentVideo.currentTime = video.currentTime;
+                this.trackVideoProgress(video.currentTime, video.duration, videoId);
+            });
+            
+            video.addEventListener('volumechange', () => {
+                this.currentVideo.volume = video.volume;
+                this.currentVideo.muted = video.muted;
+                this.saveVideoPreferences();
+            });
+            
+            video.addEventListener('ratechange', () => {
+                this.currentVideo.playbackRate = video.playbackRate;
+                this.saveVideoPreferences();
+            });
+            
+            video.addEventListener('progress', () => {
+                if (video.buffered.length > 0) {
+                    this.currentVideo.buffered = video.buffered.end(video.buffered.length - 1);
+                }
+            });
+            
+            video.addEventListener('error', (e) => {
+                this.handleVideoError(e, videoId);
+            });
+            
+            video.addEventListener('waiting', () => {
+                this.currentVideo.loading = true;
+            });
+            
+            video.addEventListener('playing', () => {
+                this.currentVideo.loading = false;
+            });
+        },
+        
+        // Handle video errors
+        handleVideoError(error, videoId) {
+            console.error(`Video error for ${videoId}:`, error);
+            
+            const video = this.videoPlayers.get(videoId)?.element;
+            let errorMessage = 'Error al reproducir el video';
+            
+            if (video && video.error) {
+                switch (video.error.code) {
+                    case 1:
+                        errorMessage = 'Reproducción abortada por el usuario';
+                        break;
+                    case 2:
+                        errorMessage = 'Error de red al cargar el video';
+                        break;
+                    case 3:
+                        errorMessage = 'Error al decodificar el video';
+                        break;
+                    case 4:
+                        errorMessage = 'Formato de video no soportado';
+                        break;
+                    default:
+                        errorMessage = 'Error desconocido al reproducir el video';
+                }
+            }
+            
+            this.currentVideo.error = errorMessage;
+            this.currentVideo.loading = false;
+            this.currentVideo.playing = false;
+            
+            this.trackVideoEvent('error', videoId, { error: errorMessage });
+        },
+        
+        // Play/Pause toggle
+        toggleVideoPlayback(videoId) {
+            const playerData = this.videoPlayers.get(videoId);
+            if (!playerData) return;
+            
+            if (playerData.type === 'html5') {
+                const video = playerData.element;
+                if (this.currentVideo.playing) {
+                    video.pause();
+                } else {
+                    this.playWithFallback(video, videoId);
+                }
+            } else if (playerData.type === 'youtube') {
+                this.toggleYouTubeVideo(videoId);
+            } else if (playerData.type === 'vimeo') {
+                this.toggleVimeoVideo(videoId);
+            }
+        },
+        
+        // Play with autoplay policy handling
+        async playWithFallback(video, videoId) {
+            try {
+                await video.play();
+            } catch (error) {
+                console.warn('Autoplay prevented:', error);
+                
+                if (error.name === 'NotAllowedError') {
+                    // Autoplay was prevented, show user-friendly message
+                    this.currentVideo.error = 'Haz clic en el video para reproducir';
+                    
+                    // Try to play muted
+                    video.muted = true;
+                    this.currentVideo.muted = true;
+                    
+                    try {
+                        await video.play();
+                        this.currentVideo.error = null;
+                    } catch (mutedError) {
+                        console.error('Even muted playback failed:', mutedError);
+                    }
+                }
+            }
+        },
+        
+        // Pause current video
+        pauseCurrentVideo() {
+            if (this.currentVideo.id) {
+                const playerData = this.videoPlayers.get(this.currentVideo.id);
+                if (playerData && playerData.type === 'html5') {
+                    playerData.element.pause();
+                }
+            }
+        },
+        
+        // Seek to specific time
+        seekTo(time, videoId) {
+            const playerData = this.videoPlayers.get(videoId);
+            if (!playerData) return;
+            
+            if (playerData.type === 'html5') {
+                playerData.element.currentTime = time;
+            }
+            // TODO: Implement for YouTube and Vimeo
+        },
+        
+        // Set volume
+        setVolume(volume, videoId) {
+            const playerData = this.videoPlayers.get(videoId);
+            if (!playerData) return;
+            
+            volume = Math.max(0, Math.min(1, volume));
+            
+            if (playerData.type === 'html5') {
+                playerData.element.volume = volume;
+                if (volume > 0) {
+                    playerData.element.muted = false;
+                }
+            }
+            
+            this.currentVideo.volume = volume;
+            this.currentVideo.muted = volume === 0;
+            this.saveVideoPreferences();
+        },
+        
+        // Toggle mute
+        toggleMute(videoId) {
+            const playerData = this.videoPlayers.get(videoId);
+            if (!playerData) return;
+            
+            if (playerData.type === 'html5') {
+                playerData.element.muted = !playerData.element.muted;
+                this.currentVideo.muted = playerData.element.muted;
+            }
+            
+            this.saveVideoPreferences();
+        },
+        
+        // Set playback rate
+        setPlaybackRate(rate, videoId) {
+            const playerData = this.videoPlayers.get(videoId);
+            if (!playerData) return;
+            
+            if (playerData.type === 'html5') {
+                playerData.element.playbackRate = rate;
+            }
+            
+            this.currentVideo.playbackRate = rate;
+            this.saveVideoPreferences();
+        },
+        
+        // Toggle fullscreen
+        async toggleFullscreen(videoId) {
+            const playerData = this.videoPlayers.get(videoId);
+            if (!playerData) return;
+            
+            try {
+                if (!document.fullscreenElement) {
+                    await playerData.element.requestFullscreen();
+                } else {
+                    await document.exitFullscreen();
+                }
+            } catch (error) {
+                console.error('Fullscreen error:', error);
+            }
+        },
+        
+        // Toggle picture-in-picture
+        async togglePictureInPicture(videoId) {
+            const playerData = this.videoPlayers.get(videoId);
+            if (!playerData || playerData.type !== 'html5') return;
+            
+            try {
+                if (document.pictureInPictureElement) {
+                    await document.exitPictureInPicture();
+                } else {
+                    await playerData.element.requestPictureInPicture();
+                }
+            } catch (error) {
+                console.error('Picture-in-picture error:', error);
+            }
+        },
+        
+        // Format time display
+        formatTime(seconds) {
+            if (isNaN(seconds)) return '0:00';
+            
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            
+            if (hours > 0) {
+                return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutes}:${secs.toString().padStart(2, '0')}`;
+            }
+        },
+        
+        // Track video events for analytics
+        trackVideoEvent(event, videoId, data = {}) {
+            const eventData = {
+                event: `video_${event}`,
+                video_id: videoId,
+                timestamp: Date.now(),
+                ...data
+            };
+            
+            console.log('Video event:', eventData);
+            
+            // Here you could send to analytics service
+            // Example: gtag('event', event, eventData);
+        },
+        
+        // Track video progress milestones
+        trackVideoProgress(currentTime, duration, videoId) {
+            if (!duration || duration === 0) return;
+            
+            const progress = (currentTime / duration) * 100;
+            const milestones = [25, 50, 75, 100];
+            
+            milestones.forEach(milestone => {
+                const key = `${videoId}_${milestone}`;
+                if (progress >= milestone && !this.videoMilestones?.has(key)) {
+                    if (!this.videoMilestones) {
+                        this.videoMilestones = new Set();
+                    }
+                    this.videoMilestones.add(key);
+                    this.trackVideoEvent('progress', videoId, { 
+                        progress: milestone,
+                        currentTime,
+                        duration 
+                    });
+                }
+            });
+        },
+        
+        // YouTube player specific methods
+        toggleYouTubeVideo(videoId) {
+            // Implementation for YouTube iframe API
+            const iframe = document.querySelector(`iframe[data-video-id="${videoId}"]`);
+            if (iframe) {
+                iframe.contentWindow.postMessage(
+                    '{"event":"command","func":"' + (this.currentVideo.playing ? 'pauseVideo' : 'playVideo') + '","args":""}',
+                    '*'
+                );
+            }
+        },
+        
+        // Vimeo player specific methods
+        toggleVimeoVideo(videoId) {
+            // Implementation for Vimeo iframe API
+            const iframe = document.querySelector(`iframe[data-video-id="${videoId}"]`);
+            if (iframe) {
+                iframe.contentWindow.postMessage(
+                    '{"method":"' + (this.currentVideo.playing ? 'pause' : 'play') + '"}',
+                    '*'
+                );
+            }
+        },
+        
+        // Lazy load video iframe
+        lazyLoadVideo(element, src, videoId, videoType) {
+            // Create intersection observer for this specific video
+            const videoObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Load the video
+                        if (videoType === 'iframe') {
+                            element.src = src;
+                        } else {
+                            element.load();
+                        }
+                        
+                        // Initialize player after loading
+                        setTimeout(() => {
+                            this.initVideoPlayer(element, videoId, videoType);
+                        }, 100);
+                        
+                        // Stop observing
+                        videoObserver.unobserve(element);
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            videoObserver.observe(element);
+        },
+        
+        // Touch gestures for video
+        setupVideoTouchGestures(videoElement, videoId) {
+            let touchStartTime = 0;
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let seeking = false;
+            
+            videoElement.addEventListener('touchstart', (e) => {
+                touchStartTime = Date.now();
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+                seeking = false;
+            });
+            
+            videoElement.addEventListener('touchmove', (e) => {
+                if (e.touches.length !== 1) return;
+                
+                const deltaX = e.touches[0].clientX - touchStartX;
+                const deltaY = e.touches[0].clientY - touchStartY;
+                
+                // Horizontal swipe for seeking
+                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+                    seeking = true;
+                    const seekAmount = (deltaX / videoElement.clientWidth) * this.currentVideo.duration;
+                    const newTime = Math.max(0, Math.min(this.currentVideo.duration, this.currentVideo.currentTime + seekAmount));
+                    this.seekTo(newTime, videoId);
+                }
+                
+                // Vertical swipe for volume
+                if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 30) {
+                    const volumeChange = -(deltaY / videoElement.clientHeight);
+                    const newVolume = Math.max(0, Math.min(1, this.currentVideo.volume + volumeChange));
+                    this.setVolume(newVolume, videoId);
+                }
+            });
+            
+            videoElement.addEventListener('touchend', (e) => {
+                const touchDuration = Date.now() - touchStartTime;
+                
+                // Single tap to play/pause (if not seeking)
+                if (touchDuration < 300 && !seeking) {
+                    this.toggleVideoPlayback(videoId);
+                }
+                
+                // Double tap for fullscreen
+                if (touchDuration < 300 && e.detail === 2) {
+                    this.toggleFullscreen(videoId);
+                }
+            });
         }
         }));
     } else {
