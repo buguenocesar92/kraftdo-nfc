@@ -40,103 +40,24 @@
             <div class="bg-white rounded-3xl shadow-2xl overflow-hidden animate-fade-in">
                 
                 {{-- Profile Header --}}
-                <div class="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600">
-                    {{-- Profile Image --}}
-                    <div class="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
-                        @if($contentMultimedia && isset($contentMultimedia->settings['profile_image']))
-                            <img src="{{ Storage::url($contentMultimedia->settings['profile_image']) }}" 
-                                 alt="Foto de perfil" 
-                                 class="w-24 h-24 rounded-full border-4 border-white shadow-lg object-cover">
-                        @else
-                            <div class="w-24 h-24 rounded-full border-4 border-white shadow-lg bg-gray-200 flex items-center justify-center">
-                                <span class="text-3xl text-gray-400">👤</span>
-                            </div>
-                        @endif
-                    </div>
-                </div>
+                <x-profile.header 
+                    :content-multimedia="$contentMultimedia" 
+                    :content-profile="$contentProfile" 
+                    :token="$token" />
                 
                 {{-- Profile Content --}}
                 <div class="pt-16 pb-6 px-6">
                     
-                    {{-- Name --}}
-                    <div class="text-center mb-4">
-                        <h1 class="text-2xl font-bold text-gray-900 mb-1">
-                            {{ $contentProfile->name ?? $token->name ?? 'Mi Perfil' }}
-                        </h1>
-                    </div>
-                    
-                    {{-- Bio --}}
-                    @if($contentProfile && $contentProfile->bio)
-                        <div class="text-center mb-6">
-                            <p class="text-gray-600 leading-relaxed">
-                                {{ $contentProfile->bio }}
-                            </p>
-                        </div>
-                    @endif
+                    {{-- Profile Info (Name & Bio) --}}
+                    <x-profile.info 
+                        :content-profile="$contentProfile" 
+                        :token="$token" />
                     
                     {{-- Contact Information --}}
-                    @if($contentProfile && $contentProfile->hasContactInfo())
-                        <div class="space-y-3 mb-6">
-                            @if($contentProfile->contact_email)
-                                <a href="mailto:{{ $contentProfile->contact_email }}" 
-                                   class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                                    <span class="text-xl">📧</span>
-                                    <span class="text-gray-700 text-sm">{{ $contentProfile->contact_email }}</span>
-                                </a>
-                            @endif
-                            
-                            @if($contentProfile->contact_phone)
-                                <a href="tel:{{ $contentProfile->contact_phone }}" 
-                                   class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                                    <span class="text-xl">📱</span>
-                                    <span class="text-gray-700 text-sm">{{ $contentProfile->contact_phone }}</span>
-                                </a>
-                            @endif
-                            
-                            @if($contentProfile->contact_website)
-                                <a href="{{ $contentProfile->contact_website }}" target="_blank"
-                                   class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
-                                    <span class="text-xl">🌐</span>
-                                    <span class="text-gray-700 text-sm">Sitio Web</span>
-                                </a>
-                            @endif
-                        </div>
-                    @endif
+                    <x-profile.contact :content-profile="$contentProfile" />
                     
                     {{-- Social Links --}}
-                    @if($socialLinks && count($socialLinks) > 0)
-                        <div class="mb-6">
-                            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
-                                Sígueme en
-                            </h3>
-                            <div class="grid grid-cols-2 gap-2">
-                                @foreach($socialLinks as $link)
-                                    @php
-                                        $platform = $link->platform_info;
-                                        $url = $link->url ?: ($platform['base_url'] . $link->username);
-                                    @endphp
-                                    <a href="{{ $url }}" target="_blank" rel="noopener"
-                                       class="flex items-center gap-2 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-sm">
-                                        <span class="text-lg">
-                                            @switch($link->platform)
-                                                @case('instagram') 📷 @break
-                                                @case('linkedin') 💼 @break
-                                                @case('twitter') 🐦 @break
-                                                @case('facebook') 📘 @break
-                                                @case('tiktok') 🎵 @break
-                                                @case('youtube') 📹 @break
-                                                @case('github') 💻 @break
-                                                @default 🌐 @break
-                                            @endswitch
-                                        </span>
-                                        <span class="text-gray-700 truncate">
-                                            {{ $link->username ?: $platform['name'] }}
-                                        </span>
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
+                    <x-profile.social-links :social-links="$socialLinks" />
                     
                     {{-- Video Presentation --}}
                     @if($contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file))
@@ -174,52 +95,15 @@
                         </div>
                     @endif
                     
-                    {{-- Save Contact Button --}}
-                    <div class="text-center">
-                        <button onclick="downloadVCard()" 
-                                class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-200">
-                            💾 Guardar Contacto
-                        </button>
-                    </div>
+                    {{-- Action Buttons --}}
+                    <x-profile.action-buttons 
+                        :content-profile="$contentProfile" 
+                        :token="$token" />
                 </div>
             </div>
         </div>
     </div>
 
 
-    <script>
-        function downloadVCard() {
-            // Generate vCard content
-            let vcard = "BEGIN:VCARD\nVERSION:3.0\n";
-            vcard += "FN:{{ $contentProfile->name ?? $token->name ?? 'Contacto' }}\n";
-            
-            @if($contentProfile)
-                @if($contentProfile->contact_email)
-                    vcard += "EMAIL:{{ $contentProfile->contact_email }}\n";
-                @endif
-                @if($contentProfile->contact_phone)
-                    vcard += "TEL:{{ $contentProfile->contact_phone }}\n";
-                @endif
-                @if($contentProfile->contact_website)
-                    vcard += "URL:{{ $contentProfile->contact_website }}\n";
-                @endif
-                @if($contentProfile->bio)
-                    vcard += "NOTE:{{ str_replace("\n", "\\n", $contentProfile->bio) }}\n";
-                @endif
-            @endif
-            
-            vcard += "END:VCARD";
-            
-            // Create download link
-            const element = document.createElement('a');
-            const file = new Blob([vcard], {type: 'text/vcard'});
-            element.href = URL.createObjectURL(file);
-            element.download = "{{ Str::slug($contentProfile->name ?? $token->name ?? 'contacto') }}.vcf";
-            document.body.appendChild(element);
-            element.click();
-            document.body.removeChild(element);
-        }
-        
-    </script>
 </body>
 </html>
