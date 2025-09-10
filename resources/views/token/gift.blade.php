@@ -79,7 +79,7 @@
         hasAudio: {{ $contentMultimedia && ($contentMultimedia->audio_url || $contentMultimedia->audio_file) ? 'true' : 'false' }},
         hasVideo: {{ $contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file) ? 'true' : 'false' }}
     }" 
-         x-init="console.log('Overlay init:', { hasAudio, hasVideo, showOverlay: hasVideo || hasAudio }); showAutoplayOverlay = hasVideo || hasAudio;"
+         x-init="console.log('Overlay init:', { hasAudio, hasVideo, showOverlay: !hasVideo && !hasAudio }); showAutoplayOverlay = !hasVideo && !hasAudio;"
          x-show="showAutoplayOverlay" 
          class="fixed inset-0 flex items-center justify-center"
          style="z-index: 9999; display: block !important; background-color: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);"
@@ -97,13 +97,13 @@
             </div>
             
             <!-- Title -->
-            <h2 class="text-2xl font-bold text-gray-900 mb-4">
-                ¡Experiencia Multimedia!
+            <h2 class="text-2xl font-bold text-gray-900 mb-4" x-text="hasVideo || hasAudio ? '¡Experiencia Multimedia!' : '¡Escucha tu Mensaje!'">
+                ¡Escucha tu Mensaje!
             </h2>
             
             <!-- Description -->
-            <p class="text-gray-600 mb-6 leading-relaxed">
-                Para brindarte la mejor experiencia, necesitamos activar la reproducción automática del contenido multimedia.
+            <p class="text-gray-600 mb-6 leading-relaxed" x-text="hasVideo || hasAudio ? 'Para brindarte la mejor experiencia, necesitamos activar la reproducción automática del contenido multimedia.' : 'Te leeremos el mensaje personalizado en voz alta para una experiencia única.'">
+                Te leeremos el mensaje personalizado en voz alta para una experiencia única.
             </p>
             
             <!-- Debug Info -->
@@ -189,8 +189,140 @@
                             console.error('Even muted audio playback failed:', err);
                         });
                     });
-            } else {
-                console.log('No media elements found');
+                return; // Exit early if audio found
+            }
+            
+            // If no video/audio found, use text-to-speech for the message
+            console.log('No media elements found, starting text-to-speech');
+            tryTextToSpeech();
+        }
+
+        // Text-to-Speech functionality
+        function tryTextToSpeech() {
+            // Check if browser supports Speech Synthesis
+            if (!('speechSynthesis' in window)) {
+                console.log('Text-to-speech not supported in this browser');
+                return;
+            }
+
+            // Collect all text content from the gift
+            let fullText = '';
+            
+            // Get recipient info - more specific selector
+            const recipientElement = document.querySelector('main h2, .max-w-2xl h2');
+            if (recipientElement) {
+                console.log('Found recipient:', recipientElement.textContent);
+                fullText += recipientElement.textContent.trim() + '. ';
+            }
+            
+            // Get sender info - look for p element that contains "De:"
+            const allParagraphs = document.querySelectorAll('p');
+            allParagraphs.forEach(p => {
+                if (p.textContent.includes('De:')) {
+                    console.log('Found sender:', p.textContent);
+                    fullText += p.textContent.trim() + '. ';
+                }
+            });
+            
+            // Get the personal message section
+            const messageSection = document.querySelector('.bg-gradient-to-r');
+            if (messageSection) {
+                const messageTitle = messageSection.querySelector('h3');
+                const messageContent = messageSection.querySelector('.text-gray-700');
+                
+                if (messageTitle) {
+                    console.log('Found message title:', messageTitle.textContent);
+                    fullText += messageTitle.textContent.replace('💌', '').trim() + ': ';
+                }
+                
+                if (messageContent) {
+                    console.log('Found message content:', messageContent.textContent);
+                    fullText += messageContent.textContent.trim();
+                }
+            }
+
+            if (!fullText || fullText.length < 3) {
+                console.log('No content found for text-to-speech');
+                return;
+            }
+
+            console.log('Starting text-to-speech for full content:', fullText);
+
+            // Create speech synthesis utterance
+            const utterance = new SpeechSynthesisUtterance(fullText);
+            
+            // Configure speech settings
+            utterance.lang = 'es-ES'; // Spanish
+            utterance.rate = 0.9; // Slightly slower for clarity
+            utterance.pitch = 1.0; // Normal pitch
+            utterance.volume = 0.8; // Slightly quieter
+
+            // Event handlers
+            utterance.onstart = () => {
+                console.log('Text-to-speech started');
+            };
+
+            utterance.onend = () => {
+                console.log('Text-to-speech finished');
+            };
+
+            utterance.onerror = (error) => {
+                console.error('Text-to-speech error:', error);
+            };
+
+            // Start speaking
+            speechSynthesis.speak(utterance);
+        }
+
+        // Function to manually trigger text-to-speech (can be called from anywhere)
+        window.readMessageAloud = function() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel(); // Stop current speech
+            }
+            
+            // Collect all text content from the gift
+            let fullText = '';
+            
+            // Get recipient info - more specific selector
+            const recipientElement = document.querySelector('main h2, .max-w-2xl h2');
+            if (recipientElement) {
+                console.log('Found recipient:', recipientElement.textContent);
+                fullText += recipientElement.textContent.trim() + '. ';
+            }
+            
+            // Get sender info - look for p element that contains "De:"
+            const allParagraphs = document.querySelectorAll('p');
+            allParagraphs.forEach(p => {
+                if (p.textContent.includes('De:')) {
+                    console.log('Found sender:', p.textContent);
+                    fullText += p.textContent.trim() + '. ';
+                }
+            });
+            
+            // Get the personal message section
+            const messageSection = document.querySelector('.bg-gradient-to-r');
+            if (messageSection) {
+                const messageTitle = messageSection.querySelector('h3');
+                const messageContent = messageSection.querySelector('.text-gray-700');
+                
+                if (messageTitle) {
+                    console.log('Found message title:', messageTitle.textContent);
+                    fullText += messageTitle.textContent.replace('💌', '').trim() + ': ';
+                }
+                
+                if (messageContent) {
+                    console.log('Found message content:', messageContent.textContent);
+                    fullText += messageContent.textContent.trim();
+                }
+            }
+
+            if (fullText && fullText.length > 3) {
+                const utterance = new SpeechSynthesisUtterance(fullText);
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+                utterance.volume = 0.8;
+                speechSynthesis.speak(utterance);
             }
         }
 
