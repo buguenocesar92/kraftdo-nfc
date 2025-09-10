@@ -46,7 +46,6 @@
              id="voice-selector-dropdown">
             
             <div class="bg-white rounded-lg shadow-lg border p-4">
-                <h3 class="font-semibold text-gray-700 mb-3">Seleccionar Voz:</h3>
                 
                 <div class="max-h-32 overflow-y-auto space-y-2">
                     <template x-for="voice in availableVoices" :key="voice.name">

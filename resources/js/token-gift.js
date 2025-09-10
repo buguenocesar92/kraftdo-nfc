@@ -934,8 +934,13 @@ function registerTokenGiftComponent() {
                     voice.lang.startsWith('es') || voice.lang.startsWith('en')
                 );
                 if (this.availableVoices.length > 0 && !this.selectedVoice) {
-                    this.selectedVoice = this.availableVoices.find(v => v.lang === 'es-ES') || this.availableVoices[0];
+                    // Try to find es-US (Remote) voice first
+                    this.selectedVoice = this.availableVoices.find(v => v.lang === 'es-US' && !v.localService) ||
+                                       this.availableVoices.find(v => v.lang === 'es-US') ||
+                                       this.availableVoices.find(v => v.lang === 'es-ES') ||
+                                       this.availableVoices[0];
                     window.selectedTTSVoice = this.selectedVoice;
+                    console.log('Default voice selected:', this.selectedVoice.name, this.selectedVoice.lang, this.selectedVoice.localService ? '(Local)' : '(Remote)');
                 }
             },
 
