@@ -58,11 +58,11 @@
                         <div class="section-title-container flex items-center justify-center gap-3 mb-6 animate-fade-in animate-delay-600">
                             <div class="flex-1 section-divider text-red-300"></div>
                             <div class="section-title-badge flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-50 to-pink-50 rounded-full border border-red-200 shadow-sm hover:shadow-lg transition-all duration-300">
-                                <span class="text-2xl sm:text-2xl icon-bounce">🎬</span>
+                                <span class="text-2xl sm:text-2xl icon-bounce gift-emoji">🎬</span>
                                 <h2 class="text-lg sm:text-xl font-bold text-transparent bg-gradient-to-r from-red-600 via-pink-600 to-purple-600 bg-clip-text whitespace-nowrap">
                                     Video Especial
                                 </h2>
-                                <span class="text-2xl sm:text-2xl icon-bounce" style="animation-delay: 0.3s;">🎭</span>
+                                <span class="text-2xl sm:text-2xl icon-bounce gift-emoji" style="animation-delay: 0.3s;">🎭</span>
                             </div>
                             <div class="flex-1 section-divider text-red-300"></div>
                         </div>
@@ -75,7 +75,7 @@
                         <div class="section-title-container flex items-center justify-center gap-3 mb-6 animate-fade-in animate-delay-700">
                             <div class="flex-1 section-divider text-green-300"></div>
                             <div class="section-title-badge flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-full border border-green-200 shadow-sm hover:shadow-lg transition-all duration-300">
-                                <span class="text-2xl sm:text-2xl icon-bounce">🎵</span>
+                                <span class="text-2xl sm:text-2xl icon-bounce gift-emoji">🎵</span>
                                 <h2 class="text-lg sm:text-xl font-bold text-transparent bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text whitespace-nowrap">
                                     Audio Especial
                                 </h2>
@@ -109,7 +109,7 @@
                                     <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-bold px-3 py-1 rounded-full shadow-lg">
                                         {{ count($galleryImages) }}
                                     </div>
-                                    <span class="text-xl sm:text-2xl icon-bounce" style="animation-delay: 0.5s;">🖼️</span>
+                                    <span class="text-xl sm:text-2xl icon-bounce gift-emoji" style="animation-delay: 0.5s;">🖼️</span>
                                 </div>
                             </div>
                         </div>

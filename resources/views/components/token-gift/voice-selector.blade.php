@@ -13,7 +13,7 @@
             <svg class="w-6 h-6 icon-bounce group-hover:animate-pulse" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M8 5v14l11-7z"/>
             </svg>
-            <span class="text-lg">🔊 Reproducir Mensaje</span>
+            <span class="text-lg"><span class="gift-emoji">🔊</span> Reproducir Mensaje</span>
             
             <!-- Shimmer effect -->
             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>

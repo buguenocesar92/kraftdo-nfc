@@ -145,6 +145,28 @@
     animation: iconBounce 2s infinite;
 }
 
+/* Ensure emojis maintain their natural colors */
+.gift-emoji, span[style*="animation-duration"]:first-of-type {
+    color: initial !important;
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    -webkit-text-fill-color: initial !important;
+    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji", sans-serif !important;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.3) !important;
+    position: relative;
+    z-index: 10;
+}
+
+/* Override any parent text styles for emojis */
+.gift-emoji::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: transparent;
+    z-index: -1;
+}
+
 @keyframes iconBounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
