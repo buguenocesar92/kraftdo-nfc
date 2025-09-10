@@ -34,6 +34,17 @@
             {{-- Header Component --}}
             <x-token-gift.header />
 
+            {{-- Play Message Button --}}
+            <div class="text-center mb-6">
+                <button onclick="window.readMessageAloud()" 
+                        class="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    🔊 Reproducir Mensaje
+                </button>
+            </div>
+
             {{-- Main Card --}}
             <main class="bg-white rounded-2xl card-shadow p-8 animate-fade-in" style="animation-delay: 0.2s;" role="main">
                 
@@ -194,7 +205,7 @@
             
             // If no video/audio found, use text-to-speech for the message
             console.log('No media elements found, starting text-to-speech');
-            tryTextToSpeech();
+            window.readMessageAloud();
         }
 
         // Text-to-Speech functionality
@@ -283,47 +294,122 @@
             // Collect all text content from the gift
             let fullText = '';
             
-            // Get recipient info - more specific selector
-            const recipientElement = document.querySelector('main h2, .max-w-2xl h2');
+            console.log('=== DEBUGGING TTS ===');
+            
+            // Get recipient info - try multiple selectors
+            let recipientElement = document.querySelector('main h2');
+            if (!recipientElement) {
+                recipientElement = document.querySelector('.max-w-2xl h2');
+            }
+            if (!recipientElement) {
+                recipientElement = document.querySelector('h2');
+            }
+            
             if (recipientElement) {
                 console.log('Found recipient:', recipientElement.textContent);
                 fullText += recipientElement.textContent.trim() + '. ';
+            } else {
+                console.log('No recipient element found');
             }
             
             // Get sender info - look for p element that contains "De:"
             const allParagraphs = document.querySelectorAll('p');
-            allParagraphs.forEach(p => {
+            console.log('Found paragraphs:', allParagraphs.length);
+            allParagraphs.forEach((p, index) => {
+                console.log(`Paragraph ${index}:`, p.textContent);
                 if (p.textContent.includes('De:')) {
                     console.log('Found sender:', p.textContent);
                     fullText += p.textContent.trim() + '. ';
                 }
             });
             
-            // Get the personal message section
-            const messageSection = document.querySelector('.bg-gradient-to-r');
+            // Get the personal message section - try multiple approaches
+            let messageSection = document.querySelector('.bg-gradient-to-r');
+            if (!messageSection) {
+                messageSection = document.querySelector('[class*="gradient"]');
+            }
+            if (!messageSection) {
+                messageSection = document.querySelector('.from-pink-50');
+            }
+            
+            console.log('Message section found:', !!messageSection);
+            console.log('All gradient elements:', document.querySelectorAll('[class*="gradient"]').length);
+            
             if (messageSection) {
                 const messageTitle = messageSection.querySelector('h3');
                 const messageContent = messageSection.querySelector('.text-gray-700');
                 
+                console.log('Message title found:', !!messageTitle);
+                console.log('Message content found:', !!messageContent);
+                
                 if (messageTitle) {
-                    console.log('Found message title:', messageTitle.textContent);
+                    console.log('Message title text:', messageTitle.textContent);
                     fullText += messageTitle.textContent.replace('💌', '').trim() + ': ';
                 }
                 
                 if (messageContent) {
-                    console.log('Found message content:', messageContent.textContent);
+                    console.log('Message content text:', messageContent.textContent);
                     fullText += messageContent.textContent.trim();
                 }
             }
+            
+            // Always try fallback to ensure we get the message
+            console.log('Trying fallback selectors anyway...');
+            const allH3 = document.querySelectorAll('h3');
+            const allTextElements = document.querySelectorAll('.text-gray-700');
+            
+            console.log('Found h3 elements:', allH3.length);
+            console.log('Found .text-gray-700 elements:', allTextElements.length);
+            
+            allH3.forEach((h3, index) => {
+                console.log(`H3 ${index}:`, h3.textContent);
+                if (h3.textContent.includes('Mensaje') && !fullText.includes('Mensaje Personal')) {
+                    fullText += h3.textContent.replace('💌', '').trim() + ': ';
+                }
+            });
+            
+            allTextElements.forEach((el, index) => {
+                console.log(`Text element ${index}:`, el.textContent);
+                const trimmedText = el.textContent.trim();
+                
+                // Skip if it's part of controls, navigation, or already included
+                if (!el.closest('button') && !el.closest('nav') && 
+                    trimmedText.length > 3 && // Cambié de 10 a 3 para incluir mensajes cortos
+                    !trimmedText.includes('Para:') && 
+                    !trimmedText.includes('De:') &&
+                    !trimmedText.includes('Error') &&
+                    !trimmedText.includes('Cargando') &&
+                    !trimmedText.includes('Regalo creado') &&
+                    !trimmedText.includes('Te leeremos') &&
+                    !trimmedText.includes('Esto iniciará') &&
+                    !fullText.includes(trimmedText)) {
+                    console.log(`Adding text element ${index}: "${trimmedText}"`);
+                    fullText += trimmedText + '. ';
+                }
+            });
+
+            console.log('Final text to speak:', fullText);
+            console.log('Text length:', fullText.length);
 
             if (fullText && fullText.length > 3) {
+                console.log('Starting speech synthesis...');
                 const utterance = new SpeechSynthesisUtterance(fullText);
                 utterance.lang = 'es-ES';
                 utterance.rate = 0.9;
                 utterance.pitch = 1.0;
                 utterance.volume = 0.8;
+                
+                utterance.onstart = () => console.log('TTS started');
+                utterance.onend = () => console.log('TTS ended');
+                utterance.onerror = (e) => console.error('TTS error:', e);
+                
                 speechSynthesis.speak(utterance);
+            } else {
+                console.log('No content to speak');
+                alert('No se encontró contenido para reproducir');
             }
+            
+            console.log('=== END DEBUGGING ===');
         }
 
         // Function to scroll to video and center it
