@@ -34,7 +34,7 @@
                 isMuted: false,
                 playbackRate: 1,
                 isLooping: false,
-                waveformData: [],
+                waveformData: Array.from({length: 60}, () => Math.random()),
                 metadata: {
                     title: '',
                     artist: '',
@@ -121,17 +121,6 @@
                 generateWaveform() {
                     // Generate mock waveform data
                     this.waveformData = Array.from({length: 60}, () => Math.random());
-                },
-                
-                updateWaveformProgress() {
-                    // Update waveform visualization based on current time
-                },
-                
-                loadAudioMetadata() {
-                    // Try to load audio metadata if available
-                    if (this.audioSrc.includes('.mp3') || this.audioSrc.includes('.wav')) {
-                        // Could integrate with a metadata extraction library
-                    }
                 }
              }"
              x-init="
@@ -147,12 +136,12 @@
                             
                             // Try to extract metadata
                             if (audio.title) metadata.title = audio.title;
-                            this.loadAudioMetadata();
+                            // loadAudioMetadata();
                         });
                         
                         audio.addEventListener('timeupdate', () => {
                             currentTime = audio.currentTime;
-                            this.updateWaveformProgress();
+                            // updateWaveformProgress();
                         });
                         
                         audio.addEventListener('play', () => {
@@ -192,7 +181,7 @@
                         });
                         
                         // Generate waveform visualization
-                        this.generateWaveform();
+                        // generateWaveform();
                     }
                 });
              ">
@@ -281,10 +270,10 @@
                         <div class="absolute inset-0 flex items-center justify-center">
                             <div class="flex items-end gap-1 h-16" x-ref="waveformContainer">
                                 <!-- Waveform bars will be generated here -->
-                                <template x-for="i in 60" :key="i">
+                                <template x-for="(height, index) in waveformData" :key="index">
                                     <div class="bg-gray-300 rounded-full transition-all duration-75"
-                                         :class="{ 'bg-blue-500': (i / 60) <= (currentTime / duration) }"
-                                         :style="`width: 3px; height: ${Math.random() * 60 + 10}px;`"></div>
+                                         :class="{ 'bg-blue-500': (index / waveformData.length) <= (currentTime / duration) }"
+                                         :style="`width: 3px; height: ${height * 60 + 10}px;`"></div>
                                 </template>
                             </div>
                         </div>
