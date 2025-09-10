@@ -242,6 +242,30 @@ class MyTokens extends Page implements HasForms, HasActions
                     ->columns(2)
                     ->collapsible(),
 
+                Section::make('Tema y Estilo')
+                    ->description('Personaliza la apariencia de tu regalo')
+                    ->schema([
+                        Select::make('settings.theme')
+                            ->label('Tema del Regalo')
+                            ->options([
+                                'love' => '💕 Amor - Colores rosas y rojos',
+                                'birthday' => '🎂 Cumpleaños - Colores festivos y alegres',
+                                'anniversary' => '💒 Aniversario - Colores dorados y elegantes',
+                                'friendship' => '🤝 Amistad - Colores azules y verdes',
+                                'graduation' => '🎓 Graduación - Colores académicos',
+                                'christmas' => '🎄 Navidad - Colores navideños',
+                                'valentine' => '💖 San Valentín - Rosa y rojo intenso',
+                                'mother_day' => '🌸 Día de la Madre - Colores florales',
+                                'father_day' => '👔 Día del Padre - Colores clásicos',
+                                'congratulations' => '🎉 Felicitaciones - Colores vibrantes',
+                            ])
+                            ->default('love')
+                            ->required()
+                            ->columnSpan(2),
+                    ])
+                    ->columns(2)
+                    ->collapsible(),
+
                 Section::make('Contenido Multimedia')
                     ->description('Agrega video y audio a tu regalo')
                     ->schema([
@@ -380,7 +404,7 @@ class MyTokens extends Page implements HasForms, HasActions
                 'audio_url' => $data['audio_url'] ?? null,
                 'audio_file' => $data['audio_file'] ?? null,
                 'audio_type' => $data['audio_type'] ?? 'direct',
-                'settings' => $data['settings'] ?? [],
+                'settings' => array_merge($this->contentMultimedia->settings ?? [], $data['settings'] ?? []),
             ];
             
             $this->contentMultimedia->update($multimediaData);

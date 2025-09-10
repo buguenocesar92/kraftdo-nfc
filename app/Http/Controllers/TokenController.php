@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\NfcToken;
 use App\Models\ContentGift;
 use App\Models\ContentMultimedia;
+use App\Helpers\ThemeHelper;
 use Illuminate\Http\Request;
 
 class TokenController extends Controller
@@ -49,6 +50,10 @@ class TokenController extends Controller
                 ->get();
         }
 
+        // Obtener el tema configurado
+        $theme = $contentMultimedia->settings['theme'] ?? 'love';
+        $themeConfig = ThemeHelper::getThemeConfig($theme);
+
         // Datos para la vista
         $data = [
             'token' => $token,
@@ -56,6 +61,7 @@ class TokenController extends Controller
             'contentGift' => $contentGift,
             'contentMultimedia' => $contentMultimedia,
             'galleryImages' => $galleryImages,
+            'theme' => $themeConfig,
         ];
 
         // Determinar la vista basada en el tipo de contenido
