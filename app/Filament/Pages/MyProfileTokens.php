@@ -128,6 +128,11 @@ class MyProfileTokens extends Page implements HasForms, HasActions
                         ->values()
                         ->toArray();
                     $multimediaData['gallery_images'] = $galleryImages;
+                    
+                    // Asegurar que los settings se incluyen correctamente
+                    if (isset($this->contentMultimedia->settings) && is_array($this->contentMultimedia->settings)) {
+                        $multimediaData['settings'] = $this->contentMultimedia->settings;
+                    }
                 }
 
                 // Obtener enlaces sociales
@@ -361,7 +366,7 @@ class MyProfileTokens extends Page implements HasForms, HasActions
                     ->description('Agrega contenido visual a tu perfil')
                     ->schema([
                         // Imagen de perfil principal
-                        FileUpload::make('profile_image')
+                        FileUpload::make('settings.profile_image')
                             ->label('Imagen de Perfil')
                             ->directory('profiles')
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
@@ -371,6 +376,7 @@ class MyProfileTokens extends Page implements HasForms, HasActions
                             ->preserveFilenames()
                             ->imageEditor()
                             ->imagePreviewHeight('200')
+                            ->helperText('Sube una imagen para tu perfil. Se mostrará en forma circular.')
                             ->columnSpan(1),
 
                         // Video de presentación
@@ -483,9 +489,7 @@ class MyProfileTokens extends Page implements HasForms, HasActions
                 'video_url' => $data['video_url'] ?? null,
                 'video_file' => $data['video_file'] ?? null,
                 'video_type' => $data['video_type'] ?? 'direct',
-                'settings' => array_merge($this->contentMultimedia->settings ?? [], [
-                    'profile_image' => $data['profile_image'] ?? null,
-                ]),
+                'settings' => array_merge($this->contentMultimedia->settings ?? [], $data['settings'] ?? []),
             ];
             
             $this->contentMultimedia->update($multimediaData);
