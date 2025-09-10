@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\NfcToken;
+use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
 use Filament\Tables\Table;
@@ -20,6 +21,8 @@ class MyTokensList extends Page implements HasTable
     protected static ?string $title = 'Mis Tokens';
 
     protected static ?string $navigationLabel = 'Mis Tokens';
+
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-credit-card';
 
     protected static ?int $navigationSort = 1;
 
