@@ -110,6 +110,18 @@ class MyTokensList extends Page implements HasTable
                     ->url(fn (NfcToken $record): string => "/admin/my-tokens/{$record->id}/configure")
                     ->openUrlInNewTab(false),
 
+                Action::make('configure_profile')
+                    ->label('Configurar Perfil')
+                    ->icon('heroicon-o-user')
+                    ->color('success')
+                    ->visible(fn (NfcToken $record) => 
+                        $record->content_type === 'PROFILE' && 
+                        auth()->user()->can('configure_own_tokens') &&
+                        $record->user_id === auth()->id()
+                    )
+                    ->url(fn (NfcToken $record): string => "/admin/my-tokens/{$record->id}/configure-profile")
+                    ->openUrlInNewTab(false),
+
                 Action::make('preview')
                     ->label('Vista Previa')
                     ->icon('heroicon-o-eye')

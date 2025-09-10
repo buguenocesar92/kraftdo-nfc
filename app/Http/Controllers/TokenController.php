@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\NfcToken;
 use App\Models\ContentGift;
+use App\Models\ContentProfile;
 use App\Models\ContentMultimedia;
 use App\Helpers\ThemeHelper;
 use Illuminate\Http\Request;
@@ -19,8 +20,8 @@ class TokenController extends Controller
             abort(404, 'Token no encontrado');
         }
 
-        // Por ahora solo manejamos tokens de tipo GIFT
-        if ($token->content_type !== 'GIFT') {
+        // Manejamos tokens de tipo GIFT y PROFILE
+        if (!in_array($token->content_type, ['GIFT', 'PROFILE'])) {
             abort(404, 'Tipo de contenido no disponible');
         }
 
@@ -35,37 +36,74 @@ class TokenController extends Controller
             abort(404, 'Contenido no encontrado');
         }
 
-        // Obtener el contenido del regalo
-        $contentGift = ContentGift::where('dynamic_content_id', $dynamicContent->id)->first();
-        
-        // Obtener contenido multimedia si existe
-        $contentMultimedia = ContentMultimedia::where('dynamic_content_id', $dynamicContent->id)->first();
-        
-        // Obtener imágenes de galería si existen
-        $galleryImages = [];
-        if ($contentMultimedia) {
-            $galleryImages = $contentMultimedia->galleryImages()
-                ->orderBy('sort_order')
-                ->orderBy('id')
-                ->get();
+        if ($token->content_type === 'GIFT') {
+            // Obtener el contenido del regalo
+            $contentGift = ContentGift::where('dynamic_content_id', $dynamicContent->id)->first();
+            
+            // Obtener contenido multimedia si existe
+            $contentMultimedia = ContentMultimedia::where('dynamic_content_id', $dynamicContent->id)->first();
+            
+            // Obtener imágenes de galería si existen
+            $galleryImages = [];
+            if ($contentMultimedia) {
+                $galleryImages = $contentMultimedia->galleryImages()
+                    ->orderBy('sort_order')
+                    ->orderBy('id')
+                    ->get();
+            }
+
+            // Obtener el tema configurado
+            $theme = $contentMultimedia ? ($contentMultimedia->settings['theme'] ?? 'love') : 'love';
+            $themeConfig = ThemeHelper::getThemeConfig($theme);
+
+            // Datos para la vista
+            $data = [
+                'token' => $token,
+                'dynamicContent' => $dynamicContent,
+                'contentGift' => $contentGift,
+                'contentMultimedia' => $contentMultimedia,
+                'galleryImages' => $galleryImages,
+                'theme' => $themeConfig,
+            ];
+
+            return view('token.gift', $data);
+            
+        } elseif ($token->content_type === 'PROFILE') {
+            // Obtener el contenido del perfil
+            $contentProfile = ContentProfile::where('dynamic_content_id', $dynamicContent->id)->first();
+            
+            // Obtener contenido multimedia si existe
+            $contentMultimedia = ContentMultimedia::where('dynamic_content_id', $dynamicContent->id)->first();
+            
+            // Obtener imágenes de galería si existen
+            $galleryImages = [];
+            if ($contentMultimedia) {
+                $galleryImages = $contentMultimedia->galleryImages()
+                    ->orderBy('sort_order')
+                    ->orderBy('id')
+                    ->get();
+            }
+
+            // Obtener enlaces sociales si existen
+            $socialLinks = [];
+            if ($contentProfile) {
+                $socialLinks = $contentProfile->socialLinks()
+                    ->ordered()
+                    ->get();
+            }
+
+            // Datos para la vista
+            $data = [
+                'token' => $token,
+                'dynamicContent' => $dynamicContent,
+                'contentProfile' => $contentProfile,
+                'contentMultimedia' => $contentMultimedia,
+                'galleryImages' => $galleryImages,
+                'socialLinks' => $socialLinks,
+            ];
+
+            return view('token.profile', $data);
         }
-
-        // Obtener el tema configurado
-        $theme = $contentMultimedia ? ($contentMultimedia->settings['theme'] ?? 'love') : 'love';
-        $themeConfig = ThemeHelper::getThemeConfig($theme);
-
-        // Datos para la vista
-        $data = [
-            'token' => $token,
-            'dynamicContent' => $dynamicContent,
-            'contentGift' => $contentGift,
-            'contentMultimedia' => $contentMultimedia,
-            'galleryImages' => $galleryImages,
-            'theme' => $themeConfig,
-        ];
-
-        // Determinar la vista basada en el tipo de contenido
-        return view('token.gift', $data);
     }
 
     public function preview(Request $request, $tokenId)
