@@ -980,8 +980,8 @@ function registerTokenGiftComponent() {
                 console.log('DOM ready state:', document.readyState);
                 console.log('Page load timing:', performance.now(), 'ms since page start');
                 
-                // Show overlay when there's no audio (requires user interaction)
-                this.showAutoplayOverlay = !this.hasAudio;
+                // Always show overlay when there's video, regardless of audio
+                this.showAutoplayOverlay = this.hasVideo;
                 console.log('Overlay visibility set to:', this.showAutoplayOverlay);
                 
                 // Add a small delay to ensure DOM is fully ready
@@ -992,25 +992,43 @@ function registerTokenGiftComponent() {
             },
 
             getTitle() {
+                if (this.hasVideo && this.hasAudio) {
+                    return '¡Reproducir Audio Especial!';
+                }
                 return this.hasVideo ? '¡Activa tu Video!' : '¡Escucha tu Mensaje!';
             },
 
             getDescription() {
+                if (this.hasVideo && this.hasAudio) {
+                    return 'Disfruta del video y escucha el audio especial que han preparado para ti.';
+                }
                 return this.hasVideo ? 
                     'Para brindarte la mejor experiencia, necesitamos activar la reproducción automática del video.' : 
                     'Te leeremos el mensaje personalizado en voz alta para una experiencia única.';
             },
 
             getButtonText() {
+                if (this.hasVideo && this.hasAudio) {
+                    return 'Reproducir Audio Especial';
+                }
                 return this.hasVideo ? 'Activar Video' : 'Escuchar Mensaje';
             },
 
             activateAutoplay() {
                 console.log('=== OVERLAY BUTTON CLICKED ===');
-                console.log('Hiding overlay and calling enableAutoplay...');
+                console.log('Hiding overlay...');
                 this.showAutoplayOverlay = false;
                 
-                if (window.enableAutoplay) {
+                // If we have both video and audio, prioritize audio playback
+                if (this.hasVideo && this.hasAudio) {
+                    console.log('Has both video and audio, playing audio directly...');
+                    const audio = document.querySelector('audio[x-ref="audioElement"]');
+                    if (audio) {
+                        window.enableAutoplayAudio(audio);
+                    } else {
+                        console.error('Audio element not found!');
+                    }
+                } else if (window.enableAutoplay) {
                     console.log('window.enableAutoplay found, calling...');
                     window.enableAutoplay();
                 } else {
