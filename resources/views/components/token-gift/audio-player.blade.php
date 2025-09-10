@@ -343,22 +343,6 @@
                                 <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
                             </svg>
                         </button>
-
-                        <!-- Skip Back -->
-                        <button x-on:click="skip(-10)"
-                                class="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M11 18V6l-8.5 6 8.5 6zm.5-6l8.5 6V6l-8.5 6z"/>
-                            </svg>
-                        </button>
-
-                        <!-- Skip Forward -->
-                        <button x-on:click="skip(10)"
-                                class="w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M4 18l8.5-6L4 6v12zm9-12v12l8.5-6L13 6z"/>
-                            </svg>
-                        </button>
                     </div>
 
                     <!-- Center Time Display -->
