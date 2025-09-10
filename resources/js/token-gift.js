@@ -870,7 +870,7 @@ function registerTokenGiftComponent() {
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
                 seeking = false;
-            });
+            }, { passive: true });
             
             videoElement.addEventListener('touchmove', (e) => {
                 if (e.touches.length !== 1) return;
@@ -878,8 +878,16 @@ function registerTokenGiftComponent() {
                 const deltaX = e.touches[0].clientX - touchStartX;
                 const deltaY = e.touches[0].clientY - touchStartY;
                 
+                // Only prevent default if we're actually performing gestures
+                const isHorizontalGesture = Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30;
+                const isVerticalGesture = Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 30;
+                
+                if (isHorizontalGesture || isVerticalGesture) {
+                    e.preventDefault(); // Only prevent default when needed
+                }
+                
                 // Horizontal swipe for seeking
-                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 30) {
+                if (isHorizontalGesture) {
                     seeking = true;
                     const seekAmount = (deltaX / videoElement.clientWidth) * this.currentVideo.duration;
                     const newTime = Math.max(0, Math.min(this.currentVideo.duration, this.currentVideo.currentTime + seekAmount));
@@ -887,12 +895,12 @@ function registerTokenGiftComponent() {
                 }
                 
                 // Vertical swipe for volume
-                if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 30) {
+                if (isVerticalGesture) {
                     const volumeChange = -(deltaY / videoElement.clientHeight);
                     const newVolume = Math.max(0, Math.min(1, this.currentVideo.volume + volumeChange));
                     this.setVolume(newVolume, videoId);
                 }
-            });
+            }, { passive: false }); // We need non-passive here for preventDefault
             
             videoElement.addEventListener('touchend', (e) => {
                 const touchDuration = Date.now() - touchStartTime;
@@ -906,7 +914,7 @@ function registerTokenGiftComponent() {
                 if (touchDuration < 300 && e.detail === 2) {
                     this.toggleFullscreen(videoId);
                 }
-            });
+            }, { passive: true });
         }
         }));
 
@@ -962,8 +970,20 @@ function registerTokenGiftComponent() {
             hasVideo: hasVideo,
 
             initOverlay() {
-                console.log('Overlay init:', { hasAudio: this.hasAudio, hasVideo: this.hasVideo, showOverlay: !this.hasAudio });
+                console.log('=== OVERLAY COMPONENT INIT ===');
+                console.log('Alpine component initializing with:', { hasAudio: this.hasAudio, hasVideo: this.hasVideo });
+                console.log('DOM ready state:', document.readyState);
+                console.log('Page load timing:', performance.now(), 'ms since page start');
+                
+                // Show overlay when there's no audio (requires user interaction)
                 this.showAutoplayOverlay = !this.hasAudio;
+                console.log('Overlay visibility set to:', this.showAutoplayOverlay);
+                
+                // Add a small delay to ensure DOM is fully ready
+                setTimeout(() => {
+                    console.log('Overlay component fully initialized');
+                    console.log('Button element exists:', !!document.querySelector('[x-on\\:click="activateAutoplay()"]'));
+                }, 100);
             },
 
             getTitle() {
@@ -981,9 +1001,15 @@ function registerTokenGiftComponent() {
             },
 
             activateAutoplay() {
+                console.log('=== OVERLAY BUTTON CLICKED ===');
+                console.log('Hiding overlay and calling enableAutoplay...');
                 this.showAutoplayOverlay = false;
+                
                 if (window.enableAutoplay) {
+                    console.log('window.enableAutoplay found, calling...');
                     window.enableAutoplay();
+                } else {
+                    console.error('window.enableAutoplay not found!');
                 }
             }
         }));
@@ -993,46 +1019,166 @@ function registerTokenGiftComponent() {
 }
 
 // TTS Functions - moved from inline JS
-window.enableAutoplay = function() {
-    console.log('Starting media playback...');
+window.enableAutoplay = function(skipDelay = false, retryCount = 0) {
+    console.log('=== ENABLE AUTOPLAY CALLED ===');
+    console.log('Call stack:', new Error().stack);
+    console.log('Starting media playback...', { skipDelay, retryCount });
+    console.log('Function called at:', performance.now(), 'ms since page start');
+    console.log('Document ready state:', document.readyState);
     
     // Try to find and start video first
-    const video = document.querySelector('video[x-ref="videoElement"]');
+    let video = document.querySelector('video[x-ref="videoElement"]');
+    console.log('Video element search result:', !!video);
+    
+    // If video not found and we haven't exceeded max retries, wait for Alpine.js to render
+    if (!video && retryCount < 5) {
+        console.log(`Video element not found (attempt ${retryCount + 1}/5), waiting for Alpine.js...`);
+        setTimeout(() => {
+            window.enableAutoplay(true, retryCount + 1); // Recursive call with retry count
+        }, skipDelay ? 50 : 200); // Shorter delay on retries
+        return;
+    }
+    
+    // If still no video after retries, continue to other media
+    if (!video) {
+        console.log('No video found after retries, checking for audio...');
+        const audio = document.querySelector('audio[x-ref="audioElement"]');
+        if (audio) {
+            window.enableAutoplayAudio(audio);
+            return;
+        } else {
+            console.log('No media elements found, starting text-to-speech');
+            window.readMessageAloud();
+            return;
+        }
+    }
+    
     if (video) {
         console.log('Found video, starting video playback');
+        console.log('Video readyState:', video.readyState);
+        console.log('Video src:', video.src);
+        console.log('Video currentSrc:', video.currentSrc);
         
-        // Set video properties for better playback
-        video.muted = false; // Can unmute since user interacted
-        video.controls = true; // Show controls
-        
-        // Start playing the video
-        video.play()
-            .then(() => {
-                console.log('Video started playing successfully');
-                
-                // Scroll to center the video in the viewport
-                scrollToVideo(video);
-            })
-            .catch(e => {
-                console.log('Video play failed:', e);
-                // Fallback: try with muted
-                video.muted = true;
-                video.play().then(() => {
-                    // Still scroll even if muted
+        // Simplified play attempt - just try to play immediately
+        const attemptPlay = () => {
+            console.log('Attempting to play video immediately...');
+            console.log('Video state:', {
+                readyState: video.readyState,
+                paused: video.paused,
+                src: video.src,
+                currentSrc: video.currentSrc
+            });
+            
+            // Set video properties for better playback
+            video.muted = false; // Can unmute since user interacted
+            video.controls = true; // Show controls
+            
+            // Just try to play - let the browser handle loading
+            video.play()
+                .then(() => {
+                    console.log('✅ Video.play() promise resolved');
+                    console.log('Video actual state after play():', {
+                        paused: video.paused,
+                        currentTime: video.currentTime,
+                        duration: video.duration,
+                        readyState: video.readyState,
+                        networkState: video.networkState,
+                        ended: video.ended,
+                        seeking: video.seeking
+                    });
+                    
+                    // Double check if video is actually playing
+                    setTimeout(() => {
+                        console.log('Video state 500ms after play():', {
+                            paused: video.paused,
+                            currentTime: video.currentTime,
+                            playing: !video.paused && !video.ended && video.readyState > 2
+                        });
+                        
+                        if (video.paused) {
+                            console.error('🚨 VIDEO IS STILL PAUSED despite promise resolving!');
+                            console.log('Attempting force play again...');
+                            video.play().catch(e => console.error('Force play failed:', e));
+                        }
+                    }, 500);
+                    
+                    // Scroll to center the video in the viewport
                     scrollToVideo(video);
-                }).catch(err => {
-                    console.error('Even muted playback failed:', err);
-                    // Scroll anyway to show the video
+                })
+                .catch(e => {
+                    console.log('Video play failed, trying muted:', e.name);
+                    // Fallback: try with muted
+                    video.muted = true;
+                    return video.play();
+                })
+                .then(() => {
+                    console.log('Video playing (possibly muted)');
+                    console.log('Muted video state:', {
+                        paused: video.paused,
+                        muted: video.muted,
+                        currentTime: video.currentTime
+                    });
+                    scrollToVideo(video);
+                })
+                .catch(err => {
+                    console.error('All playback attempts failed:', err);
+                    // Still scroll to show the video
                     scrollToVideo(video);
                 });
-            });
+        };
+
+        // Add temporary event listeners to debug what's happening
+        const debugEvents = ['play', 'pause', 'playing', 'waiting', 'stalled', 'suspend', 'error', 'canplay', 'canplaythrough'];
+        debugEvents.forEach(eventName => {
+            const listener = () => {
+                console.log(`🎬 VIDEO EVENT: ${eventName}`, {
+                    currentTime: video.currentTime,
+                    paused: video.paused,
+                    readyState: video.readyState,
+                    networkState: video.networkState
+                });
+            };
+            video.addEventListener(eventName, listener, { once: true });
+        });
+        
+        // Start the attempt process
+        attemptPlay();
         return; // Exit early if video found
     }
     
     // If no video, try to find and start audio
     const audio = document.querySelector('audio[x-ref="audioElement"]');
     if (audio) {
-        console.log('Found audio, starting audio playback');
+        window.enableAutoplayAudio(audio);
+        return; // Exit early if audio found
+    }
+    
+    // If no video/audio found, use text-to-speech for the message
+    console.log('No media elements found, starting text-to-speech');
+    window.readMessageAloud();
+}
+
+// Separate function for audio playback
+window.enableAutoplayAudio = function(audio) {
+    console.log('Found audio, starting audio playback');
+    console.log('Audio readyState:', audio.readyState);
+    console.log('Audio src:', audio.src);
+    
+    // Wait for audio to be ready before playing
+    const attemptPlayAudio = (retryCount = 0) => {
+        if (retryCount > 10) {
+            console.error('Max retries reached for audio, giving up');
+            return;
+        }
+
+        // Check if audio is ready
+        if (audio.readyState < 3) { // HAVE_FUTURE_DATA
+            console.log(`Audio not ready yet (readyState: ${audio.readyState}), waiting... (attempt ${retryCount + 1})`);
+            setTimeout(() => attemptPlayAudio(retryCount + 1), 200);
+            return;
+        }
+
+        console.log('Audio is ready, attempting to play...');
         
         // Set audio properties for better playback
         audio.muted = false; // Can unmute since user interacted
@@ -1051,14 +1197,19 @@ window.enableAutoplay = function() {
                     console.log('Audio started playing muted');
                 }).catch(err => {
                     console.error('Even muted audio playback failed:', err);
+                    // Try one more time after a delay
+                    if (retryCount < 3) {
+                        console.log('Retrying audio playback after delay...');
+                        setTimeout(() => attemptPlayAudio(retryCount + 1), 500);
+                    } else {
+                        console.log('Final audio fallback failed');
+                    }
                 });
             });
-        return; // Exit early if audio found
-    }
-    
-    // If no video/audio found, use text-to-speech for the message
-    console.log('No media elements found, starting text-to-speech');
-    window.readMessageAloud();
+    };
+
+    // Start the attempt process for audio
+    attemptPlayAudio();
 }
 
 // Text-to-Speech functionality
@@ -1261,12 +1412,39 @@ document.addEventListener('alpine:init', function() {
     setInterval(checkOverlay, 100);
 });
 
+// Global click event listener to debug button clicks
+document.addEventListener('click', function(event) {
+    if (event.target.closest('button')) {
+        const button = event.target.closest('button');
+        const buttonText = button.textContent.trim();
+        
+        // Only log clicks on relevant buttons
+        if (buttonText.includes('Activar') || buttonText.includes('Video') || buttonText.includes('Multimedia')) {
+            console.log('=== GLOBAL BUTTON CLICK DETECTED ===');
+            console.log('Button text:', buttonText);
+            console.log('Button HTML:', button.outerHTML);
+            console.log('Alpine x-on:click attribute:', button.getAttribute('x-on:click'));
+            console.log('Alpine data context:', button.__x ? !!button.__x : 'No Alpine context');
+            console.log('Time:', performance.now(), 'ms since page start');
+        }
+    }
+}, true); // Use capture phase to catch all clicks
+
 // Intentar registrar inmediatamente o esperar a que Alpine esté disponible
+console.log('=== ALPINE COMPONENT REGISTRATION ===');
+console.log('Page load time:', performance.now(), 'ms');
+console.log('Alpine available:', typeof window.Alpine !== 'undefined');
+console.log('Document ready state:', document.readyState);
+
 if (typeof window.Alpine !== 'undefined') {
+    console.log('Alpine is available, registering components immediately...');
     registerTokenGiftComponent();
 } else {
+    console.log('Alpine not available, waiting for alpine:init event...');
     // Esperar a que Alpine esté disponible
     document.addEventListener('alpine:init', () => {
+        console.log('=== ALPINE:INIT EVENT FIRED ===');
+        console.log('Time:', performance.now(), 'ms');
         registerTokenGiftComponent();
     });
 }

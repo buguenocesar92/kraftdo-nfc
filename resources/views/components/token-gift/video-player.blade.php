@@ -93,16 +93,31 @@
                             });
                         }
                     }
-                    // If no thumbnail, show video immediately
+                    // If no thumbnail, show video immediately and ensure it's ready
                     if (!thumbnailSrc) {
                         showThumbnail = false;
-                        // Initialize event listeners immediately
-                        setTimeout(() => {
+                        // Initialize video immediately
+                        $nextTick(() => {
                             const video = $refs.videoElement;
                             if (video && videoType === 'html5') {
-                                // Event listeners are already set up above
+                                console.log('Initializing video without thumbnail');
+                                console.log('Video element found:', !!video);
+                                console.log('Video src attribute:', video.getAttribute('src'));
+                                console.log('Video src property:', video.src);
+                                console.log('VideoSrc variable:', videoSrc);
+                                
+                                // Ensure video src is properly set
+                                if (!video.src || video.src === '' || video.src !== videoSrc) {
+                                    video.src = videoSrc;
+                                    console.log('Video src set/updated to:', videoSrc);
+                                }
+                                
+                                // Preload metadata
+                                video.preload = 'metadata';
+                                video.load();
+                                console.log('Video load() called, readyState:', video.readyState);
                             }
-                        }, 100);
+                        });
                     }
                 });
              ">
