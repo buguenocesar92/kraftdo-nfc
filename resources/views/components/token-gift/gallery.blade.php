@@ -22,9 +22,9 @@
             </h3>
         </div>
         
-        <div class="columns-1 sm:columns-2 lg:columns-3 gap-4 gallery-masonry w-screen left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-full relative px-4 sm:px-0">
+        <div class="columns-1 sm:columns-2 lg:columns-3 gap-1 gallery-masonry w-screen left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-full relative sm:gap-4">
             @foreach($galleryImages as $index => $image)
-                <div class="relative group cursor-pointer gallery-item" 
+                <div class="relative group cursor-pointer gallery-item mb-1 sm:mb-4" 
                      x-on:click="openImageModal('{{ $image->image_source }}', '{{ $image->alt_text ?? '' }}', images, {{ $index }}, '{{ $image->caption ?? '' }}')">
                     
                     <!-- Skeleton Loader -->
