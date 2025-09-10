@@ -234,7 +234,7 @@
             </audio>
 
             <!-- Main Player Container -->
-            <div class="bg-white bg-opacity-70 backdrop-blur-sm rounded-2xl p-6 shadow-lg">
+            <div class="bg-white bg-opacity-70 backdrop-blur-sm rounded-2xl p-6 shadow-lg w-screen left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-full relative">
                 
                 <!-- Error State -->
                 <div x-show="hasError" class="text-center py-8">
@@ -402,22 +402,6 @@
                                    class="w-16 opacity-0 group-hover:opacity-100 transition-opacity accent-blue-500">
                         </div>
 
-                        <!-- Speed -->
-                        <div class="relative group">
-                            <button class="px-2 py-1 text-xs rounded hover:bg-gray-100 transition-colors"
-                                    x-text="playbackRate === 1 ? '1x' : playbackRate + 'x'">1x</button>
-                            <div class="absolute bottom-full mb-2 right-0 bg-black bg-opacity-90 rounded-lg p-2 opacity-0 group-hover:opacity-100 transition-opacity min-w-max">
-                                <div class="space-y-1">
-                                    <template x-for="rate in [0.5, 0.75, 1, 1.25, 1.5, 2]">
-                                        <button x-on:click="setPlaybackRate(rate)"
-                                                class="block w-full text-left px-3 py-1 text-sm text-white hover:bg-white hover:bg-opacity-20 rounded"
-                                                :class="{ 'bg-blue-600': playbackRate === rate }"
-                                                x-text="rate + 'x'">
-                                        </button>
-                                    </template>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
