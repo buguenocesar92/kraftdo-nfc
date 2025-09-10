@@ -253,37 +253,82 @@ document.addEventListener('alpine:init', () => {
 
 // Multimedia Video Component
 Alpine.data('multimediaVideo', (config = {}) => ({
-    video: config.video || null,
+    videoId: config.videoId || '',
+    videoType: config.videoType || 'html5',
+    videoSrc: config.videoSrc || '',
+    thumbnailSrc: config.thumbnailSrc || '',
     isPlaying: false,
     currentTime: 0,
     duration: 0,
     volume: 1,
     isMuted: false,
     isFullscreen: false,
-    showControls: true,
-    loading: true,
-    error: false,
+    isPip: false,
+    loading: false,
+    error: null,
+    buffered: 0,
+    progress: 0,
+    showThumbnailOverlay: config.showThumbnail !== false,
     autoplay: config.autoplay || false,
-    showThumbnail: config.showThumbnail !== false,
     customControls: config.customControls !== false,
+    isVerticalVideo: false,
+    videoWidth: 0,
+    videoHeight: 0,
 
     init() {
         this.$nextTick(() => {
-            const videoElement = this.$refs.videoElement;
-            if (videoElement) {
-                this.setupVideoEvents(videoElement);
-                this.loading = false;
+            if (this.videoType === 'html5') {
+                this.customControls = true;
+                
+                const video = this.$refs.videoElement;
+                if (video) {
+                    this.setupVideoEvents(video);
+                    
+                    // Auto-detect vertical videos
+                    video.addEventListener('loadedmetadata', () => {
+                        this.duration = video.duration;
+                        this.videoWidth = video.videoWidth;
+                        this.videoHeight = video.videoHeight;
+                        this.isVerticalVideo = video.videoHeight > video.videoWidth;
+                        
+                        if (this.isVerticalVideo) {
+                            console.log('Vertical video detected:', this.videoWidth + 'x' + this.videoHeight);
+                        }
+                    });
+                }
+            }
+            
+            // If no thumbnail, show video immediately
+            if (!this.thumbnailSrc) {
+                this.showThumbnailOverlay = false;
+                this.initVideo();
+            }
+        });
+    },
+
+    initVideo() {
+        this.$nextTick(() => {
+            const video = this.$refs.videoElement;
+            if (video && this.videoType === 'html5') {
+                if (!video.src || video.src !== this.videoSrc) {
+                    video.src = this.videoSrc;
+                }
+                video.preload = 'metadata';
+                video.load();
             }
         });
     },
 
     setupVideoEvents(video) {
-        video.addEventListener('loadedmetadata', () => {
-            this.duration = video.duration;
-        });
-
         video.addEventListener('timeupdate', () => {
             this.currentTime = video.currentTime;
+            this.progress = this.duration ? (this.currentTime / this.duration) * 100 : 0;
+        });
+
+        video.addEventListener('progress', () => {
+            if (video.buffered.length > 0) {
+                this.buffered = (video.buffered.end(video.buffered.length - 1) / this.duration) * 100;
+            }
         });
 
         video.addEventListener('play', () => {
@@ -300,35 +345,157 @@ Alpine.data('multimediaVideo', (config = {}) => ({
         });
 
         video.addEventListener('error', () => {
-            this.error = true;
+            this.error = 'Error al cargar el video';
             this.loading = false;
+        });
+
+        video.addEventListener('loadstart', () => {
+            this.loading = true;
+        });
+
+        video.addEventListener('canplaythrough', () => {
+            this.loading = false;
+        });
+
+        // Picture-in-Picture events
+        video.addEventListener('enterpictureinpicture', () => {
+            this.isPip = true;
+        });
+
+        video.addEventListener('leavepictureinpicture', () => {
+            this.isPip = false;
+        });
+
+        // Fullscreen events
+        document.addEventListener('fullscreenchange', () => {
+            this.isFullscreen = !!document.fullscreenElement;
         });
     },
 
-    togglePlay() {
+    playVideo() {
+        this.showThumbnailOverlay = false;
+        this.$nextTick(() => {
+            if (this.videoType === 'html5') {
+                const video = this.$refs.videoElement;
+                if (video && !video.src) {
+                    video.src = this.videoSrc;
+                }
+                setTimeout(() => {
+                    if (video) {
+                        video.play().catch(e => console.log('Autoplay prevented:', e));
+                    }
+                }, 100);
+            } else {
+                const iframe = this.$refs.iframeElement;
+                if (iframe) {
+                    iframe.src = this.videoSrc + '&autoplay=1';
+                }
+            }
+        });
+    },
+
+    togglePlayPause() {
         const video = this.$refs.videoElement;
-        if (video.paused) {
-            video.play();
-        } else {
-            video.pause();
+        if (video) {
+            if (video.paused) {
+                video.play().catch(e => console.log('Play failed:', e));
+            } else {
+                video.pause();
+            }
         }
     },
 
-    setCurrentTime(time) {
+    seekTo(event) {
         const video = this.$refs.videoElement;
-        video.currentTime = time;
+        if (video && this.duration) {
+            const rect = event.currentTarget.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const progress = clickX / rect.width;
+            video.currentTime = progress * this.duration;
+        }
     },
 
     setVolume(volume) {
         const video = this.$refs.videoElement;
-        video.volume = volume;
-        this.volume = volume;
+        if (video) {
+            video.volume = volume;
+            this.volume = volume;
+        }
     },
 
     toggleMute() {
         const video = this.$refs.videoElement;
-        video.muted = !video.muted;
-        this.isMuted = video.muted;
+        if (video) {
+            video.muted = !video.muted;
+            this.isMuted = video.muted;
+        }
+    },
+
+    togglePictureInPicture() {
+        const video = this.$refs.videoElement;
+        if (video && 'pictureInPictureEnabled' in document) {
+            if (document.pictureInPictureElement) {
+                document.exitPictureInPicture();
+            } else {
+                video.requestPictureInPicture().catch(e => console.log('PiP failed:', e));
+            }
+        }
+    },
+
+    toggleFullscreen() {
+        const container = this.$refs.videoElement?.parentElement || this.$el;
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            container.requestFullscreen().catch(e => console.log('Fullscreen failed:', e));
+        }
+    },
+
+    showControls() {
+        // Method for showing controls on mouse movement
+        this.controlsVisible = true;
+        if (this.controlsTimer) {
+            clearTimeout(this.controlsTimer);
+        }
+        this.controlsTimer = setTimeout(() => {
+            this.controlsVisible = false;
+        }, 3000);
+    },
+
+    retryVideo() {
+        this.error = null;
+        this.loading = true;
+        this.$nextTick(() => {
+            if (this.videoType === 'html5') {
+                this.$refs.videoElement?.load();
+            } else {
+                const iframe = this.$refs.iframeElement;
+                if (iframe) {
+                    iframe.src = iframe.src;
+                }
+            }
+        });
+    },
+
+    initIframeVideo() {
+        if (!this.showThumbnailOverlay) {
+            const iframe = this.$refs.iframeElement;
+            if (iframe) {
+                iframe.src = this.videoSrc;
+            }
+        }
+    },
+
+    initHTML5Video() {
+        if (!this.showThumbnailOverlay) {
+            const video = this.$refs.videoElement;
+            if (video) {
+                video.src = this.videoSrc;
+                this.$nextTick(() => {
+                    this.setupVideoEvents(video);
+                });
+            }
+        }
     },
 
     formatTime(seconds) {
