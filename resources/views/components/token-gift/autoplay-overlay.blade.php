@@ -34,9 +34,13 @@
         <!-- Debug Info -->
         <div class="text-xs text-gray-400 mb-4" x-text="'Audio: ' + hasAudio + ', Video: ' + hasVideo"></div>
         
-        <!-- Action Button -->
+        <!-- Action Button - Enhanced -->
         <button x-on:click="activateAutoplay()" 
-                class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                class="w-full btn-animated bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-4 px-6 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg focus:outline-none focus:ring-4 focus:ring-purple-300"
+                :aria-label="hasVideo ? 'Activar reproducción de video' : 'Activar reproducción de audio'"
+                role="button"
+                tabindex="0"
+                autofocus>
             <span class="flex items-center justify-center gap-3">
                 <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M8 5v14l11-7z"/>

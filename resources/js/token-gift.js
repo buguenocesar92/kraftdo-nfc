@@ -1430,6 +1430,140 @@ document.addEventListener('click', function(event) {
     }
 }, true); // Use capture phase to catch all clicks
 
+// Scroll Reveal Animation System
+class ScrollReveal {
+    constructor() {
+        this.elements = [];
+        this.observer = null;
+        this.init();
+    }
+
+    init() {
+        // Create Intersection Observer for scroll reveals
+        this.observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    this.revealElement(entry.target);
+                    this.observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        // Find and observe all scroll reveal elements
+        this.observeElements();
+
+        // Setup parallax scroll effects
+        this.setupParallax();
+    }
+
+    observeElements() {
+        const selectors = [
+            '.scroll-reveal',
+            '.scroll-reveal-left',
+            '.scroll-reveal-right',
+            '.scroll-reveal-scale'
+        ];
+
+        selectors.forEach(selector => {
+            document.querySelectorAll(selector).forEach(el => {
+                this.observer.observe(el);
+            });
+        });
+    }
+
+    revealElement(element) {
+        element.classList.add('revealed');
+        
+        // Add confetti for special elements
+        if (element.classList.contains('special-reveal')) {
+            setTimeout(() => createConfetti(), 200);
+        }
+    }
+
+    setupParallax() {
+        let ticking = false;
+        
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    this.updateParallax();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+    }
+
+    updateParallax() {
+        const scrolled = window.pageYOffset;
+        const parallaxElements = document.querySelectorAll('.parallax-element');
+        
+        parallaxElements.forEach((element, index) => {
+            const rate = scrolled * -0.5;
+            element.style.transform = `translateY(${rate}px)`;
+        });
+    }
+}
+
+// Initialize scroll reveal when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    new ScrollReveal();
+    
+    // Add smooth scrolling behavior
+    document.documentElement.style.scrollBehavior = 'smooth';
+    
+    // Initialize lazy loading for images
+    initLazyLoading();
+    
+    // Add intersection observer for animations
+    setupIntersectionAnimations();
+});
+
+// Lazy loading system
+function initLazyLoading() {
+    const lazyImages = document.querySelectorAll('img[data-src]');
+    const imageObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src;
+                img.classList.remove('opacity-0');
+                img.classList.add('opacity-100');
+                imageObserver.unobserve(img);
+            }
+        });
+    });
+    
+    lazyImages.forEach(img => imageObserver.observe(img));
+}
+
+// Enhanced intersection animations
+function setupIntersectionAnimations() {
+    const animatedElements = document.querySelectorAll('[class*="animate-"]');
+    
+    const animationObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const element = entry.target;
+                
+                // Add special effects for certain elements
+                if (element.classList.contains('special-effect')) {
+                    setTimeout(() => {
+                        element.style.filter = 'drop-shadow(0 0 20px rgba(139, 92, 246, 0.5))';
+                    }, 300);
+                }
+                
+                animationObserver.unobserve(element);
+            }
+        });
+    }, { threshold: 0.2 });
+    
+    animatedElements.forEach(el => animationObserver.observe(el));
+}
+
 // Intentar registrar inmediatamente o esperar a que Alpine esté disponible
 console.log('=== ALPINE COMPONENT REGISTRATION ===');
 console.log('Page load time:', performance.now(), 'ms');
@@ -1448,6 +1582,176 @@ if (typeof window.Alpine !== 'undefined') {
         registerTokenGiftComponent();
     });
 }
+
+// Enhanced Gift Action Functions
+window.shareGift = function() {
+    const giftData = {
+        title: '🎁 ¡Mira este regalo especial!',
+        text: 'Alguien especial te ha enviado un regalo personalizado con KRAFTDO NFC',
+        url: window.location.href
+    };
+    
+    if (navigator.share) {
+        navigator.share(giftData)
+            .then(() => {
+                showNotification('¡Regalo compartido exitosamente! 🎉', 'success');
+                // Add confetti effect
+                createConfetti();
+            })
+            .catch(err => console.error('Error sharing:', err));
+    } else {
+        // Fallback: copy to clipboard
+        navigator.clipboard.writeText(window.location.href)
+            .then(() => {
+                showNotification('¡Enlace copiado al portapapeles! 📋', 'success');
+            })
+            .catch(() => {
+                showNotification('No se pudo compartir el regalo', 'error');
+            });
+    }
+};
+
+window.toggleFavorite = function() {
+    const isFavorite = localStorage.getItem('gift_favorite') === 'true';
+    const newState = !isFavorite;
+    
+    localStorage.setItem('gift_favorite', newState.toString());
+    
+    if (newState) {
+        showNotification('❤️ ¡Regalo agregado a favoritos!', 'success');
+        createHearts();
+    } else {
+        showNotification('💔 Regalo removido de favoritos', 'info');
+    }
+};
+
+window.showQRCode = function() {
+    const qrModal = document.createElement('div');
+    qrModal.innerHTML = `
+        <div class="fixed inset-0 bg-black bg-opacity-75 z-50 flex items-center justify-center p-4 animate-fade-in" onclick="this.remove()">
+            <div class="bg-white rounded-2xl p-8 max-w-sm w-full text-center card-shadow animate-scale-in" onclick="event.stopPropagation()">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">📱 Código QR</h3>
+                <div class="bg-gray-100 p-4 rounded-xl mb-4">
+                    <div id="qr-code" class="flex items-center justify-center h-48">
+                        <div class="text-gray-500">Generando código QR...</div>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">Escanea para compartir este regalo</p>
+                <button onclick="this.closest('.fixed').remove()" 
+                        class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-2 rounded-full hover:from-purple-600 hover:to-pink-600 transition-all duration-300">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(qrModal);
+    
+    // Generate QR code (you can integrate QR.js library here)
+    setTimeout(() => {
+        document.getElementById('qr-code').innerHTML = `
+            <div class="w-32 h-32 bg-gradient-to-br from-purple-400 to-pink-400 rounded-lg flex items-center justify-center text-white font-bold">
+                QR CODE<br>
+                <small class="text-xs">Próximamente</small>
+            </div>
+        `;
+    }, 500);
+};
+
+// Notification system
+window.showNotification = function(message, type = 'info') {
+    const notification = document.createElement('div');
+    const bgColor = {
+        success: 'from-green-500 to-emerald-500',
+        error: 'from-red-500 to-rose-500',
+        info: 'from-blue-500 to-indigo-500'
+    };
+    
+    notification.innerHTML = `
+        <div class="fixed top-4 right-4 z-50 bg-gradient-to-r ${bgColor[type]} text-white px-6 py-3 rounded-full shadow-lg animate-slide-up">
+            ${message}
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.firstElementChild.style.transform = 'translateX(400px)';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+};
+
+// Fun effects
+window.createConfetti = function() {
+    for (let i = 0; i < 50; i++) {
+        createConfettiPiece();
+    }
+};
+
+function createConfettiPiece() {
+    const confetti = document.createElement('div');
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'];
+    
+    confetti.style.cssText = `
+        position: fixed;
+        width: 10px;
+        height: 10px;
+        background: ${colors[Math.floor(Math.random() * colors.length)]};
+        top: -10px;
+        left: ${Math.random() * window.innerWidth}px;
+        z-index: 1000;
+        pointer-events: none;
+        border-radius: 2px;
+        animation: confettiFall ${Math.random() * 2 + 1}s linear forwards;
+    `;
+    
+    document.body.appendChild(confetti);
+    
+    setTimeout(() => confetti.remove(), 3000);
+}
+
+window.createHearts = function() {
+    for (let i = 0; i < 20; i++) {
+        createHeart();
+    }
+};
+
+function createHeart() {
+    const heart = document.createElement('div');
+    const heartEmojis = ['❤️', '💕', '💖', '💝', '🥰'];
+    
+    heart.innerHTML = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+    heart.style.cssText = `
+        position: fixed;
+        font-size: 20px;
+        top: ${window.innerHeight}px;
+        left: ${Math.random() * window.innerWidth}px;
+        z-index: 1000;
+        pointer-events: none;
+        animation: heartFloat ${Math.random() * 2 + 2}s ease-out forwards;
+    `;
+    
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 4000);
+}
+
+// Add CSS animations for effects
+const styleSheet = document.createElement('style');
+styleSheet.innerHTML = `
+    @keyframes confettiFall {
+        to {
+            transform: translateY(100vh) rotate(720deg);
+        }
+    }
+    
+    @keyframes heartFloat {
+        to {
+            transform: translateY(-100vh);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(styleSheet);
 
 // Utility functions
 window.TokenUtils = {

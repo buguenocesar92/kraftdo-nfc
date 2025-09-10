@@ -14,13 +14,6 @@
         imageLoaded: {},
         imageError: {}
     }">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-semibold text-gray-800 flex items-center gap-2">
-                <span class="text-2xl">📸</span>
-                <span>Galería de Imágenes</span>
-                <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">{{ count($galleryImages) }}</span>
-            </h3>
-        </div>
         
         <div class="columns-1 sm:columns-2 lg:columns-3 gap-1 gallery-masonry w-screen left-1/2 -translate-x-1/2 sm:left-0 sm:translate-x-0 sm:w-full relative sm:gap-4">
             @foreach($galleryImages as $index => $image)
