@@ -79,14 +79,14 @@
                             <img data-src="{{ Storage::url($contentMultimedia->settings['profile_image']) }}" 
                                  src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iNzUiIHI9IjMwIiBmaWxsPSIjZDFkNWRiIi8+PHBhdGggZD0ibTEwMCAxMDBjLTE2LjU2OSAwLTMwIDEzLjQzMS0zMCAzMGg2MGMwLTE2LjU2OS0xMy40MzEtMzAtMzAtMzB6IiBmaWxsPSIjZDFkNWRiIi8+PC9zdmc+"
                                  alt="Foto de perfil de {{ $contentProfile?->name ?? $token->name ?? 'usuario' }}" 
-                                 class="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-3 sm:border-4 border-white shadow-lg object-cover transition-all duration-300 group-hover:shadow-xl lazy-load"
+                                 class="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-3 sm:border-4 border-white shadow-lg object-cover transition-all duration-300 group-hover:shadow-xl lazy-load"
                                  loading="lazy"
                                  decoding="async">
                             <div class="absolute inset-0 rounded-full bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
                     @else
-                        <div class="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-3 sm:border-4 border-white shadow-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center transition-all duration-300 hover:shadow-xl">
-                            <svg class="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <div class="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-3 sm:border-4 border-white shadow-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center transition-all duration-300 hover:shadow-xl">
+                            <svg class="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                             </svg>
                         </div>

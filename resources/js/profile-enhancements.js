@@ -426,7 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const optimizer = new PerformanceOptimizer();
     const imageFixer = new ProfileImageFixer();
     const accessibilityManager = new AccessibilityManager();
-    const debugger = new ProfileDebugger();
+    const profileDebugger = new ProfileDebugger();
     
     // Make managers globally accessible
     window.lazyLoader = lazyLoader;
