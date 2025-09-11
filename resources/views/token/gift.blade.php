@@ -21,9 +21,9 @@
     {{-- Vite Assets --}}
     @vite([
         'resources/css/app.css', 
-        'resources/css/token-gift.css',
+        'resources/css/multimedia-components.css',
         'resources/js/app.js',
-        'resources/js/token-gift.js'
+        'resources/js/multimedia-components.js',
     ])
 </head>
 
@@ -67,7 +67,20 @@
                             <div class="flex-1 section-divider" style="color: {{ $theme['colors']['accent'] ?? 'rgb(252 165 165)' }};"></div>
                         </div>
                         @endif
-                        <x-token-gift.video-player :content-multimedia="$contentMultimedia" />
+
+                {{-- Video Presentation --}}
+                    @if($contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file))
+                            <div class="rounded-xl overflow-hidden">
+                                <x-multimedia.video-player 
+                                    :video="$contentMultimedia"
+                                    :theme="[
+                                        'background' => 'from-blue-50 via-purple-50 to-pink-50',
+                                        'primary' => 'blue-500',
+                                        'secondary' => 'purple-600'
+                                    ]"
+                                    size="contained" />
+                            </div>
+                    @endif
 
                         {{-- Audio Player --}}
                         @if($contentMultimedia && ($contentMultimedia->audio_url || $contentMultimedia->audio_file))
@@ -116,8 +129,18 @@
                         <div class="flex-1 section-divider" style="color: {{ $theme['colors']['accent'] ?? 'rgb(196 181 253)' }};"></div>
                     </div>
                 @endif
-                
-                <x-token-gift.gallery :gallery-images="$galleryImages ?? []" />
+                         
+                    {{-- Gallery --}}
+                    @if($galleryImages && count($galleryImages) > 0)
+                            <x-multimedia.gallery 
+                                :images="$galleryImages"
+                                :theme="[
+                                    'background' => 'from-blue-50 via-purple-50 to-pink-50',
+                                    'text' => 'text-gray-600'
+                                ]"
+                                layout="masonry"
+                                :show-stats="true" />
+                    @endif
 
                 {{-- Footer --}}
                 <x-token-gift.footer />
