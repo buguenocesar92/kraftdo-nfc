@@ -1,14 +1,16 @@
 {{-- Enhanced Profile Action Buttons Component --}}
 @props([
     'contentProfile' => null,
-    'token' => null
+    'token' => null,
+    'colors' => ['primary' => '#3B82F6', 'secondary' => '#8B5CF6', 'accent' => '#EC4899']
 ])
 
 <div class="space-y-3 sm:space-y-4 animate-fade-in-up" style="animation-delay: 0.6s">
     {{-- Primary Action Button - Save Contact --}}
     <button onclick="downloadVCard()" 
             id="saveContactBtn"
-            class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 sm:py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-purple-700 hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 group relative overflow-hidden">
+            class="w-full text-white px-6 py-3 sm:py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 group relative overflow-hidden"
+            style="background: linear-gradient(135deg, {{ $colors['primary'] }}, {{ $colors['secondary'] }}, {{ $colors['accent'] }}); focus-ring-color: {{ $colors['primary'] }};">
         <span class="relative z-10 flex items-center justify-center gap-3">
             <div class="w-5 h-5 transition-transform duration-200 group-hover:scale-110">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">

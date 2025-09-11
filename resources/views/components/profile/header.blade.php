@@ -2,10 +2,12 @@
 @props([
     'contentMultimedia' => null,
     'contentProfile' => null,
-    'token' => null
+    'token' => null,
+    'colors' => ['primary' => '#3B82F6', 'secondary' => '#8B5CF6', 'accent' => '#EC4899']
 ])
 
-<div class="relative h-24 sm:h-32 md:h-40 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 overflow-hidden rounded-t-3xl">
+<div class="relative h-24 sm:h-32 md:h-40 overflow-hidden rounded-t-3xl" 
+     style="background: linear-gradient(135deg, {{ $colors['primary'] }}, {{ $colors['secondary'] }}, {{ $colors['accent'] }})">
     {{-- Animated background pattern --}}
     <div class="absolute inset-0 opacity-20">
         <div class="absolute -top-4 -left-4 w-8 h-8 bg-white rounded-full animate-float"></div>

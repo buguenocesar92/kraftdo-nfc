@@ -59,7 +59,18 @@
     ])
 </head>
 
-<body class="h-full bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500">
+@php
+    $defaultColors = ['#3B82F6', '#8B5CF6', '#EC4899']; // Azul, Morado, Rosa
+    $customColors = $contentProfile?->color_palette ?? [];
+    $primaryColor = $customColors['primary'] ?? $defaultColors[0];
+    $secondaryColor = $customColors['secondary'] ?? $defaultColors[1];
+    $accentColor = $customColors['accent'] ?? $defaultColors[2];
+@endphp
+
+{{-- Debug: mostrar colores en el HTML (solo para verificar) --}}
+<!-- Colors: {{ $primaryColor }}, {{ $secondaryColor }}, {{ $accentColor }} -->
+
+<body class="h-full" style="background: linear-gradient(135deg, {{ $primaryColor }}, {{ $secondaryColor }}, {{ $accentColor }})">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-6">
             
@@ -70,7 +81,8 @@
                 <x-profile.header 
                     :content-multimedia="$contentMultimedia" 
                     :content-profile="$contentProfile" 
-                    :token="$token" />
+                    :token="$token"
+                    :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                 
                 {{-- Profile Image (moved outside header) --}}
                 <div class="profile-image-container transition-all duration-500 hover:scale-105" style="top: calc(6rem - 2rem); /* h-24 - half image height */">
@@ -99,13 +111,18 @@
                     {{-- Profile Info (Name & Bio) --}}
                     <x-profile.info 
                         :content-profile="$contentProfile" 
-                        :token="$token" />
+                        :token="$token"
+                        :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                     
                     {{-- Contact Information --}}
-                    <x-profile.contact :content-profile="$contentProfile" />
+                    <x-profile.contact 
+                        :content-profile="$contentProfile"
+                        :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                     
                     {{-- Social Links --}}
-                    <x-profile.social-links :social-links="$socialLinks" />
+                    <x-profile.social-links 
+                        :social-links="$socialLinks"
+                        :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                     
                     {{-- Video Presentation --}}
                     @if($contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file))
@@ -146,7 +163,8 @@
                     {{-- Action Buttons --}}
                     <x-profile.action-buttons 
                         :content-profile="$contentProfile" 
-                        :token="$token" />
+                        :token="$token"
+                        :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                 </div>
             </div>
         </div>

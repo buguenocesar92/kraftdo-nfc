@@ -19,6 +19,11 @@ class ContentProfile extends Model
         'contact_phone',
         'contact_website',
         'bio',
+        'color_palette',
+    ];
+
+    protected $casts = [
+        'color_palette' => 'array',
     ];
 
     /**

@@ -13,6 +13,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -322,6 +323,27 @@ class MyProfileTokens extends Page implements HasForms, HasActions
                     ->columns(2)
                     ->collapsible(),
 
+                Section::make('Paleta de Colores')
+                    ->description('Personaliza los colores de tu perfil')
+                    ->schema([
+                        ColorPicker::make('color_palette.primary')
+                            ->label('Color Primario')
+                            ->default('#3B82F6')
+                            ->helperText('Color principal del gradiente de fondo'),
+                            
+                        ColorPicker::make('color_palette.secondary')
+                            ->label('Color Secundario')
+                            ->default('#8B5CF6')
+                            ->helperText('Color secundario del gradiente'),
+                            
+                        ColorPicker::make('color_palette.accent')
+                            ->label('Color Terciario')
+                            ->default('#EC4899')
+                            ->helperText('Color terciario del gradiente'),
+                    ])
+                    ->columns(3)
+                    ->collapsible(),
+
                 Section::make('Enlaces Sociales')
                     ->description('Agrega tus redes sociales y enlaces importantes')
                     ->schema([
@@ -475,6 +497,7 @@ class MyProfileTokens extends Page implements HasForms, HasActions
             'contact_email' => $data['contact_email'] ?? '',
             'contact_phone' => $data['contact_phone'] ?? '',
             'contact_website' => $data['contact_website'] ?? '',
+            'color_palette' => $data['color_palette'] ?? null,
         ];
         
         // Actualizar ContentProfile
