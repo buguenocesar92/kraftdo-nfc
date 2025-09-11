@@ -55,7 +55,7 @@
 </div>
 
 {{-- QR Code Modal --}}
-<div id="qrModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+<!-- <div id="qrModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl p-6 max-w-sm w-full animate-scale-in">
         <div class="text-center">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Código QR</h3>
@@ -66,7 +66,7 @@
             </button>
         </div>
     </div>
-</div>
+</div> -->
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode/1.5.3/qrcode.min.js"></script>
 <script>

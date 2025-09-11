@@ -73,7 +73,7 @@
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full space-y-0">
             {{-- Profile Card --}}
-            <div class="bg-white shadow-2xl animate-fade-in overflow-hidden rounded-t-3xl {{ (!$contentMultimedia || (!$contentMultimedia->video_url && !$contentMultimedia->video_file)) && (!$galleryImages || count($galleryImages) == 0) ? 'rounded-b-3xl' : '' }}">
+            <div class="bg-white animate-fade-in overflow-hidden rounded-t-3xl {{ (!$contentMultimedia || (!$contentMultimedia->video_url && !$contentMultimedia->video_file)) && (!$galleryImages || count($galleryImages) == 0) ? 'rounded-b-3xl' : '' }}">
                 {{-- Card Header --}}
                 <div class="relative">
                     <x-profile.header 
