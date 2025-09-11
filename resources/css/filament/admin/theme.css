@@ -1,124 +1,265 @@
 @import '../../../../vendor/filament/filament/resources/css/theme.css';
+@import '@fortawesome/fontawesome-free/css/all.css';
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @source '../../../../app/Filament/**/*';
 @source '../../../../resources/views/filament/**/*';
 
-/* ===== KRAFTDO NFC CUSTOM THEME ===== */
-
-/* Customizar bordes redondeados */
-.fi-btn {
-    @apply rounded-xl shadow-lg transition-all duration-200;
+/* Kraftdo Custom Theme Configuration */
+@theme {
+  --color-kraftdo-dark: #2A3441;
+  --color-kraftdo-navy: #3B4A6B;
+  --color-kraftdo-blue: #4A90E2;
+  --color-kraftdo-green: #00FF7F;
+  --color-kraftdo-lime: #32FF32;
+  
+  --color-navy-500: #3B4A6B;
+  --color-navy-600: #2A3441;
+  
+  --font-family-kraftdo: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
 
-.fi-btn:hover {
-    @apply transform -translate-y-0.5 shadow-xl;
+/* Force background on html and body */
+@layer base {
+  html {
+    background: #2A3441 !important;
+    background: linear-gradient(135deg, #2A3441 0%, #3B4A6B 100%) !important;
+    min-height: 100vh !important;
+  }
+  
+  body {
+    background: #2A3441 !important;
+    background: linear-gradient(135deg, #2A3441 0%, #3B4A6B 100%) !important;
+    background-attachment: fixed !important;
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(74, 144, 226, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(0, 255, 127, 0.12) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(50, 255, 50, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 10% 80%, rgba(59, 74, 107, 0.1) 0%, transparent 50%) !important;
+    min-height: 100vh !important;
+    color: white !important;
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif !important;
+  }
+  
+  /* Filament layout backgrounds */
+  .fi-layout {
+    background: transparent !important;
+  }
+  
+  .fi-main {
+    background: transparent !important;
+  }
+  
+  .fi-page {
+    background: transparent !important;
+  }
+  
+  .fi-sidebar {
+    background: rgba(42, 52, 65, 0.8) !important;
+    backdrop-filter: blur(16px) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .fi-topbar {
+    background: rgba(42, 52, 65, 0.8) !important;
+    backdrop-filter: blur(16px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
 }
 
-/* Cards con bordes más suaves */
-.fi-section-content {
-    @apply rounded-2xl shadow-md border border-gray-100;
+/* Kraftdo Custom Components */
+@layer components {
+  .kraftdo-bg {
+    background: linear-gradient(135deg, #2A3441 0%, #3B4A6B 100%);
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(74, 144, 226, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(0, 255, 127, 0.12) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(50, 255, 50, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 10% 80%, rgba(59, 74, 107, 0.1) 0%, transparent 50%);
+  }
+  
+  .kraftdo-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .kraftdo-input {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+  }
+  
+  .kraftdo-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+  }
+  
+  .kraftdo-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.5);
+    border-color: rgba(74, 144, 226, 0.6);
+  }
+  
+  .kraftdo-btn-primary {
+    background: linear-gradient(135deg, #4A90E2 0%, #00FF7F 50%, #32FF32 100%) !important;
+    color: white !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.05em;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 40px rgba(74, 144, 226, 0.3), 0 20px 80px rgba(0, 255, 127, 0.2);
+  }
+  
+  .kraftdo-btn-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 50px rgba(74, 144, 226, 0.4), 0 25px 90px rgba(0, 255, 127, 0.3);
+  }
+  
+  /* Filament button styling */
+  .fi-btn-primary {
+    background: linear-gradient(135deg, #4A90E2 0%, #00FF7F 50%, #32FF32 100%) !important;
+    color: white !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.05em;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 40px rgba(74, 144, 226, 0.3), 0 20px 80px rgba(0, 255, 127, 0.2);
+    border: none !important;
+  }
+  
+  .fi-btn-primary:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 15px 50px rgba(74, 144, 226, 0.4), 0 25px 90px rgba(0, 255, 127, 0.3) !important;
+  }
+  
+  /* Cards and sections */
+  .fi-section-content,
+  .fi-card,
+  .fi-modal-content {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+  }
+  
+  /* Inputs and forms */
+  .fi-input,
+  .fi-select-input,
+  .fi-textarea {
+    background: rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: white !important;
+  }
+  
+  .fi-input::placeholder,
+  .fi-select-input::placeholder,
+  .fi-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+  
+  .fi-input:focus,
+  .fi-select-input:focus,
+  .fi-textarea:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.5) !important;
+    border-color: rgba(74, 144, 226, 0.6) !important;
+  }
+  
+  /* Navigation */
+  .fi-sidebar-nav-item {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.3s ease;
+  }
+  
+  .fi-sidebar-nav-item:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+  }
+  
+  .fi-sidebar-nav-item.fi-active {
+    background: linear-gradient(135deg, #4A90E2 0%, #00FF7F 50%, #32FF32 100%) !important;
+    color: white !important;
+    box-shadow: 0 5px 20px rgba(74, 144, 226, 0.3) !important;
+  }
+  
+  /* Tables */
+  .fi-table {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .fi-ta-header {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+  }
+  
+  .fi-ta-row {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+  }
+  
+  .fi-ta-row:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
+  
+  /* Text colors */
+  .fi-header-heading,
+  .fi-section-header-heading,
+  .fi-label,
+  .fi-breadcrumbs a,
+  .fi-breadcrumbs span {
+    color: white !important;
+  }
+  
+  /* Badges */
+  .fi-badge {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+    backdrop-filter: blur(8px) !important;
+  }
 }
 
-.fi-card {
-    @apply rounded-2xl shadow-md;
+/* Kraftdo Animations */
+@keyframes kraftdoFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(1deg); }
+  50% { transform: translateY(-20px) rotate(0deg); }
+  75% { transform: translateY(-10px) rotate(-1deg); }
 }
 
-/* Sidebar personalizado */
-.fi-sidebar {
-    @apply bg-gradient-to-b from-purple-50 to-indigo-50;
+@keyframes kraftdoPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.05); }
 }
 
-.fi-sidebar-nav-item {
-    @apply rounded-lg transition-all duration-200;
-    margin: 0 0.5rem;
+@keyframes kraftdoFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.fi-sidebar-nav-item:hover {
-    @apply bg-white/70 shadow-sm;
+@keyframes kraftdoScaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-.fi-sidebar-nav-item.fi-active {
-    @apply bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg;
-}
-
-/* Header personalizado */
-.fi-topbar {
-    @apply bg-white/80 backdrop-blur-md border-b border-gray-200/50;
-}
-
-/* Formularios mejorados */
-.fi-input-wrapper input,
-.fi-input-wrapper textarea,
-.fi-input-wrapper select {
-    @apply rounded-xl border-gray-200 focus:border-purple-400 focus:ring-purple-400/20;
-}
-
-/* Tablas con mejor estilo */
-.fi-table {
-    @apply rounded-xl overflow-hidden shadow-sm;
-}
-
-.fi-ta-header {
-    @apply bg-gradient-to-r from-purple-50 to-indigo-50;
-}
-
-/* Badges mejorados */
-.fi-badge {
-    @apply rounded-full font-medium text-xs;
-    padding: 0.25rem 0.75rem;
-}
-
-/* Notificaciones */
-.fi-notification {
-    @apply rounded-xl shadow-lg backdrop-blur-sm;
-}
-
-/* Modal mejorado */
-.fi-modal {
-    @apply rounded-2xl shadow-2xl;
-}
-
-/* Animaciones suaves */
-.fi-page {
-    animation: fadeInUp 0.3s ease-out;
-}
-
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Dashboard widgets */
-.fi-stats-card {
-    @apply rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-md border border-gray-100;
-}
-
-/* Botones de acción */
-.fi-ac-btn-action {
-    @apply rounded-lg transition-all duration-200;
-}
-
-.fi-ac-btn-action:hover {
-    @apply transform scale-105;
-}
-
-/* Breadcrumbs */
-.fi-breadcrumbs {
-    @apply rounded-lg bg-white/50 backdrop-blur-sm;
-    padding: 0.5rem 1rem;
-}
-
-/* Custom purple gradient backgrounds */
-.kraftdo-gradient {
-    @apply bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500;
-}
-
-.kraftdo-card {
-    @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20;
+@layer utilities {
+  .kraftdo-animate-float {
+    animation: kraftdoFloat 6s ease-in-out infinite;
+  }
+  
+  .kraftdo-animate-pulse-slow {
+    animation: kraftdoPulse 4s ease-in-out infinite;
+  }
+  
+  .kraftdo-animate-fade-in {
+    animation: kraftdoFadeIn 0.8s ease-out forwards;
+  }
+  
+  .kraftdo-animate-scale-in {
+    animation: kraftdoScaleIn 0.6s ease-out forwards;
+  }
 }
