@@ -91,22 +91,22 @@ class EditContentProfile extends EditRecord
     {
         $contentMultimedia = ContentMultimedia::firstOrCreate(
             ['dynamic_content_id' => $this->record->dynamic_content_id],
-            []
+            [
+                'video_type' => 'direct',
+                'audio_type' => 'direct',
+                'settings' => [],
+            ]
         );
 
         // Actualizar campos de multimedia
-        $multimediaData = [];
-        $multimediaFields = ['video_url', 'video_file', 'audio_url', 'audio_file', 'settings'];
+        $multimediaData = [
+            'video_url' => $data['video_url'] ?? null,
+            'video_file' => $data['video_file'] ?? null,
+            'video_type' => $data['video_type'] ?? 'direct',
+            'settings' => array_merge($contentMultimedia->settings ?? [], $data['settings'] ?? []),
+        ];
         
-        foreach ($multimediaFields as $field) {
-            if (isset($data[$field])) {
-                $multimediaData[$field] = $data[$field];
-            }
-        }
-        
-        if (!empty($multimediaData)) {
-            $contentMultimedia->update($multimediaData);
-        }
+        $contentMultimedia->update($multimediaData);
 
         // Manejar galería de imágenes
         if (isset($data['gallery_images']) && is_array($data['gallery_images'])) {
@@ -119,8 +119,10 @@ class EditContentProfile extends EditRecord
                     ContentGalleryImage::create([
                         'content_multimedia_id' => $contentMultimedia->id,
                         'image_path' => $imagePath,
+                        'image_url' => null,
+                        'type' => ContentGalleryImage::TYPE_UPLOAD,
                         'sort_order' => $index + 1,
-                        'alt_text' => "Imagen " . ($index + 1),
+                        'alt_text' => "Imagen de perfil " . ($index + 1),
                     ]);
                 }
             }
