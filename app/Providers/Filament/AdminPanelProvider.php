@@ -28,37 +28,14 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->colors([
-                'primary' => [
-                    50 => '240, 253, 244',
-                    100 => '220, 252, 231',
-                    200 => '187, 247, 208',
-                    300 => '134, 239, 172',
-                    400 => '74, 222, 128',
-                    500 => '34, 197, 94',
-                    600 => '22, 163, 74',
-                    700 => '21, 128, 61',
-                    800 => '22, 101, 52',
-                    900 => '20, 83, 45',
-                    950 => '5, 46, 22',
-                ],
-                'secondary' => [
-                    50 => '239, 246, 255',
-                    100 => '219, 234, 254',
-                    200 => '191, 219, 254',
-                    300 => '147, 197, 253',
-                    400 => '96, 165, 250',
-                    500 => '59, 130, 246',
-                    600 => '37, 99, 235',
-                    700 => '29, 78, 216',
-                    800 => '30, 64, 175',
-                    900 => '30, 58, 138',
-                    950 => '23, 37, 84',
-                ],
-                'success' => Color::Green,
+                'primary' => Color::Purple,
+                'secondary' => Color::Indigo,
+                'success' => Color::Emerald,
                 'warning' => Color::Amber,
                 'danger' => Color::Red,
-                'info' => Color::Blue,
+                'info' => Color::Sky,
             ])
             ->authGuard('web')
             ->authPasswordBroker('users')
@@ -90,6 +67,8 @@ class AdminPanelProvider extends PanelProvider
             ->brandName('KRAFTDO NFC')
             ->brandLogo(asset('images/kraftdo-logo.svg'))
             ->brandLogoHeight('2rem')
+            ->favicon(asset('favicon.ico'))
+            ->font('Inter')
             ->darkMode(false)
             ->maxContentWidth('full')
             ->navigationGroups([

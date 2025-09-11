@@ -1,0 +1,124 @@
+@import '../../../../vendor/filament/filament/resources/css/theme.css';
+
+@source '../../../../app/Filament/**/*';
+@source '../../../../resources/views/filament/**/*';
+
+/* ===== KRAFTDO NFC CUSTOM THEME ===== */
+
+/* Customizar bordes redondeados */
+.fi-btn {
+    @apply rounded-xl shadow-lg transition-all duration-200;
+}
+
+.fi-btn:hover {
+    @apply transform -translate-y-0.5 shadow-xl;
+}
+
+/* Cards con bordes más suaves */
+.fi-section-content {
+    @apply rounded-2xl shadow-md border border-gray-100;
+}
+
+.fi-card {
+    @apply rounded-2xl shadow-md;
+}
+
+/* Sidebar personalizado */
+.fi-sidebar {
+    @apply bg-gradient-to-b from-purple-50 to-indigo-50;
+}
+
+.fi-sidebar-nav-item {
+    @apply rounded-lg transition-all duration-200;
+    margin: 0 0.5rem;
+}
+
+.fi-sidebar-nav-item:hover {
+    @apply bg-white/70 shadow-sm;
+}
+
+.fi-sidebar-nav-item.fi-active {
+    @apply bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-lg;
+}
+
+/* Header personalizado */
+.fi-topbar {
+    @apply bg-white/80 backdrop-blur-md border-b border-gray-200/50;
+}
+
+/* Formularios mejorados */
+.fi-input-wrapper input,
+.fi-input-wrapper textarea,
+.fi-input-wrapper select {
+    @apply rounded-xl border-gray-200 focus:border-purple-400 focus:ring-purple-400/20;
+}
+
+/* Tablas con mejor estilo */
+.fi-table {
+    @apply rounded-xl overflow-hidden shadow-sm;
+}
+
+.fi-ta-header {
+    @apply bg-gradient-to-r from-purple-50 to-indigo-50;
+}
+
+/* Badges mejorados */
+.fi-badge {
+    @apply rounded-full font-medium text-xs;
+    padding: 0.25rem 0.75rem;
+}
+
+/* Notificaciones */
+.fi-notification {
+    @apply rounded-xl shadow-lg backdrop-blur-sm;
+}
+
+/* Modal mejorado */
+.fi-modal {
+    @apply rounded-2xl shadow-2xl;
+}
+
+/* Animaciones suaves */
+.fi-page {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dashboard widgets */
+.fi-stats-card {
+    @apply rounded-2xl bg-gradient-to-br from-white to-gray-50 shadow-md border border-gray-100;
+}
+
+/* Botones de acción */
+.fi-ac-btn-action {
+    @apply rounded-lg transition-all duration-200;
+}
+
+.fi-ac-btn-action:hover {
+    @apply transform scale-105;
+}
+
+/* Breadcrumbs */
+.fi-breadcrumbs {
+    @apply rounded-lg bg-white/50 backdrop-blur-sm;
+    padding: 0.5rem 1rem;
+}
+
+/* Custom purple gradient backgrounds */
+.kraftdo-gradient {
+    @apply bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500;
+}
+
+.kraftdo-card {
+    @apply bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20;
+}

@@ -9,6 +9,9 @@ export default defineConfig({
                 'resources/css/app.css', 
                 'resources/js/app.js',
                 
+                // Filament custom theme
+                'resources/css/filament/admin/theme.css',
+                
                 // CSS files
                 'resources/css/animations.css',
                 'resources/css/audio-overlay.css',
