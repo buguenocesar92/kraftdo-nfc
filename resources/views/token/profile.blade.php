@@ -55,7 +55,6 @@
     @vite([
         'resources/js/app.js',
         'resources/js/multimedia-components.js',
-        'resources/js/profile-enhancements.js'
     ])
 </head>
 
@@ -72,101 +71,110 @@
 
 <body class="h-full" style="background: linear-gradient(135deg, {{ $primaryColor }}, {{ $secondaryColor }}, {{ $accentColor }})">
     <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full space-y-6">
-            
+        <div class="max-w-md w-full space-y-0">
             {{-- Profile Card --}}
-            <div class="bg-white rounded-3xl shadow-2xl animate-fade-in relative">
-                
-                {{-- Profile Header --}}
-                <x-profile.header 
-                    :content-multimedia="$contentMultimedia" 
-                    :content-profile="$contentProfile" 
-                    :token="$token"
-                    :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
-                
-                {{-- Profile Image (moved outside header) --}}
-                <div class="profile-image-container transition-all duration-500 hover:scale-105" style="top: calc(6rem - 2rem); /* h-24 - half image height */">
-                    @if($contentMultimedia && isset($contentMultimedia->settings['profile_image']))
-                        <div class="relative group">
-                            <img data-src="{{ Storage::url($contentMultimedia->settings['profile_image']) }}" 
-                                 src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iNzUiIHI9IjMwIiBmaWxsPSIjZDFkNWRiIi8+PHBhdGggZD0ibTEwMCAxMDBjLTE2LjU2OSAwLTMwIDEzLjQzMS0zMCAzMGg2MGMwLTE2LjU2OS0xMy40MzEtMzAtMzAtMzB6IiBmaWxsPSIjZDFkNWRiIi8+PC9zdmc+"
-                                 alt="Foto de perfil de {{ $contentProfile?->name ?? $token->name ?? 'usuario' }}" 
-                                 class="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-3 sm:border-4 border-white shadow-lg object-cover transition-all duration-300 group-hover:shadow-xl lazy-load"
-                                 loading="lazy"
-                                 decoding="async">
-                            <div class="absolute inset-0 rounded-full bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </div>
-                    @else
-                        <div class="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-3 sm:border-4 border-white shadow-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center transition-all duration-300 hover:shadow-xl">
-                            <svg class="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                            </svg>
-                        </div>
-                    @endif
+            <div class="bg-white shadow-2xl animate-fade-in overflow-hidden rounded-t-3xl {{ (!$contentMultimedia || (!$contentMultimedia->video_url && !$contentMultimedia->video_file)) && (!$galleryImages || count($galleryImages) == 0) ? 'rounded-b-3xl' : '' }}">
+                {{-- Card Header --}}
+                <div class="relative">
+                    <x-profile.header 
+                        :content-multimedia="$contentMultimedia" 
+                        :content-profile="$contentProfile" 
+                        :token="$token"
+                        :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
+                    
+                    {{-- Profile Image --}}
+                    <div class="profile-image-container transition-all duration-500 hover:scale-105" style="top: calc(6rem - 2rem);">
+                        @if($contentMultimedia && isset($contentMultimedia->settings['profile_image']))
+                            <div class="relative group">
+                                <img data-src="{{ Storage::url($contentMultimedia->settings['profile_image']) }}" 
+                                     src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iNzUiIHI9IjMwIiBmaWxsPSIjZDFkNWRiIi8+PHBhdGggZD0ibTEwMCAxMDBjLTE2LjU2OSAwLTMwIDEzLjQzMS0zMCAzMGg2MGMwLTE2LjU2OS0xMy40MzEtMzAtMzAtMzB6IiBmaWxsPSIjZDFkNWRiIi8+PC9zdmc+"
+                                     alt="Foto de perfil de {{ $contentProfile?->name ?? $token->name ?? 'usuario' }}" 
+                                     class="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-3 sm:border-4 border-white shadow-lg object-cover transition-all duration-300 group-hover:shadow-xl lazy-load"
+                                     loading="lazy"
+                                     decoding="async">
+                                <div class="absolute inset-0 rounded-full bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            </div>
+                        @else
+                            <div class="w-24 h-24 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-3 sm:border-4 border-white shadow-lg bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center transition-all duration-300 hover:shadow-xl">
+                                <svg class="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 text-gray-400" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                </svg>
+                            </div>
+                        @endif
+                    </div>
                 </div>
                 
-                {{-- Profile Content --}}
+                {{-- Card Body --}}
                 <div class="pt-16 pb-6 px-6">
-                    
-                    {{-- Profile Info (Name & Bio) --}}
                     <x-profile.info 
                         :content-profile="$contentProfile" 
                         :token="$token"
                         :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                     
-                    {{-- Contact Information --}}
                     <x-profile.contact 
                         :content-profile="$contentProfile"
                         :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                     
-                    {{-- Social Links --}}
                     <x-profile.social-links 
                         :social-links="$socialLinks"
                         :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                     
-                    {{-- Video Presentation --}}
-                    @if($contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file))
-                        <div class="mb-6">
-                            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
-                                Video de Presentación
-                            </h3>
-                            <div class="rounded-xl overflow-hidden">
-                                <x-multimedia.video-player 
-                                    :video="$contentMultimedia"
-                                    :theme="[
-                                        'background' => 'from-blue-50 via-purple-50 to-pink-50',
-                                        'primary' => 'blue-500',
-                                        'secondary' => 'purple-600'
-                                    ]"
-                                    size="contained" />
-                            </div>
-                        </div>
-                    @endif
-                    
-                    {{-- Gallery --}}
-                    @if($galleryImages && count($galleryImages) > 0)
-                        <div class="mb-6">
-                            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3 text-center">
-                                Galería
-                            </h3>
-                            <x-multimedia.gallery 
-                                :images="$galleryImages"
-                                :theme="[
-                                    'background' => 'from-blue-50 via-purple-50 to-pink-50',
-                                    'text' => 'text-gray-600'
-                                ]"
-                                layout="masonry"
-                                :show-stats="true" />
-                        </div>
-                    @endif
-                    
-                    {{-- Action Buttons --}}
                     <x-profile.action-buttons 
                         :content-profile="$contentProfile" 
                         :token="$token"
                         :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                 </div>
             </div>
+            
+            {{-- Video Card --}}
+            @if($contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file))
+                <div class="bg-white shadow-2xl overflow-hidden {{ (!$galleryImages || count($galleryImages) == 0) ? 'rounded-b-3xl' : '' }}">
+                    {{-- Card Header --}}
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide text-center">
+                            Video de Presentación
+                        </h3>
+                    </div>
+                    
+                    {{-- Card Body --}}
+                    <div class="p-6">
+                        <div class="rounded-xl overflow-hidden">
+                            <x-multimedia.video-player 
+                                :video="$contentMultimedia"
+                                :theme="[
+                                    'background' => 'bg-white',
+                                    'primary' => 'blue-500',
+                                    'secondary' => 'purple-600'
+                                ]"
+                                size="contained" />
+                        </div>
+                    </div>
+                </div>
+            @endif
+            
+            {{-- Gallery Card --}}
+            @if($galleryImages && count($galleryImages) > 0)
+                <div class="bg-white shadow-2xl overflow-hidden rounded-b-3xl">
+                    {{-- Card Header --}}
+                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide text-center">
+                            Galería
+                        </h3>
+                    </div>
+                    
+                    {{-- Card Body --}}
+                    <div class="p-6">
+                        <x-multimedia.gallery 
+                            :images="$galleryImages"
+                            :theme="[
+                                'background' => 'bg-white',
+                                'text' => 'text-gray-600'
+                            ]"
+                            layout="masonry"
+                            :show-stats="true" />
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
 

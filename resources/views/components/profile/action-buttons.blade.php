@@ -23,9 +23,9 @@
     </button>
 
     {{-- Secondary Actions --}}
-    <div class="flex flex-col sm:flex-row gap-2 sm:gap-3">
+<!--     <div class="flex flex-col sm:flex-row gap-2 sm:gap-3"> -->
         {{-- Share Profile Button --}}
-        <button onclick="shareProfile()" 
+<!--         <button onclick="shareProfile()" 
                 id="shareProfileBtn"
                 class="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-3 rounded-xl font-medium border border-gray-200 hover:border-gray-300 transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 group">
             <span class="flex items-center justify-center gap-2">
@@ -36,10 +36,10 @@
                 </div>
                 <span class="text-sm">Compartir</span>
             </span>
-        </button>
+        </button> -->
 
         {{-- QR Code Button --}}
-        <button onclick="showQRCode()" 
+<!--         <button onclick="showQRCode()" 
                 id="qrCodeBtn"
                 class="flex-1 bg-gray-50 hover:bg-gray-100 text-gray-700 px-4 py-3 rounded-xl font-medium border border-gray-200 hover:border-gray-300 transition-all duration-300 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 group">
             <span class="flex items-center justify-center gap-2">
@@ -50,8 +50,8 @@
                 </div>
                 <span class="text-sm">QR</span>
             </span>
-        </button>
-    </div>
+        </button> -->
+    <!-- </div> -->
 </div>
 
 {{-- QR Code Modal --}}
