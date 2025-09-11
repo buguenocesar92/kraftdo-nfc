@@ -66,6 +66,12 @@ class ContentSocialLink extends Model
             'color' => 'text-gray-800',
             'base_url' => 'https://github.com/',
         ],
+        'whatsapp' => [
+            'name' => 'WhatsApp',
+            'icon' => 'fab fa-whatsapp',
+            'color' => 'text-green-600',
+            'base_url' => 'https://api.whatsapp.com/send?phone=',
+        ],
         'website' => [
             'name' => 'Sitio Web',
             'icon' => 'fas fa-globe',

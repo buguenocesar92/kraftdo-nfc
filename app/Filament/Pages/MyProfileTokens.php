@@ -338,6 +338,7 @@ class MyProfileTokens extends Page implements HasForms, HasActions
                                         'tiktok' => '🎵 TikTok',
                                         'youtube' => '📹 YouTube',
                                         'github' => '💻 GitHub',
+                                        'whatsapp' => '💬 WhatsApp',
                                         'website' => '🌐 Sitio Web',
                                     ])
                                     ->required()
