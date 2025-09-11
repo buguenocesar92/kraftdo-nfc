@@ -47,13 +47,15 @@
     {{-- CSS --}}
     @vite([
         'resources/css/app.css',
-        'resources/css/multimedia-components.css'
+        'resources/css/multimedia-components.css',
+        'resources/css/profile-enhancements.css'
     ])
     
     {{-- JavaScript --}}
     @vite([
         'resources/js/app.js',
-        'resources/js/multimedia-components.js'
+        'resources/js/multimedia-components.js',
+        'resources/js/profile-enhancements.js'
     ])
 </head>
 
@@ -71,13 +73,14 @@
                     :token="$token" />
                 
                 {{-- Profile Image (moved outside header) --}}
-                <div class="absolute left-1/2 transform -translate-x-1/2 transition-all duration-500 hover:scale-105 z-30" style="top: calc(6rem - 2rem); /* h-24 - half image height */">
+                <div class="profile-image-container transition-all duration-500 hover:scale-105" style="top: calc(6rem - 2rem); /* h-24 - half image height */">
                     @if($contentMultimedia && isset($contentMultimedia->settings['profile_image']))
                         <div class="relative group">
-                            <img src="{{ Storage::url($contentMultimedia->settings['profile_image']) }}" 
+                            <img data-src="{{ Storage::url($contentMultimedia->settings['profile_image']) }}" 
+                                 src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iNzUiIHI9IjMwIiBmaWxsPSIjZDFkNWRiIi8+PHBhdGggZD0ibTEwMCAxMDBjLTE2LjU2OSAwLTMwIDEzLjQzMS0zMCAzMGg2MGMwLTE2LjU2OS0xMy40MzEtMzAtMzAtMzB6IiBmaWxsPSIjZDFkNWRiIi8+PC9zdmc+"
                                  alt="Foto de perfil de {{ $contentProfile?->name ?? $token->name ?? 'usuario' }}" 
-                                 class="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-3 sm:border-4 border-white shadow-lg object-cover transition-all duration-300 group-hover:shadow-xl"
-                                 loading="eager"
+                                 class="w-16 h-16 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full border-3 sm:border-4 border-white shadow-lg object-cover transition-all duration-300 group-hover:shadow-xl lazy-load"
+                                 loading="lazy"
                                  decoding="async">
                             <div class="absolute inset-0 rounded-full bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </div>
@@ -148,7 +151,6 @@
             </div>
         </div>
     </div>
-
 
 </body>
 </html>
