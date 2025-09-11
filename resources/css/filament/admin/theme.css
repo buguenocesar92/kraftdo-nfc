@@ -179,9 +179,11 @@
     color: white !important;
   }
   
-  /* Inputs and forms - mantener selects por defecto */
-  .fi-input,
-  .fi-textarea {
+  /* Inputs y textareas - EXCLUIR selects y su input de búsqueda */
+  .fi-input:not(.fi-select-input-search-ctn .fi-input),
+  .fi-textarea,
+  input:not(.fi-select-input-search-ctn input),
+  textarea {
     background: rgba(255, 255, 255, 0.1) !important;
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
@@ -189,17 +191,24 @@
     color: white !important;
   }
   
-  .fi-input::placeholder,
-  .fi-textarea::placeholder {
+  .fi-input:not(.fi-select-input-search-ctn .fi-input)::placeholder,
+  .fi-textarea::placeholder,
+  input:not(.fi-select-input-search-ctn input)::placeholder,
+  textarea::placeholder {
     color: rgba(255, 255, 255, 0.6) !important;
   }
   
-  .fi-input:focus,
-  .fi-textarea:focus {
+  .fi-input:not(.fi-select-input-search-ctn .fi-input):focus,
+  .fi-textarea:focus,
+  input:not(.fi-select-input-search-ctn input):focus,
+  textarea:focus {
     outline: none !important;
     box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.5) !important;
     border-color: rgba(74, 144, 226, 0.6) !important;
   }
+  
+  /* Mantener todos los elementos del select por defecto */
+
   
   /* Navigation */
   .fi-sidebar-nav-item,
@@ -330,4 +339,9 @@
         .fi-sidebar-item-btn {
             background-color: #00FF7F !important;
         }
+}
+
+
+.fi-select-input {
+      color: black !important;
 }
