@@ -9,6 +9,7 @@ use App\Models\DynamicContent;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\ColorPicker;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -52,6 +53,27 @@ class ContentProfileForm
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
+
+                Section::make('Paleta de Colores')
+                    ->description('Personaliza los colores del perfil')
+                    ->schema([
+                        ColorPicker::make('color_palette.primary')
+                            ->label('Color Primario')
+                            ->default('#3B82F6')
+                            ->helperText('Color principal del gradiente de fondo'),
+                            
+                        ColorPicker::make('color_palette.secondary')
+                            ->label('Color Secundario')
+                            ->default('#8B5CF6')
+                            ->helperText('Color secundario del gradiente'),
+                            
+                        ColorPicker::make('color_palette.accent')
+                            ->label('Color Terciario')
+                            ->default('#EC4899')
+                            ->helperText('Color terciario del gradiente'),
+                    ])
+                    ->columns(3)
+                    ->collapsible(),
 
                 MultimediaSection::make(),
 

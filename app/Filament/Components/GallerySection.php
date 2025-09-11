@@ -16,60 +16,20 @@ class GallerySection
     {
         return Section::make('Galería de Imágenes')
             ->schema([
-                Repeater::make('galleryImages')
+                FileUpload::make('gallery_images')
                     ->label('Imágenes de la Galería')
-                    ->schema([
-                        Select::make('type')
-                            ->label('Tipo de Imagen')
-                            ->options(ContentGalleryImage::TYPES)
-                            ->default(ContentGalleryImage::TYPE_UPLOAD)
-                            ->required()
-                            ->live(),
-                        
-                        FileUpload::make('image_path')
-                            ->label('Subir Imagen')
-                            ->image()
-                            ->maxSize(5 * 1024) // 5MB
-                            ->directory('multimedia/gallery')
-                            ->visibility('public')
-                            ->visible(fn (callable $get) => $get('type') === ContentGalleryImage::TYPE_UPLOAD)
-                            ->helperText('Máximo 5MB. JPG, PNG, WebP')
-                            ->imageResizeMode('contain')
-                            ->imageCropAspectRatio(null)
-                            ->imageResizeTargetWidth(1920)
-                            ->imageResizeTargetHeight(1080),
-                        
-                        TextInput::make('image_url')
-                            ->label('URL de la Imagen')
-                            ->url()
-                            ->visible(fn (callable $get) => $get('type') === ContentGalleryImage::TYPE_URL)
-                            ->helperText('URL externa de la imagen')
-                            ->required(fn (callable $get) => $get('type') === ContentGalleryImage::TYPE_URL),
-                        
-                        TextInput::make('alt_text')
-                            ->label('Texto Alternativo')
-                            ->helperText('Descripción para accesibilidad')
-                            ->maxLength(255),
-                        
-                        TextInput::make('caption')
-                            ->label('Pie de Foto')
-                            ->helperText('Descripción visible de la imagen')
-                            ->maxLength(500),
-                        
-                        TextInput::make('sort_order')
-                            ->label('Orden')
-                            ->numeric()
-                            ->default(0)
-                            ->helperText('Número para ordenar (0 = primero)'),
-                    ])
-                    ->columns(2)
-                    ->defaultItems(0)
-                    ->addActionLabel('Agregar imagen')
-                    ->reorderableWithButtons()
-                    ->collapsible()
-                    ->itemLabel(fn (array $state): ?string => 
-                        $state['caption'] ?? $state['alt_text'] ?? 'Imagen sin título'
-                    )
+                    ->image()
+                    ->multiple()
+                    ->maxFiles(10)
+                    ->maxSize(5 * 1024) // 5MB por imagen
+                    ->directory('multimedia/gallery')
+                    ->visibility('public')
+                    ->helperText('Máximo 10 imágenes, 5MB cada una. JPG, PNG, WebP')
+                    ->imageResizeMode('contain')
+                    ->imageCropAspectRatio(null)
+                    ->imageResizeTargetWidth(1920)
+                    ->imageResizeTargetHeight(1080)
+                    ->reorderable()
                     ->columnSpanFull(),
             ])
             ->collapsible();

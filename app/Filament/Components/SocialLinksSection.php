@@ -14,15 +14,22 @@ class SocialLinksSection
     {
         return Section::make('Enlaces de Redes Sociales')
             ->schema([
-                Repeater::make('socialLinks')
+                Repeater::make('social_links')
                     ->label('Redes Sociales')
                     ->schema([
                         Select::make('platform')
                             ->label('Plataforma')
-                            ->options(array_map(
-                                fn($platform) => $platform['name'],
-                                ContentSocialLink::PLATFORMS
-                            ))
+                            ->options([
+                                'instagram' => '📷 Instagram',
+                                'linkedin' => '💼 LinkedIn',
+                                'twitter' => '🐦 Twitter/X',
+                                'facebook' => '📘 Facebook',
+                                'tiktok' => '🎵 TikTok',
+                                'youtube' => '📹 YouTube',
+                                'github' => '💻 GitHub',
+                                'whatsapp' => '💬 WhatsApp',
+                                'website' => '🌐 Sitio Web',
+                            ])
                             ->required()
                             ->live(),
                         TextInput::make('url')
