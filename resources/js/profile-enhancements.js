@@ -67,6 +67,14 @@ class LazyLoadManager {
         
         // Start loading the image
         const imageSrc = img.dataset.src || img.src;
+        
+        // Validate imageSrc before loading
+        if (!imageSrc || imageSrc === 'undefined' || imageSrc.includes('undefined')) {
+            console.warn('Invalid image source detected:', imageSrc);
+            this.handleImageError(img);
+            return;
+        }
+        
         imageLoader.src = imageSrc;
     }
 

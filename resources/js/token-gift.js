@@ -1552,6 +1552,14 @@ function initLazyLoading() {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const img = entry.target;
+                
+                // Validate data-src before loading
+                if (!img.dataset.src || img.dataset.src === 'undefined' || img.dataset.src.includes('undefined')) {
+                    console.warn('Invalid image source detected in token-gift.js:', img.dataset.src);
+                    imageObserver.unobserve(img);
+                    return;
+                }
+                
                 img.src = img.dataset.src;
                 img.classList.remove('opacity-0');
                 img.classList.add('opacity-100');
