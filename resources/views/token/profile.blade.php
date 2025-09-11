@@ -130,7 +130,7 @@
             @if($contentMultimedia && ($contentMultimedia->video_url || $contentMultimedia->video_file))
                 <div class="bg-white shadow-2xl overflow-hidden {{ (!$galleryImages || count($galleryImages) == 0) ? 'rounded-b-3xl' : '' }}">
                     {{-- Card Header --}}
-                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <div class="bg-gray-50 px-6 py-4 ">
                         <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide text-center">
                             Video de Presentación
                         </h3>
@@ -156,7 +156,7 @@
             @if($galleryImages && count($galleryImages) > 0)
                 <div class="bg-white shadow-2xl overflow-hidden rounded-b-3xl">
                     {{-- Card Header --}}
-                    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+                    <div class="bg-gray-50 px-6 py-4">
                         <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide text-center">
                             Galería
                         </h3>
