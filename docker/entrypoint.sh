@@ -6,9 +6,16 @@ MAX_RETRIES=${MAX_RETRIES:-30}
 RETRY_INTERVAL=${RETRY_INTERVAL:-2}
 HEALTH_CHECK_TIMEOUT=${HEALTH_CHECK_TIMEOUT:-5}
 
-echo "🚀 Starting Laravel NFC App - Production Mode..."
+# Variables específicas de Octane
+export OCTANE_WORKERS=${OCTANE_WORKERS:-auto}
+export OCTANE_MAX_REQUESTS=${OCTANE_MAX_REQUESTS:-1000}
+
+echo "🚀 Starting Laravel NFC App with Octane - Production Mode..."
 echo "📊 Environment: ${APP_ENV:-production}"
 echo "🔧 Debug mode: ${APP_DEBUG:-false}"
+echo "🌊 Octane Server: ${OCTANE_SERVER:-swoole}"
+echo "👷 Octane Workers: ${OCTANE_WORKERS:-auto}"
+echo "🔄 Max Requests per Worker: ${OCTANE_MAX_REQUESTS:-1000}"
 
 # Función para verificar conectividad con timeout y reintentos
 wait_for_service() {
@@ -174,13 +181,14 @@ if [ -n "$DB_HOST" ] && [ "$DB_HOST" != "localhost" ]; then
     fi
 fi
 
-echo "✅ Laravel NFC App is ready for ${APP_ENV:-production}!"
+echo "✅ Laravel NFC App with Octane is ready for ${APP_ENV:-production}!"
 echo "✅ Connected to database: ${DB_HOST:-localhost}:${DB_PORT:-3306}"
 if [ -n "$REDIS_HOST" ]; then
     echo "✅ Connected to Redis: $REDIS_HOST:${REDIS_PORT:-6379}"
 fi
-echo "✅ Nginx permissions configured for file uploads"
+echo "✅ Nginx configured as reverse proxy for Octane"
 echo "✅ Laravel optimized for ${APP_ENV:-production} with clean URLs"
+echo "✅ Octane server ready to start with ${OCTANE_WORKERS:-auto} workers"
 echo "✅ All health checks passed"
 
 # Execute the main command

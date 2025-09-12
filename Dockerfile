@@ -1,6 +1,6 @@
-# Multi-stage build optimizado para Laravel NFC App con soporte multi-arch
-# Stage 1: Base image con extensiones PHP (PHP 8.3 para mejor performance)
-FROM --platform=${BUILDPLATFORM:-linux/amd64} php:8.3-fpm-alpine AS base
+# Multi-stage build optimizado para Laravel NFC App con soporte multi-arch y Octane
+# Stage 1: Base image con extensiones PHP (PHP 8.3 CLI para Octane)
+FROM --platform=${BUILDPLATFORM:-linux/amd64} php:8.3-cli-alpine AS base
 
 # Variables para soporte multi-arch
 ARG TARGETPLATFORM
@@ -8,10 +8,14 @@ ARG BUILDPLATFORM
 ARG TARGETOS
 ARG TARGETARCH
 
-# Instalar dependencias del sistema y extensiones PHP
+# Instalar dependencias del sistema y extensiones PHP incluyendo Swoole
 RUN apk add --no-cache --virtual .build-deps \
         $PHPIZE_DEPS \
         linux-headers \
+        gcc \
+        g++ \
+        make \
+        autoconf \
     && apk add --no-cache \
         sqlite \
         sqlite-dev \
@@ -26,9 +30,8 @@ RUN apk add --no-cache --virtual .build-deps \
         icu-dev \
         libxml2-dev \
         postgresql-dev \
-        autoconf \
-        g++ \
-        make \
+        openssl-dev \
+        c-ares-dev \
     && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
         pdo \
@@ -46,8 +49,10 @@ RUN apk add --no-cache --virtual .build-deps \
         bcmath \
         pcntl \
         posix \
-    && pecl install redis \
-    && docker-php-ext-enable redis \
+        sockets \
+    && pecl install redis swoole \
+    && docker-php-ext-enable redis swoole \
+    && echo "swoole.use_shortname=off" >> /usr/local/etc/php/conf.d/swoole.ini \
     && apk del .build-deps \
     && rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
@@ -104,7 +109,7 @@ RUN npm run build && npm cache clean --force
 # Stage 4: Imagen final optimizada
 FROM base AS final
 
-# Instalar solo dependencias de runtime necesarias
+# Instalar solo dependencias de runtime necesarias para Octane
 RUN apk add --no-cache \
         nginx \
         supervisor \
@@ -114,6 +119,7 @@ RUN apk add --no-cache \
         bash \
         dcron \
         logrotate \
+        tini \
     && rm -rf /var/cache/apk/*
 
 # Configurar Nginx y Supervisor
@@ -151,8 +157,9 @@ COPY --chown=www:www storage/ ./storage/
 # Ejecutar scripts de Composer
 RUN composer run-script post-autoload-dump
 
-# Configurar permisos con seguridad mejorada
+# Configurar permisos con seguridad mejorada y directorios para Octane
 RUN mkdir -p storage bootstrap/cache \
+    && mkdir -p storage/app/octane-uploads \
     && mkdir -p /var/log/supervisor \
     && mkdir -p /run/nginx \
     && mkdir -p /var/lib/nginx/tmp/client_body \
@@ -163,17 +170,21 @@ RUN mkdir -p storage bootstrap/cache \
     && chown -R www:www /var/www/html \
     && chown -R www:www /var/lib/nginx/tmp \
     && chmod -R 755 /var/www/html \
-    && chmod -R 775 storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache storage/app/octane-uploads \
     && chmod -R 755 /var/lib/nginx/tmp \
     && chmod 755 /var/lib/nginx
 
-# Variables de entorno optimizadas
+# Variables de entorno optimizadas para Octane
 ENV APP_ENV=production \
     APP_DEBUG=false \
     LOG_CHANNEL=stderr \
     LOG_STDERR_FORMATTER=Monolog\Formatter\JsonFormatter \
     COMPOSER_ALLOW_SUPERUSER=1 \
-    COMPOSER_NO_INTERACTION=1
+    COMPOSER_NO_INTERACTION=1 \
+    OCTANE_SERVER=swoole \
+    OCTANE_HOST=0.0.0.0 \
+    OCTANE_PORT=8080 \
+    OCTANE_WORKERS=auto
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
@@ -186,5 +197,5 @@ EXPOSE 8080
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/entrypoint.sh"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
