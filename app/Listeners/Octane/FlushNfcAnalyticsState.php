@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Octane;
 
+use Illuminate\Foundation\Application;
 use Laravel\Octane\Contracts\OperationTerminated;
 
 class FlushNfcAnalyticsState implements OperationTerminated
@@ -25,5 +26,21 @@ class FlushNfcAnalyticsState implements OperationTerminated
         if (function_exists('gc_collect_cycles')) {
             gc_collect_cycles();
         }
+    }
+    
+    /**
+     * The application instance.
+     */
+    public function app(): Application
+    {
+        return app();
+    }
+    
+    /**
+     * The sandbox instance.
+     */
+    public function sandbox(): Application
+    {
+        return app();
     }
 }

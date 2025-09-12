@@ -2,22 +2,22 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Roles y permisos
+        $this->call(RolesAndPermissionsSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Roles específicos NFC
+        $this->call(NfcRoleSeeder::class);
+
+        // Usuarios administradores y test
+        $this->call(AdminUserSeeder::class);
+
+        // Datos de demo NFC
+        $this->call(NfcDemoSeeder::class);
     }
 }

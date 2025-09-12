@@ -1,0 +1,13 @@
+
+   INFO  Server running….  
+
+
+  Local: http://0.0.0.0:8082 
+
+  Press Ctrl+C to stop the server
+
+   INFO  [INFO] RoadRunner server started; version: 2025.1.3, buildtime: 2025-09-11T15:44:01+0000.  
+
+   INFO  [INFO] sdnotify: not notified.  
+
+  500    GET /test .................................................. 508.00 ms

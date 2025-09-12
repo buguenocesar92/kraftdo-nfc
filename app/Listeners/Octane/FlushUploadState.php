@@ -2,6 +2,7 @@
 
 namespace App\Listeners\Octane;
 
+use Illuminate\Foundation\Application;
 use Laravel\Octane\Contracts\OperationTerminated;
 
 class FlushUploadState implements OperationTerminated
@@ -47,5 +48,21 @@ class FlushUploadState implements OperationTerminated
                 }
             }
         }
+    }
+    
+    /**
+     * The application instance.
+     */
+    public function app(): Application
+    {
+        return app();
+    }
+    
+    /**
+     * The sandbox instance.
+     */
+    public function sandbox(): Application
+    {
+        return app();
     }
 }
