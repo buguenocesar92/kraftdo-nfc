@@ -1,0 +1,103 @@
+# Dockerfile para desarrollo local de Laravel NFC App
+FROM php:8.3-fpm-alpine
+
+# Instalar dependencias del sistema
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    sqlite \
+    sqlite-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    zip \
+    libzip-dev \
+    oniguruma-dev \
+    curl-dev \
+    git \
+    nodejs \
+    npm \
+    netcat-openbsd \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo \
+        pdo_mysql \
+        pdo_sqlite \
+        gd \
+        zip \
+        mbstring \
+        curl \
+        opcache
+
+# Configurar PHP para desarrollo
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/php-dev.ini /usr/local/etc/php/conf.d/dev-overrides.ini
+# Configurar opcache para desarrollo (menos agresivo)
+COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+RUN echo "opcache.validate_timestamps=1" > /usr/local/etc/php/conf.d/opcache-dev.ini \
+    && echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/opcache-dev.ini
+
+# Instalar Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Configurar Nginx para desarrollo
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+
+# Configurar Supervisor
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Crear usuario de aplicación
+RUN addgroup -g 1000 -S www && \
+    adduser -u 1000 -D -S -G www www
+
+# Configurar directorio de trabajo
+WORKDIR /var/www/html
+
+# Copiar archivos de configuración primero (para mejor cache de Docker)
+COPY composer.json composer.lock package.json package-lock.json ./
+
+# Instalar dependencias de PHP sin scripts (para evitar errores de artisan)
+RUN composer install --optimize-autoloader --no-scripts
+
+# Copiar archivos de configuración y código fuente
+COPY --chown=www:www . /var/www/html
+COPY docker/healthcheck.php /var/www/html/public/health.php
+
+# Ejecutar scripts de Composer después de copiar el código
+RUN composer run-script post-autoload-dump
+
+# Instalar dependencias de Node.js
+RUN npm ci
+
+# Configurar permisos iniciales
+RUN mkdir -p storage bootstrap/cache \
+    && mkdir -p /var/log/supervisor \
+    && mkdir -p /run/nginx \
+    && chown -R www:www /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 storage bootstrap/cache
+
+# Corregir permisos de Nginx para subida de archivos
+RUN mkdir -p /var/lib/nginx/tmp/client_body \
+    && mkdir -p /var/lib/nginx/tmp/fastcgi \
+    && mkdir -p /var/lib/nginx/tmp/proxy \
+    && mkdir -p /var/lib/nginx/tmp/scgi \
+    && mkdir -p /var/lib/nginx/tmp/uwsgi \
+    && chown -R www:www /var/lib/nginx/tmp \
+    && chmod -R 777 /var/lib/nginx/tmp \
+    && chmod 755 /var/lib/nginx
+
+# Variables de entorno para desarrollo
+ENV APP_ENV=local
+ENV APP_DEBUG=true
+
+# Exponer puertos
+EXPOSE 80
+
+# Script de inicio para desarrollo
+COPY docker/entrypoint-local.sh /entrypoint-local.sh
+RUN chmod +x /entrypoint-local.sh
+
+ENTRYPOINT ["/entrypoint-local.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"] 

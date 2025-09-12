@@ -1,0 +1,197 @@
+# Docker Compose para Producción y Staging - Laravel NFC App
+# Usar con variables de entorno específicas:
+# - Producción: docker-compose -f docker-compose.prod.yml --env-file .env.production up
+# - Staging: docker-compose -f docker-compose.prod.yml --env-file .env.staging up
+
+
+# Configuración de logging para producción (definir ANTES de usar)
+x-logging: &logging
+  driver: "json-file"
+  options:
+    max-size: "50m"
+    max-file: "5"
+    compress: "true"
+    labels: "service,version,environment"
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+      platforms:
+        - linux/amd64
+        - linux/arm64
+    image: nfc-laravel-app:${IMAGE_TAG:-latest}
+    container_name: nfc-laravel-app-${ENVIRONMENT:-prod}
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    logging: *logging
+    environment:
+      # Configuración de aplicación
+      - APP_ENV=${APP_ENV:-production}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_KEY=${APP_KEY:?error}
+      - APP_URL=${APP_URL:-https://nfc.kraftdo.com}
+      - ASSET_URL=${ASSET_URL:-https://nfc.kraftdo.com}
+      - VITE_DEV_SERVER_URL=
+      
+      # Configuraciones de seguridad
+      - FORCE_HTTPS=${FORCE_HTTPS:-true}
+      - SECURE_COOKIES=${SECURE_COOKIES:-true}
+      - CSRF_COOKIE_SECURE=${CSRF_COOKIE_SECURE:-true}
+      
+      # Base de datos externa con validación
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=${DB_HOST:?error}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_DATABASE=${DB_DATABASE:?error}
+      - DB_USERNAME=${DB_USERNAME:?error}
+      - DB_PASSWORD=${DB_PASSWORD:?error}
+      - DB_CHARSET=${DB_CHARSET:-utf8mb4}
+      - DB_COLLATION=${DB_COLLATION:-utf8mb4_unicode_ci}
+      
+      # Cache y sesiones optimizado
+      - CACHE_DRIVER=${CACHE_DRIVER:-redis}
+      - CACHE_PREFIX=${CACHE_PREFIX:-nfc_prod}
+      - SESSION_DRIVER=${SESSION_DRIVER:-redis}
+      - SESSION_LIFETIME=${SESSION_LIFETIME:-120}
+      - SESSION_SECURE_COOKIE=true
+      - SESSION_DOMAIN=${SESSION_DOMAIN:-nfc.kraftdo.com}
+      - SESSION_SAME_SITE=strict
+      - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
+      - QUEUE_REDIS_CONNECTION=default
+      
+      # Redis externo
+      - REDIS_HOST=${REDIS_HOST:?error}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - REDIS_CLIENT=${REDIS_CLIENT:-phpredis}
+      - REDIS_TIMEOUT=${REDIS_TIMEOUT:-5}
+      - REDIS_READ_TIMEOUT=${REDIS_READ_TIMEOUT:-60}
+      
+      # Configuración de correo
+      - MAIL_MAILER=${MAIL_MAILER:-smtp}
+      - MAIL_HOST=${MAIL_HOST:-}
+      - MAIL_PORT=${MAIL_PORT:-587}
+      - MAIL_USERNAME=${MAIL_USERNAME:-}
+      - MAIL_PASSWORD=${MAIL_PASSWORD:-}
+      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-tls}
+      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@kraftdo.com}
+      - MAIL_FROM_NAME=${MAIL_FROM_NAME:-KraftDo NFC}
+      
+      # Configuración de archivos y logs
+      - FILESYSTEM_DISK=${FILESYSTEM_DISK:-local}
+      - LOG_CHANNEL=${LOG_CHANNEL:-stack}
+      - LOG_LEVEL=${LOG_LEVEL:-error}
+      - LOG_DEPRECATIONS_CHANNEL=${LOG_DEPRECATIONS_CHANNEL:-null}
+      
+      # Control de migraciones y optimizaciones
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
+      - OPTIMIZE_CLEAR=${OPTIMIZE_CLEAR:-true}
+      - VIEW_CACHE=${VIEW_CACHE:-true}
+      - CONFIG_CACHE=${CONFIG_CACHE:-true}
+      - ROUTE_CACHE=${ROUTE_CACHE:-true}
+    
+    volumes:
+      # Persistir solo lo necesario para mantener contenedor inmutable
+      - ${ENVIRONMENT:-prod}_storage:/var/www/html/storage/app
+      - ${ENVIRONMENT:-prod}_logs:/var/www/html/storage/logs
+      # Evitar montar todo storage para mejor seguridad
+      - ${ENVIRONMENT:-prod}_cache:/var/www/html/storage/framework/cache
+      - ${ENVIRONMENT:-prod}_sessions:/var/www/html/storage/framework/sessions
+      - ${ENVIRONMENT:-prod}_views:/var/www/html/storage/framework/views
+    networks:
+      - nfc-${ENVIRONMENT:-prod}-network
+    
+    # Configuración de recursos optimizada para Laravel
+    deploy:
+      resources:
+        limits:
+          memory: ${MEMORY_LIMIT:-512M}
+          cpus: ${CPU_LIMIT:-0.75}
+        reservations:
+          memory: ${MEMORY_RESERVATION:-256M}
+          cpus: ${CPU_RESERVATION:-0.25}
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    
+    # Health check mejorado con timeout optimizado
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 3
+      start_period: 90s
+    
+    # Límites de archivos y procesos
+    ulimits:
+      nproc: 65535
+      nofile:
+        soft: 20000
+        hard: 40000
+
+
+# Volúmenes nombrados para persistencia
+volumes:
+  prod_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${STORAGE_PATH:-./storage/app}
+  prod_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${LOGS_PATH:-./storage/logs}
+  prod_cache:
+  prod_sessions:
+  prod_views:
+  staging_storage:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${STORAGE_PATH:-./storage-staging/app}
+  staging_logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${LOGS_PATH:-./storage-staging/logs}
+  staging_cache:
+  staging_sessions:
+  staging_views:
+
+networks:
+  nfc-prod-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.25.0.0/24
+          gateway: 172.25.0.1
+    labels:
+      - "environment=production"
+      - "project=nfc-laravel"
+  nfc-staging-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.26.0.0/24
+          gateway: 172.26.0.1
+    labels:
+      - "environment=staging"
+      - "project=nfc-laravel"

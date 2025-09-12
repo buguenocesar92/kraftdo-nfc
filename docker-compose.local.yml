@@ -1,0 +1,52 @@
+# Docker Compose para desarrollo local - Solo aplicación Laravel
+# Uso: docker-compose -f docker-compose.local.yml --env-file .env.docker.local up
+
+services:
+  # Aplicación Laravel
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.local
+    container_name: nfc-laravel-app-local
+    restart: unless-stopped
+    ports:
+      - "9090:80"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - VITE_DEV_SERVER_URL=
+      - APP_KEY=${APP_KEY:-}
+      - APP_URL=http://localhost:9090
+      - DB_CONNECTION=mysql
+      - DB_HOST=${DB_HOST:-host.docker.internal}  # IP del host local
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_DATABASE=${DB_DATABASE:-nfc_dynamic_app}
+      - DB_USERNAME=${DB_USERNAME:-nfc_user}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      - CACHE_DRIVER=file
+      - SESSION_DRIVER=file
+      - QUEUE_CONNECTION=sync
+    volumes:
+      # Montar código fuente para desarrollo en caliente
+      - ./:/var/www/html
+      # Excluir vendor y node_modules para mejor rendimiento
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
+      # Persistir storage
+      - ./storage:/var/www/html/storage
+    networks:
+      - nfc-local-network
+
+networks:
+  nfc-local-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.24.0.0/24
+          gateway: 172.24.0.1
+    labels:
+      - "environment=local"
+      - "project=nfc-laravel" 
