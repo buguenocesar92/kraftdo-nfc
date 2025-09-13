@@ -60,6 +60,8 @@ return [
             \Laravel\Octane\Listeners\DisconnectFromDatabases::class,
             \Laravel\Octane\Listeners\CollectGarbage::class,
             
+            // Livewire state cleanup for Octane compatibility (disabled - causing issues)
+            
             // Custom listeners for NFC app (disabled for local testing)
             // \App\Listeners\Octane\FlushNfcAnalyticsState::class,
             // \App\Listeners\Octane\FlushUploadState::class,

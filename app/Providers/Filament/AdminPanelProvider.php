@@ -110,7 +110,6 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \App\Http\Middleware\CheckAdminPermission::class,
             ])
             ->brandName('KRAFTDO NFC')
             ->brandLogo(asset('images/kraftdo-logo.svg'))

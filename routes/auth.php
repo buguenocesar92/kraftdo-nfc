@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
     Volt::route('verify-email', 'auth.verify-email')
         ->name('verification.notice');
 
-    Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+    Route::get('verify-email/{id}/{hash}', [VerifyEmailController::class, '__invoke'])
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
 
@@ -31,5 +31,5 @@ Route::middleware('auth')->group(function () {
         ->name('password.confirm');
 });
 
-Route::post('logout', App\Livewire\Actions\Logout::class)
+Route::post('logout', [App\Livewire\Actions\Logout::class, '__invoke'])
     ->name('logout');

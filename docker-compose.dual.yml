@@ -1,0 +1,106 @@
+# Docker Compose para Dual Server Architecture
+# Admin Panel: PHP-FPM + Frontend: Octane + Swoole
+
+services:
+  # Redis para ambos servidores
+  redis:
+    image: redis:7-alpine
+    container_name: nfc-redis-dual
+    restart: unless-stopped
+    command: redis-server
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dual_data:/data
+    networks:
+      - nfc-dual-network
+
+  # Aplicación con Dual Server
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile.dual
+    container_name: nfc-laravel-dual
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8082}:80"
+      - "8083:8080"
+      - "9001:9001"
+    env_file:
+      - .env.dual
+    environment:
+      # App config
+      - APP_ENV=${APP_ENV:-local}
+      - APP_DEBUG=${APP_DEBUG:-true}
+      - APP_KEY=${APP_KEY:?error}
+      - APP_URL=${APP_URL:-http://localhost:8082}
+      
+      # Database config
+      - DB_CONNECTION=${DB_CONNECTION:-sqlite}
+      - DB_DATABASE=${DB_DATABASE:-/var/www/html/database/database.sqlite}
+      
+      # Redis config
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=
+      - REDIS_PORT=6379
+      - REDIS_DB=${REDIS_DB:-0}
+      - REDIS_CACHE_DB=${REDIS_CACHE_DB:-1}
+      - REDIS_SESSION_DB=${REDIS_SESSION_DB:-2}
+      - REDIS_QUEUE_DB=${REDIS_QUEUE_DB:-3}
+      
+      # Cache y sessions
+      - CACHE_DRIVER=${CACHE_DRIVER:-redis}
+      - SESSION_DRIVER=${SESSION_DRIVER:-redis}
+      - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
+      
+      # Octane config (solo para frontend)
+      - OCTANE_SERVER=swoole
+      - OCTANE_WORKERS=${OCTANE_WORKERS:-2}
+      - OCTANE_MAX_REQUESTS=${OCTANE_MAX_REQUESTS:-500}
+      
+      # Dual server flags
+      - ADMIN_USE_PHP_FPM=true
+      - FRONTEND_USE_OCTANE=true
+      
+      # Logging
+      - LOG_CHANNEL=stack
+      - LOG_LEVEL=${LOG_LEVEL:-debug}
+      
+    volumes:
+      # Persistir storage y database
+      - dual_storage:/var/www/html/storage/app
+      - dual_logs:/var/www/html/storage/logs
+      - dual_database:/var/www/html/database
+    
+    networks:
+      - nfc-dual-network
+    
+    depends_on:
+      - redis
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  redis_dual_data:
+  dual_storage:
+  dual_logs:
+  dual_database:
+
+networks:
+  nfc-dual-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.27.0.0/24
+          gateway: 172.27.0.1
+    labels:
+      - "environment=dual-server"
+      - "project=nfc-laravel"
