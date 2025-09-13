@@ -17,6 +17,9 @@
 .env.backup
 .env.save
 .env.dual
+
+# Exception: Allow .env.example (template)
+!.env.example
 .phpactor.json
 .phpunit.result.cache
 Homestead.json

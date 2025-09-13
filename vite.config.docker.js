@@ -9,8 +9,7 @@ export default defineConfig({
                 'resources/css/app.css', 
                 'resources/js/app.js',
                 
-                // Simplified Filament theme for Docker
-                'resources/css/filament/admin/theme-docker.css',
+                // No Filament theme - using defaults
                 
                 // Core CSS files only
                 'resources/css/kraftdo-theme.css',
