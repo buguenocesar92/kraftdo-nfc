@@ -6,9 +6,17 @@
 /storage/*.key
 /storage/pail
 /vendor
+# Environment files - NEVER commit
 .env
-.env.backup
+.env.*
+.env.local
 .env.production
+.env.staging
+.env.testing
+.env.development
+.env.backup
+.env.save
+.env.dual
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
@@ -21,5 +29,59 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Application servers
 rr
 .rr.yaml
+
+# Production and deployment files
+*.log
+*.pid
+*.sock
+nohup.out
+cleanup-production.sh
+deploy.production.sh
+
+# Security and secrets
+*.pem
+*.key
+*.cert
+*.crt
+*.p12
+*.pfx
+auth.json
+
+# Database files (using external MySQL)
+database/database.sqlite
+database/*.sqlite*
+*.db
+*.sqlite
+
+# Docker production configs (keep examples)
+.env.docker
+.env.docker.*
+docker-compose.override.yml
+docker-compose.production.yml
+
+# Storage and cache files
+storage/logs/*.log
+storage/debugbar/
+storage/clockwork/
+storage/app/public/temp/
+storage/app/livewire-tmp/
+
+# OS and IDE files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Backup files
+*.bak
+*.backup
+*.swp
+*.tmp
