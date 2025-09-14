@@ -54,6 +54,10 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
+# Copiar script de inicio en stage base (necesario para desarrollo)
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
+
 # ==========================================
 # STAGE PARA DEPENDENCIAS PHP
 # ==========================================

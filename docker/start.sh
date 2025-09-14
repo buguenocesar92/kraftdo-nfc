@@ -152,6 +152,7 @@ case $ENV_MODE in
             --server=frankenphp \
             --host=0.0.0.0 \
             --port=80 \
+            --admin-port=2019 \
             --workers=1 \
             --watch
         ;;
@@ -190,6 +191,7 @@ case $ENV_MODE in
             --server=frankenphp \
             --host=0.0.0.0 \
             --port=80 \
+            --admin-port=2019 \
             --workers=${OCTANE_WORKERS:-auto} \
             --max-requests=${OCTANE_MAX_REQUESTS:-500}
         ;;
