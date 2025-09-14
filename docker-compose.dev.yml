@@ -1,0 +1,186 @@
+# Docker Compose para Desarrollo con FrankenPHP Hot Reload
+services:
+  # ==========================================
+  # APLICACIÓN DESARROLLO - FrankenPHP con Hot Reload
+  # ==========================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: base  # Usar stage base para desarrollo
+    container_name: nfc-app-dev
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:80"
+      - "${APP_HTTPS_PORT:-8443}:443"
+      - "${VITE_PORT:-5173}:5173"  # Puerto para Vite HMR
+    environment:
+      # Development Config
+      - APP_NAME=${APP_NAME:-KraftDo NFC Dev}
+      - APP_ENV=local
+      - APP_KEY=${APP_KEY:-base64:T3BlblNTTCBnZW5lcmF0ZWQga2V5IGhlcmU=}
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:8080
+      
+      # Database (SQLite para desarrollo rápido)
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/app/database/database.sqlite
+      
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=
+      - CACHE_DRIVER=file  # File cache más rápido para dev
+      - SESSION_DRIVER=file
+      - QUEUE_CONNECTION=sync  # Sync queue para desarrollo
+      
+      # FrankenPHP Development Config
+      - FRANKENPHP_CONFIG=
+      - SERVER_NAME=:80
+      - CADDY_GLOBAL_OPTIONS=
+      
+      # Development Features
+      - TELESCOPE_ENABLED=true
+      - DEBUGBAR_ENABLED=true
+      - LOG_LEVEL=debug
+      
+      # Hot Reload & Watch Mode
+      - WATCH_MODE=true
+      - HOT_RELOAD=true
+      - OPCACHE_ENABLE=0
+      - OPCACHE_VALIDATE_TIMESTAMPS=1
+      
+      # Vite HMR
+      - VITE_HMR_HOST=localhost
+      - VITE_HMR_PORT=5173
+      
+    volumes:
+      # Montar código fuente para hot reload
+      - .:/app
+      - /app/vendor  # Excluir vendor para performance
+      - /app/node_modules  # Excluir node_modules
+      - dev_storage:/app/storage
+    networks:
+      - nfc-dev-network
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    command: ["/usr/local/bin/start.sh", "dev"]
+
+  # ==========================================
+  # REDIS PARA DESARROLLO
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: nfc-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - nfc-dev-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # MAILPIT (Testing Email)
+  # ==========================================
+  mail:
+    image: axllent/mailpit
+    container_name: nfc-mailpit-dev
+    restart: unless-stopped
+    ports:
+      - "${MAILPIT_WEB_PORT:-8025}:8025"  # Web interface
+      - "${MAILPIT_SMTP_PORT:-1025}:1025"  # SMTP
+    environment:
+      - MP_SMTP_AUTH_ACCEPT_ANY=1
+      - MP_SMTP_AUTH_ALLOW_INSECURE=1
+    networks:
+      - nfc-dev-network
+
+  # ==========================================
+  # VITE DEV SERVER (Hot Module Replacement)
+  # ==========================================
+  vite:
+    image: node:20-alpine
+    container_name: nfc-vite-dev
+    working_dir: /app
+    command: npm run dev
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_HOST=0.0.0.0
+      - VITE_PORT=5173
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - nfc-dev-network
+    profiles:
+      - vite  # Opcional: usar con --profile vite
+
+  # ==========================================
+  # ADMINER (Database Management)
+  # ==========================================
+  adminer:
+    image: adminer
+    container_name: nfc-adminer-dev
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT:-8081}:8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=mysql
+    networks:
+      - nfc-dev-network
+    profiles:
+      - tools
+
+  # ==========================================
+  # MYSQL (Opcional para desarrollo)
+  # ==========================================
+  mysql:
+    image: mysql:8.0
+    container_name: nfc-mysql-dev
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=kraftdo_nfc_dev
+      - MYSQL_USER=kraftdo
+      - MYSQL_PASSWORD=kraftdo
+    volumes:
+      - mysql_dev_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - nfc-dev-network
+    profiles:
+      - mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  dev_storage:
+    driver: local
+  mysql_dev_data:
+    driver: local
+
+networks:
+  nfc-dev-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.31.0.0/24
+          gateway: 172.31.0.1

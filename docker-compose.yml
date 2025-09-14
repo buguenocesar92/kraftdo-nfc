@@ -1,0 +1,234 @@
+# Docker Compose para Laravel NFC con FrankenPHP (Producción)
+services:
+  # ==========================================
+  # APLICACIÓN PRINCIPAL - FrankenPHP
+  # ==========================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final
+    container_name: nfc-app
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+      - "${APP_HTTPS_PORT:-443}:443"
+    environment:
+      # App Config
+      - APP_NAME=${APP_NAME:-KraftDo NFC}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY:?error}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_URL=${APP_URL:-https://localhost}
+      
+      # Database
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-kraftdo_nfc}
+      - DB_USERNAME=${DB_USERNAME:-kraftdo}
+      - DB_PASSWORD=${DB_PASSWORD:?error}
+      
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - CACHE_DRIVER=redis
+      - SESSION_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      
+      # FrankenPHP Config
+      - FRANKENPHP_CONFIG=worker ./public/index.php
+      - SERVER_NAME=${SERVER_NAME:-:80,:443}
+      - CADDY_GLOBAL_OPTIONS=${CADDY_GLOBAL_OPTIONS:-}
+      
+      # NFC Security
+      - NFC_ENABLED=${NFC_ENABLED:-true}
+      - HTTPS_ONLY=${HTTPS_ONLY:-true}
+      
+      # Performance
+      - OPCACHE_ENABLE=1
+      - OPCACHE_VALIDATE_TIMESTAMPS=0
+      
+    volumes:
+      - app_storage:/app/storage
+      - app_bootstrap_cache:/app/bootstrap/cache
+    networks:
+      - nfc-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    command: ["/usr/local/bin/start.sh", "prod"]
+
+  # ==========================================
+  # MYSQL DATABASE
+  # ==========================================
+  mysql:
+    image: mysql:8.0
+    container_name: nfc-mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:?error}
+      - MYSQL_DATABASE=${DB_DATABASE:-kraftdo_nfc}
+      - MYSQL_USER=${DB_USERNAME:-kraftdo}
+      - MYSQL_PASSWORD=${DB_PASSWORD:?error}
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    networks:
+      - nfc-network
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ==========================================
+  # REDIS CACHE & SESSIONS
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: nfc-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass "${REDIS_PASSWORD:-}"
+    volumes:
+      - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - nfc-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # QUEUE WORKER
+  # ==========================================
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final
+    container_name: nfc-worker
+    restart: unless-stopped
+    environment:
+      # App Config (same as app)
+      - APP_NAME=${APP_NAME:-KraftDo NFC}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY:?error}
+      - APP_DEBUG=false
+      
+      # Database
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-kraftdo_nfc}
+      - DB_USERNAME=${DB_USERNAME:-kraftdo}
+      - DB_PASSWORD=${DB_PASSWORD:?error}
+      
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      
+      # Worker Config
+      - QUEUE_WORKER=true
+      - QUEUE_TIMEOUT=${QUEUE_TIMEOUT:-90}
+      - QUEUE_TRIES=${QUEUE_TRIES:-3}
+      - QUEUE_WORKERS=${QUEUE_WORKERS:-1}
+      
+    volumes:
+      - app_storage:/app/storage
+    networks:
+      - nfc-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["/usr/local/bin/start.sh", "worker"]
+    healthcheck:
+      test: ["CMD", "php", "artisan", "queue:monitor", "--max-jobs=1000"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+
+  # ==========================================
+  # SCHEDULER (CRON)
+  # ==========================================
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final
+    container_name: nfc-scheduler
+    restart: unless-stopped
+    environment:
+      # App Config (same as app)
+      - APP_NAME=${APP_NAME:-KraftDo NFC}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY:?error}
+      - APP_DEBUG=false
+      
+      # Database
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_DATABASE=${DB_DATABASE:-kraftdo_nfc}
+      - DB_USERNAME=${DB_USERNAME:-kraftdo}
+      - DB_PASSWORD=${DB_PASSWORD:?error}
+      
+      # Redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - CACHE_DRIVER=redis
+      
+      # Scheduler Config
+      - SCHEDULER=true
+      
+    volumes:
+      - app_storage:/app/storage
+    networks:
+      - nfc-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: ["/usr/local/bin/start.sh", "scheduler"]
+
+volumes:
+  mysql_data:
+    driver: local
+  redis_data:
+    driver: local
+  app_storage:
+    driver: local
+  app_bootstrap_cache:
+    driver: local
+
+networks:
+  nfc-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.30.0.0/24
+          gateway: 172.30.0.1

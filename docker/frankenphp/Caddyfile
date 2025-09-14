@@ -1,0 +1,228 @@
+# Caddyfile para Laravel NFC con FrankenPHP
+# Configuración optimizada para aplicaciones NFC con seguridad HTTPS
+
+{
+	# Configuración global
+	{$CADDY_GLOBAL_OPTIONS}
+	
+	# FrankenPHP configuration
+	{$FRANKENPHP_CONFIG}
+	
+	# Configurar logs para producción
+	log {
+		output stdout
+		format json
+	}
+	
+	# Auto HTTPS habilitado por defecto
+	auto_https on
+	
+	# Email para certificados Let's Encrypt
+	email {$CADDY_EMAIL:admin@kraftdo.com}
+	
+	# Configuración de seguridad global
+	servers {
+		protocol {
+			experimental_http3
+		}
+	}
+}
+
+# ==========================================
+# SITIO PRINCIPAL NFC
+# ==========================================
+{$SERVER_NAME:localhost} {
+	
+	# ==========================================
+	# CONFIGURACIÓN BÁSICA
+	# ==========================================
+	root * /app/public
+	php_fastcgi unix//var/run/php/php-fpm.sock
+	encode gzip zstd
+	file_server
+	
+	# ==========================================
+	# HEADERS DE SEGURIDAD ESPECÍFICOS PARA NFC
+	# ==========================================
+	header {
+		# Forzar HTTPS para APIs NFC
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+		
+		# Permisos específicos para NFC
+		Permissions-Policy "nfc=self, payment=self, geolocation=self, camera=self, microphone=(), usb=(), serial=(), bluetooth=()"
+		
+		# Headers de seguridad general
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		
+		# CSP optimizado para NFC y Filament
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' wss: ws:; frame-ancestors 'self';"
+		
+		# Remove headers que exponen información del servidor
+		-Server
+		-X-Powered-By
+		
+		# Añadir información de la app
+		X-App-Name "KraftDo NFC"
+		X-NFC-Enabled "{$NFC_ENABLED:true}"
+	}
+	
+	# ==========================================
+	# API NFC CON SEGURIDAD EXTRA
+	# ==========================================
+	@api path /api/nfc/*
+	handle @api {
+		header {
+			# Forzar HTTPS para NFC API
+			>Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
+			
+			# CORS específico para NFC
+			Access-Control-Allow-Origin "{$CORS_ORIGIN:https://localhost}"
+			Access-Control-Allow-Methods "GET, POST, OPTIONS"
+			Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, X-NFC-Session"
+			Access-Control-Max-Age "86400"
+			
+			# Headers adicionales para NFC API
+			X-NFC-API "v1.0"
+			X-Require-HTTPS "true"
+		}
+		
+		# Verificar que la conexión sea HTTPS (excepto en desarrollo)
+		@require_https {
+			not header_regexp Host ^localhost
+			not {$APP_ENV} local
+			not {scheme} https
+		}
+		respond @require_https "HTTPS Required for NFC API" 426
+		
+		# Pasar al backend PHP
+		php_fastcgi unix//var/run/php/php-fpm.sock {
+			trusted_proxies private_ranges
+		}
+	}
+	
+	# ==========================================
+	# FILAMENT ADMIN PANEL
+	# ==========================================
+	@admin path /admin*
+	handle @admin {
+		header {
+			# CSP más estricto para admin
+			Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' wss: ws:;"
+			
+			# Headers adicionales para admin
+			X-Filament-Admin "true"
+			Cache-Control "no-cache, no-store, must-revalidate"
+		}
+		
+		php_fastcgi unix//var/run/php/php-fpm.sock {
+			trusted_proxies private_ranges
+		}
+	}
+	
+	# ==========================================
+	# ARCHIVOS ESTÁTICOS OPTIMIZADOS
+	# ==========================================
+	@static {
+		path *.css *.js *.ico *.png *.jpg *.jpeg *.gif *.webp *.svg *.woff *.woff2 *.ttf *.eot *.pdf
+	}
+	handle @static {
+		header Cache-Control "public, max-age=31536000, immutable"
+		header X-Content-Type-Options "nosniff"
+		file_server {
+			precompressed gzip br
+		}
+	}
+	
+	# ==========================================
+	# WEBSOCKETS PARA FILAMENT (Live Updates)
+	# ==========================================
+	@websocket {
+		header Connection *Upgrade*
+		header Upgrade websocket
+	}
+	reverse_proxy @websocket localhost:6001
+	
+	# ==========================================
+	# HEALTH CHECK
+	# ==========================================
+	@health path /health
+	handle @health {
+		header Content-Type "application/json"
+		respond `{"status":"ok","service":"kraftdo-nfc","timestamp":"{time.now}","version":"1.0.0"}` 200
+	}
+	
+	# ==========================================
+	# ROBOTS.TXT DINÁMICO
+	# ==========================================
+	@robots path /robots.txt
+	handle @robots {
+		header Content-Type "text/plain"
+		respond `User-agent: *
+{$ROBOTS_DIRECTIVE:Disallow: /admin}
+Allow: /
+Sitemap: {scheme}://{host}/sitemap.xml` 200
+	}
+	
+	# ==========================================
+	# MANEJO DE ERRORES PERSONALIZADO
+	# ==========================================
+	handle_errors {
+		header Content-Type "application/json"
+		respond `{"error":"Not Found","code":{http.error.status_code},"message":"{http.error.status_text}"}` {http.error.status_code}
+	}
+	
+	# ==========================================
+	# REWRITE RULES PARA LARAVEL
+	# ==========================================
+	try_files {path} {path}/ /index.php?{query}
+	
+	# ==========================================
+	# PHP HANDLER PRINCIPAL
+	# ==========================================
+	php_fastcgi unix//var/run/php/php-fpm.sock {
+		trusted_proxies private_ranges
+		env APP_ENV {$APP_ENV}
+		env NFC_ENABLED {$NFC_ENABLED}
+	}
+}
+
+# ==========================================
+# REDIRECTS PARA WWW Y HTTPS
+# ==========================================
+www.{$SERVER_NAME:localhost} {
+	redir https://{$SERVER_NAME:localhost}{uri} permanent
+}
+
+# ==========================================
+# CONFIGURACIÓN PARA DESARROLLO
+# ==========================================
+:80, :443 {
+	@dev {
+		header_regexp Host ^(localhost|127\.0\.0\.1|0\.0\.0\.0)
+	}
+	
+	handle @dev {
+		root * /app/public
+		
+		# Headers relajados para desarrollo
+		header {
+			Access-Control-Allow-Origin "*"
+			Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+			Access-Control-Allow-Headers "*"
+			X-Dev-Mode "true"
+			
+			# NFC permitido sin HTTPS en dev
+			Permissions-Policy "nfc=*, payment=*, geolocation=*, camera=*, microphone=*, usb=*, serial=*, bluetooth=*"
+		}
+		
+		# Hot reload para Vite
+		@vite path /assets/* /@vite/* /node_modules/*
+		reverse_proxy @vite localhost:5173
+		
+		try_files {path} {path}/ /index.php?{query}
+		php_fastcgi unix//var/run/php/php-fpm.sock
+	}
+}

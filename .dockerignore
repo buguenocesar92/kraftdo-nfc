@@ -1,51 +1,78 @@
-# Git
+# .dockerignore para Laravel NFC con FrankenPHP
+# Optimizado para reducir tamaño de imagen y mejorar velocidad de build
+
+# VERSION CONTROL
 .git
 .gitignore
+.gitattributes
+.github
 
-# Documentation
+# DOCUMENTACIÓN
 README.md
 *.md
+CHANGELOG*
+LICENSE*
 
-# Environment files
-.env.example
-.env.local
-.env.testing
-
-# Dependencies
-node_modules
-vendor
-
-# IDE
+# IDE Y EDITORES
 .vscode
 .idea
 *.swp
 *.swo
-
-# OS
 .DS_Store
-Thumbs.db
 
-# Laravel
-/storage/app/public/*
-!/storage/app/public/.gitignore
+# NODE.JS
+node_modules
+npm-debug.log*
+yarn-debug.log*
+.npmrc
+package-lock.json.bak
+
+# COMPOSER Y PHP
+/vendor
+composer.lock.bak
+.phpunit.result.cache
+
+# LARAVEL STORAGE (se monta como volumen)
+/storage/app/*
 /storage/framework/cache/*
-!/storage/framework/cache/.gitignore
 /storage/framework/sessions/*
-!/storage/framework/sessions/.gitignore
-/storage/framework/testing/*
-!/storage/framework/testing/.gitignore
 /storage/framework/views/*
-!/storage/framework/views/.gitignore
 /storage/logs/*
+!/storage/app/.gitignore
+!/storage/framework/.gitignore
 !/storage/logs/.gitignore
+
+# BOOTSTRAP CACHE (se monta como volumen)
 /bootstrap/cache/*
 !/bootstrap/cache/.gitignore
 
-# Testing
-/tests
-phpunit.xml
-.phpunit.result.cache
+# ENVIRONMENT
+.env*
+!.env.example
+!.env.docker
 
-# Development tools
+# DOCKER
 docker-compose.override.yml
-Dockerfile.dev
+Dockerfile.local
+
+# TESTING
+.phpunit.cache
+coverage.xml
+junit.xml
+
+# LOGS Y TEMPORALES
+*.log
+*.tmp
+temp
+backups/
+
+# ASSETS COMPILADOS
+/public/build
+/public/hot
+/public/storage
+
+# SECURITY
+.secrets
+private_key*
+*.pem
+*.key
