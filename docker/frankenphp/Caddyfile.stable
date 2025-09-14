@@ -1,0 +1,131 @@
+# Caddyfile para FrankenPHP como Frontend + Proxy
+# Sirve assets estáticos y reenvía peticiones dinámicas a PHP-FPM
+
+{
+    auto_https off
+    admin off
+    log {
+        output stdout
+        format console
+    }
+}
+
+:80 {
+    root * /app/public
+
+    # ==========================================
+    # ASSETS ESTÁTICOS (servidos directamente)
+    # ==========================================
+    @static path *.css *.js *.ico *.png *.jpg *.jpeg *.gif *.webp *.svg *.woff *.woff2 *.ttf *.eot *.pdf *.zip
+    handle @static {
+        header Cache-Control "public, max-age=31536000, immutable"
+        file_server {
+            precompressed gzip br
+        }
+    }
+
+    # ==========================================
+    # DIRECTORIO BUILD (Vite assets)
+    # ==========================================
+    handle /build/* {
+        header Cache-Control "public, max-age=31536000, immutable"
+        file_server
+    }
+
+    # ==========================================
+    # ASSETS DE STORAGE
+    # ==========================================
+    handle /storage/* {
+        header Cache-Control "public, max-age=86400"
+        file_server
+    }
+
+    # ==========================================
+    # LIVEWIRE ASSETS
+    # ==========================================
+    handle /livewire/* {
+        header Cache-Control "public, max-age=86400"
+        php_fastcgi php:9000 {
+            root /var/www/html/public
+            index index.php
+            split .php
+            try_files {path} {path}/ /index.php?{query}
+        }
+    }
+
+    # ==========================================
+    # FILAMENT ASSETS
+    # ==========================================
+    @filament_assets {
+        path /css/filament/* /js/filament/* /fonts/filament/*
+    }
+    handle @filament_assets {
+        header Cache-Control "public, max-age=86400"
+        file_server
+    }
+
+    # ==========================================
+    # API ROUTES (siempre al backend)
+    # ==========================================
+    @api path /api/*
+    handle @api {
+        php_fastcgi php:9000 {
+            root /var/www/html/public
+            index index.php
+            split .php
+            try_files {path} {path}/ /index.php?{query}
+        }
+    }
+
+    # ==========================================
+    # ADMIN PANEL (siempre al backend)
+    # ==========================================
+    @admin path /admin*
+    handle @admin {
+        php_fastcgi php:9000 {
+            root /var/www/html/public
+            index index.php
+            split .php
+            try_files {path} {path}/ /index.php?{query}
+        }
+    }
+
+    # ==========================================
+    # HEALTH CHECK
+    # ==========================================
+    handle /health {
+        respond "OK" 200
+    }
+
+    # ==========================================
+    # TODAS LAS DEMÁS RUTAS (Laravel)
+    # ==========================================
+    handle {
+        # Intentar servir archivo estático primero
+        try_files {path} {path}/
+
+        # Si no existe, enviar al backend PHP-FPM
+        php_fastcgi php:9000 {
+            root /var/www/html/public
+            index index.php
+            split .php
+            try_files {path} {path}/ /index.php?{query}
+        }
+    }
+
+    # Logs de acceso
+    log {
+        output stdout
+        format console
+    }
+
+    # Headers de seguridad
+    header {
+        X-Frame-Options "SAMEORIGIN"
+        X-Content-Type-Options "nosniff"
+        X-XSS-Protection "1; mode=block"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+        -X-Powered-By
+    }
+}
