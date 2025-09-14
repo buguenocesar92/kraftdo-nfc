@@ -1,0 +1,56 @@
+# Dockerfile Simple usando imagen con extensiones pre-instaladas
+FROM webdevops/php-nginx:8.3-alpine
+
+# Cambiar al usuario root para configurar
+USER root
+
+# Instalar dependencias adicionales si es necesario
+RUN apk add --no-cache sqlite netcat-openbsd
+
+# Configurar directorio de trabajo
+WORKDIR /app
+
+# Copiar composer files y instalar dependencias (incluir dev para debugbar)
+COPY composer.json composer.lock ./
+RUN composer install --optimize-autoloader --no-scripts --no-interaction
+
+# Copiar código fuente
+COPY --chown=application:application . .
+
+# Copiar archivo .env para Docker
+COPY .env.docker .env
+
+# Ejecutar scripts post-install
+RUN composer run-script post-autoload-dump
+
+# Crear base de datos SQLite
+RUN touch database/database.sqlite \
+    && chown application:application database/database.sqlite
+
+# Configurar permisos
+RUN mkdir -p storage/framework/{cache,sessions,testing,views} \
+    storage/logs bootstrap/cache \
+    && chown -R application:application storage bootstrap/cache \
+    && chmod -R 775 storage bootstrap/cache storage/logs
+
+
+# Variables de entorno
+ENV APP_ENV=local \
+    APP_DEBUG=true \
+    DB_CONNECTION=sqlite \
+    DB_DATABASE=/app/database/database.sqlite \
+    WEB_DOCUMENT_ROOT=/app/public
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
+
+# Script de inicio personalizado
+COPY docker/entrypoint-simple.sh /entrypoint-custom.sh
+RUN chmod +x /entrypoint-custom.sh
+
+# Exponer puerto
+EXPOSE 80
+
+# Usar nuestro entrypoint personalizado
+ENTRYPOINT ["/entrypoint-custom.sh"]
