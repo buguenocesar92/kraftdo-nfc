@@ -28,7 +28,7 @@ RUN usermod -u 1000 application && groupmod -g 1000 application
 
 # Copiar composer files y instalar dependencias
 COPY composer.json composer.lock ./
-RUN composer install --optimize-autoloader --no-scripts --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --ignore-platform-reqs
 
 # Copiar código fuente
 COPY --chown=application:application . .
