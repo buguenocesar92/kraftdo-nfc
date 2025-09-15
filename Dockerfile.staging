@@ -23,9 +23,9 @@ RUN echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/99-custom.ini && \
 # Configurar directorio de trabajo
 WORKDIR /var/www/html
 
-# Configurar usuario (usar www-data como frankenphp)
-RUN usermod -u 33 application && groupmod -g 33 application
-RUN usermod -l www-data application && groupmod -n www-data application
+# Configurar usuario www-data con UID/GID 33 (mismo que frankenphp)
+RUN addgroup -g 33 www-data 2>/dev/null || true
+RUN adduser -u 33 -G www-data -s /bin/sh -D www-data 2>/dev/null || true
 
 # Copiar composer files y instalar dependencias
 COPY composer.json composer.lock ./
@@ -50,7 +50,8 @@ RUN mkdir -p storage/framework/{cache,sessions,testing,views} \
 # Variables de entorno para staging
 ENV APP_ENV=staging \
     APP_DEBUG=true \
-    WEB_DOCUMENT_ROOT=/var/www/html/public
+    WEB_DOCUMENT_ROOT=/var/www/html/public \
+    CONTAINER_UID=www-data
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
