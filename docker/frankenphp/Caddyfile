@@ -33,12 +33,19 @@
     }
 
     # ==========================================
-    # STORAGE PÚBLICO
+    # STORAGE PÚBLICO (proxy a PHP-FPM)
     # ==========================================
     handle /storage/* {
-        header Cache-Control "public, max-age=86400"
-        header X-Served-By "FrankenPHP-Storage"
-        file_server
+        header Cache-Control "no-cache, no-store, must-revalidate"
+        header Pragma "no-cache"
+        header Expires "0"
+        header X-Served-By "PHP-FPM-Storage"
+        reverse_proxy php-fpm:80 {
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+        }
     }
 
     # ==========================================

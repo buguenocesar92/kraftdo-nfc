@@ -114,6 +114,9 @@ RUN mkdir -p \
     && chmod 664 database/database.sqlite \
     && chown -R www-data:www-data storage bootstrap/cache database
 
+# Crear enlace simbólico de storage correctamente para FrankenPHP
+RUN ln -sf /app/storage/app/public /app/public/storage
+
 # Copiar configuración de FrankenPHP
 COPY docker/frankenphp/Caddyfile /etc/caddy/Caddyfile
 
