@@ -20,7 +20,8 @@ RUN apk add --no-cache \
 # incluyendo pdo_mysql, redis, sockets, etc.
 
 # Instalar PCOV para code coverage (más ligero que Xdebug)
-RUN pecl install pcov && \
+RUN pecl channel-update pecl.php.net && \
+    pecl install pcov && \
     echo "extension=pcov.so" > /usr/local/etc/php/conf.d/pcov.ini && \
     echo "pcov.enabled=1" >> /usr/local/etc/php/conf.d/pcov.ini && \
     echo "pcov.directory=/var/www/html" >> /usr/local/etc/php/conf.d/pcov.ini

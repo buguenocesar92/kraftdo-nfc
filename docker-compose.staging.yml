@@ -10,7 +10,7 @@ services:
   php-fpm:
     build:
       context: .
-      dockerfile: Dockerfile.phpfpm
+      dockerfile: Dockerfile.staging
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc-staging}-php-fpm
     restart: unless-stopped
     volumes:
@@ -120,7 +120,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile.phpfpm
+      dockerfile: Dockerfile.staging
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc-staging}-worker
     restart: unless-stopped
     extra_hosts:
