@@ -79,6 +79,11 @@ services:
       - SERVER_NAME=${SERVER_NAME:-:80}
       - CADDY_GLOBAL_OPTIONS=${CADDY_GLOBAL_OPTIONS:-}
     command: ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # ==========================================
   # REDIS (Cache y Sesiones)
