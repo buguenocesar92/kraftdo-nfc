@@ -131,14 +131,17 @@
     # TODAS LAS DEMÁS RUTAS (proxy a PHP-FPM)
     # ==========================================
     handle {
-        # Primero intentar servir archivo estático
-        @file file {path}
+        # Primero intentar servir archivo estático (EXCLUYENDO .php)
+        @file {
+            file {path}
+            not path *.php
+        }
         handle @file {
             header X-Served-By "FrankenPHP-File"
             file_server
         }
 
-        # Si no es archivo estático, enviar a PHP-FPM
+        # Todas las rutas dinámicas y archivos .php van a PHP-FPM
         header X-Served-By "PHP-FPM-Laravel" 
         reverse_proxy php-fpm:80 {
             header_up Host {host}
