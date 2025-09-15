@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/kraftdo/kraftdo-nfc/branch/main/graph/badge.svg)](https://codecov.io/gh/kraftdo/kraftdo-nfc)
 [![Laravel](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.3+-blue.svg)](https://php.net)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
 
 > **Plataforma moderna de contenido dinámico NFC construida con Laravel 11, Filament 3, y FrankenPHP para máximo rendimiento.**
 

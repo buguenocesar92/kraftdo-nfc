@@ -1,10 +1,10 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
-    "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
-    "keywords": ["laravel", "framework"],
-    "license": "MIT",
+    "name": "kraftdo/kraftdo-nfc",
+    "type": "project", 
+    "description": "KraftDo NFC - Plataforma de contenido dinámico NFC (Proprietary Software)",
+    "keywords": ["nfc", "laravel", "filament", "livewire", "kraftdo"],
+    "license": "proprietary",
     "require": {
         "php": "^8.2",
         "filament/filament": "^4.0",

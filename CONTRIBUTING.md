@@ -358,9 +358,17 @@ Los contribuidores aparecen en:
 - 🐛 **GitHub Issues**: Para bugs específicos
 - 📧 **Email**: dev@kraftdo.cl para consultas privadas
 
-## 📄 **Licencia**
+## 📄 **Licencia y Propiedad Intelectual**
 
-Al contribuir, aceptas que tus contribuciones se licencien bajo la misma [licencia MIT](LICENSE) que el proyecto.
+Al contribuir a este proyecto, reconoces y aceptas que:
+
+1. **Propiedad**: Este es un proyecto propietario de **KraftDo SpA**
+2. **Confidencialidad**: Todo el código es confidencial y propietario
+3. **Derechos**: Todas las contribuciones pasan a ser propiedad de KraftDo SpA
+4. **Autorización**: Solo empleados, contratistas y socios autorizados pueden contribuir
+5. **NDA**: Es posible que se requiera un acuerdo de confidencialidad (NDA)
+
+Para más información sobre licencias y permisos, contacta: legal@kraftdo.cl
 
 ---
 

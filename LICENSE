@@ -1,21 +1,55 @@
-MIT License
+KRAFTDO NFC - PROPRIETARY SOFTWARE LICENSE
 
-Copyright (c) 2024 KraftDo
+Copyright (c) 2025 KraftDo SpA. All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+PROPRIETARY AND CONFIDENTIAL
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This software and associated documentation files (the "Software") are proprietary 
+to KraftDo SpA and are protected by copyright, trade secret, and other intellectual 
+property laws.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+RESTRICTIONS:
+
+1. NO DISTRIBUTION: The Software may not be copied, distributed, transmitted, 
+   displayed, performed, reproduced, published, licensed, modified, reverse 
+   engineered, or created derivative works from, in whole or in part, without 
+   the express written consent of KraftDo SpA.
+
+2. NO MODIFICATION: The Software may not be modified, adapted, altered, 
+   translated, or create derivative works from, in whole or in part, without 
+   the express written consent of KraftDo SpA.
+
+3. NO REVERSE ENGINEERING: The Software may not be reverse engineered, 
+   disassembled, decompiled, or otherwise reduced to human-perceivable form.
+
+4. AUTHORIZED USE ONLY: The Software is licensed only for use by authorized 
+   employees, contractors, and partners of KraftDo SpA for business purposes 
+   related to KraftDo NFC platform development and operation.
+
+5. CONFIDENTIALITY: The Software contains confidential and proprietary 
+   information of KraftDo SpA. Any person having access to the Software 
+   agrees to maintain its confidentiality.
+
+TERMINATION:
+This license is effective until terminated. KraftDo SpA may terminate this 
+license at any time. Upon termination, all rights to use the Software cease 
+immediately.
+
+DISCLAIMER:
+THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND. KRAFTDO SPA 
+DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO 
+THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND 
+NON-INFRINGEMENT.
+
+LIMITATION OF LIABILITY:
+IN NO EVENT SHALL KRAFTDO SPA BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, 
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR 
+INABILITY TO USE THE SOFTWARE.
+
+For licensing inquiries or permissions, contact:
+KraftDo SpA
+Email: legal@kraftdo.cl
+Website: https://kraftdo.cl
+
+UNAUTHORIZED USE, REPRODUCTION, OR DISTRIBUTION OF THIS SOFTWARE IS STRICTLY 
+PROHIBITED AND MAY RESULT IN SEVERE CIVIL AND CRIMINAL PENALTIES.

@@ -33,7 +33,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - 🔐 Secrets management mejorado
 - 🔍 Dependency scanning habilitado
 
-## [1.0.0] - 2024-12-15
+## [1.0.0] - 2025-01-15
 
 ### Added
 - 🏷️ Sistema completo de gestión de tokens NFC
