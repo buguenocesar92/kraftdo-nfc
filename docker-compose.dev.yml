@@ -69,7 +69,7 @@ services:
       - "${APP_PORT:-8080}:80"
     volumes:
       - .:/app:ro  # Solo lectura para assets
-      - ./storage/app/public:/app/storage/app/public:ro  # Storage files read-only
+      - ./storage:/app/storage:ro  # Storage completo read-only para proxy
       - ./docker/frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
     networks:
       - laravel-dev

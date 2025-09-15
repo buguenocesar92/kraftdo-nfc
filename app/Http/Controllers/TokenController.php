@@ -6,57 +6,51 @@ use App\Models\NfcToken;
 use App\Models\ContentGift;
 use App\Models\ContentProfile;
 use App\Models\ContentMultimedia;
+use App\Models\NfcAnalytic;
 use App\Helpers\ThemeHelper;
+use App\Services\NfcCacheService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class TokenController extends Controller
 {
     public function show(Request $request, $tokenId)
     {
-        // Buscar el token por su token_id (UUID)
-        $token = NfcToken::where('token_id', $tokenId)->first();
+        // 🚀 OPTIMIZACIÓN: Cache completo del token y contenido
+        $cachedData = NfcCacheService::getTokenWithContent($tokenId);
         
-        if (!$token) {
+        if (!$cachedData) {
             abort(404, 'Token no encontrado');
         }
 
-        // Manejamos tokens de tipo GIFT y PROFILE
+        $token = $cachedData['token'];
+        $dynamicContent = $cachedData['dynamicContent'];
+        $content = $cachedData['content'];
+
+        // Validaciones rápidas en memoria
         if (!in_array($token->content_type, ['GIFT', 'PROFILE'])) {
             abort(404, 'Tipo de contenido no disponible');
         }
 
-        // Verificar que el token esté activo
         if (!$token->is_active) {
             return view('token.inactive', compact('token'));
         }
 
-        // Obtener el contenido dinámico
-        $dynamicContent = $token->dynamicContent;
-        if (!$dynamicContent) {
-            abort(404, 'Contenido no encontrado');
-        }
+        // 📊 REGISTRO DE ANALYTICS (asíncrono en background)
+        $this->recordAnalyticsAsync($dynamicContent->content_id, $token->content_type, $token->id);
 
+        // Preparar datos según tipo de contenido
         if ($token->content_type === 'GIFT') {
-            // Obtener el contenido del regalo
-            $contentGift = ContentGift::where('dynamic_content_id', $dynamicContent->id)->first();
-            
-            // Obtener contenido multimedia si existe
-            $contentMultimedia = ContentMultimedia::where('dynamic_content_id', $dynamicContent->id)->first();
-            
-            // Obtener imágenes de galería si existen
-            $galleryImages = [];
-            if ($contentMultimedia) {
-                $galleryImages = $contentMultimedia->galleryImages()
-                    ->orderBy('sort_order')
-                    ->orderBy('id')
-                    ->get();
-            }
+            $contentGift = $content['gift'];
+            $contentMultimedia = $content['multimedia'];
+            $galleryImages = $contentMultimedia?->galleryImages ?? collect();
 
-            // Obtener el tema configurado
-            $theme = $contentMultimedia ? ($contentMultimedia->settings['theme'] ?? 'love') : 'love';
-            $themeConfig = ThemeHelper::getThemeConfig($theme);
+            // 🎨 Cache del tema
+            $theme = $contentMultimedia?->settings['theme'] ?? 'love';
+            $themeConfig = Cache::remember("theme_config:{$theme}", 3600, function() use ($theme) {
+                return ThemeHelper::getThemeConfig($theme);
+            });
 
-            // Datos para la vista
             $data = [
                 'token' => $token,
                 'dynamicContent' => $dynamicContent,
@@ -69,30 +63,11 @@ class TokenController extends Controller
             return view('token.gift', $data);
             
         } elseif ($token->content_type === 'PROFILE') {
-            // Obtener el contenido del perfil
-            $contentProfile = ContentProfile::where('dynamic_content_id', $dynamicContent->id)->first();
-            
-            // Obtener contenido multimedia si existe
-            $contentMultimedia = ContentMultimedia::where('dynamic_content_id', $dynamicContent->id)->first();
-            
-            // Obtener imágenes de galería si existen
-            $galleryImages = [];
-            if ($contentMultimedia) {
-                $galleryImages = $contentMultimedia->galleryImages()
-                    ->orderBy('sort_order')
-                    ->orderBy('id')
-                    ->get();
-            }
+            $contentProfile = $content['profile'];
+            $contentMultimedia = $content['multimedia'];
+            $galleryImages = $contentMultimedia?->galleryImages ?? collect();
+            $socialLinks = $contentProfile?->socialLinks ?? collect();
 
-            // Obtener enlaces sociales si existen
-            $socialLinks = [];
-            if ($contentProfile) {
-                $socialLinks = $contentProfile->socialLinks()
-                    ->ordered()
-                    ->get();
-            }
-
-            // Datos para la vista
             $data = [
                 'token' => $token,
                 'dynamicContent' => $dynamicContent,
@@ -103,6 +78,26 @@ class TokenController extends Controller
             ];
 
             return view('token.profile', $data);
+        }
+    }
+
+    /**
+     * 📊 Registro asíncrono de analytics para no impactar performance
+     */
+    private function recordAnalyticsAsync(string $contentId, string $contentType, int $tokenId): void
+    {
+        // En entorno de producción, esto debería ser una cola/job
+        try {
+            NfcAnalytic::recordAccess($contentId, $contentType, $tokenId);
+            
+            // Invalidar cache de analytics después del registro
+            NfcCacheService::invalidateAnalyticsCache($contentId);
+        } catch (\Exception $e) {
+            // Log error pero no interrumpir la respuesta
+            \Log::warning('Analytics recording failed', [
+                'content_id' => $contentId,
+                'error' => $e->getMessage()
+            ]);
         }
     }
 
