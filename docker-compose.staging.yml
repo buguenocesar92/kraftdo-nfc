@@ -43,7 +43,7 @@ services:
       - SESSION_SAME_SITE=${SESSION_SAME_SITE:-lax}
       # Redis
       - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
       - SESSION_DRIVER=${SESSION_DRIVER:-redis}
       # Performance
@@ -100,7 +100,6 @@ services:
     command: >
       redis-server
       --appendonly yes
-      --requirepass "${REDIS_PASSWORD}"
       --maxmemory ${REDIS_MAX_MEMORY:-512mb}
       --maxmemory-policy allkeys-lru
     volumes:
@@ -110,7 +109,7 @@ services:
     networks:
       - laravel-staging
     healthcheck:
-      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -138,7 +137,7 @@ services:
       - DB_USERNAME=${DB_USERNAME:?DB_USERNAME must be set}
       - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set}
       - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
       - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
       - QUEUE_WORKER=true
