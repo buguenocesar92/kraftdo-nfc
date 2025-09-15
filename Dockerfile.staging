@@ -23,27 +23,28 @@ RUN echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/99-custom.ini && \
 # Configurar directorio de trabajo
 WORKDIR /var/www/html
 
-# Configurar usuario
-RUN usermod -u 1000 application && groupmod -g 1000 application
+# Configurar usuario (usar www-data como frankenphp)
+RUN usermod -u 33 application && groupmod -g 33 application
+RUN usermod -l www-data application && groupmod -n www-data application
 
 # Copiar composer files y instalar dependencias
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --ignore-platform-reqs
 
 # Copiar código fuente
-COPY --chown=application:application . .
+COPY --chown=www-data:www-data . .
 
 # Ejecutar scripts post-install
 RUN composer run-script post-autoload-dump
 
 # Crear base de datos SQLite como backup
 RUN touch database/database.sqlite && \
-    chown application:application database/database.sqlite
+    chown www-data:www-data database/database.sqlite
 
 # Configurar permisos
 RUN mkdir -p storage/framework/{cache,sessions,testing,views} \
     storage/logs bootstrap/cache && \
-    chown -R application:application storage bootstrap/cache && \
+    chown -R www-data:www-data storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache storage/logs
 
 # Variables de entorno para staging
