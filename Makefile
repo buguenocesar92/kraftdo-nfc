@@ -4,14 +4,15 @@
 # Variables configurables
 DOCKER_COMPOSE = docker compose
 DOCKER_COMPOSE_DEV = docker compose -f docker-compose.dev.yml
+DOCKER_COMPOSE_STAGING = docker compose -f docker-compose.staging.yml
 DOCKER_COMPOSE_PROD = docker compose -f docker-compose.prod.yml
 DOCKER_COMPOSE_HYBRID = docker compose -f docker-compose.hybrid.yml
 COMPOSE_PROJECT_NAME ?= kraftdo-nfc
 ENV_FILE ?= .env
 
 # Detectar entorno automáticamente
-CURRENT_ENV := $(shell if docker ps | grep -q "kraftdo-nfc-dev-php-fpm"; then echo "dev"; elif docker ps | grep -q "kraftdo-nfc-prod-php-fpm"; then echo "prod"; else echo "hybrid"; fi)
-ACTIVE_COMPOSE := $(if $(filter dev,$(CURRENT_ENV)),$(DOCKER_COMPOSE_DEV),$(if $(filter prod,$(CURRENT_ENV)),$(DOCKER_COMPOSE_PROD),$(DOCKER_COMPOSE_HYBRID)))
+CURRENT_ENV := $(shell if docker ps | grep -q "kraftdo-nfc-dev-php-fpm"; then echo "dev"; elif docker ps | grep -q "kraftdo-nfc-staging-php-fpm"; then echo "staging"; elif docker ps | grep -q "kraftdo-nfc-prod-php-fpm"; then echo "prod"; else echo "hybrid"; fi)
+ACTIVE_COMPOSE := $(if $(filter dev,$(CURRENT_ENV)),$(DOCKER_COMPOSE_DEV),$(if $(filter staging,$(CURRENT_ENV)),$(DOCKER_COMPOSE_STAGING),$(if $(filter prod,$(CURRENT_ENV)),$(DOCKER_COMPOSE_PROD),$(DOCKER_COMPOSE_HYBRID))))
 SERVICE_NAME := $(if $(filter hybrid,$(CURRENT_ENV)),app,php-fpm)
 
 # Colores para output
@@ -99,6 +100,14 @@ dev-build-optimized: ## 🔥 Build desarrollo con optimizaciones
 	@echo "$(BLUE)🔥 Build optimizado para desarrollo...$(RESET)"
 	$(DOCKER_COMPOSE_DEV) build --parallel --no-cache
 	@echo "$(GREEN)✅ Build optimizado completado$(RESET)"
+
+.PHONY: staging
+staging: ## 🔄 Staging con optimizaciones
+	@echo "$(YELLOW)🔄 Iniciando staging OPTIMIZADO...$(RESET)"
+	$(DOCKER_COMPOSE_STAGING) up -d
+	@sleep 5
+	$(MAKE) cache-clear
+	@echo "$(GREEN)✅ Staging optimizado en puerto 8084$(RESET)"
 
 .PHONY: prod
 prod: prod-pre-flight prod-optimize ## 🏭 Producción con optimizaciones completas
@@ -465,6 +474,7 @@ rollback: ## 🔄 Rollback rápido
 clean-all: ## 🧹 Limpieza completa del sistema
 	@echo "$(YELLOW)🧹 Limpieza completa...$(RESET)"
 	$(DOCKER_COMPOSE_DEV) down -v --remove-orphans 2>/dev/null || true
+	$(DOCKER_COMPOSE_STAGING) down -v --remove-orphans 2>/dev/null || true
 	$(DOCKER_COMPOSE_PROD) down -v --remove-orphans 2>/dev/null || true
 	$(DOCKER_COMPOSE_HYBRID) down -v --remove-orphans 2>/dev/null || true
 	docker system prune -af --volumes
@@ -521,6 +531,7 @@ down: ## 🛑 Parar todos los contenedores
 	@echo "$(YELLOW)🛑 Parando todos los contenedores...$(RESET)"
 	$(DOCKER_COMPOSE_HYBRID) down 2>/dev/null || true
 	$(DOCKER_COMPOSE_DEV) down 2>/dev/null || true
+	$(DOCKER_COMPOSE_STAGING) down 2>/dev/null || true
 	$(DOCKER_COMPOSE_PROD) down 2>/dev/null || true
 	@echo "$(GREEN)✅ Contenedores parados$(RESET)"
 
