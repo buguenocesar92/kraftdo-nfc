@@ -101,6 +101,7 @@ RUN mkdir -p \
     bootstrap/cache \
     database \
     && chmod -R 775 storage bootstrap/cache \
+    && chmod -R 777 storage/framework/views storage/framework/cache storage/framework/sessions \
     && touch database/database.sqlite \
     && chmod 664 database/database.sqlite \
     && chown -R www-data:www-data storage bootstrap/cache database

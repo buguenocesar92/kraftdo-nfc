@@ -70,6 +70,10 @@ log "🔐 Configurando permisos..."
 chmod -R 775 storage bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache
 
+# Asegurar permisos específicos para directorios críticos
+chmod -R 775 storage/framework/views storage/framework/cache storage/framework/sessions
+chown -R www-data:www-data storage/framework/views storage/framework/cache storage/framework/sessions
+
 # Configurar base de datos SQLite si es necesario
 if [ "${DB_CONNECTION:-sqlite}" = "sqlite" ]; then
     if [ ! -f "database/database.sqlite" ]; then
