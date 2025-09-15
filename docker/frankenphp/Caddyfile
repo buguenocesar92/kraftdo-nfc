@@ -128,6 +128,19 @@
     }
 
     # ==========================================
+    # RUTA RAÍZ (siempre a PHP-FPM)
+    # ==========================================
+    handle / {
+        header X-Served-By "PHP-FPM-Root"
+        reverse_proxy php-fpm:80 {
+            header_up Host {host}
+            header_up X-Real-IP {remote}
+            header_up X-Forwarded-For {remote}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # ==========================================
     # TODAS LAS DEMÁS RUTAS (proxy a PHP-FPM)
     # ==========================================
     handle {
