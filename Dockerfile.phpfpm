@@ -1,5 +1,5 @@
 # Dockerfile para PHP-FPM usando configuraciones existentes
-FROM webdevops/php-nginx:8.3-alpine
+FROM webdevops/php-nginx:8.4-alpine
 
 # Cambiar al usuario root para configurar
 USER root
