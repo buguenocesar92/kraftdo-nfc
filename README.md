@@ -136,21 +136,40 @@ OCTANE_WORKERS=auto
 - ✅ **Role-based Access**: Sistema de permisos
 - ✅ **Mobile Optimized**: Responsive design
 
+## 📚 **Documentación Completa**
+
+Para información detallada sobre desarrollo, deployment y contribución:
+
+- 📖 **[Índice de Documentación](./docs/INDEX.md)** - Centro completo de documentación
+- 🚀 **[Flujo de Desarrollo](./docs/README-DESARROLLO.md)** - Workflow completo y comandos
+- 🤝 **[Guía de Contribución](./docs/CONTRIBUTING.md)** - Estándares y proceso de PRs
+- 🏭 **[Deployment en Producción](./docs/DEPLOYMENT.md)** - Setup y deployment al VPS
+- 🔒 **[Política de Seguridad](./docs/SECURITY.md)** - Reporte de vulnerabilidades
+- 📋 **[Historial de Cambios](./docs/CHANGELOG.md)** - Releases y versiones
+
 ## 🤝 **Contribuir**
 
-1. Fork el proyecto
-2. Crea tu feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit cambios (`git commit -m 'Add amazing feature'`)
-4. Push al branch (`git push origin feature/amazing-feature`)
-5. Abre un Pull Request
+1. Lee la **[Guía de Contribución](./docs/CONTRIBUTING.md)**
+2. Revisa el **[Flujo de Desarrollo](./docs/README-DESARROLLO.md)**
+3. Crea tu feature branch (`git checkout -b feature/amazing-feature`)
+4. Ejecuta `make quality-check` antes del commit
+5. Commit con formato estándar (`git commit -m 'feat: amazing new feature'`)
+6. Push y crea Pull Request usando el template
 
-## 📄 **Licencia**
+## 📄 **Licencia y Propiedad**
 
-Este proyecto es propiedad de KraftDo.
+Este proyecto es **software propietario** de **KraftDo SpA**.
+- **Copyright**: © 2025 KraftDo SpA. Todos los derechos reservados.
+- **Licencia**: Propietaria - Ver [LICENSE](LICENSE) para detalles completos
+- **Uso autorizado**: Solo empleados, contratistas y socios de KraftDo
 
 ## 🆘 **Soporte**
 
-Para problemas técnicos o preguntas, consulta la [documentación](./docs/) o contacta al equipo de desarrollo.
+- 📖 **Documentación**: [./docs/INDEX.md](./docs/INDEX.md)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/kraftdo/kraftdo-nfc/issues)
+- 💬 **Discusiones**: [GitHub Discussions](https://github.com/kraftdo/kraftdo-nfc/discussions)
+- 📧 **Email**: dev@kraftdo.cl
+- 🔒 **Seguridad**: security@kraftdo.cl
 
 ---
 

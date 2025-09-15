@@ -5,11 +5,11 @@ contact_links:
     about: Para preguntas generales, ideas o discusiones sobre KraftDo NFC
 
   - name: 📚 Documentación
-    url: https://github.com/kraftdo/kraftdo-nfc/blob/main/DEPLOYMENT.md
+    url: https://github.com/kraftdo/kraftdo-nfc/blob/main/docs/INDEX.md
     about: Revisa la documentación completa antes de reportar problemas
 
   - name: 🔒 Reporte de Seguridad
-    url: https://github.com/kraftdo/kraftdo-nfc/blob/main/SECURITY.md
+    url: https://github.com/kraftdo/kraftdo-nfc/blob/main/docs/SECURITY.md
     about: Para reportar vulnerabilidades de seguridad (privado)
 
   - name: 📧 Soporte Comercial
