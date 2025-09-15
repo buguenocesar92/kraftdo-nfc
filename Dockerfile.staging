@@ -56,7 +56,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost/health || exit 1
 
 # Script de inicio personalizado
-COPY docker/entrypoint-simple.sh /entrypoint-staging.sh
+COPY docker/entrypoint-hybrid.sh /entrypoint-staging.sh
 RUN chmod +x /entrypoint-staging.sh
 
 # Exponer puerto 9000 para PHP-FPM
