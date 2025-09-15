@@ -9,7 +9,7 @@
 }
 
 :80 {
-    root * /app/public
+    root * /var/www/html/public
 
     # ==========================================
     # STORAGE PÚBLICO (proxy a PHP-FPM) - PRIORIDAD ALTA
