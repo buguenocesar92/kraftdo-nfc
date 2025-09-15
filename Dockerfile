@@ -11,11 +11,19 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalar solo extensiones PHP que falten (la imagen base ya tiene muchas)
+# Instalar extensiones PHP necesarias
 RUN install-php-extensions \
+    pdo_mysql \
+    pdo_sqlite \
+    gd \
+    zip \
+    intl \
+    sockets \
     redis \
     bcmath \
-    pcntl
+    pcntl \
+    opcache \
+    exif
 
 # Configurar PHP para Octane
 RUN echo "memory_limit=512M" >> /usr/local/etc/php/php.ini && \
