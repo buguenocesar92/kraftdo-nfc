@@ -11,23 +11,29 @@ services:
     container_name: nfc-app
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-80}:80"
-      - "${APP_HTTPS_PORT:-443}:443"
+      - "8080:80"
+      - "8443:443"
     environment:
       # App Config
-      - APP_NAME=${APP_NAME:-KraftDo NFC}
-      - APP_ENV=${APP_ENV:-production}
-      - APP_KEY=${APP_KEY:?error}
-      - APP_DEBUG=${APP_DEBUG:-false}
-      - APP_URL=${APP_URL:-https://localhost}
-      
-      # Database
-      - DB_CONNECTION=${DB_CONNECTION:-mysql}
-      - DB_HOST=mysql
+      - APP_NAME=KraftDo NFC
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=base64:IPi0+QH97dbiFpJ8k6ek8LKk2c8aXYvRu5kSrEtyp2o=
+      - APP_URL=http://localhost:8080
+      - ASSET_URL=http://localhost:8080
+      - LIVEWIRE_ASSET_URL=http://localhost:8080
+      # Database Externa
+      - DB_CONNECTION=mysql
+      - DB_HOST=192.168.100.20
       - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE:-kraftdo_nfc}
-      - DB_USERNAME=${DB_USERNAME:-kraftdo}
-      - DB_PASSWORD=${DB_PASSWORD:?error}
+      - DB_DATABASE=kraftdo
+      - DB_USERNAME=docker
+      - DB_PASSWORD=Hero2025.
+      - DB_SSLMODE=DISABLED
+      # Session config para Docker
+      - SESSION_DOMAIN=localhost
+      - SESSION_SECURE_COOKIE=false
+      - SESSION_SAME_SITE=lax
       
       # Redis
       - REDIS_HOST=redis

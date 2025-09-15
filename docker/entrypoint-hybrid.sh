@@ -79,5 +79,6 @@ echo "✅ PHP-FPM configurado correctamente"
 echo "🌐 Escuchando en puerto 9000 para peticiones FastCGI"
 echo "🌍 También sirviendo HTTP en puerto 80 para debugging"
 
-# Iniciar supervisor (incluye PHP-FPM y nginx)
-exec /opt/docker/bin/entrypoint.sh supervisord
+# Ejecutar el entrypoint original de webdevops pero sin supervisor
+echo "🚀 Iniciando servicios con webdevops entrypoint..."
+exec /entrypoint supervisord -n

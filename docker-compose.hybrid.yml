@@ -22,6 +22,8 @@ services:
       - APP_DEBUG=true
       - APP_KEY=${APP_KEY:-base64:IPi0+QH97dbiFpJ8k6ek8LKk2c8aXYvRu5kSrEtyp2o=}
       - APP_URL=http://localhost:8080
+      - ASSET_URL=http://localhost:8080
+      - LIVEWIRE_ASSET_URL=http://localhost:8080
       # Database Externa (usar tus credenciales)
       - DB_CONNECTION=mysql
       - DB_HOST=192.168.100.20

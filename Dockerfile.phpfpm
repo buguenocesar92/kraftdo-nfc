@@ -59,8 +59,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 COPY docker/entrypoint-hybrid.sh /entrypoint-custom.sh
 RUN chmod +x /entrypoint-custom.sh
 
-# Cambiar al usuario de aplicación
-USER application
+# Mantenerse como root para poder ejecutar nginx y php-fpm
+# USER application
 
 # Exponer puerto 9000 para PHP-FPM
 EXPOSE 9000 80
