@@ -20,8 +20,8 @@
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.16",
         "fakerphp/faker": "^1.23",
-        "friendsofphp/php-cs-fixer": "^3.64",
-        "larastan/larastan": "^2.0",
+        "friendsofphp/php-cs-fixer": "^3.87",
+        "larastan/larastan": "^3.7",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.18",
         "laravel/sail": "^1.41",
@@ -29,7 +29,7 @@
         "nunomaduro/collision": "^8.6",
         "pestphp/pest": "^4.0",
         "pestphp/pest-plugin-laravel": "^4.0",
-        "phpstan/phpstan": "^1.10"
+        "phpstan/phpstan": "^2.1"
     },
     "autoload": {
         "psr-4": {
