@@ -74,7 +74,7 @@ RUN composer install \
 # ==========================================
 # STAGE PARA ASSETS NODE.JS
 # ==========================================
-FROM node:20-alpine AS node-build
+FROM node:24-alpine AS node-build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
