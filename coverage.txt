@@ -1,12 +1,12 @@
 
 
 Code Coverage Report:
-  2025-09-15 06:59:30
+  2025-09-15 07:16:00
 
  Summary:
-  Classes:  2.78% (3/108)
-  Methods: 15.47% (73/472)
-  Lines:    9.75% (484/4966)
+  Classes:  4.63% (5/108)
+  Methods: 16.31% (77/472)
+  Lines:   10.17% (505/4966)
 
 App\Filament\Resources\ContentEvents\ContentEventResource
   Methods:  16.67% ( 2/12)   Lines:  42.11% (  8/ 19)
@@ -32,6 +32,10 @@ App\Filament\Resources\Roles\RoleResource
   Methods:  15.38% ( 2/13)   Lines:  40.00% (  8/ 20)
 App\Filament\Resources\Users\UserResource
   Methods:  15.38% ( 2/13)   Lines:  40.00% (  8/ 20)
+App\Http\Middleware\CheckAdminPermission
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% (  5/  5)
+App\Http\Middleware\TokenOwnershipMiddleware
+  Methods: 100.00% ( 1/ 1)   Lines: 100.00% ( 14/ 14)
 App\Models\DynamicContent
   Methods:   4.17% ( 2/48)   Lines:   1.71% (  4/234)
 App\Models\NfcAnalytic
@@ -39,7 +43,7 @@ App\Models\NfcAnalytic
 App\Models\NfcToken
   Methods:  76.92% (20/26)   Lines:  93.24% (138/148)
 App\Models\User
-  Methods:  25.00% ( 1/ 4)   Lines:  36.36% (  4/ 11)
+  Methods:  75.00% ( 3/ 4)   Lines:  54.55% (  6/ 11)
 App\Observers\DynamicContentObserver
   Methods:  50.00% ( 1/ 2)   Lines:  50.00% (  3/  6)
 App\Observers\NfcTokenObserver

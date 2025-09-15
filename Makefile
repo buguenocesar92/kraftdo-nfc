@@ -35,13 +35,16 @@ help: ## 📚 Mostrar ayuda completa
 	@echo "$(CYAN)Entorno actual: $(CURRENT_ENV)$(RESET)"
 	@echo ""
 	@echo "$(BOLD)COMANDOS PRINCIPALES:$(RESET)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "📚|🚀|🛠️|🏭|⚡" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-25s$(RESET) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "📚|🚀|🛠️|⚡" | grep -v "deploy-prod" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-25s$(RESET) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(BOLD)DEPLOYMENT PRODUCCIÓN:$(RESET)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "🏭|deploy-prod" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(RED)%-25s$(RESET) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(BOLD)OPTIMIZACIÓN & PERFORMANCE:$(RESET)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "⚡|🔥|📊|🏎️|💾" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(YELLOW)%-25s$(RESET) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "🔥|📊|🏎️|💾" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(YELLOW)%-25s$(RESET) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(BOLD)BASE DE DATOS:$(RESET)"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "🗄️|📊|💾|🔄" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(MAGENTA)%-25s$(RESET) %s\n", $$1, $$2}'
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "🗄️|🔄" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(MAGENTA)%-25s$(RESET) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(BOLD)UTILIDADES:$(RESET)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "🧹|🏥|🐛|📋|🔍" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(WHITE)%-25s$(RESET) %s\n", $$1, $$2}'
@@ -316,6 +319,86 @@ lint-fix: ## 🔧 Arreglar código automáticamente
 .PHONY: deploy
 deploy: pre-deploy prod-build-optimized prod backup-before-deploy ## 🚀 Deployment completo a producción
 	@echo "$(BOLD)$(GREEN)🚀 Deployment completado exitosamente$(RESET)"
+
+.PHONY: deploy-prod
+deploy-prod: ## 🏭 Deployment automatizado con script optimizado
+	@echo "$(BOLD)$(RED)🏭 Iniciando deployment automatizado a producción...$(RESET)"
+	@if [ ! -f "./deploy-prod.sh" ]; then \
+		echo "$(RED)❌ Script deploy-prod.sh no encontrado$(RESET)"; \
+		exit 1; \
+	fi
+	@chmod +x ./deploy-prod.sh
+	./deploy-prod.sh
+	@echo "$(BOLD)$(GREEN)🎉 Deployment automatizado completado$(RESET)"
+
+.PHONY: deploy-prod-quick
+deploy-prod-quick: ## ⚡ Deployment rápido sin preguntas interactivas
+	@echo "$(BOLD)$(YELLOW)⚡ Deployment rápido a producción...$(RESET)"
+	@if [ ! -f ".env.prod" ]; then \
+		echo "$(RED)❌ Archivo .env.prod no encontrado$(RESET)"; \
+		echo "$(BLUE)💡 Copia .env.prod.example y configúralo$(RESET)"; \
+		exit 1; \
+	fi
+	@echo "$(BLUE)🔍 Verificando prerequisitos...$(RESET)"
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod config > /dev/null
+	@echo "$(BLUE)🏗️ Construyendo imágenes...$(RESET)"
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod build --no-cache
+	@echo "$(BLUE)🚀 Desplegando servicios...$(RESET)"
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod down --remove-orphans
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod up -d
+	@echo "$(BLUE)⚡ Optimizando Laravel...$(RESET)"
+	@sleep 10
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod exec php-fpm php artisan config:cache
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod exec php-fpm php artisan route:cache
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod exec php-fpm php artisan view:cache
+	@echo "$(GREEN)✅ Deployment rápido completado$(RESET)"
+
+.PHONY: deploy-prod-check
+deploy-prod-check: ## 🔍 Verificar deployment de producción
+	@echo "$(BLUE)🔍 Verificando deployment de producción...$(RESET)"
+	@if [ ! -f ".env.prod" ]; then \
+		echo "$(RED)❌ Archivo .env.prod no encontrado$(RESET)"; \
+		exit 1; \
+	fi
+	@source .env.prod && \
+	echo "$(CYAN)Checking services...$(RESET)" && \
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod ps && \
+	echo "" && \
+	echo "$(CYAN)Testing health endpoint...$(RESET)" && \
+	curl -f -s "$${APP_URL:-http://localhost}/health" && echo "  ✅ Health OK" || echo "  ❌ Health failed" && \
+	echo "" && \
+	echo "$(CYAN)Checking Laravel status...$(RESET)" && \
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod exec php-fpm php artisan about --only=environment,cache,queue
+
+.PHONY: deploy-prod-logs
+deploy-prod-logs: ## 📋 Ver logs del deployment de producción
+	@echo "$(BLUE)📋 Logs de producción...$(RESET)"
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod logs -f --tail=50
+
+.PHONY: deploy-prod-shell
+deploy-prod-shell: ## 💻 Acceder al shell de producción
+	@echo "$(BLUE)💻 Accediendo al shell de producción...$(RESET)"
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod exec php-fpm bash
+
+.PHONY: deploy-prod-down
+deploy-prod-down: ## 🛑 Parar deployment de producción
+	@echo "$(YELLOW)🛑 Parando deployment de producción...$(RESET)"
+	$(DOCKER_COMPOSE_PROD) --env-file .env.prod down
+	@echo "$(GREEN)✅ Producción parada$(RESET)"
+
+.PHONY: deploy-prod-backup
+deploy-prod-backup: ## 💾 Backup específico de producción
+	@echo "$(YELLOW)💾 Creando backup de producción...$(RESET)"
+	@mkdir -p backups/prod
+	@TIMESTAMP=$$(date +%Y%m%d-%H%M%S) && \
+	if $(DOCKER_COMPOSE_PROD) --env-file .env.prod ps | grep -q redis; then \
+		echo "$(BLUE)📦 Backing up Redis...$(RESET)"; \
+		$(DOCKER_COMPOSE_PROD) --env-file .env.prod exec redis redis-cli --rdb /tmp/backup.rdb && \
+		$(DOCKER_COMPOSE_PROD) --env-file .env.prod cp redis:/tmp/backup.rdb ./backups/prod/redis-$$TIMESTAMP.rdb; \
+	fi
+	@echo "$(BLUE)📁 Backing up storage...$(RESET)"
+	@tar -czf ./backups/prod/storage-$$TIMESTAMP.tar.gz ./storage
+	@echo "$(GREEN)✅ Backup de producción completado en backups/prod/$(RESET)"
 
 .PHONY: pre-deploy
 pre-deploy: ## 🔍 Verificaciones pre-deployment
