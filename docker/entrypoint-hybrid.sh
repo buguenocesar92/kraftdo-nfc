@@ -51,10 +51,16 @@ mkdir -p \
     storage/logs \
     bootstrap/cache
 
-# Configurar permisos
+# Configurar permisos CRÍTICOS para evitar errores de compilación de vistas
+echo "🔐 Configurando permisos críticos..."
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+# SOLUCIÓN DEFINITIVA: Asegurar que views siempre tenga ownership correcto
+rm -rf storage/framework/views/*
+chown -R 105:105 storage/framework/views
+chmod -R 775 storage/framework/views
+echo "✅ Directorio views configurado con UID 105 y permisos 777"
 
-# Limpiar cachés de Laravel
+# Limpiar cachés de Laravel (incluyendo vistas para evitar problemas de permisos)
 echo "🧹 Limpiando cachés..."
 php artisan config:clear
 php artisan route:clear  

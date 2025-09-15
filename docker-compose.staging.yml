@@ -16,7 +16,13 @@ services:
     volumes:
       - app_storage:/var/www/html/storage
       - app_bootstrap_cache:/var/www/html/bootstrap/cache
-      - .:/var/www/html
+      # Solo montar directorios específicos, no el .env
+      - ./app:/var/www/html/app
+      - ./resources:/var/www/html/resources
+      - ./routes:/var/www/html/routes
+      - ./config:/var/www/html/config
+      - ./database:/var/www/html/database
+      - ./public:/var/www/html/public
     networks:
       - laravel-staging
     extra_hosts:
