@@ -308,9 +308,34 @@ test-full: ## 🧪 Suite completa de tests
 .PHONY: lint-fix
 lint-fix: ## 🔧 Arreglar código automáticamente
 	@echo "$(YELLOW)🔧 Arreglando código...$(RESET)"
-	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) ./vendor/bin/php-cs-fixer fix
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer cs-fix
 	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) npm run lint:fix || true
 	@echo "$(GREEN)✅ Código arreglado$(RESET)"
+
+.PHONY: quality-check
+quality-check: ## 🎯 Verificar calidad completa del código
+	@echo "$(BOLD)$(BLUE)🎯 VERIFICACIÓN DE CALIDAD COMPLETA$(RESET)"
+	@echo ""
+	@echo "$(CYAN)1. Code Style Check:$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer cs-check || true
+	@echo ""
+	@echo "$(CYAN)2. Static Analysis:$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer phpstan || true
+	@echo ""
+	@echo "$(CYAN)3. Security Audit:$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer security || true
+	@echo ""
+	@echo "$(CYAN)4. Test Coverage:$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer test-coverage || true
+	@echo "$(GREEN)✅ Verificación de calidad completada$(RESET)"
+
+.PHONY: fix-all
+fix-all: ## ⚡ Arreglar todos los problemas automáticamente
+	@echo "$(YELLOW)⚡ Arreglando todos los problemas...$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer cs-fix
+	$(MAKE) cache-clear
+	$(MAKE) optimize
+	@echo "$(GREEN)✅ Todos los arreglos aplicados$(RESET)"
 
 # ==========================================
 # PRODUCTION DEPLOYMENT OPTIMIZADO
@@ -537,6 +562,65 @@ hybrid: ## 🔄 Iniciar configuración híbrida optimizada
 
 # Target por defecto
 .DEFAULT_GOAL := help
+
+# ==========================================
+# CI/CD SPECIFIC COMMANDS
+# ==========================================
+
+.PHONY: ci-install
+ci-install: ## 📦 CI: Install dependencies optimized for CI
+	@echo "$(BLUE)📦 Installing CI dependencies...$(RESET)"
+	composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader
+
+.PHONY: ci-setup
+ci-setup: ## 🔧 CI: Setup environment for testing
+	@echo "$(BLUE)🔧 Setting up CI environment...$(RESET)"
+	php artisan key:generate --force
+	chmod -R 755 storage bootstrap/cache
+	mkdir -p database
+	touch database/database.sqlite
+	php artisan migrate --env=testing --database=sqlite --force
+
+.PHONY: ci-build-assets
+ci-build-assets: ## 🏗️ CI: Build frontend assets
+	@echo "$(BLUE)🏗️ Building frontend assets...$(RESET)"
+	npm ci --prefer-offline --no-audit
+	npm run build
+
+.PHONY: ci-test-unit
+ci-test-unit: ## 🧪 CI: Run unit tests with coverage
+	@echo "$(BLUE)🧪 Running unit tests with coverage...$(RESET)"
+	vendor/bin/pest tests/Unit/ --coverage --min=90 --coverage-clover=coverage.xml
+
+.PHONY: ci-test-unit-dev
+ci-test-unit-dev: ## 🧪 CI: Run unit tests with coverage (dev threshold)
+	@echo "$(BLUE)🧪 Running unit tests with coverage (dev threshold)...$(RESET)"
+	vendor/bin/pest tests/Unit/ --coverage --min=80 --coverage-clover=coverage.xml
+
+.PHONY: ci-test-feature
+ci-test-feature: ## 🧪 CI: Run feature tests
+	@echo "$(BLUE)🧪 Running feature tests...$(RESET)"
+	vendor/bin/pest tests/Feature/ --stop-on-failure
+
+.PHONY: ci-test-full
+ci-test-full: ci-test-unit ci-test-feature ## 🧪 CI: Run all tests
+	@echo "$(GREEN)✅ All CI tests completed$(RESET)"
+
+.PHONY: ci-quality-checks
+ci-quality-checks: ## 🔍 CI: Run code quality checks
+	@echo "$(BLUE)🔍 Running quality checks...$(RESET)"
+	composer cs-check || true
+	composer phpstan || true
+
+.PHONY: ci-security-check
+ci-security-check: ## 🔒 CI: Run security checks
+	@echo "$(BLUE)🔒 Running security checks...$(RESET)"
+	composer security || true
+
+.PHONY: ci-quality-full
+ci-quality-full: ## 🎯 CI: Run all quality checks
+	@echo "$(BLUE)🎯 Running full quality suite...$(RESET)"
+	composer quality || true
 
 # ==========================================
 # COMANDOS AVANZADOS DE ARTISAN

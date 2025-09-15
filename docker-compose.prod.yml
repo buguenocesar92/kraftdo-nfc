@@ -30,13 +30,13 @@ services:
       - APP_URL=${APP_URL:?APP_URL must be set}
       - ASSET_URL=${ASSET_URL:-${APP_URL}}
       - LIVEWIRE_ASSET_URL=${LIVEWIRE_ASSET_URL:-${APP_URL}}
-      # Database Externa (configurable, defaults seguros)
+      # Database Externa - TODAS LAS VARIABLES REQUERIDAS
       - DB_CONNECTION=${DB_CONNECTION:-mysql}
-      - DB_HOST=${DB_HOST:-192.168.100.20}
+      - DB_HOST=${DB_HOST:?DB_HOST must be set}
       - DB_PORT=${DB_PORT:-3306}
-      - DB_DATABASE=${DB_DATABASE:-kraftdo}
-      - DB_USERNAME=${DB_USERNAME:-docker}
-      - DB_PASSWORD=${DB_PASSWORD:-Hero2025.}
+      - DB_DATABASE=${DB_DATABASE:?DB_DATABASE must be set}
+      - DB_USERNAME=${DB_USERNAME:?DB_USERNAME must be set}
+      - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set}
       - DB_SSLMODE=${DB_SSLMODE:-REQUIRE}
       # Session config - Segura para producción
       - SESSION_DOMAIN=${SESSION_DOMAIN:?SESSION_DOMAIN must be set}

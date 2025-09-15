@@ -65,14 +65,8 @@ jobs:
         echo "SESSION_DRIVER=redis" >> .env
         echo "REDIS_HOST=127.0.0.1" >> .env
       
-    - name: 📦 Install PHP Dependencies
-      run: composer install --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist --optimize-autoloader
-      
-    - name: 🔑 Generate Application Key
-      run: php artisan key:generate
-      
-    - name: 📁 Set Directory Permissions
-      run: chmod -R 755 storage bootstrap/cache
+    - name: 📦 Install Dependencies (Makefile)
+      run: make ci-install
       
     - name: 🟢 Setup Node.js ${{ env.NODE_VERSION }}
       uses: actions/setup-node@v4
@@ -80,35 +74,20 @@ jobs:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
         
-    - name: 📦 Install Node Dependencies
-      run: npm ci --prefer-offline --no-audit
-      
-    - name: 🏗️ Build Assets
-      run: npm run build
+    - name: 🏗️ Build Assets (Makefile)
+      run: make ci-build-assets
         
-    - name: 🗄️ Setup SQLite Database
-      run: |
-        mkdir -p database
-        touch database/database.sqlite
-        php artisan migrate --env=testing --database=sqlite --force
+    - name: 🔧 Setup CI Environment (Makefile)
+      run: make ci-setup
         
-    - name: 🧪 Execute Unit Tests with Coverage
+    - name: 🧪 Run All Tests (Makefile)
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
         CACHE_DRIVER: array
         SESSION_DRIVER: array
         REDIS_HOST: 127.0.0.1
-      run: |
-        vendor/bin/pest tests/Unit/ --coverage --min=90 --coverage-clover=coverage.xml
-        
-    - name: 🧪 Execute Feature Tests
-      env:
-        DB_CONNECTION: sqlite
-        DB_DATABASE: database/database.sqlite
-        CACHE_DRIVER: array
-        SESSION_DRIVER: array
-      run: vendor/bin/pest tests/Feature/ --stop-on-failure
+      run: make ci-test-full
       
     - name: 📊 Upload Coverage Reports
       uses: codecov/codecov-action@v3
@@ -116,8 +95,8 @@ jobs:
         file: ./coverage.xml
         fail_ci_if_error: false
         
-    - name: 🔍 Code Style Check
-      run: vendor/bin/php-cs-fixer fix --dry-run --diff --verbose || true
+    - name: 🔍 Quality & Security Checks (Makefile)
+      run: make ci-quality-full
 
   build:
     needs: tests
