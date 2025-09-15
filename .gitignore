@@ -73,6 +73,24 @@ storage/clockwork/
 storage/app/public/temp/
 storage/app/livewire-tmp/
 
+# Coverage reports
+coverage.xml
+coverage.txt
+coverage-report/
+/coverage/
+*.coverage
+clover.xml
+
+# Laravel Debugbar
+_debugbar/
+storage/debugbar/
+public/debugbar/
+
+# PHPUnit and testing artifacts
+phpunit.xml.bak
+.phpunit.cache
+.phpunit.result.cache
+
 # OS and IDE files
 .DS_Store
 .DS_Store?
