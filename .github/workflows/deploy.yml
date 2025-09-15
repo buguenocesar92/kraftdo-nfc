@@ -140,7 +140,7 @@ jobs:
           org.opencontainers.image.vendor=KraftDo
     
     - name: 🔨 Build and push production image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         file: ./Dockerfile.phpfpm
