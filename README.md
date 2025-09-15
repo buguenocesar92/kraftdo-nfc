@@ -1,16 +1,31 @@
-# 🚀 KraftDo NFC - Dynamic Content Platform
+# 🎯 KraftDo NFC - Dynamic Content Platform
 
-Sistema dinámico de gestión de contenido NFC con arquitectura dual para máximo rendimiento y compatibilidad.
+[![CI/CD Pipeline](https://github.com/kraftdo/kraftdo-nfc/actions/workflows/deploy.yml/badge.svg)](https://github.com/kraftdo/kraftdo-nfc/actions)
+[![Development Pipeline](https://github.com/kraftdo/kraftdo-nfc/actions/workflows/develop.yml/badge.svg)](https://github.com/kraftdo/kraftdo-nfc/actions)
+[![codecov](https://codecov.io/gh/kraftdo/kraftdo-nfc/branch/main/graph/badge.svg)](https://codecov.io/gh/kraftdo/kraftdo-nfc)
+[![Laravel](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.3+-blue.svg)](https://php.net)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## ⚡ **Arquitectura Dual**
+> **Plataforma moderna de contenido dinámico NFC construida con Laravel 11, Filament 3, y FrankenPHP para máximo rendimiento.**
 
-- **Panel Administrador**: PHP-FPM + Livewire (Estabilidad)
-- **Frontend NFC**: Laravel Octane + Swoole (Alto Rendimiento)
+## 🌟 **Características Principales**
+
+- 🏷️ **Gestión de Tokens NFC** - Crear y gestionar contenido dinámico para tarjetas NFC
+- 📊 **Analytics Avanzados** - Métricas detalladas de visualizaciones y engagement  
+- 🎨 **Panel de Administración** - Interfaz moderna con Filament 3
+- ⚡ **Alto Rendimiento** - FrankenPHP + Octane para máxima velocidad
+- 🔒 **Seguridad Robusta** - Autenticación, autorización y validación completa
+- 📱 **Responsive Design** - Compatible con todos los dispositivos
+- 🐳 **Containerizado** - Docker con configuraciones optimizadas  
+- 🚀 **CI/CD Completo** - Pipelines automatizados con GitHub Actions
 
 ## 🌐 **Acceso Rápido**
 
-- **Admin Panel**: `http://localhost:8082/admin`
-- **Frontend**: `http://localhost:8082/`
+- **Producción**: https://kraftdo.cl
+- **Staging**: https://staging.kraftdo.cl  
+- **Admin Panel**: `http://localhost:8080/admin`
+- **Frontend**: `http://localhost:8080/`
 
 ## 🚀 **Inicio Rápido**
 

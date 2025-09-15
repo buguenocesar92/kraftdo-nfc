@@ -1,0 +1,113 @@
+name: ✨ Feature Request
+description: Solicitar una nueva característica para KraftDo NFC
+title: "[FEATURE] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ¡Gracias por sugerir una nueva característica! Tu feedback nos ayuda a mejorar KraftDo NFC.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: "✅ Confirmación"
+      options:
+        - label: He buscado en issues existentes y no encontré una solicitud similar
+          required: true
+        - label: Esta característica beneficiará a otros usuarios, no solo a mí
+          required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "🎯 ¿Qué problema resuelve?"
+      description: "Describe el problema o necesidad que esta característica abordaría"
+      placeholder: "Como usuario, tengo el problema de que..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "💡 Solución Propuesta"
+      description: "Describe cómo te gustaría que funcionara esta característica"
+      placeholder: "Me gustaría que..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "🔄 Alternativas Consideradas"
+      description: "¿Has considerado otras formas de resolver este problema?"
+      placeholder: "También podría funcionar si..."
+    validations:
+      required: false
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: "📂 Categoría"
+      description: "¿En qué área del sistema sería esta característica?"
+      options:
+        - 🏷️ Gestión de Tokens NFC
+        - 📊 Analytics y Reportes
+        - 🎨 Panel de Administración
+        - 👤 Gestión de Usuarios
+        - 🔒 Seguridad y Permisos
+        - 📱 Interfaz de Usuario
+        - ⚡ Rendimiento
+        - 🔧 Configuración
+        - 📡 API
+        - 🐳 DevOps/Deployment
+        - 📚 Documentación
+        - Otro
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "🚀 Prioridad"
+      description: "¿Qué tan importante es esta característica para ti?"
+      options:
+        - 🔴 Crítica - Necesaria para usar el sistema
+        - 🟡 Alta - Mejoraría significativamente mi workflow
+        - 🟢 Media - Sería útil pero no urgente
+        - 🔵 Baja - Nice to have
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: "📋 Caso de Uso"
+      description: "Describe un escenario específico donde esta característica sería útil"
+      placeholder: |
+        Escenario: Como administrador de la plataforma...
+        1. Necesito...
+        2. Para poder...
+        3. Y así lograr...
+    validations:
+      required: true
+
+  - type: textarea
+    id: mockup
+    attributes:
+      label: "🎨 Mockups/Referencias"
+      description: "Si tienes mockups, screenshots, o referencias de otras aplicaciones, compártelos aquí"
+      placeholder: "Puedes pegar imágenes o links a referencias..."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: implementation
+    attributes:
+      label: "🛠️ ¿Podrías ayudar con la implementación?"
+      options:
+        - label: Puedo ayudar con el diseño/mockups
+        - label: Puedo ayudar con el desarrollo
+        - label: Puedo ayudar con testing
+        - label: Puedo ayudar con documentación
+        - label: Solo puedo reportar la necesidad
