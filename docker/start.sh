@@ -275,9 +275,46 @@ case $ENV_MODE in
         exit 0
         ;;
         
+    "frankenphp"|"staging")
+        log "🔄 Configurando entorno de STAGING con FrankenPHP"
+        
+        # Limpiar cachés
+        log "🧹 Limpiando cachés..."
+        php artisan config:clear || true
+        php artisan route:clear || true
+        php artisan view:clear || true
+        php artisan cache:clear || true
+        
+        # Ejecutar migraciones si es necesario
+        if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
+            log "📊 Ejecutando migraciones..."
+            php artisan migrate --force --no-interaction || log_warn "Error en migraciones"
+        fi
+        
+        # Publicar assets de Filament
+        log "🎨 Publicando assets de Filament..."
+        php artisan filament:assets || true
+        
+        # Crear enlace de storage
+        log "🔗 Creando enlace de storage..."
+        php artisan storage:link || true
+        
+        # Cachear configuraciones para staging
+        log "⚡ Optimizando para staging..."
+        php artisan config:cache
+        php artisan route:cache
+        php artisan view:cache
+        
+        log "✅ Staging configurado - iniciando FrankenPHP"
+        log "🌐 Aplicación disponible en: ${APP_URL:-http://localhost:8084}"
+        
+        # Iniciar FrankenPHP con Caddy directamente
+        exec frankenphp run --config /etc/caddy/Caddyfile
+        ;;
+        
     *)
         log_error "Modo no reconocido: $ENV_MODE"
-        log "Modos válidos: dev, production, worker, scheduler, migrate, seed, test, octane:install"
+        log "Modos válidos: dev, production, worker, scheduler, migrate, seed, test, octane:install, frankenphp, staging"
         exit 1
         ;;
 esac
