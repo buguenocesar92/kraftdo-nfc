@@ -31,7 +31,9 @@ fi
 # Instalar/actualizar dependencias si es necesario
 if [ ! -d "vendor" ] || [ ! -f "vendor/autoload.php" ]; then
     echo "📦 Instalando dependencias de Composer..."
-    composer install --no-interaction --prefer-dist --optimize-autoloader
+    composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
+else
+    echo "✅ Dependencias de Composer ya instaladas"
 fi
 
 # Generar clave de aplicación si no existe
