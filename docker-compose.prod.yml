@@ -1,0 +1,216 @@
+# ===========================================
+# KRAFTDO NFC - PRODUCTION DOCKER COMPOSE
+# ===========================================
+# Basado en docker-compose.hybrid.yml funcional, optimizado para producción
+
+services:
+  # ==========================================
+  # BACKEND - PHP-FPM (Laravel + Livewire)
+  # ==========================================
+  php-fpm:
+    build:
+      context: .
+      dockerfile: Dockerfile.phpfpm
+    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-php-fpm
+    restart: unless-stopped
+    volumes:
+      - app_storage:/var/www/html/storage
+      - app_bootstrap_cache:/var/www/html/bootstrap/cache
+      # Código de solo lectura en producción
+      - .:/var/www/html:ro
+    networks:
+      - laravel-prod
+    environment:
+      - APP_NAME=${APP_NAME:-KraftDo NFC}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_KEY=${APP_KEY:?error}
+      - APP_URL=${APP_URL}
+      - ASSET_URL=${ASSET_URL:-${APP_URL}}
+      - LIVEWIRE_ASSET_URL=${LIVEWIRE_ASSET_URL:-${APP_URL}}
+      # Database Externa (configurable, defaults como híbrido)
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=${DB_HOST:-192.168.100.20}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_DATABASE=${DB_DATABASE:-kraftdo}
+      - DB_USERNAME=${DB_USERNAME:-docker}
+      - DB_PASSWORD=${DB_PASSWORD:-Hero2025.}
+      - DB_SSLMODE=${DB_SSLMODE:-REQUIRE}
+      # Session config - Segura para producción
+      - SESSION_DOMAIN=${SESSION_DOMAIN}
+      - SESSION_SECURE_COOKIE=${SESSION_SECURE_COOKIE:-true}
+      - SESSION_SAME_SITE=${SESSION_SAME_SITE:-strict}
+      # Redis
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CACHE_DRIVER=${CACHE_DRIVER:-redis}
+      - SESSION_DRIVER=${SESSION_DRIVER:-redis}
+      # Performance
+      - OCTANE_WORKERS=${OCTANE_WORKERS:-4}
+      - OCTANE_MAX_REQUESTS=${OCTANE_MAX_REQUESTS:-1000}
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm -t || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================
+  # FRONTEND - FrankenPHP (Proxy + Assets)
+  # ==========================================
+  frankenphp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: final
+    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-frankenphp-proxy
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+      - "${APP_SSL_PORT:-443}:443"
+    volumes:
+      # Solo assets necesarios en producción
+      - ./public:/app/public:ro
+      - app_storage:/app/storage:ro
+      - ./docker/frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
+    networks:
+      - laravel-prod
+    depends_on:
+      - php-fpm
+    environment:
+      - SERVER_NAME=${SERVER_NAME:-:80,:443}
+      - CADDY_GLOBAL_OPTIONS=${CADDY_GLOBAL_OPTIONS:-}
+      # SSL/TLS
+      - HTTPS_ONLY=${HTTPS_ONLY:-true}
+      - SSL_CERT_PATH=${SSL_CERT_PATH:-}
+      - SSL_KEY_PATH=${SSL_KEY_PATH:-}
+    command: ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ==========================================
+  # REDIS (Cache y Sesiones)
+  # ==========================================
+  redis:
+    image: redis:7-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --requirepass "${REDIS_PASSWORD}"
+      --maxmemory ${REDIS_MAX_MEMORY:-512mb}
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+    volumes:
+      - redis_data:/data
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    networks:
+      - laravel-prod
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==========================================
+  # QUEUE WORKERS
+  # ==========================================
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.phpfpm
+    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-worker
+    restart: unless-stopped
+    environment:
+      - APP_NAME=${APP_NAME:-KraftDo NFC}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY:?error}
+      - APP_DEBUG=false
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=${DB_HOST:-192.168.100.20}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD:-Hero2025.}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CACHE_DRIVER=${CACHE_DRIVER:-redis}
+      - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
+      - QUEUE_WORKER=true
+      - QUEUE_TIMEOUT=${QUEUE_TIMEOUT:-300}
+      - QUEUE_TRIES=${QUEUE_TRIES:-3}
+      - QUEUE_WORKERS=${QUEUE_WORKERS:-4}
+    volumes:
+      - app_storage:/var/www/html/storage
+      - .:/var/www/html:ro
+    networks:
+      - laravel-prod
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: ["/var/www/html/docker/start.sh", "worker"]
+    healthcheck:
+      test: ["CMD", "php", "artisan", "queue:monitor", "--max-jobs=${QUEUE_MAX_JOBS:-5000}"]
+      interval: 60s
+      timeout: 30s
+      retries: 3
+
+  # ==========================================
+  # SCHEDULER (CRON)
+  # ==========================================
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile.phpfpm
+    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-scheduler
+    restart: unless-stopped
+    environment:
+      - APP_NAME=${APP_NAME:-KraftDo NFC}
+      - APP_ENV=${APP_ENV:-production}
+      - APP_KEY=${APP_KEY:?error}
+      - APP_DEBUG=false
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=${DB_HOST:-192.168.100.20}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD:-Hero2025.}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - CACHE_DRIVER=${CACHE_DRIVER:-redis}
+      - SCHEDULER=true
+    volumes:
+      - app_storage:/var/www/html/storage
+      - .:/var/www/html:ro
+    networks:
+      - laravel-prod
+    depends_on:
+      redis:
+        condition: service_healthy
+    command: ["/var/www/html/docker/start.sh", "scheduler"]
+
+volumes:
+  redis_data:
+    driver: local
+  app_storage:
+    driver: local
+  app_bootstrap_cache:
+    driver: local
+
+networks:
+  laravel-prod:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: ${NETWORK_SUBNET:-172.30.0.0/24}
+          gateway: ${NETWORK_GATEWAY:-172.30.0.1}

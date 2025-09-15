@@ -32,6 +32,14 @@ log_info() {
 # Detectar el entorno
 ENV_MODE="${1:-${APP_ENV:-production}}"
 
+# Leer variables de entorno desde .env si existe
+if [ -f "/app/.env" ]; then
+    log_info "📄 Cargando variables de entorno desde .env"
+    set -a
+    . /app/.env
+    set +a
+fi
+
 log "🚀 Iniciando KraftDo NFC con Laravel Octane + FrankenPHP"
 log "📦 Modo: $ENV_MODE"
 

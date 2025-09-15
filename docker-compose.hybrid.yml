@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.phpfpm
-    container_name: nfc-php-fpm
+    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc-hybrid}-php-fpm
     restart: unless-stopped
     volumes:
       - .:/var/www/html
@@ -17,29 +17,30 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      - APP_NAME=KraftDo NFC
-      - APP_ENV=local
-      - APP_DEBUG=true
+      - APP_NAME=${APP_NAME:-KraftDo NFC}
+      - APP_ENV=${APP_ENV:-local}
+      - APP_DEBUG=${APP_DEBUG:-true}
       - APP_KEY=${APP_KEY:-base64:IPi0+QH97dbiFpJ8k6ek8LKk2c8aXYvRu5kSrEtyp2o=}
-      - APP_URL=http://localhost:8080
-      - ASSET_URL=http://localhost:8080
-      - LIVEWIRE_ASSET_URL=http://localhost:8080
-      # Database Externa (usar tus credenciales)
-      - DB_CONNECTION=mysql
-      - DB_HOST=192.168.100.20
-      - DB_PORT=3306
-      - DB_DATABASE=kraftdo
-      - DB_USERNAME=docker
-      - DB_PASSWORD=Hero2025.
-      - DB_SSLMODE=DISABLED
+      - APP_URL=${APP_URL:-http://localhost:8080}
+      - ASSET_URL=${ASSET_URL:-http://localhost:8080}
+      - LIVEWIRE_ASSET_URL=${LIVEWIRE_ASSET_URL:-http://localhost:8080}
+      # Database Externa (configurable via variables)
+      - DB_CONNECTION=${DB_CONNECTION:-mysql}
+      - DB_HOST=${DB_HOST:-192.168.100.20}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_DATABASE=${DB_DATABASE:-kraftdo}
+      - DB_USERNAME=${DB_USERNAME:-docker}
+      - DB_PASSWORD=${DB_PASSWORD:-Hero2025.}
+      - DB_SSLMODE=${DB_SSLMODE:-DISABLED}
       # Session config
-      - SESSION_DOMAIN=localhost
-      - SESSION_SECURE_COOKIE=false
-      - SESSION_SAME_SITE=lax
+      - SESSION_DOMAIN=${SESSION_DOMAIN:-localhost}
+      - SESSION_SECURE_COOKIE=${SESSION_SECURE_COOKIE:-false}
+      - SESSION_SAME_SITE=${SESSION_SAME_SITE:-lax}
       # Redis
-      - REDIS_HOST=redis
-      - CACHE_DRIVER=redis
-      - SESSION_DRIVER=redis
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      - CACHE_DRIVER=${CACHE_DRIVER:-redis}
+      - SESSION_DRIVER=${SESSION_DRIVER:-redis}
     depends_on:
       - redis
     healthcheck:
@@ -56,10 +57,10 @@ services:
       context: .
       dockerfile: Dockerfile
       target: base
-    container_name: nfc-frankenphp-proxy
+    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc-hybrid}-frankenphp-proxy
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "${APP_PORT:-8080}:80"
     volumes:
       - .:/app:ro  # Solo lectura para assets
       - ./storage/app/public:/app/storage/app/public:ro  # Storage files read-only
@@ -69,8 +70,8 @@ services:
     depends_on:
       - php-fpm
     environment:
-      - SERVER_NAME=:80
-      - CADDY_GLOBAL_OPTIONS=
+      - SERVER_NAME=${SERVER_NAME:-:80}
+      - CADDY_GLOBAL_OPTIONS=${CADDY_GLOBAL_OPTIONS:-}
     command: ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
 
   # ==========================================
@@ -78,10 +79,10 @@ services:
   # ==========================================
   redis:
     image: redis:7-alpine
-    container_name: nfc-redis
+    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc-hybrid}-redis
     restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     networks:
       - laravel
     healthcheck:

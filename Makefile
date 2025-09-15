@@ -1,12 +1,18 @@
-# Makefile para KraftDo NFC con FrankenPHP
-# Comandos útiles para desarrollo y producción
+# Makefile para KraftDo NFC con FrankenPHP - OPTIMIZADO
+# Comandos útiles para desarrollo y producción con optimizaciones Laravel/Filament
 
-# Variables
+# Variables configurables
 DOCKER_COMPOSE = docker compose
 DOCKER_COMPOSE_DEV = docker compose -f docker-compose.dev.yml
-DOCKER_COMPOSE_PROD = docker compose -f docker-compose.yml
-APP_CONTAINER = nfc-app
-APP_CONTAINER_DEV = nfc-app-dev
+DOCKER_COMPOSE_PROD = docker compose -f docker-compose.prod.yml
+DOCKER_COMPOSE_HYBRID = docker compose -f docker-compose.hybrid.yml
+COMPOSE_PROJECT_NAME ?= kraftdo-nfc
+ENV_FILE ?= .env
+
+# Detectar entorno automáticamente
+CURRENT_ENV := $(shell if docker ps | grep -q "kraftdo-nfc-dev-php-fpm"; then echo "dev"; elif docker ps | grep -q "kraftdo-nfc-prod-php-fpm"; then echo "prod"; else echo "hybrid"; fi)
+ACTIVE_COMPOSE := $(if $(filter dev,$(CURRENT_ENV)),$(DOCKER_COMPOSE_DEV),$(if $(filter prod,$(CURRENT_ENV)),$(DOCKER_COMPOSE_PROD),$(DOCKER_COMPOSE_HYBRID)))
+SERVICE_NAME := $(if $(filter hybrid,$(CURRENT_ENV)),app,php-fpm)
 
 # Colores para output
 RED = \033[31m
@@ -17,278 +23,447 @@ MAGENTA = \033[35m
 CYAN = \033[36m
 WHITE = \033[37m
 RESET = \033[0m
+BOLD = \033[1m
 
 # ==========================================
-# COMANDOS PRINCIPALES
+# COMANDOS PRINCIPALES OPTIMIZADOS
 # ==========================================
 
 .PHONY: help
-help: ## Mostrar ayuda
-	@echo "$(GREEN)KraftDo NFC - Comandos disponibles:$(RESET)"
+help: ## 📚 Mostrar ayuda completa
+	@echo "$(BOLD)$(GREEN)🚀 KraftDo NFC - Comandos Optimizados$(RESET)"
+	@echo "$(CYAN)Entorno actual: $(CURRENT_ENV)$(RESET)"
 	@echo ""
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-20s$(RESET) %s\n", $$1, $$2}'
+	@echo "$(BOLD)COMANDOS PRINCIPALES:$(RESET)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "📚|🚀|🛠️|🏭|⚡" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(CYAN)%-25s$(RESET) %s\n", $$1, $$2}'
 	@echo ""
-
-.PHONY: init
-init: ## Configuración inicial del proyecto
-	@echo "$(BLUE)🚀 Configurando KraftDo NFC...$(RESET)"
-	@cp -n .env.example .env 2>/dev/null || true
-	@chmod +x docker/start.sh
-	@echo "$(GREEN)✅ Configuración inicial completada$(RESET)"
-
-# ==========================================
-# DESARROLLO
-# ==========================================
-
-.PHONY: dev
-dev: ## Iniciar entorno de desarrollo
-	@echo "$(BLUE)🛠️  Iniciando entorno de desarrollo...$(RESET)"
-	$(DOCKER_COMPOSE_DEV) up -d
-	@echo "$(GREEN)✅ Desarrollo iniciado en http://localhost:8080$(RESET)"
-
-.PHONY: dev-build
-dev-build: ## Construir imágenes de desarrollo
-	@echo "$(BLUE)🔨 Construyendo imágenes de desarrollo...$(RESET)"
-	$(DOCKER_COMPOSE_DEV) build --no-cache
-
-.PHONY: dev-logs
-dev-logs: ## Ver logs de desarrollo
-	$(DOCKER_COMPOSE_DEV) logs -f
-
-.PHONY: dev-shell
-dev-shell: ## Entrar al contenedor de desarrollo
-	$(DOCKER_COMPOSE_DEV) exec app sh
-
-.PHONY: dev-artisan
-dev-artisan: ## Ejecutar comando artisan en desarrollo (usar: make dev-artisan CMD="migrate")
-	$(DOCKER_COMPOSE_DEV) exec app php artisan $(CMD)
-
-.PHONY: dev-composer
-dev-composer: ## Ejecutar comando composer en desarrollo (usar: make dev-composer CMD="install")
-	$(DOCKER_COMPOSE_DEV) exec app composer $(CMD)
-
-.PHONY: dev-npm
-dev-npm: ## Ejecutar comando npm en desarrollo (usar: make dev-npm CMD="install")
-	$(DOCKER_COMPOSE_DEV) exec app npm $(CMD)
-
-.PHONY: dev-test
-dev-test: ## Ejecutar tests en desarrollo
-	$(DOCKER_COMPOSE_DEV) exec app php artisan test
-
-.PHONY: dev-migrate
-dev-migrate: ## Ejecutar migraciones en desarrollo
-	$(DOCKER_COMPOSE_DEV) exec app php artisan migrate
-
-.PHONY: dev-fresh
-dev-fresh: ## Reset completo de base de datos en desarrollo
-	$(DOCKER_COMPOSE_DEV) exec app php artisan migrate:fresh --seed
-
-.PHONY: dev-stop
-dev-stop: ## Parar entorno de desarrollo
-	$(DOCKER_COMPOSE_DEV) down
-
-.PHONY: dev-clean
-dev-clean: ## Limpiar entorno de desarrollo (incluyendo volúmenes)
-	$(DOCKER_COMPOSE_DEV) down -v --remove-orphans
-	docker system prune -f
+	@echo "$(BOLD)OPTIMIZACIÓN & PERFORMANCE:$(RESET)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "⚡|🔥|📊|🏎️|💾" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(YELLOW)%-25s$(RESET) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(BOLD)BASE DE DATOS:$(RESET)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "🗄️|📊|💾|🔄" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(MAGENTA)%-25s$(RESET) %s\n", $$1, $$2}'
+	@echo ""
+	@echo "$(BOLD)UTILIDADES:$(RESET)"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | grep -E "🧹|🏥|🐛|📋|🔍" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "$(WHITE)%-25s$(RESET) %s\n", $$1, $$2}'
 
 # ==========================================
-# PRODUCCIÓN
-# ==========================================
-
-.PHONY: prod
-prod: ## Iniciar entorno de producción
-	@echo "$(RED)🏭 Iniciando entorno de producción...$(RESET)"
-	$(DOCKER_COMPOSE_PROD) up -d
-	@echo "$(GREEN)✅ Producción iniciada$(RESET)"
-
-.PHONY: prod-build
-prod-build: ## Construir imágenes de producción
-	@echo "$(RED)🔨 Construyendo imágenes de producción...$(RESET)"
-	$(DOCKER_COMPOSE_PROD) build --no-cache
-
-.PHONY: prod-logs
-prod-logs: ## Ver logs de producción
-	$(DOCKER_COMPOSE_PROD) logs -f
-
-.PHONY: prod-shell
-prod-shell: ## Entrar al contenedor de producción
-	$(DOCKER_COMPOSE_PROD) exec app sh
-
-.PHONY: prod-artisan
-prod-artisan: ## Ejecutar comando artisan en producción (usar: make prod-artisan CMD="migrate")
-	$(DOCKER_COMPOSE_PROD) exec app php artisan $(CMD)
-
-.PHONY: prod-migrate
-prod-migrate: ## Ejecutar migraciones en producción
-	$(DOCKER_COMPOSE_PROD) exec app php artisan migrate --force
-
-.PHONY: prod-optimize
-prod-optimize: ## Optimizar aplicación para producción
-	$(DOCKER_COMPOSE_PROD) exec app php artisan optimize
-	$(DOCKER_COMPOSE_PROD) exec app php artisan filament:optimize
-
-.PHONY: prod-stop
-prod-stop: ## Parar entorno de producción
-	$(DOCKER_COMPOSE_PROD) down
-
-.PHONY: prod-backup-db
-prod-backup-db: ## Hacer backup de base de datos de producción
-	@echo "$(YELLOW)💾 Creando backup de base de datos...$(RESET)"
-	mkdir -p backups
-	$(DOCKER_COMPOSE_PROD) exec mysql mysqldump -u root -p$$MYSQL_ROOT_PASSWORD $$MYSQL_DATABASE > backups/db-$(shell date +%Y%m%d-%H%M%S).sql
-	@echo "$(GREEN)✅ Backup completado en backups/$(RESET)"
-
-# ==========================================
-# UTILIDADES
+# INSTALACIÓN Y CONFIGURACIÓN OPTIMIZADA
 # ==========================================
 
 .PHONY: install
-install: init dev-build ## Instalación completa del proyecto
-	@echo "$(MAGENTA)📦 Instalación completa iniciada...$(RESET)"
+install: init optimize-install ## 🚀 Instalación completa optimizada
+	@echo "$(BOLD)$(MAGENTA)🚀 Instalación completa con optimizaciones...$(RESET)"
+	$(MAKE) dev-build-optimized
 	$(MAKE) dev
-	@echo "$(GREEN)🎉 Instalación completada! Ve a http://localhost:8080$(RESET)"
+	$(MAKE) setup-laravel-optimized
+	@echo "$(BOLD)$(GREEN)🎉 Instalación completada y optimizada! Ve a http://localhost:8080$(RESET)"
 
-.PHONY: status
-status: ## Ver estado de todos los contenedores
-	@echo "$(BLUE)📊 Estado de contenedores:$(RESET)"
-	docker ps -a --filter "name=nfc-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
-
-.PHONY: clean
-clean: ## Limpiar sistema Docker completo
-	@echo "$(YELLOW)🧹 Limpiando sistema Docker...$(RESET)"
-	docker system prune -af --volumes
-	@echo "$(GREEN)✅ Limpieza completada$(RESET)"
-
-.PHONY: health
-health: ## Verificar salud de servicios
-	@echo "$(BLUE)🏥 Verificando salud de servicios...$(RESET)"
-	@curl -s http://localhost:8080/health | jq . || echo "Servicio no disponible"
-
-.PHONY: logs
-logs: ## Ver logs combinados (desarrollo por defecto)
-	@if [ -f docker-compose.override.yml ]; then \
-		$(DOCKER_COMPOSE_DEV) logs -f; \
-	else \
-		$(DOCKER_COMPOSE_PROD) logs -f; \
+.PHONY: init
+init: ## 📚 Configuración inicial del proyecto
+	@echo "$(BLUE)🚀 Configurando KraftDo NFC...$(RESET)"
+	@if [ ! -f .env ]; then \
+		echo "$(YELLOW)📄 Copiando .env.example a .env...$(RESET)"; \
+		cp .env.example .env; \
 	fi
+	@chmod +x docker/start.sh
+	@mkdir -p storage/{logs,framework/{cache,sessions,views},app/public}
+	@mkdir -p bootstrap/cache
+	@mkdir -p backups
+	@echo "$(GREEN)✅ Configuración inicial completada$(RESET)"
+
+.PHONY: optimize-install
+optimize-install: ## ⚡ Optimizaciones durante instalación
+	@echo "$(YELLOW)⚡ Aplicando optimizaciones de instalación...$(RESET)"
+	@sed -i 's/CACHE_DRIVER=.*/CACHE_DRIVER=redis/' .env 2>/dev/null || true
+	@sed -i 's/SESSION_DRIVER=.*/SESSION_DRIVER=redis/' .env 2>/dev/null || true
+	@sed -i 's/QUEUE_CONNECTION=.*/QUEUE_CONNECTION=redis/' .env 2>/dev/null || true
+	@echo "OCTANE_SERVER=frankenphp" >> .env 2>/dev/null || true
 
 # ==========================================
-# DATABASE & MIGRATIONS
+# ENTORNOS OPTIMIZADOS
+# ==========================================
+
+.PHONY: dev
+dev: ## 🛠️ Desarrollo con optimizaciones
+	@echo "$(BLUE)🛠️ Iniciando desarrollo OPTIMIZADO...$(RESET)"
+	$(DOCKER_COMPOSE_DEV) up -d
+	@sleep 5
+	$(MAKE) cache-clear
+	@echo "$(GREEN)✅ Desarrollo optimizado en http://localhost:8080$(RESET)"
+
+.PHONY: dev-build-optimized
+dev-build-optimized: ## 🔥 Build desarrollo con optimizaciones
+	@echo "$(BLUE)🔥 Build optimizado para desarrollo...$(RESET)"
+	$(DOCKER_COMPOSE_DEV) build --parallel --no-cache
+	@echo "$(GREEN)✅ Build optimizado completado$(RESET)"
+
+.PHONY: prod
+prod: prod-pre-flight prod-optimize ## 🏭 Producción con optimizaciones completas
+	@echo "$(RED)🏭 Iniciando producción OPTIMIZADA...$(RESET)"
+	$(DOCKER_COMPOSE_PROD) up -d
+	@sleep 10
+	$(MAKE) health
+	@echo "$(GREEN)✅ Producción optimizada iniciada$(RESET)"
+
+.PHONY: prod-pre-flight
+prod-pre-flight: ## 🔍 Verificaciones pre-producción
+	@echo "$(YELLOW)🔍 Verificaciones pre-producción...$(RESET)"
+	@if [ ! -f .env ]; then echo "$(RED)❌ Archivo .env no encontrado$(RESET)" && exit 1; fi
+	@if grep -q "APP_DEBUG=true" .env; then echo "$(RED)❌ APP_DEBUG debe ser false en producción$(RESET)" && exit 1; fi
+	@if grep -q "APP_ENV=local" .env; then echo "$(RED)❌ APP_ENV debe ser production$(RESET)" && exit 1; fi
+	@echo "$(GREEN)✅ Verificaciones pre-producción completadas$(RESET)"
+
+# ==========================================
+# OPTIMIZACIONES LARAVEL & FILAMENT
+# ==========================================
+
+.PHONY: optimize
+optimize: ## ⚡ Optimización completa Laravel/Filament
+	@echo "$(BOLD)$(YELLOW)⚡ OPTIMIZACIÓN COMPLETA iniciada...$(RESET)"
+	$(MAKE) cache-all
+	$(MAKE) optimize-composer
+	$(MAKE) optimize-laravel
+	$(MAKE) optimize-filament
+	$(MAKE) optimize-octane
+	@echo "$(BOLD)$(GREEN)🚀 OPTIMIZACIÓN COMPLETA terminada$(RESET)"
+
+.PHONY: cache-all
+cache-all: ## 💾 Cachear todo (config, routes, views, components)
+	@echo "$(YELLOW)💾 Cacheando configuraciones...$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan config:cache
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan route:cache
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan view:cache
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan event:cache
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan filament:cache-components
+	@if command -v $(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan icons:cache >/dev/null 2>&1; then \
+		$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan icons:cache; \
+	fi
+	@echo "$(GREEN)✅ Cache completo aplicado$(RESET)"
+
+.PHONY: cache-clear
+cache-clear: ## 🧹 Limpiar todos los caches
+	@echo "$(YELLOW)🧹 Limpiando caches...$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan optimize:clear
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan filament:clear-cached-components
+	@echo "$(GREEN)✅ Caches limpiados$(RESET)"
+
+.PHONY: optimize-laravel
+optimize-laravel: ## 🏎️ Optimizaciones específicas Laravel
+	@echo "$(YELLOW)🏎️ Optimizando Laravel...$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan optimize
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan storage:link
+	@if [ "$(CURRENT_ENV)" = "prod" ]; then \
+		$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan queue:restart; \
+	fi
+	@echo "$(GREEN)✅ Laravel optimizado$(RESET)"
+
+.PHONY: optimize-filament
+optimize-filament: ## 🎨 Optimizaciones específicas Filament
+	@echo "$(YELLOW)🎨 Optimizando Filament...$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan filament:optimize
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan vendor:publish --tag=filament-assets --force
+	@echo "$(GREEN)✅ Filament optimizado$(RESET)"
+
+.PHONY: optimize-octane
+optimize-octane: ## ⚡ Optimizaciones Octane/FrankenPHP
+	@echo "$(YELLOW)⚡ Optimizando Octane...$(RESET)"
+	@if [ "$(CURRENT_ENV)" != "hybrid" ]; then \
+		$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan octane:reload; \
+	fi
+	@echo "$(GREEN)✅ Octane optimizado$(RESET)"
+
+.PHONY: optimize-composer
+optimize-composer: ## 📦 Optimizar autoloader de Composer
+	@echo "$(YELLOW)📦 Optimizando Composer...$(RESET)"
+	@if [ "$(CURRENT_ENV)" = "prod" ]; then \
+		$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer install --no-dev --optimize-autoloader; \
+	else \
+		$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer install --optimize-autoloader; \
+	fi
+	@echo "$(GREEN)✅ Composer optimizado$(RESET)"
+
+# ==========================================
+# MONITORING Y PERFORMANCE
+# ==========================================
+
+.PHONY: benchmark
+benchmark: ## 📊 Benchmark de rendimiento
+	@echo "$(BLUE)📊 Ejecutando benchmark...$(RESET)"
+	@echo "$(YELLOW)Testing response time...$(RESET)"
+	@curl -o /dev/null -s -w "Response time: %{time_total}s\nHTTP status: %{http_code}\n" http://localhost:8080/
+	@echo "$(YELLOW)Testing concurrent requests...$(RESET)"
+	@ab -n 100 -c 10 http://localhost:8080/ | grep -E "(Requests per second|Time per request)"
+
+.PHONY: performance
+performance: ## 🏎️ Análisis completo de performance
+	@echo "$(BOLD)$(BLUE)🏎️ ANÁLISIS DE PERFORMANCE$(RESET)"
+	@echo ""
+	@echo "$(CYAN)1. Memory Usage:$(RESET)"
+	@docker stats --no-stream --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}" | grep nfc
+	@echo ""
+	@echo "$(CYAN)2. Octane Status:$(RESET)"
+	@$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan octane:status || echo "Octane no disponible"
+	@echo ""
+	@echo "$(CYAN)3. Cache Status:$(RESET)"
+	@$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan config:show cache || echo "Cache info no disponible"
+	@echo ""
+	@echo "$(CYAN)4. Queue Status:$(RESET)"
+	@$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan queue:monitor redis:default --max-time=30 || echo "Queue no disponible"
+
+.PHONY: monitor
+monitor: ## 📊 Monitoreo en tiempo real
+	@echo "$(BLUE)📊 Monitoreando contenedores...$(RESET)"
+	@echo "$(YELLOW)Presiona Ctrl+C para salir$(RESET)"
+	docker stats $(shell docker ps --filter "name=nfc-" --format "{{.Names}}")
+
+.PHONY: health
+health: ## 🏥 Verificar salud completa del sistema
+	@echo "$(BLUE)🏥 Verificando salud del sistema...$(RESET)"
+	@echo ""
+	@echo "$(CYAN)Contenedores:$(RESET)"
+	@docker ps --filter "name=nfc-" --format "  ✓ {{.Names}} - {{.Status}}"
+	@echo ""
+	@echo "$(CYAN)Servicios web:$(RESET)"
+	@curl -s http://localhost:8080/health -w "  ✓ App: %{http_code} (%{time_total}s)\n" -o /dev/null || echo "  ❌ App: No disponible"
+	@echo ""
+	@echo "$(CYAN)Base de datos:$(RESET)"
+	@$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan db:monitor --max-time=1000 || echo "  ❌ DB: Error de conexión"
+
+# ==========================================
+# BASE DE DATOS OPTIMIZADA
 # ==========================================
 
 .PHONY: migrate
-migrate: ## Ejecutar migraciones (detecta entorno automáticamente)
-	@if docker ps | grep -q nfc-app-dev; then \
-		$(MAKE) dev-migrate; \
+migrate: ## 🗄️ Migrar base de datos (detecta entorno)
+	@echo "$(BLUE)🗄️ Ejecutando migraciones en $(CURRENT_ENV)...$(RESET)"
+	@if [ "$(CURRENT_ENV)" = "prod" ]; then \
+		$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan migrate --force; \
 	else \
-		$(MAKE) prod-migrate; \
+		$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan migrate; \
 	fi
 
-.PHONY: seed
-seed: ## Ejecutar seeders (detecta entorno automáticamente)
-	@if docker ps | grep -q nfc-app-dev; then \
-		$(DOCKER_COMPOSE_DEV) exec app php artisan db:seed; \
-	else \
-		$(DOCKER_COMPOSE_PROD) exec app php artisan db:seed; \
+.PHONY: migrate-fresh-safe
+migrate-fresh-safe: ## 🔄 Reset seguro de base de datos
+	@if [ "$(CURRENT_ENV)" = "prod" ]; then \
+		echo "$(RED)❌ PELIGRO: Reset en producción bloqueado$(RESET)"; \
+		echo "$(YELLOW)Usa 'make migrate-fresh-force' si estás seguro$(RESET)"; \
+		exit 1; \
 	fi
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan migrate:fresh --seed
 
-.PHONY: fresh
-fresh: ## Reset completo de base de datos (detecta entorno)
-	@if docker ps | grep -q nfc-app-dev; then \
-		$(MAKE) dev-fresh; \
+.PHONY: migrate-fresh-force
+migrate-fresh-force: ## ⚠️ Reset FORZADO de base de datos (PELIGROSO)
+	@echo "$(RED)⚠️ PELIGRO: Esto borrará TODA la base de datos!$(RESET)"
+	@echo "$(YELLOW)Escribe 'DELETE_ALL_DATA' para continuar:$(RESET)"
+	@read confirm && [ "$$confirm" = "DELETE_ALL_DATA" ] && \
+		$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan migrate:fresh --seed --force
+
+.PHONY: db-backup
+db-backup: ## 💾 Backup inteligente de base de datos
+	@echo "$(YELLOW)💾 Creando backup de base de datos...$(RESET)"
+	@mkdir -p backups
+	@TIMESTAMP=$$(date +%Y%m%d-%H%M%S) && \
+	if [ "$(CURRENT_ENV)" = "prod" ]; then \
+		$(ACTIVE_COMPOSE) exec mysql mysqldump -u root -p$$MYSQL_ROOT_PASSWORD $$MYSQL_DATABASE > backups/prod-db-$$TIMESTAMP.sql; \
 	else \
-		@echo "$(RED)⚠️  PELIGRO: Esto borrará toda la base de datos de producción!$(RESET)"; \
-		@echo "$(YELLOW)Escribe 'yes' para continuar:$(RESET)"; \
-		@read confirm && [ "$$confirm" = "yes" ] && $(DOCKER_COMPOSE_PROD) exec app php artisan migrate:fresh --seed --force; \
+		$(ACTIVE_COMPOSE) exec mysql mysqldump -u root -p$$MYSQL_ROOT_PASSWORD $$MYSQL_DATABASE > backups/dev-db-$$TIMESTAMP.sql; \
 	fi
+	@echo "$(GREEN)✅ Backup completado en backups/$(RESET)"
+
+.PHONY: db-optimize
+db-optimize: ## 🏎️ Optimizar base de datos
+	@echo "$(YELLOW)🏎️ Optimizando base de datos...$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan db:wipe --drop-views
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan migrate --force
+	$(ACTIVE_COMPOSE) exec mysql mysql -u root -p$$MYSQL_ROOT_PASSWORD -e "OPTIMIZE TABLE $$MYSQL_DATABASE.*;" $$MYSQL_DATABASE
+	@echo "$(GREEN)✅ Base de datos optimizada$(RESET)"
 
 # ==========================================
-# TESTING & QUALITY
+# DEVELOPMENT TOOLS OPTIMIZADOS
 # ==========================================
 
-.PHONY: test
-test: ## Ejecutar tests
-	@if docker ps | grep -q nfc-app-dev; then \
-		$(MAKE) dev-test; \
-	else \
-		$(DOCKER_COMPOSE_PROD) run --rm app /usr/local/bin/start.sh test; \
+.PHONY: dev-setup
+dev-setup: ## 🛠️ Setup completo de desarrollo
+	@echo "$(BLUE)🛠️ Setup completo de desarrollo...$(RESET)"
+	$(MAKE) dev
+	@sleep 5
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer install
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) npm install
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) npm run build
+	$(MAKE) migrate
+	$(MAKE) cache-clear
+	@echo "$(GREEN)✅ Setup de desarrollo completado$(RESET)"
+
+.PHONY: test-full
+test-full: ## 🧪 Suite completa de tests
+	@echo "$(BLUE)🧪 Ejecutando suite completa de tests...$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan test --parallel
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) ./vendor/bin/php-cs-fixer fix --dry-run --diff || true
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) npm run test || true
+	@echo "$(GREEN)✅ Tests completados$(RESET)"
+
+.PHONY: lint-fix
+lint-fix: ## 🔧 Arreglar código automáticamente
+	@echo "$(YELLOW)🔧 Arreglando código...$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) ./vendor/bin/php-cs-fixer fix
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) npm run lint:fix || true
+	@echo "$(GREEN)✅ Código arreglado$(RESET)"
+
+# ==========================================
+# PRODUCTION DEPLOYMENT OPTIMIZADO
+# ==========================================
+
+.PHONY: deploy
+deploy: pre-deploy prod-build-optimized prod backup-before-deploy ## 🚀 Deployment completo a producción
+	@echo "$(BOLD)$(GREEN)🚀 Deployment completado exitosamente$(RESET)"
+
+.PHONY: pre-deploy
+pre-deploy: ## 🔍 Verificaciones pre-deployment
+	@echo "$(YELLOW)🔍 Verificaciones pre-deployment...$(RESET)"
+	$(MAKE) test-full
+	$(MAKE) cache-clear
+	@if git status --porcelain | grep -q .; then \
+		echo "$(RED)❌ Hay cambios sin commit$(RESET)" && exit 1; \
 	fi
+	@echo "$(GREEN)✅ Pre-deployment verificado$(RESET)"
 
-.PHONY: test-coverage
-test-coverage: ## Ejecutar tests con cobertura
-	$(DOCKER_COMPOSE_DEV) exec app php artisan test --coverage
+.PHONY: prod-build-optimized
+prod-build-optimized: ## 🏭 Build optimizado para producción
+	@echo "$(RED)🏭 Build optimizado para producción...$(RESET)"
+	$(DOCKER_COMPOSE_PROD) build --parallel --no-cache
+	@echo "$(GREEN)✅ Build de producción completado$(RESET)"
 
-.PHONY: lint
-lint: ## Ejecutar linters (PHP CS Fixer, ESLint)
-	$(DOCKER_COMPOSE_DEV) exec app ./vendor/bin/php-cs-fixer fix --dry-run --diff
-	$(DOCKER_COMPOSE_DEV) exec app npm run lint
+.PHONY: backup-before-deploy
+backup-before-deploy: ## 💾 Backup automático antes de deployment
+	@echo "$(YELLOW)💾 Backup pre-deployment...$(RESET)"
+	$(MAKE) db-backup
+	@echo "$(GREEN)✅ Backup pre-deployment completado$(RESET)"
 
-.PHONY: fix
-fix: ## Arreglar código automáticamente
-	$(DOCKER_COMPOSE_DEV) exec app ./vendor/bin/php-cs-fixer fix
-	$(DOCKER_COMPOSE_DEV) exec app npm run lint:fix
+.PHONY: rollback
+rollback: ## 🔄 Rollback rápido
+	@echo "$(RED)🔄 Ejecutando rollback...$(RESET)"
+	@echo "$(YELLOW)Listando backups disponibles:$(RESET)"
+	@ls -la backups/ | tail -5
+	@echo "$(YELLOW)Ingresa el nombre del backup para restaurar:$(RESET)"
+	@read backup && \
+	$(ACTIVE_COMPOSE) exec mysql mysql -u root -p$$MYSQL_ROOT_PASSWORD $$MYSQL_DATABASE < backups/$$backup
+	@echo "$(GREEN)✅ Rollback completado$(RESET)"
 
 # ==========================================
-# MONITORING & DEBUGGING
+# UTILITIES OPTIMIZADAS
 # ==========================================
 
-.PHONY: monitor
-monitor: ## Monitorear recursos de contenedores
-	docker stats $(shell docker ps --filter "name=nfc-" --format "{{.Names}}")
+.PHONY: clean-all
+clean-all: ## 🧹 Limpieza completa del sistema
+	@echo "$(YELLOW)🧹 Limpieza completa...$(RESET)"
+	$(DOCKER_COMPOSE_DEV) down -v --remove-orphans 2>/dev/null || true
+	$(DOCKER_COMPOSE_PROD) down -v --remove-orphans 2>/dev/null || true
+	$(DOCKER_COMPOSE_HYBRID) down -v --remove-orphans 2>/dev/null || true
+	docker system prune -af --volumes
+	@echo "$(GREEN)✅ Limpieza completada$(RESET)"
+
+.PHONY: status
+status: ## 📋 Estado completo del sistema
+	@echo "$(BOLD)$(BLUE)📋 ESTADO DEL SISTEMA$(RESET)"
+	@echo ""
+	@echo "$(CYAN)Entorno actual: $(BOLD)$(CURRENT_ENV)$(RESET)"
+	@echo ""
+	@echo "$(CYAN)Contenedores:$(RESET)"
+	@docker ps -a --filter "name=nfc-" --format "  {{.Names}} - {{.Status}}" || echo "  No hay contenedores"
+	@echo ""
+	@echo "$(CYAN)Imágenes:$(RESET)"
+	@docker images --filter "reference=kraftdo-nfc*" --format "  {{.Repository}}:{{.Tag}} - {{.Size}}" || echo "  No hay imágenes"
+	@echo ""
+	@echo "$(CYAN)Volúmenes:$(RESET)"
+	@docker volume ls --filter "name=kraftdo" --format "  {{.Name}}" || echo "  No hay volúmenes"
 
 .PHONY: debug
-debug: ## Información de debug
-	@echo "$(CYAN)🐛 Información de debug:$(RESET)"
-	@echo "Docker version: $(shell docker --version)"
-	@echo "Docker Compose version: $(shell docker compose version)"
-	@echo "Contenedores activos:"
-	@docker ps --filter "name=nfc-" --format "  - {{.Names}} ({{.Status}})"
+debug: ## 🐛 Información completa de debug
+	@echo "$(BOLD)$(CYAN)🐛 INFORMACIÓN DE DEBUG$(RESET)"
+	@echo ""
+	@echo "$(CYAN)Sistema:$(RESET)"
+	@echo "  Docker: $(shell docker --version)"
+	@echo "  Compose: $(shell docker compose version)"
+	@echo "  Sistema: $(shell uname -a)"
+	@echo ""
+	@echo "$(CYAN)Proyecto:$(RESET)"
+	@echo "  Directorio: $(PWD)"
+	@echo "  Entorno detectado: $(CURRENT_ENV)"
+	@echo "  Compose activo: $(ACTIVE_COMPOSE)"
+	@echo ""
+	@echo "$(CYAN)Logs recientes:$(RESET)"
+	@$(ACTIVE_COMPOSE) logs --tail=10 app 2>/dev/null || echo "  No hay logs disponibles"
 
 # ==========================================
-# DOCKER UTILITIES
-# ==========================================
-
-.PHONY: pull
-pull: ## Actualizar imágenes Docker
-	$(DOCKER_COMPOSE_DEV) pull
-	$(DOCKER_COMPOSE_PROD) pull
-
-.PHONY: restart
-restart: ## Reiniciar contenedores (detecta entorno)
-	@if docker ps | grep -q nfc-app-dev; then \
-		$(DOCKER_COMPOSE_DEV) restart; \
-	else \
-		$(DOCKER_COMPOSE_PROD) restart; \
-	fi
-
-# ==========================================
-# SHORTCUTS COMUNES
+# SHORTCUTS Y ALIASES OPTIMIZADOS
 # ==========================================
 
 .PHONY: up
-up: dev ## Alias para 'make dev'
+up: ## 🚀 Iniciar (detecta mejor configuración)
+	@if [ -f "docker-compose.hybrid.yml" ]; then \
+		$(MAKE) hybrid; \
+	elif [ -f ".env" ] && grep -q "APP_ENV=local" .env; then \
+		$(MAKE) dev; \
+	else \
+		$(MAKE) prod; \
+	fi
 
 .PHONY: down
-down: ## Parar todos los contenedores
+down: ## 🛑 Parar todos los contenedores
+	@echo "$(YELLOW)🛑 Parando todos los contenedores...$(RESET)"
+	$(DOCKER_COMPOSE_HYBRID) down 2>/dev/null || true
 	$(DOCKER_COMPOSE_DEV) down 2>/dev/null || true
 	$(DOCKER_COMPOSE_PROD) down 2>/dev/null || true
+	@echo "$(GREEN)✅ Contenedores parados$(RESET)"
 
-.PHONY: build
-build: ## Construir imágenes (detecta entorno)
-	@if [ -f .env ] && grep -q "APP_ENV=local" .env; then \
-		$(MAKE) dev-build; \
-	else \
-		$(MAKE) prod-build; \
-	fi
+.PHONY: restart
+restart: ## 🔄 Reinicio inteligente
+	@echo "$(YELLOW)🔄 Reiniciando $(CURRENT_ENV)...$(RESET)"
+	$(ACTIVE_COMPOSE) restart
+	@sleep 5
+	$(MAKE) health
 
 .PHONY: shell
-shell: ## Entrar al contenedor (detecta entorno)
-	@if docker ps | grep -q nfc-app-dev; then \
-		$(MAKE) dev-shell; \
-	else \
-		$(MAKE) prod-shell; \
-	fi
+shell: ## 💻 Shell inteligente (detecta entorno)
+	@echo "$(BLUE)💻 Accediendo a shell de $(CURRENT_ENV)...$(RESET)"
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) sh
 
-# Default target
+.PHONY: logs
+logs: ## 📝 Logs inteligentes (detecta entorno)
+	$(ACTIVE_COMPOSE) logs -f
+
+.PHONY: quick-fix
+quick-fix: ## ⚡ Arreglo rápido de problemas comunes
+	@echo "$(YELLOW)⚡ Aplicando arreglos rápidos...$(RESET)"
+	$(MAKE) cache-clear
+	$(MAKE) optimize-composer
+	$(ACTIVE_COMPOSE) restart app
+	@echo "$(GREEN)✅ Arreglos aplicados$(RESET)"
+
+# ==========================================
+# COMANDOS HÍBRIDOS (CONFIGURACIÓN ACTUAL)
+# ==========================================
+
+.PHONY: hybrid
+hybrid: ## 🔄 Iniciar configuración híbrida optimizada
+	@echo "$(BLUE)🔄 Iniciando híbrido OPTIMIZADO...$(RESET)"
+	$(DOCKER_COMPOSE_HYBRID) up -d
+	@sleep 5
+	$(MAKE) cache-clear
+	@echo "$(GREEN)✅ Híbrido optimizado en http://localhost:8080$(RESET)"
+
+# Target por defecto
 .DEFAULT_GOAL := help
+
+# ==========================================
+# COMANDOS AVANZADOS DE ARTISAN
+# ==========================================
+
+artisan-%: ## 🎯 Ejecutar cualquier comando artisan (ej: make artisan-migrate)
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) php artisan $*
+
+composer-%: ## 📦 Ejecutar cualquier comando composer (ej: make composer-install)
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) composer $*
+
+npm-%: ## 📦 Ejecutar cualquier comando npm (ej: make npm-install)
+	$(ACTIVE_COMPOSE) exec $(SERVICE_NAME) npm $*
