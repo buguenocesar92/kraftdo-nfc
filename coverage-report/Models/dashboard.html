@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/app/Models</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../_css/bootstrap.min.css?v=12.3.6" rel="stylesheet" type="text/css">
+  <link href="../_css/billboard.min.css?v=12.3.6" rel="stylesheet" type="text/css">
+  <link href="../_css/style.css?v=12.3.6" rel="stylesheet" type="text/css">
+  <link href="../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../index.html">/var/www/html/app</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Models</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classesCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3 style="margin-top: 2rem;">Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="ContentEvent.php.html#9">App\Models\ContentEvent</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGalleryImage.php.html#9">App\Models\ContentGalleryImage</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGift.php.html#11">App\Models\ContentGift</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenu.php.html#10">App\Models\ContentMenu</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenuItem.php.html#9">App\Models\ContentMenuItem</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#10">App\Models\ContentMultimedia</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProduct.php.html#9">App\Models\ContentProduct</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProfile.php.html#11">App\Models\ContentProfile</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSkill.php.html#9">App\Models\ContentSkill</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSocialLink.php.html#9">App\Models\ContentSocialLink</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentTourist.php.html#9">App\Models\ContentTourist</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#10">App\Models\DynamicContent</a></td><td class="text-right">1%</td></tr>
+       <tr><td><a href="User.php.html#12">App\Models\User</a></td><td class="text-right">36%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3 style="margin-top: 2rem;">Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+         <th class="text-right">Complexity</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="DynamicContent.php.html#10">App\Models\DynamicContent</a></td><td class="text-right">1.7%</td><td class="text-right">82</td><td class="text-right">6467</td></tr>
+       <tr><td><a href="ContentTourist.php.html#9">App\Models\ContentTourist</a></td><td class="text-right">0.0%</td><td class="text-right">18</td><td class="text-right">342</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#10">App\Models\ContentMultimedia</a></td><td class="text-right">0.0%</td><td class="text-right">12</td><td class="text-right">156</td></tr>
+       <tr><td><a href="ContentProduct.php.html#9">App\Models\ContentProduct</a></td><td class="text-right">0.0%</td><td class="text-right">12</td><td class="text-right">156</td></tr>
+       <tr><td><a href="ContentSkill.php.html#9">App\Models\ContentSkill</a></td><td class="text-right">0.0%</td><td class="text-right">10</td><td class="text-right">110</td></tr>
+       <tr><td><a href="ContentEvent.php.html#9">App\Models\ContentEvent</a></td><td class="text-right">0.0%</td><td class="text-right">8</td><td class="text-right">72</td></tr>
+       <tr><td><a href="ContentGalleryImage.php.html#9">App\Models\ContentGalleryImage</a></td><td class="text-right">0.0%</td><td class="text-right">8</td><td class="text-right">72</td></tr>
+       <tr><td><a href="ContentProfile.php.html#11">App\Models\ContentProfile</a></td><td class="text-right">0.0%</td><td class="text-right">8</td><td class="text-right">72</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2 style="margin-top: 3rem;">Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodsCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3 style="margin-top: 2rem;">Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="ContentEvent.php.html#40"><abbr title="App\Models\ContentEvent::dynamicContent">dynamicContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentEvent.php.html#48"><abbr title="App\Models\ContentEvent::isActive">isActive</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentEvent.php.html#56"><abbr title="App\Models\ContentEvent::requiresRegistration">requiresRegistration</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentEvent.php.html#64"><abbr title="App\Models\ContentEvent::getDurationInHours">getDurationInHours</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGalleryImage.php.html#41"><abbr title="App\Models\ContentGalleryImage::contentMultimedia">contentMultimedia</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGalleryImage.php.html#49"><abbr title="App\Models\ContentGalleryImage::getImageSourceAttribute">getImageSourceAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGalleryImage.php.html#60"><abbr title="App\Models\ContentGalleryImage::getImageDataAttribute">getImageDataAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGalleryImage.php.html#76"><abbr title="App\Models\ContentGalleryImage::scopeOrdered">scopeOrdered</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGalleryImage.php.html#84"><abbr title="App\Models\ContentGalleryImage::scopeUploads">scopeUploads</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGalleryImage.php.html#92"><abbr title="App\Models\ContentGalleryImage::scopeUrls">scopeUrls</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGift.php.html#25"><abbr title="App\Models\ContentGift::dynamicContent">dynamicContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGift.php.html#33"><abbr title="App\Models\ContentGift::multimedia">multimedia</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentGift.php.html#48"><abbr title="App\Models\ContentGift::galleryImages">galleryImages</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenu.php.html#25"><abbr title="App\Models\ContentMenu::dynamicContent">dynamicContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenu.php.html#33"><abbr title="App\Models\ContentMenu::menuItems">menuItems</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenu.php.html#41"><abbr title="App\Models\ContentMenu::getOrderedItemsAttribute">getOrderedItemsAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenu.php.html#54"><abbr title="App\Models\ContentMenu::getRestaurantInfoAttribute">getRestaurantInfoAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenuItem.php.html#34"><abbr title="App\Models\ContentMenuItem::contentMenu">contentMenu</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenuItem.php.html#42"><abbr title="App\Models\ContentMenuItem::getFormattedPriceAttribute">getFormattedPriceAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenuItem.php.html#50"><abbr title="App\Models\ContentMenuItem::scopeAvailable">scopeAvailable</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMenuItem.php.html#58"><abbr title="App\Models\ContentMenuItem::scopeByCategory">scopeByCategory</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#36"><abbr title="App\Models\ContentMultimedia::dynamicContent">dynamicContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#44"><abbr title="App\Models\ContentMultimedia::galleryImages">galleryImages</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#52"><abbr title="App\Models\ContentMultimedia::getVideoSourceAttribute">getVideoSourceAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#63"><abbr title="App\Models\ContentMultimedia::getAudioSourceAttribute">getAudioSourceAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#74"><abbr title="App\Models\ContentMultimedia::getAllGalleryImagesAttribute">getAllGalleryImagesAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#88"><abbr title="App\Models\ContentMultimedia::getGalleryImageUrlsAttribute">getGalleryImageUrlsAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#101"><abbr title="App\Models\ContentMultimedia::getVideoConfigAttribute">getVideoConfigAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#114"><abbr title="App\Models\ContentMultimedia::getAudioConfigAttribute">getAudioConfigAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProduct.php.html#43"><abbr title="App\Models\ContentProduct::dynamicContent">dynamicContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProduct.php.html#51"><abbr title="App\Models\ContentProduct::isAvailable">isAvailable</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProduct.php.html#59"><abbr title="App\Models\ContentProduct::inStock">inStock</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProduct.php.html#67"><abbr title="App\Models\ContentProduct::getFormattedPrice">getFormattedPrice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProduct.php.html#83"><abbr title="App\Models\ContentProduct::reduceStock">reduceStock</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProduct.php.html#96"><abbr title="App\Models\ContentProduct::increaseStock">increaseStock</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProfile.php.html#32"><abbr title="App\Models\ContentProfile::dynamicContent">dynamicContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProfile.php.html#40"><abbr title="App\Models\ContentProfile::multimedia">multimedia</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProfile.php.html#55"><abbr title="App\Models\ContentProfile::galleryImages">galleryImages</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProfile.php.html#70"><abbr title="App\Models\ContentProfile::socialLinks">socialLinks</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProfile.php.html#85"><abbr title="App\Models\ContentProfile::getContactInfoAttribute">getContactInfoAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentProfile.php.html#97"><abbr title="App\Models\ContentProfile::hasContactInfo">hasContactInfo</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSkill.php.html#29"><abbr title="App\Models\ContentSkill::dynamicContent">dynamicContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSkill.php.html#37"><abbr title="App\Models\ContentSkill::getLevelPercentageAttribute">getLevelPercentageAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSkill.php.html#45"><abbr title="App\Models\ContentSkill::getLevelDescriptionAttribute">getLevelDescriptionAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSkill.php.html#59"><abbr title="App\Models\ContentSkill::scopeOrdered">scopeOrdered</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSkill.php.html#69"><abbr title="App\Models\ContentSkill::scopeByCategory">scopeByCategory</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSocialLink.php.html#86"><abbr title="App\Models\ContentSocialLink::dynamicContent">dynamicContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSocialLink.php.html#94"><abbr title="App\Models\ContentSocialLink::getPlatformInfoAttribute">getPlatformInfoAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSocialLink.php.html#102"><abbr title="App\Models\ContentSocialLink::getPlatformIconAttribute">getPlatformIconAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSocialLink.php.html#110"><abbr title="App\Models\ContentSocialLink::getPlatformColorAttribute">getPlatformColorAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentSocialLink.php.html#118"><abbr title="App\Models\ContentSocialLink::scopeOrdered">scopeOrdered</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentTourist.php.html#48"><abbr title="App\Models\ContentTourist::dynamicContent">dynamicContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentTourist.php.html#56"><abbr title="App\Models\ContentTourist::isCurrentlyOpen">isCurrentlyOpen</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentTourist.php.html#87"><abbr title="App\Models\ContentTourist::getCoordinatesString">getCoordinatesString</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentTourist.php.html#99"><abbr title="App\Models\ContentTourist::getGoogleMapsUrl">getGoogleMapsUrl</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentTourist.php.html#113"><abbr title="App\Models\ContentTourist::hasAccessibilityInfo">hasAccessibilityInfo</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="ContentTourist.php.html#121"><abbr title="App\Models\ContentTourist::getTodayHours">getTodayHours</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#92"><abbr title="App\Models\DynamicContent::getActiveTypes">getActiveTypes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#107"><abbr title="App\Models\DynamicContent::getFutureTypes">getFutureTypes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#123"><abbr title="App\Models\DynamicContent::user">user</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#143"><abbr title="App\Models\DynamicContent::multimedia">multimedia</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#151"><abbr title="App\Models\DynamicContent::gift">gift</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#159"><abbr title="App\Models\DynamicContent::menu">menu</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#167"><abbr title="App\Models\DynamicContent::profile">profile</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#175"><abbr title="App\Models\DynamicContent::socialLinks">socialLinks</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#183"><abbr title="App\Models\DynamicContent::skills">skills</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#191"><abbr title="App\Models\DynamicContent::event">event</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#199"><abbr title="App\Models\DynamicContent::product">product</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#207"><abbr title="App\Models\DynamicContent::tourist">tourist</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#219"><abbr title="App\Models\DynamicContent::syncReferences">syncReferences</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#258"><abbr title="App\Models\DynamicContent::createOrUpdateMultimedia">createOrUpdateMultimedia</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#273"><abbr title="App\Models\DynamicContent::createOrUpdateGift">createOrUpdateGift</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#288"><abbr title="App\Models\DynamicContent::createOrUpdateMenu">createOrUpdateMenu</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#303"><abbr title="App\Models\DynamicContent::createOrUpdateProfile">createOrUpdateProfile</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#318"><abbr title="App\Models\DynamicContent::createOrUpdateEvent">createOrUpdateEvent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#333"><abbr title="App\Models\DynamicContent::createOrUpdateProduct">createOrUpdateProduct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#348"><abbr title="App\Models\DynamicContent::createOrUpdateTourist">createOrUpdateTourist</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#367"><abbr title="App\Models\DynamicContent::getTypeColors">getTypeColors</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#383"><abbr title="App\Models\DynamicContent::getTypeIcon">getTypeIcon</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#399"><abbr title="App\Models\DynamicContent::findActiveByContentId">findActiveByContentId</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#415"><abbr title="App\Models\DynamicContent::getByType">getByType</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#439"><abbr title="App\Models\DynamicContent::getGiftSubtypes">getGiftSubtypes</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#506"><abbr title="App\Models\DynamicContent::getTypeNameAttribute">getTypeNameAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#514"><abbr title="App\Models\DynamicContent::getColorsAttribute">getColorsAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#522"><abbr title="App\Models\DynamicContent::getIconAttribute">getIconAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#530"><abbr title="App\Models\DynamicContent::getDishesAttribute">getDishesAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#553"><abbr title="App\Models\DynamicContent::getMultimediaDataAttribute">getMultimediaDataAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#574"><abbr title="App\Models\DynamicContent::getSenderDisplayNameAttribute">getSenderDisplayNameAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#582"><abbr title="App\Models\DynamicContent::getRecipientDisplayNameAttribute">getRecipientDisplayNameAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#590"><abbr title="App\Models\DynamicContent::getDisplayMessageAttribute">getDisplayMessageAttribute</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#602"><abbr title="App\Models\DynamicContent::isDraft">isDraft</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#610"><abbr title="App\Models\DynamicContent::isPublished">isPublished</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#618"><abbr title="App\Models\DynamicContent::isPaused">isPaused</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#626"><abbr title="App\Models\DynamicContent::isPubliclyAccessible">isPubliclyAccessible</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#634"><abbr title="App\Models\DynamicContent::publish">publish</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#647"><abbr title="App\Models\DynamicContent::pause">pause</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#657"><abbr title="App\Models\DynamicContent::updateDraft">updateDraft</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#672"><abbr title="App\Models\DynamicContent::canModify">canModify</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#686"><abbr title="App\Models\DynamicContent::getRemainingModifications">getRemainingModifications</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#699"><abbr title="App\Models\DynamicContent::createSnapshot">createSnapshot</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#717"><abbr title="App\Models\DynamicContent::scopePublic">scopePublic</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#726"><abbr title="App\Models\DynamicContent::scopeDrafts">scopeDrafts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="DynamicContent.php.html#734"><abbr title="App\Models\DynamicContent::scopeOfType">scopeOfType</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="NfcAnalytic.php.html#234"><abbr title="App\Models\NfcAnalytic::scopeThisMonth">scopeThisMonth</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="NfcAnalytic.php.html#242"><abbr title="App\Models\NfcAnalytic::scopeUniqueVisits">scopeUniqueVisits</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="NfcToken.php.html#326"><abbr title="App\Models\NfcToken::getAdjustedPrice">getAdjustedPrice</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="NfcToken.php.html#335"><abbr title="App\Models\NfcToken::getAvailableFeatures">getAvailableFeatures</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="NfcToken.php.html#368"><abbr title="App\Models\NfcToken::scopeAssigned">scopeAssigned</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="NfcToken.php.html#376"><abbr title="App\Models\NfcToken::scopeUnassigned">scopeUnassigned</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#54"><abbr title="App\Models\User::initials">initials</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#66"><abbr title="App\Models\User::dynamicContents">dynamicContents</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="User.php.html#74"><abbr title="App\Models\User::nfcTokens">nfcTokens</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="NfcToken.php.html#291"><abbr title="App\Models\NfcToken::calculateCostPerView">calculateCostPerView</abbr></a></td><td class="text-right">66%</td></tr>
+       <tr><td><a href="NfcToken.php.html#128"><abbr title="App\Models\NfcToken::isContentReady">isContentReady</abbr></a></td><td class="text-right">75%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3 style="margin-top: 2rem;">Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+         <th class="text-right">Complexity</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="DynamicContent.php.html#219"><abbr title="App\Models\DynamicContent::syncReferences">syncReferences</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">15</td><td class="text-right">240</td></tr>
+       <tr><td><a href="ContentTourist.php.html#56"><abbr title="App\Models\ContentTourist::isCurrentlyOpen">isCurrentlyOpen</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">8</td><td class="text-right">72</td></tr>
+       <tr><td><a href="DynamicContent.php.html#367"><abbr title="App\Models\DynamicContent::getTypeColors">getTypeColors</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">8</td><td class="text-right">72</td></tr>
+       <tr><td><a href="DynamicContent.php.html#383"><abbr title="App\Models\DynamicContent::getTypeIcon">getTypeIcon</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">8</td><td class="text-right">72</td></tr>
+       <tr><td><a href="ContentSkill.php.html#45"><abbr title="App\Models\ContentSkill::getLevelDescriptionAttribute">getLevelDescriptionAttribute</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">6</td><td class="text-right">42</td></tr>
+       <tr><td><a href="ContentProduct.php.html#67"><abbr title="App\Models\ContentProduct::getFormattedPrice">getFormattedPrice</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">5</td><td class="text-right">30</td></tr>
+       <tr><td><a href="ContentEvent.php.html#64"><abbr title="App\Models\ContentEvent::getDurationInHours">getDurationInHours</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="ContentGalleryImage.php.html#49"><abbr title="App\Models\ContentGalleryImage::getImageSourceAttribute">getImageSourceAttribute</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#52"><abbr title="App\Models\ContentMultimedia::getVideoSourceAttribute">getVideoSourceAttribute</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="ContentMultimedia.php.html#63"><abbr title="App\Models\ContentMultimedia::getAudioSourceAttribute">getAudioSourceAttribute</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="ContentProfile.php.html#97"><abbr title="App\Models\ContentProfile::hasContactInfo">hasContactInfo</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="ContentTourist.php.html#87"><abbr title="App\Models\ContentTourist::getCoordinatesString">getCoordinatesString</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="ContentEvent.php.html#48"><abbr title="App\Models\ContentEvent::isActive">isActive</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="ContentEvent.php.html#56"><abbr title="App\Models\ContentEvent::requiresRegistration">requiresRegistration</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="ContentProduct.php.html#51"><abbr title="App\Models\ContentProduct::isAvailable">isAvailable</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="ContentProduct.php.html#83"><abbr title="App\Models\ContentProduct::reduceStock">reduceStock</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="ContentTourist.php.html#99"><abbr title="App\Models\ContentTourist::getGoogleMapsUrl">getGoogleMapsUrl</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="ContentTourist.php.html#113"><abbr title="App\Models\ContentTourist::hasAccessibilityInfo">hasAccessibilityInfo</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="ContentTourist.php.html#121"><abbr title="App\Models\ContentTourist::getTodayHours">getTodayHours</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="DynamicContent.php.html#399"><abbr title="App\Models\DynamicContent::findActiveByContentId">findActiveByContentId</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="DynamicContent.php.html#530"><abbr title="App\Models\DynamicContent::getDishesAttribute">getDishesAttribute</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="DynamicContent.php.html#626"><abbr title="App\Models\DynamicContent::isPubliclyAccessible">isPubliclyAccessible</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="DynamicContent.php.html#657"><abbr title="App\Models\DynamicContent::updateDraft">updateDraft</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="DynamicContent.php.html#672"><abbr title="App\Models\DynamicContent::canModify">canModify</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="DynamicContent.php.html#686"><abbr title="App\Models\DynamicContent::getRemainingModifications">getRemainingModifications</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="NfcToken.php.html#128"><abbr title="App\Models\NfcToken::isContentReady">isContentReady</abbr></a></td><td class="text-right">75.0%</td><td class="text-right">4</td><td class="text-right">4</td></tr>
+       <tr><td><a href="NfcToken.php.html#291"><abbr title="App\Models\NfcToken::calculateCostPerView">calculateCostPerView</abbr></a></td><td class="text-right">66.7%</td><td class="text-right">3</td><td class="text-right">3</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 12.3.6</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.22</a> and <a href="https://phpunit.de/">PHPUnit 12.3.7</a> at Mon Sep 15 6:59:29 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../_js/billboard.pkgd.min.js?v=12.3.6" type="text/javascript"></script>
+  <script type="application/json" id="complexity_class">[[0,8,"ContentEvent.php.html#9","App\\Models\\ContentEvent","72"],[0,8,"ContentGalleryImage.php.html#9","App\\Models\\ContentGalleryImage","72"],[0,3,"ContentGift.php.html#11","App\\Models\\ContentGift","12"],[0,4,"ContentMenu.php.html#10","App\\Models\\ContentMenu","20"],[0,4,"ContentMenuItem.php.html#9","App\\Models\\ContentMenuItem","20"],[0,12,"ContentMultimedia.php.html#10","App\\Models\\ContentMultimedia","156"],[0,12,"ContentProduct.php.html#9","App\\Models\\ContentProduct","156"],[0,8,"ContentProfile.php.html#11","App\\Models\\ContentProfile","72"],[0,10,"ContentSkill.php.html#9","App\\Models\\ContentSkill","110"],[0,5,"ContentSocialLink.php.html#9","App\\Models\\ContentSocialLink","30"],[0,18,"ContentTourist.php.html#9","App\\Models\\ContentTourist","342"],[1.7094017094017095,82,"DynamicContent.php.html#10","App\\Models\\DynamicContent","6467.04"],[36.36363636363637,4,"User.php.html#12","App\\Models\\User","8.12"],[93.24324324324324,37,"NfcToken.php.html#12","App\\Models\\NfcToken","37.42"],[98.21428571428571,24,"NfcAnalytic.php.html#10","App\\Models\\NfcAnalytic","24"]]</script>
+  <script type="application/json" id="complexity_method">[[0,1,"ContentEvent.php.html#40","App\\Models\\ContentEvent::dynamicContent","2"],[0,2,"ContentEvent.php.html#48","App\\Models\\ContentEvent::isActive","6"],[0,2,"ContentEvent.php.html#56","App\\Models\\ContentEvent::requiresRegistration","6"],[0,3,"ContentEvent.php.html#64","App\\Models\\ContentEvent::getDurationInHours","12"],[0,1,"ContentGalleryImage.php.html#41","App\\Models\\ContentGalleryImage::contentMultimedia","2"],[0,3,"ContentGalleryImage.php.html#49","App\\Models\\ContentGalleryImage::getImageSourceAttribute","12"],[0,1,"ContentGalleryImage.php.html#60","App\\Models\\ContentGalleryImage::getImageDataAttribute","2"],[0,1,"ContentGalleryImage.php.html#76","App\\Models\\ContentGalleryImage::scopeOrdered","2"],[0,1,"ContentGalleryImage.php.html#84","App\\Models\\ContentGalleryImage::scopeUploads","2"],[0,1,"ContentGalleryImage.php.html#92","App\\Models\\ContentGalleryImage::scopeUrls","2"],[0,1,"ContentGift.php.html#25","App\\Models\\ContentGift::dynamicContent","2"],[0,1,"ContentGift.php.html#33","App\\Models\\ContentGift::multimedia","2"],[0,1,"ContentGift.php.html#48","App\\Models\\ContentGift::galleryImages","2"],[0,1,"ContentMenu.php.html#25","App\\Models\\ContentMenu::dynamicContent","2"],[0,1,"ContentMenu.php.html#33","App\\Models\\ContentMenu::menuItems","2"],[0,1,"ContentMenu.php.html#41","App\\Models\\ContentMenu::getOrderedItemsAttribute","2"],[0,1,"ContentMenu.php.html#54","App\\Models\\ContentMenu::getRestaurantInfoAttribute","2"],[0,1,"ContentMenuItem.php.html#34","App\\Models\\ContentMenuItem::contentMenu","2"],[0,1,"ContentMenuItem.php.html#42","App\\Models\\ContentMenuItem::getFormattedPriceAttribute","2"],[0,1,"ContentMenuItem.php.html#50","App\\Models\\ContentMenuItem::scopeAvailable","2"],[0,1,"ContentMenuItem.php.html#58","App\\Models\\ContentMenuItem::scopeByCategory","2"],[0,1,"ContentMultimedia.php.html#36","App\\Models\\ContentMultimedia::dynamicContent","2"],[0,1,"ContentMultimedia.php.html#44","App\\Models\\ContentMultimedia::galleryImages","2"],[0,3,"ContentMultimedia.php.html#52","App\\Models\\ContentMultimedia::getVideoSourceAttribute","12"],[0,3,"ContentMultimedia.php.html#63","App\\Models\\ContentMultimedia::getAudioSourceAttribute","12"],[0,1,"ContentMultimedia.php.html#74","App\\Models\\ContentMultimedia::getAllGalleryImagesAttribute","2"],[0,1,"ContentMultimedia.php.html#88","App\\Models\\ContentMultimedia::getGalleryImageUrlsAttribute","2"],[0,1,"ContentMultimedia.php.html#101","App\\Models\\ContentMultimedia::getVideoConfigAttribute","2"],[0,1,"ContentMultimedia.php.html#114","App\\Models\\ContentMultimedia::getAudioConfigAttribute","2"],[0,1,"ContentProduct.php.html#43","App\\Models\\ContentProduct::dynamicContent","2"],[0,2,"ContentProduct.php.html#51","App\\Models\\ContentProduct::isAvailable","6"],[0,1,"ContentProduct.php.html#59","App\\Models\\ContentProduct::inStock","2"],[0,5,"ContentProduct.php.html#67","App\\Models\\ContentProduct::getFormattedPrice","30"],[0,2,"ContentProduct.php.html#83","App\\Models\\ContentProduct::reduceStock","6"],[0,1,"ContentProduct.php.html#96","App\\Models\\ContentProduct::increaseStock","2"],[0,1,"ContentProfile.php.html#32","App\\Models\\ContentProfile::dynamicContent","2"],[0,1,"ContentProfile.php.html#40","App\\Models\\ContentProfile::multimedia","2"],[0,1,"ContentProfile.php.html#55","App\\Models\\ContentProfile::galleryImages","2"],[0,1,"ContentProfile.php.html#70","App\\Models\\ContentProfile::socialLinks","2"],[0,1,"ContentProfile.php.html#85","App\\Models\\ContentProfile::getContactInfoAttribute","2"],[0,3,"ContentProfile.php.html#97","App\\Models\\ContentProfile::hasContactInfo","12"],[0,1,"ContentSkill.php.html#29","App\\Models\\ContentSkill::dynamicContent","2"],[0,1,"ContentSkill.php.html#37","App\\Models\\ContentSkill::getLevelPercentageAttribute","2"],[0,6,"ContentSkill.php.html#45","App\\Models\\ContentSkill::getLevelDescriptionAttribute","42"],[0,1,"ContentSkill.php.html#59","App\\Models\\ContentSkill::scopeOrdered","2"],[0,1,"ContentSkill.php.html#69","App\\Models\\ContentSkill::scopeByCategory","2"],[0,1,"ContentSocialLink.php.html#86","App\\Models\\ContentSocialLink::dynamicContent","2"],[0,1,"ContentSocialLink.php.html#94","App\\Models\\ContentSocialLink::getPlatformInfoAttribute","2"],[0,1,"ContentSocialLink.php.html#102","App\\Models\\ContentSocialLink::getPlatformIconAttribute","2"],[0,1,"ContentSocialLink.php.html#110","App\\Models\\ContentSocialLink::getPlatformColorAttribute","2"],[0,1,"ContentSocialLink.php.html#118","App\\Models\\ContentSocialLink::scopeOrdered","2"],[0,1,"ContentTourist.php.html#48","App\\Models\\ContentTourist::dynamicContent","2"],[0,8,"ContentTourist.php.html#56","App\\Models\\ContentTourist::isCurrentlyOpen","72"],[0,3,"ContentTourist.php.html#87","App\\Models\\ContentTourist::getCoordinatesString","12"],[0,2,"ContentTourist.php.html#99","App\\Models\\ContentTourist::getGoogleMapsUrl","6"],[0,2,"ContentTourist.php.html#113","App\\Models\\ContentTourist::hasAccessibilityInfo","6"],[0,2,"ContentTourist.php.html#121","App\\Models\\ContentTourist::getTodayHours","6"],[0,1,"DynamicContent.php.html#92","App\\Models\\DynamicContent::getActiveTypes","2"],[0,1,"DynamicContent.php.html#107","App\\Models\\DynamicContent::getFutureTypes","2"],[0,1,"DynamicContent.php.html#123","App\\Models\\DynamicContent::user","2"],[0,1,"DynamicContent.php.html#143","App\\Models\\DynamicContent::multimedia","2"],[0,1,"DynamicContent.php.html#151","App\\Models\\DynamicContent::gift","2"],[0,1,"DynamicContent.php.html#159","App\\Models\\DynamicContent::menu","2"],[0,1,"DynamicContent.php.html#167","App\\Models\\DynamicContent::profile","2"],[0,1,"DynamicContent.php.html#175","App\\Models\\DynamicContent::socialLinks","2"],[0,1,"DynamicContent.php.html#183","App\\Models\\DynamicContent::skills","2"],[0,1,"DynamicContent.php.html#191","App\\Models\\DynamicContent::event","2"],[0,1,"DynamicContent.php.html#199","App\\Models\\DynamicContent::product","2"],[0,1,"DynamicContent.php.html#207","App\\Models\\DynamicContent::tourist","2"],[0,15,"DynamicContent.php.html#219","App\\Models\\DynamicContent::syncReferences","240"],[0,1,"DynamicContent.php.html#258","App\\Models\\DynamicContent::createOrUpdateMultimedia","2"],[0,1,"DynamicContent.php.html#273","App\\Models\\DynamicContent::createOrUpdateGift","2"],[0,1,"DynamicContent.php.html#288","App\\Models\\DynamicContent::createOrUpdateMenu","2"],[0,1,"DynamicContent.php.html#303","App\\Models\\DynamicContent::createOrUpdateProfile","2"],[0,1,"DynamicContent.php.html#318","App\\Models\\DynamicContent::createOrUpdateEvent","2"],[0,1,"DynamicContent.php.html#333","App\\Models\\DynamicContent::createOrUpdateProduct","2"],[0,1,"DynamicContent.php.html#348","App\\Models\\DynamicContent::createOrUpdateTourist","2"],[0,8,"DynamicContent.php.html#367","App\\Models\\DynamicContent::getTypeColors","72"],[0,8,"DynamicContent.php.html#383","App\\Models\\DynamicContent::getTypeIcon","72"],[0,2,"DynamicContent.php.html#399","App\\Models\\DynamicContent::findActiveByContentId","6"],[0,1,"DynamicContent.php.html#415","App\\Models\\DynamicContent::getByType","2"],[0,1,"DynamicContent.php.html#439","App\\Models\\DynamicContent::getGiftSubtypes","2"],[0,1,"DynamicContent.php.html#506","App\\Models\\DynamicContent::getTypeNameAttribute","2"],[0,1,"DynamicContent.php.html#514","App\\Models\\DynamicContent::getColorsAttribute","2"],[0,1,"DynamicContent.php.html#522","App\\Models\\DynamicContent::getIconAttribute","2"],[0,2,"DynamicContent.php.html#530","App\\Models\\DynamicContent::getDishesAttribute","6"],[0,1,"DynamicContent.php.html#553","App\\Models\\DynamicContent::getMultimediaDataAttribute","2"],[0,1,"DynamicContent.php.html#574","App\\Models\\DynamicContent::getSenderDisplayNameAttribute","2"],[0,1,"DynamicContent.php.html#582","App\\Models\\DynamicContent::getRecipientDisplayNameAttribute","2"],[0,1,"DynamicContent.php.html#590","App\\Models\\DynamicContent::getDisplayMessageAttribute","2"],[0,1,"DynamicContent.php.html#602","App\\Models\\DynamicContent::isDraft","2"],[0,1,"DynamicContent.php.html#610","App\\Models\\DynamicContent::isPublished","2"],[0,1,"DynamicContent.php.html#618","App\\Models\\DynamicContent::isPaused","2"],[0,2,"DynamicContent.php.html#626","App\\Models\\DynamicContent::isPubliclyAccessible","6"],[0,1,"DynamicContent.php.html#634","App\\Models\\DynamicContent::publish","2"],[0,1,"DynamicContent.php.html#647","App\\Models\\DynamicContent::pause","2"],[0,2,"DynamicContent.php.html#657","App\\Models\\DynamicContent::updateDraft","6"],[0,2,"DynamicContent.php.html#672","App\\Models\\DynamicContent::canModify","6"],[0,2,"DynamicContent.php.html#686","App\\Models\\DynamicContent::getRemainingModifications","6"],[0,1,"DynamicContent.php.html#699","App\\Models\\DynamicContent::createSnapshot","2"],[0,1,"DynamicContent.php.html#717","App\\Models\\DynamicContent::scopePublic","2"],[0,1,"DynamicContent.php.html#726","App\\Models\\DynamicContent::scopeDrafts","2"],[0,1,"DynamicContent.php.html#734","App\\Models\\DynamicContent::scopeOfType","2"],[0,1,"NfcAnalytic.php.html#234","App\\Models\\NfcAnalytic::scopeThisMonth","2"],[0,1,"NfcAnalytic.php.html#242","App\\Models\\NfcAnalytic::scopeUniqueVisits","2"],[0,1,"NfcToken.php.html#326","App\\Models\\NfcToken::getAdjustedPrice","2"],[0,1,"NfcToken.php.html#335","App\\Models\\NfcToken::getAvailableFeatures","2"],[0,1,"NfcToken.php.html#368","App\\Models\\NfcToken::scopeAssigned","2"],[0,1,"NfcToken.php.html#376","App\\Models\\NfcToken::scopeUnassigned","2"],[0,1,"User.php.html#54","App\\Models\\User::initials","2"],[0,1,"User.php.html#66","App\\Models\\User::dynamicContents","2"],[0,1,"User.php.html#74","App\\Models\\User::nfcTokens","2"],[66.66666666666666,3,"NfcToken.php.html#291","App\\Models\\NfcToken::calculateCostPerView","3.33"],[75,4,"NfcToken.php.html#128","App\\Models\\NfcToken::isContentReady","4.25"],[100,1,"DynamicContent.php.html#131","App\\Models\\DynamicContent::nfcToken","1"],[100,1,"DynamicContent.php.html#427","App\\Models\\DynamicContent::generateUniqueContentId","1"],[100,1,"NfcAnalytic.php.html#37","App\\Models\\NfcAnalytic::nfcToken","1"],[100,3,"NfcAnalytic.php.html#45","App\\Models\\NfcAnalytic::recordAccess","3"],[100,2,"NfcAnalytic.php.html#86","App\\Models\\NfcAnalytic::getStatsForContent","2"],[100,1,"NfcAnalytic.php.html#144","App\\Models\\NfcAnalytic::getGlobalStats","1"],[100,1,"NfcAnalytic.php.html#176","App\\Models\\NfcAnalytic::getContentStats","1"],[100,4,"NfcAnalytic.php.html#184","App\\Models\\NfcAnalytic::detectDeviceType","4"],[100,8,"NfcAnalytic.php.html#202","App\\Models\\NfcAnalytic::detectBrowser","8"],[100,1,"NfcAnalytic.php.html#218","App\\Models\\NfcAnalytic::scopeToday","1"],[100,1,"NfcAnalytic.php.html#226","App\\Models\\NfcAnalytic::scopeThisWeek","1"],[100,2,"NfcToken.php.html#44","App\\Models\\NfcToken::boot","2"],[100,1,"NfcToken.php.html#62","App\\Models\\NfcToken::user","1"],[100,1,"NfcToken.php.html#70","App\\Models\\NfcToken::dynamicContent","1"],[100,1,"NfcToken.php.html#78","App\\Models\\NfcToken::analytics","1"],[100,1,"NfcToken.php.html#90","App\\Models\\NfcToken::updateLastUsed","1"],[100,2,"NfcToken.php.html#98","App\\Models\\NfcToken::getOrCreateContent","2"],[100,1,"NfcToken.php.html#120","App\\Models\\NfcToken::hasContent","1"],[100,1,"NfcToken.php.html#141","App\\Models\\NfcToken::isAssigned","1"],[100,1,"NfcToken.php.html#149","App\\Models\\NfcToken::incrementViews","1"],[100,3,"NfcToken.php.html#158","App\\Models\\NfcToken::updateCostPerView","3"],[100,3,"NfcToken.php.html#170","App\\Models\\NfcToken::getROI","3"],[100,1,"NfcToken.php.html#197","App\\Models\\NfcToken::getCustomizationPlans","1"],[100,1,"NfcToken.php.html#274","App\\Models\\NfcToken::getCustomizationPlan","1"],[100,1,"NfcToken.php.html#283","App\\Models\\NfcToken::getCurrentPlan","1"],[100,1,"NfcToken.php.html#302","App\\Models\\NfcToken::getROIMetrics","1"],[100,1,"NfcToken.php.html#317","App\\Models\\NfcToken::hasFeature","1"],[100,1,"NfcToken.php.html#350","App\\Models\\NfcToken::findActiveByTokenId","1"],[100,1,"NfcToken.php.html#360","App\\Models\\NfcToken::scopeActive","1"],[100,1,"NfcToken.php.html#384","App\\Models\\NfcToken::scopeOfType","1"],[100,1,"NfcToken.php.html#392","App\\Models\\NfcToken::generateUniqueTokenId","1"],[100,1,"User.php.html#43","App\\Models\\User::casts","1"]]</script>
+  <script type="text/javascript" defer>
+  const barLabels = [
+    '0%',
+    '0-10%',
+    '10-20%',
+    '20-30%',
+    '30-40%',
+    '40-50%',
+    '50-60%',
+    '60-70%',
+    '70-80%',
+    '80-90%',
+    '90-100%',
+    '100%'
+  ];
+  const barConfig = (name, fullName, values) => ({
+    axis: {
+      x: {
+        type: "category",
+        categories: barLabels,
+      },
+      y: {
+        label: {
+          text: `#${name}`,
+          position: 'outer-top',
+        },
+      },
+    },
+    bindto: `#${name}CoverageDistribution`,
+    data: {
+      columns: [
+        [fullName].concat(values),
+      ],
+      colors: {
+        [fullName]: "rgba(69, 114, 167, 0.75)",
+      },
+      type: "bar",
+    },
+    bar: {
+      width: {
+        ratio: 0.9,
+      },
+    },
+    grid: {
+      focus: {
+        show: false,
+      },
+      x: {
+        show: true,
+      },
+      y: {
+        show: true,
+      },
+    },
+    legend: {
+      show: false,
+    },
+    tooltip: {
+      contents: function (data) {
+        return `<table class="bb-tooltip"><tbody>
+            <tr><th colspan="2">Coverage ${barLabels[data[0].x]}</th></tr>
+            <tr><td class="value">${data[0].value} ${name}</td></tr>
+          </tbody></table>`;
+      },
+      grouped: false,
+    },
+  });
+  bb.generate(
+    barConfig('classes', "Class Coverage", [11,1,0,0,1,0,0,0,0,0,2,0])
+  );
+  bb.generate(
+    barConfig('methods', "Method Coverage", [112,0,0,0,0,0,0,1,1,0,0,32])
+  );
+
+  const scatterConfig = (name, complexityData) => ({
+    axis: {
+      x: {
+        label: {
+          text: 'Code Coverage (in percent)',
+          position: 'outer-right',
+        },
+        tick: {
+          values: [0, 20, 40, 60, 80, 100],
+        },
+      },
+      y: {
+        label: {
+          text: 'Cyclomatic Complexity',
+          position: 'outer-top',
+        },
+        min: 0,
+        padding: {
+          bottom: 0,
+          top: 5,
+        },
+      },
+    },
+    bindto: `#${name}Complexity`,
+    data: {
+      columns: [
+        ["complexity_x"].concat(complexityData.map(d => d[0])),
+        ["complexity"].concat(complexityData.map(d => d[1])),
+      ],
+      onclick: function(data, element) {
+        window.location = complexityData[data.index][2];
+      },
+      type: "scatter",
+      xs: {
+        "complexity": "complexity_x",
+      },
+    },
+    grid: {
+      focus: {
+        show: true,
+        y: true,
+      },
+      x: {
+        show: true,
+      },
+      y: {
+        show: true,
+      },
+    },
+    legend: {
+      show: false,
+    },
+    tooltip: {
+      contents: function (data) {
+        const coverage = Math.round(data[0].x);
+        const complexity = data[0].value;
+        const targetName = complexityData[data[0].index][3];
+        const crap = complexityData[data[0].index][4];
+        return `<table class="bb-tooltip"><tbody>
+            <tr><th colspan="2">${targetName}</th></tr>
+            <tr class="bb-tooltip-name-complexity"><td>Coverage</td><td class="name">${coverage}%</td></tr>
+            <tr class="bb-tooltip-name-complexity"><td>Complexity</td><td class="value">${complexity}</td></tr>
+            <tr class="bb-tooltip-name-complexity"><td>Crap</td><td class="value">${crap}</td></tr>
+          </tbody></table>`;
+      },
+      grouped: false,
+    },
+  });
+  const classComplexityData = JSON.parse(document.getElementById('complexity_class').textContent);
+  bb.generate(
+    scatterConfig("class", classComplexityData)
+  );
+  const methodComplexityData = JSON.parse(document.getElementById('complexity_method').textContent);
+  bb.generate(
+    scatterConfig("method", methodComplexityData),
+  );
+  </script>
+ </body>
+</html>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for /var/www/html/app/Http</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../_css/bootstrap.min.css?v=12.3.6" rel="stylesheet" type="text/css">
+  <link href="../_css/billboard.min.css?v=12.3.6" rel="stylesheet" type="text/css">
+  <link href="../_css/style.css?v=12.3.6" rel="stylesheet" type="text/css">
+  <link href="../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../index.html">/var/www/html/app</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Http</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classesCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3 style="margin-top: 2rem;">Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Controllers/Auth/VerifyEmailController.php.html#9">App\Http\Controllers\Auth\VerifyEmailController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#17">App\Http\Controllers\NfcContentController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/TokenController.php.html#15">App\Http\Controllers\TokenController</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Middleware/CheckAdminPermission.php.html#9">App\Http\Middleware\CheckAdminPermission</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Middleware/TokenOwnershipMiddleware.php.html#10">App\Http\Middleware\TokenOwnershipMiddleware</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Requests/CreateNfcAccountRequest.php.html#8">App\Http\Requests\CreateNfcAccountRequest</a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3 style="margin-top: 2rem;">Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+         <th class="text-right">Complexity</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Controllers/NfcContentController.php.html#17">App\Http\Controllers\NfcContentController</a></td><td class="text-right">0.0%</td><td class="text-right">81</td><td class="text-right">6642</td></tr>
+       <tr><td><a href="Controllers/TokenController.php.html#15">App\Http\Controllers\TokenController</a></td><td class="text-right">0.0%</td><td class="text-right">12</td><td class="text-right">156</td></tr>
+       <tr><td><a href="Middleware/TokenOwnershipMiddleware.php.html#10">App\Http\Middleware\TokenOwnershipMiddleware</a></td><td class="text-right">0.0%</td><td class="text-right">6</td><td class="text-right">42</td></tr>
+       <tr><td><a href="Middleware/CheckAdminPermission.php.html#9">App\Http\Middleware\CheckAdminPermission</a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="Controllers/Auth/VerifyEmailController.php.html#9">App\Http\Controllers\Auth\VerifyEmailController</a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2 style="margin-top: 3rem;">Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodsCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3 style="margin-top: 2rem;">Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Controllers/Auth/VerifyEmailController.php.html#14"><abbr title="App\Http\Controllers\Auth\VerifyEmailController::__invoke">__invoke</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#22"><abbr title="App\Http\Controllers\NfcContentController::show">show</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#51"><abbr title="App\Http\Controllers\NfcContentController::showById">showById</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#123"><abbr title="App\Http\Controllers\NfcContentController::showLegacy">showLegacy</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#211"><abbr title="App\Http\Controllers\NfcContentController::showByToken">showByToken</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#248"><abbr title="App\Http\Controllers\NfcContentController::preview">preview</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#269"><abbr title="App\Http\Controllers\NfcContentController::getStats">getStats</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#286"><abbr title="App\Http\Controllers\NfcContentController::getViewForContentType">getViewForContentType</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#303"><abbr title="App\Http\Controllers\NfcContentController::prepareViewData">prepareViewData</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#448"><abbr title="App\Http\Controllers\NfcContentController::getGiftTheme">getGiftTheme</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#463"><abbr title="App\Http\Controllers\NfcContentController::info">info</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#471"><abbr title="App\Http\Controllers\NfcContentController::validateContent">validateContent</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#485"><abbr title="App\Http\Controllers\NfcContentController::validateToken">validateToken</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#504"><abbr title="App\Http\Controllers\NfcContentController::showOnboarding">showOnboarding</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#581"><abbr title="App\Http\Controllers\NfcContentController::showContentNotAvailable">showContentNotAvailable</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#594"><abbr title="App\Http\Controllers\NfcContentController::onboardingById">onboardingById</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#623"><abbr title="App\Http\Controllers\NfcContentController::onboarding">onboarding</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#652"><abbr title="App\Http\Controllers\NfcContentController::createAccount">createAccount</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#712"><abbr title="App\Http\Controllers\NfcContentController::assignTokenToAuthenticatedUser">assignTokenToAuthenticatedUser</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#761"><abbr title="App\Http\Controllers\NfcContentController::assignTokenToExistingUser">assignTokenToExistingUser</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#811"><abbr title="App\Http\Controllers\NfcContentController::getDefaultDataForType">getDefaultDataForType</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#863"><abbr title="App\Http\Controllers\NfcContentController::assignDefaultNfcRole">assignDefaultNfcRole</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/TokenController.php.html#17"><abbr title="App\Http\Controllers\TokenController::show">show</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/TokenController.php.html#87"><abbr title="App\Http\Controllers\TokenController::recordAnalyticsAsync">recordAnalyticsAsync</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Controllers/TokenController.php.html#104"><abbr title="App\Http\Controllers\TokenController::preview">preview</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Middleware/CheckAdminPermission.php.html#11"><abbr title="App\Http\Middleware\CheckAdminPermission::handle">handle</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Middleware/TokenOwnershipMiddleware.php.html#17"><abbr title="App\Http\Middleware\TokenOwnershipMiddleware::handle">handle</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Requests/CreateNfcAccountRequest.php.html#13"><abbr title="App\Http\Requests\CreateNfcAccountRequest::authorize">authorize</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Requests/CreateNfcAccountRequest.php.html#21"><abbr title="App\Http\Requests\CreateNfcAccountRequest::rules">rules</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Requests/CreateNfcAccountRequest.php.html#36"><abbr title="App\Http\Requests\CreateNfcAccountRequest::messages">messages</abbr></a></td><td class="text-right">0%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3 style="margin-top: 2rem;">Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+         <th class="text-right">Complexity</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Controllers/NfcContentController.php.html#123"><abbr title="App\Http\Controllers\NfcContentController::showLegacy">showLegacy</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">12</td><td class="text-right">156</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#51"><abbr title="App\Http\Controllers\NfcContentController::showById">showById</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">10</td><td class="text-right">110</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#286"><abbr title="App\Http\Controllers\NfcContentController::getViewForContentType">getViewForContentType</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">8</td><td class="text-right">72</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#303"><abbr title="App\Http\Controllers\NfcContentController::prepareViewData">prepareViewData</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">8</td><td class="text-right">72</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#811"><abbr title="App\Http\Controllers\NfcContentController::getDefaultDataForType">getDefaultDataForType</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">8</td><td class="text-right">72</td></tr>
+       <tr><td><a href="Controllers/TokenController.php.html#17"><abbr title="App\Http\Controllers\TokenController::show">show</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">6</td><td class="text-right">42</td></tr>
+       <tr><td><a href="Middleware/TokenOwnershipMiddleware.php.html#17"><abbr title="App\Http\Middleware\TokenOwnershipMiddleware::handle">handle</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">6</td><td class="text-right">42</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#863"><abbr title="App\Http\Controllers\NfcContentController::assignDefaultNfcRole">assignDefaultNfcRole</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">5</td><td class="text-right">30</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#211"><abbr title="App\Http\Controllers\NfcContentController::showByToken">showByToken</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">4</td><td class="text-right">20</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#623"><abbr title="App\Http\Controllers\NfcContentController::onboarding">onboarding</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">4</td><td class="text-right">20</td></tr>
+       <tr><td><a href="Controllers/TokenController.php.html#104"><abbr title="App\Http\Controllers\TokenController::preview">preview</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">4</td><td class="text-right">20</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#652"><abbr title="App\Http\Controllers\NfcContentController::createAccount">createAccount</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#761"><abbr title="App\Http\Controllers\NfcContentController::assignTokenToExistingUser">assignTokenToExistingUser</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="Middleware/CheckAdminPermission.php.html#11"><abbr title="App\Http\Middleware\CheckAdminPermission::handle">handle</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">3</td><td class="text-right">12</td></tr>
+       <tr><td><a href="Controllers/Auth/VerifyEmailController.php.html#14"><abbr title="App\Http\Controllers\Auth\VerifyEmailController::__invoke">__invoke</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#22"><abbr title="App\Http\Controllers\NfcContentController::show">show</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#248"><abbr title="App\Http\Controllers\NfcContentController::preview">preview</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#269"><abbr title="App\Http\Controllers\NfcContentController::getStats">getStats</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#594"><abbr title="App\Http\Controllers\NfcContentController::onboardingById">onboardingById</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="Controllers/NfcContentController.php.html#712"><abbr title="App\Http\Controllers\NfcContentController::assignTokenToAuthenticatedUser">assignTokenToAuthenticatedUser</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+       <tr><td><a href="Controllers/TokenController.php.html#87"><abbr title="App\Http\Controllers\TokenController::recordAnalyticsAsync">recordAnalyticsAsync</abbr></a></td><td class="text-right">0.0%</td><td class="text-right">2</td><td class="text-right">6</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 12.3.6</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.22</a> and <a href="https://phpunit.de/">PHPUnit 12.3.7</a> at Mon Sep 15 6:59:29 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../_js/billboard.pkgd.min.js?v=12.3.6" type="text/javascript"></script>
+  <script type="application/json" id="complexity_class">[[0,2,"Controllers\/Auth\/VerifyEmailController.php.html#9","App\\Http\\Controllers\\Auth\\VerifyEmailController","6"],[0,81,"Controllers\/NfcContentController.php.html#17","App\\Http\\Controllers\\NfcContentController","6642"],[0,12,"Controllers\/TokenController.php.html#15","App\\Http\\Controllers\\TokenController","156"],[0,3,"Middleware\/CheckAdminPermission.php.html#9","App\\Http\\Middleware\\CheckAdminPermission","12"],[0,6,"Middleware\/TokenOwnershipMiddleware.php.html#10","App\\Http\\Middleware\\TokenOwnershipMiddleware","42"],[0,3,"Requests\/CreateNfcAccountRequest.php.html#8","App\\Http\\Requests\\CreateNfcAccountRequest","12"],[100,0,"Controllers\/Controller.php.html#5","App\\Http\\Controllers\\Controller","0"],[100,0,"Middleware\/TrustProxies.php.html#8","App\\Http\\Middleware\\TrustProxies","0"]]</script>
+  <script type="application/json" id="complexity_method">[[0,2,"Controllers\/Auth\/VerifyEmailController.php.html#14","App\\Http\\Controllers\\Auth\\VerifyEmailController::__invoke","6"],[0,2,"Controllers\/NfcContentController.php.html#22","App\\Http\\Controllers\\NfcContentController::show","6"],[0,10,"Controllers\/NfcContentController.php.html#51","App\\Http\\Controllers\\NfcContentController::showById","110"],[0,12,"Controllers\/NfcContentController.php.html#123","App\\Http\\Controllers\\NfcContentController::showLegacy","156"],[0,4,"Controllers\/NfcContentController.php.html#211","App\\Http\\Controllers\\NfcContentController::showByToken","20"],[0,2,"Controllers\/NfcContentController.php.html#248","App\\Http\\Controllers\\NfcContentController::preview","6"],[0,2,"Controllers\/NfcContentController.php.html#269","App\\Http\\Controllers\\NfcContentController::getStats","6"],[0,8,"Controllers\/NfcContentController.php.html#286","App\\Http\\Controllers\\NfcContentController::getViewForContentType","72"],[0,8,"Controllers\/NfcContentController.php.html#303","App\\Http\\Controllers\\NfcContentController::prepareViewData","72"],[0,1,"Controllers\/NfcContentController.php.html#448","App\\Http\\Controllers\\NfcContentController::getGiftTheme","2"],[0,1,"Controllers\/NfcContentController.php.html#463","App\\Http\\Controllers\\NfcContentController::info","2"],[0,1,"Controllers\/NfcContentController.php.html#471","App\\Http\\Controllers\\NfcContentController::validateContent","2"],[0,1,"Controllers\/NfcContentController.php.html#485","App\\Http\\Controllers\\NfcContentController::validateToken","2"],[0,1,"Controllers\/NfcContentController.php.html#504","App\\Http\\Controllers\\NfcContentController::showOnboarding","2"],[0,1,"Controllers\/NfcContentController.php.html#581","App\\Http\\Controllers\\NfcContentController::showContentNotAvailable","2"],[0,2,"Controllers\/NfcContentController.php.html#594","App\\Http\\Controllers\\NfcContentController::onboardingById","6"],[0,4,"Controllers\/NfcContentController.php.html#623","App\\Http\\Controllers\\NfcContentController::onboarding","20"],[0,3,"Controllers\/NfcContentController.php.html#652","App\\Http\\Controllers\\NfcContentController::createAccount","12"],[0,2,"Controllers\/NfcContentController.php.html#712","App\\Http\\Controllers\\NfcContentController::assignTokenToAuthenticatedUser","6"],[0,3,"Controllers\/NfcContentController.php.html#761","App\\Http\\Controllers\\NfcContentController::assignTokenToExistingUser","12"],[0,8,"Controllers\/NfcContentController.php.html#811","App\\Http\\Controllers\\NfcContentController::getDefaultDataForType","72"],[0,5,"Controllers\/NfcContentController.php.html#863","App\\Http\\Controllers\\NfcContentController::assignDefaultNfcRole","30"],[0,6,"Controllers\/TokenController.php.html#17","App\\Http\\Controllers\\TokenController::show","42"],[0,2,"Controllers\/TokenController.php.html#87","App\\Http\\Controllers\\TokenController::recordAnalyticsAsync","6"],[0,4,"Controllers\/TokenController.php.html#104","App\\Http\\Controllers\\TokenController::preview","20"],[0,3,"Middleware\/CheckAdminPermission.php.html#11","App\\Http\\Middleware\\CheckAdminPermission::handle","12"],[0,6,"Middleware\/TokenOwnershipMiddleware.php.html#17","App\\Http\\Middleware\\TokenOwnershipMiddleware::handle","42"],[0,1,"Requests\/CreateNfcAccountRequest.php.html#13","App\\Http\\Requests\\CreateNfcAccountRequest::authorize","2"],[0,1,"Requests\/CreateNfcAccountRequest.php.html#21","App\\Http\\Requests\\CreateNfcAccountRequest::rules","2"],[0,1,"Requests\/CreateNfcAccountRequest.php.html#36","App\\Http\\Requests\\CreateNfcAccountRequest::messages","2"]]</script>
+  <script type="text/javascript" defer>
+  const barLabels = [
+    '0%',
+    '0-10%',
+    '10-20%',
+    '20-30%',
+    '30-40%',
+    '40-50%',
+    '50-60%',
+    '60-70%',
+    '70-80%',
+    '80-90%',
+    '90-100%',
+    '100%'
+  ];
+  const barConfig = (name, fullName, values) => ({
+    axis: {
+      x: {
+        type: "category",
+        categories: barLabels,
+      },
+      y: {
+        label: {
+          text: `#${name}`,
+          position: 'outer-top',
+        },
+      },
+    },
+    bindto: `#${name}CoverageDistribution`,
+    data: {
+      columns: [
+        [fullName].concat(values),
+      ],
+      colors: {
+        [fullName]: "rgba(69, 114, 167, 0.75)",
+      },
+      type: "bar",
+    },
+    bar: {
+      width: {
+        ratio: 0.9,
+      },
+    },
+    grid: {
+      focus: {
+        show: false,
+      },
+      x: {
+        show: true,
+      },
+      y: {
+        show: true,
+      },
+    },
+    legend: {
+      show: false,
+    },
+    tooltip: {
+      contents: function (data) {
+        return `<table class="bb-tooltip"><tbody>
+            <tr><th colspan="2">Coverage ${barLabels[data[0].x]}</th></tr>
+            <tr><td class="value">${data[0].value} ${name}</td></tr>
+          </tbody></table>`;
+      },
+      grouped: false,
+    },
+  });
+  bb.generate(
+    barConfig('classes', "Class Coverage", [6,0,0,0,0,0,0,0,0,0,0,2])
+  );
+  bb.generate(
+    barConfig('methods', "Method Coverage", [30,0,0,0,0,0,0,0,0,0,0,0])
+  );
+
+  const scatterConfig = (name, complexityData) => ({
+    axis: {
+      x: {
+        label: {
+          text: 'Code Coverage (in percent)',
+          position: 'outer-right',
+        },
+        tick: {
+          values: [0, 20, 40, 60, 80, 100],
+        },
+      },
+      y: {
+        label: {
+          text: 'Cyclomatic Complexity',
+          position: 'outer-top',
+        },
+        min: 0,
+        padding: {
+          bottom: 0,
+          top: 5,
+        },
+      },
+    },
+    bindto: `#${name}Complexity`,
+    data: {
+      columns: [
+        ["complexity_x"].concat(complexityData.map(d => d[0])),
+        ["complexity"].concat(complexityData.map(d => d[1])),
+      ],
+      onclick: function(data, element) {
+        window.location = complexityData[data.index][2];
+      },
+      type: "scatter",
+      xs: {
+        "complexity": "complexity_x",
+      },
+    },
+    grid: {
+      focus: {
+        show: true,
+        y: true,
+      },
+      x: {
+        show: true,
+      },
+      y: {
+        show: true,
+      },
+    },
+    legend: {
+      show: false,
+    },
+    tooltip: {
+      contents: function (data) {
+        const coverage = Math.round(data[0].x);
+        const complexity = data[0].value;
+        const targetName = complexityData[data[0].index][3];
+        const crap = complexityData[data[0].index][4];
+        return `<table class="bb-tooltip"><tbody>
+            <tr><th colspan="2">${targetName}</th></tr>
+            <tr class="bb-tooltip-name-complexity"><td>Coverage</td><td class="name">${coverage}%</td></tr>
+            <tr class="bb-tooltip-name-complexity"><td>Complexity</td><td class="value">${complexity}</td></tr>
+            <tr class="bb-tooltip-name-complexity"><td>Crap</td><td class="value">${crap}</td></tr>
+          </tbody></table>`;
+      },
+      grouped: false,
+    },
+  });
+  const classComplexityData = JSON.parse(document.getElementById('complexity_class').textContent);
+  bb.generate(
+    scatterConfig("class", classComplexityData)
+  );
+  const methodComplexityData = JSON.parse(document.getElementById('complexity_method').textContent);
+  bb.generate(
+    scatterConfig("method", methodComplexityData),
+  );
+  </script>
+ </body>
+</html>

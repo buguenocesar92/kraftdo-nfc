@@ -28,7 +28,7 @@ return new class extends Migration
             $table->enum('status', ['draft', 'published', 'paused'])->default('draft')->comment('Estado de publicación');
             $table->timestamp('published_at')->nullable()->comment('Fecha de publicación');
             $table->timestamp('last_draft_update')->nullable()->comment('Última actualización en borrador');
-            $table->integer('post_publish_modifications')->default(0)->comment('Modificaciones después de publicar');
+            $table->json('post_publish_modifications')->nullable()->comment('Modificaciones después de publicar');
             $table->json('published_snapshot')->nullable()->comment('Snapshot al momento de publicar');
             
             // Relaciones

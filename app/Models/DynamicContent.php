@@ -46,6 +46,7 @@ class DynamicContent extends Model
         'is_active' => 'boolean',
         'published_at' => 'datetime',
         'last_draft_update' => 'datetime',
+        'post_publish_modifications' => 'array',
         'published_snapshot' => 'array',
     ];
 

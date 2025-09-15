@@ -9,10 +9,21 @@ RUN apk add --no-cache \
     sqlite \
     netcat-openbsd \
     redis \
-    mysql-client
+    mysql-client \
+    autoconf \
+    gcc \
+    g++ \
+    make \
+    php83-dev
 
 # La imagen webdevops/php-nginx ya tiene todas las extensiones necesarias
 # incluyendo pdo_mysql, redis, sockets, etc.
+
+# Instalar PCOV para code coverage (más ligero que Xdebug)
+RUN pecl install pcov && \
+    echo "extension=pcov.so" > /usr/local/etc/php/conf.d/pcov.ini && \
+    echo "pcov.enabled=1" >> /usr/local/etc/php/conf.d/pcov.ini && \
+    echo "pcov.directory=/var/www/html" >> /usr/local/etc/php/conf.d/pcov.ini
 
 # Configurar PHP para desarrollo con Livewire
 RUN echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/99-custom.ini && \

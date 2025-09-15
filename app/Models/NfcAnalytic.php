@@ -143,6 +143,11 @@ class NfcAnalytic extends Model
      */
     public static function getGlobalStats(): array
     {
+        $contentTypeBreakdown = self::select('content_type', DB::raw('count(*) as total'))
+                                   ->groupBy('content_type')
+                                   ->pluck('total', 'content_type')
+                                   ->toArray();
+
         return [
             'total_scans' => self::count(),
             'unique_scans' => self::where('is_unique_visit', true)->count(),
@@ -151,6 +156,7 @@ class NfcAnalytic extends Model
             'scans_this_month' => self::whereMonth('accessed_at', now()->month)->count(),
             'active_tokens' => NfcToken::where('is_active', true)->count(),
             'published_content' => DynamicContent::where('status', 'published')->where('is_active', true)->count(),
+            'content_type_breakdown' => $contentTypeBreakdown,
             'content_by_type' => DynamicContent::select('type', DB::raw('count(*) as total'))
                                               ->where('status', 'published')
                                               ->where('is_active', true)
@@ -165,16 +171,25 @@ class NfcAnalytic extends Model
     }
 
     /**
+     * Obtener estadísticas para contenido específico (alias para getStatsForContent)
+     */
+    public static function getContentStats(string $contentId): array
+    {
+        return self::getStatsForContent($contentId);
+    }
+
+    /**
      * Detectar tipo de dispositivo básico
      */
     private static function detectDeviceType(?string $userAgent): ?string
     {
         if (!$userAgent) return null;
 
-        if (preg_match('/Mobile|Android|iPhone|iPad/', $userAgent)) {
-            if (preg_match('/iPad/', $userAgent)) {
-                return 'tablet';
-            }
+        if (preg_match('/iPad/', $userAgent)) {
+            return 'tablet';
+        }
+        
+        if (preg_match('/Mobile|Android|iPhone/', $userAgent)) {
             return 'mobile';
         }
 
@@ -188,9 +203,9 @@ class NfcAnalytic extends Model
     {
         if (!$userAgent) return null;
 
-        if (preg_match('/Chrome/', $userAgent)) return 'Chrome';
         if (preg_match('/Firefox/', $userAgent)) return 'Firefox';
-        if (preg_match('/Safari/', $userAgent)) return 'Safari';
+        if (preg_match('/Chrome/', $userAgent)) return 'Chrome';
+        if (preg_match('/Safari/', $userAgent) && !preg_match('/Chrome/', $userAgent)) return 'Safari';
         if (preg_match('/Edge/', $userAgent)) return 'Edge';
         if (preg_match('/Opera/', $userAgent)) return 'Opera';
 

@@ -105,7 +105,10 @@ class NfcToken extends Model
                 'description' => '',
                 'data' => [],
                 'user_id' => $this->user_id,
+                'status' => 'draft',
             ]);
+            // Recargar la relación
+            $this->load('dynamicContent');
         }
 
         return $this->dynamicContent;
@@ -129,7 +132,7 @@ class NfcToken extends Model
         }
 
         $content = $this->dynamicContent;
-        return !empty($content->title) && !empty($content->description);
+        return $content->status === 'published' && !empty($content->title) && !empty($content->description);
     }
 
     /**
@@ -275,6 +278,40 @@ class NfcToken extends Model
     }
 
     /**
+     * Obtener el plan de personalización actual (alias)
+     */
+    public function getCurrentPlan(): array
+    {
+        return $this->getCustomizationPlan();
+    }
+
+    /**
+     * Calcular costo por vista
+     */
+    public function calculateCostPerView(): float
+    {
+        if ($this->total_investment_views > 0 && $this->purchase_price > 0) {
+            return (float) ($this->purchase_price / $this->total_investment_views);
+        }
+        return 0.0;
+    }
+
+    /**
+     * Obtener métricas ROI (alias)
+     */
+    public function getROIMetrics(): array
+    {
+        $costPerView = $this->calculateCostPerView();
+        
+        return [
+            'cost_per_view' => $costPerView,
+            'total_investment' => (float) $this->purchase_price,
+            'total_views' => $this->total_investment_views,
+            'roi_percentage' => $this->getROI()['roi_percentage'],
+        ];
+    }
+
+    /**
      * Verificar si una característica está disponible en el plan actual
      */
     public function hasFeature(string $feature): bool
@@ -339,6 +376,14 @@ class NfcToken extends Model
     public function scopeUnassigned($query)
     {
         return $query->whereNull('user_id');
+    }
+
+    /**
+     * Scope para tokens por tipo de contenido
+     */
+    public function scopeOfType($query, string $type)
+    {
+        return $query->where('content_type', $type);
     }
 
     /**
