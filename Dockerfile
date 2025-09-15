@@ -1,38 +1,21 @@
 # Dockerfile optimizado para Laravel NFC con FrankenPHP + Octane
-FROM dunglas/frankenphp:php8.3-alpine AS base
+FROM dunglas/frankenphp:php8.3 AS base
 
-# Instalar dependencias del sistema
-RUN apk add --no-cache \
+# Instalar dependencias del sistema (Debian/Ubuntu base)
+RUN apt-get update && apt-get install -y \
     curl \
     git \
-    sqlite \
-    sqlite-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    libzip-dev \
-    oniguruma-dev \
-    icu-dev \
-    mysql-client \
-    redis \
+    sqlite3 \
+    default-mysql-client \
+    redis-tools \
     netcat-openbsd \
-    bash
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar extensiones PHP necesarias para Laravel + Octane
+# Instalar solo extensiones PHP que falten (la imagen base ya tiene muchas)
 RUN install-php-extensions \
-    pdo_mysql \
-    pdo_sqlite \
-    gd \
-    zip \
-    mbstring \
-    intl \
-    bcmath \
-    pcntl \
-    posix \
-    sockets \
     redis \
-    opcache \
-    exif
+    bcmath \
+    pcntl
 
 # Configurar PHP para Octane
 RUN echo "memory_limit=512M" >> /usr/local/etc/php/php.ini && \
