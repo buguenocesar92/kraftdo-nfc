@@ -5,15 +5,15 @@
 # -----------------------------------------------------------------------------
 # Etapa 1: Construcción de assets con Node.js
 # -----------------------------------------------------------------------------
-FROM node:18-alpine AS node-build
+FROM node:20-alpine AS node-build
 
 WORKDIR /app
 
 # Copiar archivos de configuración de Node.js
 COPY package.json package-lock.json ./
 
-# Instalar dependencias de Node.js
-RUN npm ci --only=production
+# Instalar dependencias de Node.js (incluyendo dev para build)
+RUN npm ci
 
 # Copiar código fuente
 COPY . ./
