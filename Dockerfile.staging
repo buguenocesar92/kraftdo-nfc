@@ -31,7 +31,8 @@ RUN apk update && apk add --no-cache \
         opcache \
         intl \
         sockets \
-    && pecl install redis \
+    && pecl channel-update pecl.php.net \
+    && pecl install redis-5.3.7 \
     && docker-php-ext-enable redis \
     && apk del autoconf gcc g++ make
 
