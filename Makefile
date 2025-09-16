@@ -11,9 +11,9 @@ COMPOSE_PROJECT_NAME ?= kraftdo-nfc
 ENV_FILE ?= .env
 
 # Detectar entorno automáticamente
-CURRENT_ENV := $(shell if docker ps | grep -q "kraftdo-nfc-dev-php-fpm"; then echo "dev"; elif docker ps | grep -q "kraftdo-nfc-staging-php-fpm"; then echo "staging"; elif docker ps | grep -q "kraftdo-nfc-prod-php-fpm"; then echo "prod"; else echo "hybrid"; fi)
+CURRENT_ENV := $(shell if docker ps | grep -q "kraftdo-nfc-dev-php-fpm"; then echo "dev"; elif docker ps | grep -q "kraftdo-nfc-staging-web"; then echo "staging"; elif docker ps | grep -q "kraftdo-nfc-prod-php-fpm"; then echo "prod"; else echo "hybrid"; fi)
 ACTIVE_COMPOSE := $(if $(filter dev,$(CURRENT_ENV)),$(DOCKER_COMPOSE_DEV),$(if $(filter staging,$(CURRENT_ENV)),$(DOCKER_COMPOSE_STAGING),$(if $(filter prod,$(CURRENT_ENV)),$(DOCKER_COMPOSE_PROD),$(DOCKER_COMPOSE_HYBRID))))
-SERVICE_NAME := $(if $(filter hybrid,$(CURRENT_ENV)),app,php-fpm)
+SERVICE_NAME := $(if $(filter hybrid,$(CURRENT_ENV)),app,$(if $(filter staging,$(CURRENT_ENV)),web,php-fpm))
 
 # Colores para output
 RED = \033[31m
