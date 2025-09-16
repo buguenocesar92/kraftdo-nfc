@@ -1,6 +1,6 @@
 # Multi-stage build para Laravel NFC App
 # Stage 1: Base image con extensiones PHP
-FROM php:8.2-fpm-alpine AS base
+FROM php:8.3-fpm-alpine AS base
 
 # Instalar dependencias del sistema y extensiones PHP
 RUN apk add --no-cache \
