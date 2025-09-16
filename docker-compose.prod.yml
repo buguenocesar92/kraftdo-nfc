@@ -5,14 +5,16 @@
 
 services:
   # ==========================================
-  # BACKEND - PHP-FPM (Laravel + Livewire)
+  # WEB SERVER - PHP-FPM + Nginx (Production)
   # ==========================================
-  php-fpm:
+  web:
     build:
       context: .
-      dockerfile: Dockerfile.phpfpm
-    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-php-fpm
+      dockerfile: Dockerfile.staging
+    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-web
     restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8085}:80"
     volumes:
       - app_storage:/var/www/html/storage
       - app_bootstrap_cache:/var/www/html/bootstrap/cache
@@ -30,7 +32,7 @@ services:
       - APP_URL=${APP_URL:?APP_URL must be set}
       - ASSET_URL=${ASSET_URL:-${APP_URL}}
       - LIVEWIRE_ASSET_URL=${LIVEWIRE_ASSET_URL:-${APP_URL}}
-      # Database Externa - TODAS LAS VARIABLES REQUERIDAS
+      # Database Externa
       - DB_CONNECTION=${DB_CONNECTION:-mysql}
       - DB_HOST=${DB_HOST:?DB_HOST must be set}
       - DB_PORT=${DB_PORT:-3306}
@@ -47,55 +49,15 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
       - SESSION_DRIVER=${SESSION_DRIVER:-redis}
-      # Performance & Security
-      - OCTANE_WORKERS=${OCTANE_WORKERS:-4}
-      - OCTANE_MAX_REQUESTS=${OCTANE_MAX_REQUESTS:-1000}
+      - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
       - LOG_LEVEL=${LOG_LEVEL:-warning}
-      - LOG_SLACK_WEBHOOK_URL=${LOG_SLACK_WEBHOOK_URL:-}
+      # Production specific
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
     depends_on:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "php /var/www/html/docker/healthcheck.php"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ==========================================
-  # FRONTEND - FrankenPHP (Proxy + Assets)
-  # ==========================================
-  frankenphp:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: final
-    container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-frankenphp-proxy
-    restart: unless-stopped
-    ports:
-      - "${APP_PORT:-8085}:80"
-    volumes:
-      # Solo assets necesarios en producción
-      - ./public:/app/public:ro
-      - app_storage:/app/storage:ro
-      - ./docker/frankenphp/Caddyfile:/etc/caddy/Caddyfile:ro
-    networks:
-      - laravel-prod
-    depends_on:
-      php-fpm:
-        condition: service_healthy
-    environment:
-      - SERVER_NAME=${SERVER_NAME:-:80,:443}
-      - CADDY_GLOBAL_OPTIONS=${CADDY_GLOBAL_OPTIONS:-}
-      # SSL/TLS
-      - HTTPS_ONLY=${HTTPS_ONLY:-true}
-      - SSL_CERT_PATH=${SSL_CERT_PATH:-}
-      - SSL_KEY_PATH=${SSL_KEY_PATH:-}
-      # Security headers
-      - ENABLE_SECURITY_HEADERS=${ENABLE_SECURITY_HEADERS:-true}
-      - FORCE_HTTPS=${FORCE_HTTPS:-true}
-    command: ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -141,7 +103,7 @@ services:
   worker:
     build:
       context: .
-      dockerfile: Dockerfile.phpfpm
+      dockerfile: Dockerfile.staging
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-worker
     restart: unless-stopped
     extra_hosts:
@@ -174,9 +136,9 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      php-fpm:
+      web:
         condition: service_healthy
-    command: ["/var/www/html/docker/entrypoint-simple.sh", "worker"]
+    command: ["/entrypoint-staging.sh", "php", "artisan", "queue:work", "--verbose", "--tries=3", "--timeout=300"]
     healthcheck:
       test: ["CMD", "php", "/var/www/html/artisan", "queue:monitor", "--max-jobs=${QUEUE_MAX_JOBS:-5000}"]
       interval: 60s
@@ -187,6 +149,8 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    profiles:
+      - workers
 
   # ==========================================
   # SCHEDULER (CRON)
@@ -194,7 +158,7 @@ services:
   scheduler:
     build:
       context: .
-      dockerfile: Dockerfile.phpfpm
+      dockerfile: Dockerfile.staging
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-scheduler
     restart: unless-stopped
     extra_hosts:
@@ -223,9 +187,9 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      php-fpm:
+      web:
         condition: service_healthy
-    command: ["/var/www/html/docker/entrypoint-simple.sh", "scheduler"]
+    command: ["/entrypoint-staging.sh", "php", "artisan", "schedule:work"]
     healthcheck:
       test: ["CMD", "ps", "aux", "|", "grep", "-v", "grep", "|", "grep", "php", "artisan", "schedule:run"]
       interval: 60s
@@ -243,7 +207,7 @@ services:
   monitoring:
     build:
       context: .
-      dockerfile: Dockerfile.phpfpm
+      dockerfile: Dockerfile.staging
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-monitoring
     restart: unless-stopped
     extra_hosts:
@@ -272,9 +236,9 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      php-fpm:
+      web:
         condition: service_healthy
-    command: ["/var/www/html/docker/entrypoint-simple.sh", "monitoring"]
+    command: ["/entrypoint-staging.sh", "php", "artisan", "app:health-check"]
     healthcheck:
       test: ["CMD", "php", "/var/www/html/artisan", "app:health-check"]
       interval: 30s
