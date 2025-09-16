@@ -36,7 +36,7 @@ RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
 
 # Copiar código fuente y generar autoloader
 COPY . ./
-RUN composer dump-autoload --no-dev --optimize
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=ext-intl --ignore-platform-req=ext-sockets
 
 # -----------------------------------------------------------------------------
 # Etapa 3: Imagen final con PHP-FPM
