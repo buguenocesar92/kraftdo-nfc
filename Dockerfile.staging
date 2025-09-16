@@ -1,68 +1,125 @@
-# Dockerfile para Staging sin PCOV (para evitar errores de build)
-FROM webdevops/php-nginx:8.3-alpine
+# Multi-stage build para Laravel NFC App
+# Stage 1: Base image con extensiones PHP
+FROM php:8.2-fpm-alpine AS base
 
-# Cambiar al usuario root para configurar
-USER root
-
-# Instalar dependencias adicionales (sin herramientas de desarrollo)
-RUN apk add --no-cache \
+# Instalar dependencias del sistema y extensiones PHP
+RUN apk update && apk add --no-cache \
     sqlite \
+    sqlite-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    zip \
+    libzip-dev \
+    oniguruma-dev \
+    curl-dev \
+    icu-dev \
+    linux-headers \
+    autoconf \
+    gcc \
+    g++ \
+    make \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo \
+        pdo_mysql \
+        pdo_sqlite \
+        gd \
+        zip \
+        mbstring \
+        curl \
+        opcache \
+        intl \
+        sockets \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apk del autoconf gcc g++ make
+
+# Configurar PHP
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+# Instalar Composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Stage 2: Dependencias PHP
+FROM base AS php-deps
+
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --ignore-platform-req=php
+
+# Stage 3: Assets build
+FROM node:18-alpine AS node-build
+
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY . ./
+RUN npm run build
+
+# Stage 4: Imagen final
+FROM base AS final
+
+# Instalar nginx, supervisor, redis y git para runtime
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    git \
     netcat-openbsd \
     redis \
-    mysql-client
+    curl
 
-# La imagen webdevops/php-nginx ya tiene todas las extensiones necesarias
-# incluyendo pdo_mysql, redis, sockets, etc.
+# Configurar Nginx, PHP-FPM y Supervisor
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+COPY docker/php-fpm/pool.conf /usr/local/etc/php-fpm.d/zzz-custom.conf
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Configurar PHP para staging
-RUN echo "memory_limit=512M" >> /usr/local/etc/php/conf.d/99-custom.ini && \
-    echo "max_execution_time=300" >> /usr/local/etc/php/conf.d/99-custom.ini && \
-    echo "upload_max_filesize=50M" >> /usr/local/etc/php/conf.d/99-custom.ini && \
-    echo "post_max_size=50M" >> /usr/local/etc/php/conf.d/99-custom.ini
+# Crear usuario de aplicación
+RUN addgroup -g 1000 -S www && \
+    adduser -u 1000 -D -S -G www www
 
-# Configurar directorio de trabajo
 WORKDIR /var/www/html
 
-# Configurar usuario www-data con UID/GID 33 (mismo que frankenphp)
-RUN addgroup -g 33 www-data 2>/dev/null || true
-RUN adduser -u 33 -G www-data -s /bin/sh -D www-data 2>/dev/null || true
+# Copiar dependencias de PHP desde stage anterior
+COPY --from=php-deps --chown=www:www /app/vendor ./vendor
 
-# Copiar composer files y instalar dependencias
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --ignore-platform-reqs
+# Copiar assets compilados desde stage anterior
+COPY --from=node-build --chown=www:www /app/public/build ./public/build
 
 # Copiar código fuente
-COPY --chown=www-data:www-data . .
+COPY --chown=www:www . ./
 
-# Ejecutar scripts post-install
+# Ejecutar scripts de Composer
 RUN composer run-script post-autoload-dump
 
-# Crear base de datos SQLite como backup
-RUN touch database/database.sqlite && \
-    chown www-data:www-data database/database.sqlite
-
 # Configurar permisos
-RUN mkdir -p storage/framework/{cache,sessions,testing,views} \
-    storage/logs bootstrap/cache && \
-    chown -R www-data:www-data storage bootstrap/cache && \
-    chmod -R 775 storage bootstrap/cache storage/logs
+RUN mkdir -p storage bootstrap/cache \
+    && mkdir -p /var/log/supervisor \
+    && mkdir -p /run/nginx \
+    && mkdir -p /var/lib/nginx/tmp/client_body \
+    && mkdir -p /var/lib/nginx/tmp/fastcgi \
+    && mkdir -p /var/lib/nginx/tmp/proxy \
+    && mkdir -p /var/lib/nginx/tmp/scgi \
+    && mkdir -p /var/lib/nginx/tmp/uwsgi \
+    && chown -R www:www /var/www/html \
+    && chown -R www:www /var/lib/nginx/tmp \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 storage bootstrap/cache \
+    && chmod -R 755 /var/lib/nginx/tmp \
+    && chmod 755 /var/lib/nginx
 
-# Variables de entorno para staging
-ENV APP_ENV=staging \
-    APP_DEBUG=true \
-    WEB_DOCUMENT_ROOT=/var/www/html/public \
-    CONTAINER_UID=www-data
+# Variables de entorno
+ENV APP_ENV=staging
+ENV APP_DEBUG=true
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost/health || exit 1
-
-# Script de inicio personalizado
-COPY docker/entrypoint-hybrid.sh /entrypoint-staging.sh
+# Script de inicio
+COPY docker/entrypoint-staging.sh /entrypoint-staging.sh
 RUN chmod +x /entrypoint-staging.sh
 
-# Exponer puerto 9000 para PHP-FPM
-EXPOSE 9000 80
+# Exponer puerto 80 para Nginx
+EXPOSE 80
 
-# Usar entrypoint para staging
 ENTRYPOINT ["/entrypoint-staging.sh"]

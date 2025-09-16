@@ -1,138 +1,111 @@
-# Dockerfile optimizado para Laravel NFC con FrankenPHP + Octane
-FROM dunglas/frankenphp:php8.3 AS base
+# Multi-stage build para Laravel NFC App
+# Stage 1: Base image con extensiones PHP
+FROM php:8.2-fpm-alpine AS base
 
-# Instalar dependencias del sistema (Debian/Ubuntu base)
-RUN apt-get update && apt-get install -y \
-    curl \
-    git \
-    sqlite3 \
-    default-mysql-client \
-    redis-tools \
-    netcat-openbsd \
-    && rm -rf /var/lib/apt/lists/*
-
-# Instalar extensiones PHP necesarias
-RUN install-php-extensions \
-    pdo_mysql \
-    pdo_sqlite \
-    gd \
+# Instalar dependencias del sistema y extensiones PHP
+RUN apk add --no-cache \
+    sqlite \
+    sqlite-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     zip \
-    intl \
-    sockets \
-    redis \
-    bcmath \
-    pcntl \
-    opcache \
-    exif
+    libzip-dev \
+    oniguruma-dev \
+    curl-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) \
+        pdo \
+        pdo_mysql \
+        pdo_sqlite \
+        gd \
+        zip \
+        mbstring \
+        curl \
+        opcache
 
-# Configurar PHP para Octane
-RUN echo "memory_limit=512M" >> /usr/local/etc/php/php.ini && \
-    echo "max_execution_time=300" >> /usr/local/etc/php/php.ini && \
-    echo "upload_max_filesize=50M" >> /usr/local/etc/php/php.ini && \
-    echo "post_max_size=50M" >> /usr/local/etc/php/php.ini
-
-# Configurar OPcache para producción con Octane
-RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.memory_consumption=256" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.interned_strings_buffer=16" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.max_accelerated_files=10000" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.revalidate_freq=0" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/opcache.ini && \
-    echo "opcache.enable_cli=1" >> /usr/local/etc/php/conf.d/opcache.ini
+# Configurar PHP
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /app
-
-# Copiar script de inicio en stage base (necesario para desarrollo)
-COPY docker/start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
-# ==========================================
-# STAGE PARA DEPENDENCIAS PHP
-# ==========================================
+# Stage 2: Dependencias PHP
 FROM base AS php-deps
-COPY composer.json composer.lock ./
-RUN composer install \
-    --no-dev \
-    --optimize-autoloader \
-    --no-scripts \
-    --no-interaction \
-    --prefer-dist \
-    && composer clear-cache
 
-# ==========================================
-# STAGE PARA ASSETS NODE.JS
-# ==========================================
-FROM node:20-alpine AS node-build
+WORKDIR /app
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+
+# Stage 3: Assets build
+FROM node:18-alpine AS node-build
+
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
-COPY . .
-RUN npm run build && npm cache clean --force
+RUN npm ci
 
-# ==========================================
-# STAGE FINAL OPTIMIZADO PARA OCTANE
-# ==========================================
+COPY . ./
+RUN npm run build
+
+# Stage 4: Imagen final
 FROM base AS final
 
-# Copiar dependencias y assets compilados
-COPY --from=php-deps /app/vendor ./vendor
-COPY --from=node-build /app/public/build ./public/build
+# Instalar nginx, supervisor y git para runtime
+RUN apk add --no-cache \
+    nginx \
+    supervisor \
+    git \
+    netcat-openbsd
+
+# Configurar Nginx y Supervisor
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
+COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Crear usuario de aplicación
+RUN addgroup -g 1000 -S www && \
+    adduser -u 1000 -D -S -G www www
+
+WORKDIR /var/www/html
+
+# Copiar dependencias de PHP desde stage anterior
+COPY --from=php-deps --chown=www:www /app/vendor ./vendor
+
+# Copiar assets compilados desde stage anterior
+COPY --from=node-build --chown=www:www /app/public/build ./public/build
 
 # Copiar código fuente
-COPY . .
+COPY --chown=www:www . ./
 
-# Instalar Laravel Octane si no está presente
-RUN if ! php artisan list | grep -q octane; then \
-        composer require laravel/octane --no-interaction; \
-    fi
+# Ejecutar scripts de Composer
+RUN composer run-script post-autoload-dump
 
-# Ejecutar scripts post-install
-RUN composer run-script post-autoload-dump || true
+# Configurar permisos
+RUN mkdir -p storage bootstrap/cache \
+    && mkdir -p /var/log/supervisor \
+    && mkdir -p /run/nginx \
+    && mkdir -p /var/lib/nginx/tmp/client_body \
+    && mkdir -p /var/lib/nginx/tmp/fastcgi \
+    && mkdir -p /var/lib/nginx/tmp/proxy \
+    && mkdir -p /var/lib/nginx/tmp/scgi \
+    && mkdir -p /var/lib/nginx/tmp/uwsgi \
+    && chown -R www:www /var/www/html \
+    && chown -R www:www /var/lib/nginx/tmp \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 storage bootstrap/cache \
+    && chmod -R 755 /var/lib/nginx/tmp \
+    && chmod 755 /var/lib/nginx
 
-# Crear directorios y configurar permisos
-RUN mkdir -p \
-    storage/framework/cache/data \
-    storage/framework/sessions \
-    storage/framework/views \
-    storage/logs \
-    bootstrap/cache \
-    database \
-    && chmod -R 775 storage bootstrap/cache \
-    && chmod -R 777 storage/framework/views storage/framework/cache storage/framework/sessions \
-    && touch database/database.sqlite \
-    && chmod 664 database/database.sqlite \
-    && chown -R www-data:www-data storage bootstrap/cache database
+# Variables de entorno
+ENV APP_ENV=local
+ENV APP_DEBUG=true
 
-# Crear enlace simbólico de storage correctamente para FrankenPHP
-RUN ln -sf /app/storage/app/public /app/public/storage
+# Script de inicio
+COPY docker/entrypoint-staging.sh /entrypoint-staging.sh
+RUN chmod +x /entrypoint-staging.sh
 
-# Copiar configuración de FrankenPHP
-COPY docker/frankenphp/Caddyfile /etc/caddy/Caddyfile
+# Exponer puerto 80 para Nginx
+EXPOSE 80
 
-# Copiar y configurar script de inicio
-COPY docker/start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
-
-# Variables de entorno por defecto para Octane
-ENV APP_ENV=production \
-    APP_DEBUG=false \
-    LOG_CHANNEL=stderr \
-    OCTANE_SERVER=frankenphp \
-    OCTANE_HOST=0.0.0.0 \
-    OCTANE_PORT=80 \
-    OCTANE_WORKERS=auto \
-    OCTANE_MAX_REQUESTS=500 \
-    SERVER_NAME=:80 \
-    CADDY_GLOBAL_OPTIONS=""
-
-# Health check optimizado para Octane
-HEALTHCHECK --interval=30s --timeout=10s --start-period=90s --retries=3 \
-    CMD curl -f http://localhost/health || curl -f http://localhost/ || exit 1
-
-EXPOSE 80 443
-
-# Usar nuestro script de inicio optimizado para Octane
-ENTRYPOINT ["/usr/local/bin/start.sh"]
+ENTRYPOINT ["/entrypoint-staging.sh"]

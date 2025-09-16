@@ -54,7 +54,10 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
       - SESSION_DRIVER=${SESSION_DRIVER:-redis}
+      - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
       - LOG_LEVEL=${LOG_LEVEL:-debug}
+      # Staging specific
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-false}
     depends_on:
       redis:
         condition: service_healthy
@@ -118,7 +121,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-debug}
     volumes:
       - app_storage:/var/www/html/storage
-      - .:/var/www/html
+      - app_bootstrap_cache:/var/www/html/bootstrap/cache
     networks:
       - laravel-staging
     depends_on:
@@ -126,7 +129,7 @@ services:
         condition: service_healthy
       web:
         condition: service_healthy
-    command: ["/var/www/html/docker/entrypoint-simple.sh", "worker"]
+    command: ["/entrypoint-staging.sh", "php", "artisan", "queue:work", "--verbose"]
     profiles:
       - workers
 
