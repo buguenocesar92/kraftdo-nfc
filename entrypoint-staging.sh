@@ -34,7 +34,6 @@ mkdir -p /var/www/html/storage/framework/cache
 mkdir -p /var/www/html/storage/framework/sessions
 mkdir -p /var/www/html/storage/logs
 mkdir -p /var/www/html/bootstrap/cache
-mkdir -p /var/log/supervisor
 mkdir -p /var/log/nginx
 
 # TERCERO: Configurar permisos ANTES de limpiar
@@ -76,7 +75,15 @@ if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     php artisan migrate --force --no-interaction
 fi
 
-echo "Entrypoint completado. Iniciando supervisord..."
+echo "Entrypoint completado. Iniciando servicios..."
 
-# Iniciar supervisor
-exec supervisord -c /etc/supervisor/conf.d/supervisord.conf
+# Crear directorio de logs de nginx
+mkdir -p /var/log/nginx
+
+# Iniciar PHP-FPM en background
+echo "Iniciando PHP-FPM..."
+php-fpm &
+
+# Iniciar Nginx en foreground (proceso principal)
+echo "Iniciando Nginx..."
+exec nginx -g "daemon off;"

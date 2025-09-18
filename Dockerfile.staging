@@ -53,7 +53,6 @@ RUN apk update && apk add --no-cache \
     unzip \
     git \
     bash \
-    supervisor \
     nginx
 
 # Instalar dependencias de desarrollo
@@ -165,12 +164,11 @@ COPY --chown=nginx:nginx .env .env
 COPY --from=node-build --chown=nginx:nginx /app/public/build ./public/build
 
 # Crear directorios necesarios y establecer permisos
-RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache /var/log/supervisor && \
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache && \
     chown -R nginx:nginx storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache
 
-# Configurar Supervisor (mantener tu archivo externo)
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Supervisor eliminado - usando nginx + php-fpm directo
 
 # Exponer puertos
 EXPOSE 80 9000
