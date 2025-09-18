@@ -34,6 +34,8 @@ mkdir -p /var/www/html/storage/framework/cache
 mkdir -p /var/www/html/storage/framework/sessions
 mkdir -p /var/www/html/storage/logs
 mkdir -p /var/www/html/bootstrap/cache
+mkdir -p /var/log/supervisor
+mkdir -p /var/log/nginx
 
 # TERCERO: Configurar permisos ANTES de limpiar
 echo "Configurando permisos..."
