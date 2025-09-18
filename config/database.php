@@ -149,7 +149,7 @@ return [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
             'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
             'persistent' => env('REDIS_PERSISTENT', false),
-            // Optimizaciones para Octane
+//             // Optimizaciones para Octane
             'read_timeout' => env('REDIS_READ_TIMEOUT', 60),
             'timeout' => env('REDIS_TIMEOUT', 5),
         ],
