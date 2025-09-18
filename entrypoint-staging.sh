@@ -6,7 +6,25 @@ echo "Iniciando entrypoint de staging..."
 # PRIMERO: Crear .env si no existe
 if [ ! -f /var/www/html/.env ]; then
     echo "Creando .env desde .env.example..."
-    cp /var/www/html/.env.example /var/www/html/.env
+    if [ -f /var/www/html/.env.example ]; then
+        cp /var/www/html/.env.example /var/www/html/.env
+    else
+        echo "Archivo .env.example no encontrado, creando .env básico..."
+        cat > /var/www/html/.env << 'EOF'
+APP_NAME=KraftDo-NFC
+APP_ENV=staging
+APP_KEY=
+APP_DEBUG=false
+APP_URL=http://localhost
+
+DB_CONNECTION=sqlite
+DB_DATABASE=/var/www/html/database/database.sqlite
+
+CACHE_DRIVER=file
+SESSION_DRIVER=file
+QUEUE_CONNECTION=sync
+EOF
+    fi
 fi
 
 # SEGUNDO: Crear directorios si no existen
