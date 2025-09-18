@@ -16,10 +16,11 @@ echo "Configurando permisos..."
 chown -R nginx:nginx /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# TERCERO: Limpiar cache
+# TERCERO: Limpiar cache completamente
 echo "Limpiando cache..."
 rm -rf /var/www/html/storage/framework/views/*
 rm -rf /var/www/html/storage/framework/cache/*
+rm -rf /var/www/html/bootstrap/cache/*
 
 # CUARTO: Verificar permisos después de limpiar
 chown -R nginx:nginx /var/www/html/storage /var/www/html/bootstrap/cache
@@ -33,6 +34,9 @@ fi
 
 # SEXTO: Optimizar Laravel (en orden correcto)
 echo "Optimizando Laravel..."
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
 php artisan config:cache
 php artisan route:cache
 # NO hacer view:cache aquí para evitar problemas de permisos iniciales
