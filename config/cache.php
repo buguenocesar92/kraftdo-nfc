@@ -69,10 +69,10 @@ return [
             'endpoint' => env('DYNAMODB_ENDPOINT'),
         ],
 
-        'octane' => [
+/*         'octane' => [
             'driver' => 'octane',
         ],
-
+ */
     ],
 
     /*
