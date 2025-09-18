@@ -39,7 +39,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - 🏷️ Sistema completo de gestión de tokens NFC
 - 📊 Dashboard de analytics avanzado
 - 🎨 Panel de administración con Filament 3
-- ⚡ Integración FrankenPHP + Octane para alto rendimiento
+- ⚡ Integración Nginx + PHP-FPM para alto rendimiento
 - 🐳 Configuración Docker completa (dev, prod, hybrid)
 - 🧪 Suite de tests completa con 86 tests y 86% coverage
 - 📱 Interfaz responsive con Livewire 3
@@ -61,7 +61,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 - **Frontend**: Livewire 3, Alpine.js, TailwindCSS  
 - **Admin Panel**: Filament 3
 - **Database**: MySQL 8.0, Redis 7
-- **Server**: FrankenPHP con Octane
+- **Server**: Nginx + PHP-FPM
 - **Testing**: Pest PHP con PCOV
 - **DevOps**: Docker, GitHub Actions, GHCR
 

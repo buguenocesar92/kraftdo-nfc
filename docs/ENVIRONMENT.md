@@ -103,12 +103,6 @@ REDIS_SESSION_DB=2      # Sessions
 REDIS_QUEUE_DB=3        # Queues
 ```
 
-### **Laravel Octane:**
-```bash
-OCTANE_SERVER=swoole
-OCTANE_WORKERS=auto     # Production: auto
-OCTANE_MAX_REQUESTS=1000  # Production: higher
-```
 
 ### **Docker:**
 ```bash

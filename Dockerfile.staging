@@ -38,41 +38,49 @@ RUN composer install --no-dev --optimize-autoloader \
 # -----------------------------------------------------------------------------
 FROM php:8.3-fpm-alpine AS base
 
-# FIX 1: Corregir formato ENV (elimina warning)
-ENV PHPIZE_DEPS="autoconf dpkg-dev dpkg file g++ gcc libc-dev make pkgconf re2c"
+# Instalar dependencias del sistema
+RUN apk update && apk add --no-cache \
+    # Dependencias runtime
+    sqlite \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    libzip \
+    oniguruma \
+    curl \
+    icu \
+    zip \
+    unzip \
+    git \
+    bash \
+    supervisor \
+    nginx
 
-# Actualizar repositorios e instalar dependencias del sistema y build tools
-RUN apk update && apk upgrade && \
-    apk add --no-cache \
-        # Dependencias runtime permanentes
-        sqlite \
-        sqlite-dev \
-        libpng \
-        libpng-dev \
-        libjpeg-turbo \
-        libjpeg-turbo-dev \
-        freetype \
-        freetype-dev \
-        libzip \
-        libzip-dev \
-        oniguruma \
-        oniguruma-dev \
-        curl \
-        curl-dev \
-        icu \
-        icu-dev \
-        linux-headers \
-        zip \
-        unzip \
-        git \
-        bash \
-        supervisor \
-        nginx \
-    && apk add --no-cache --virtual .build-deps \
-        # FIX 2: Remover duplicados de build dependencies
-        $PHPIZE_DEPS \
-        zlib-dev \
-    && docker-php-ext-configure gd \
+# Instalar dependencias de desarrollo
+RUN apk add --no-cache --virtual .build-deps \
+    autoconf \
+    dpkg-dev \
+    dpkg \
+    file \
+    g++ \
+    gcc \
+    libc-dev \
+    make \
+    pkgconf \
+    re2c \
+    sqlite-dev \
+    libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
+    libzip-dev \
+    oniguruma-dev \
+    curl-dev \
+    icu-dev \
+    linux-headers \
+    zlib-dev
+
+# Configurar e instalar extensiones PHP
+RUN docker-php-ext-configure gd \
         --with-freetype=/usr/include/ \
         --with-jpeg=/usr/include/ \
     && docker-php-ext-install -j$(nproc) \
@@ -87,13 +95,14 @@ RUN apk update && apk upgrade && \
         intl \
         sockets \
         bcmath \
-        exif \
-    # FIX 3: Instalar Redis con retry para mayor robustez
-    && (pecl install redis && docker-php-ext-enable redis) || \
-       (sleep 10 && pecl install redis && docker-php-ext-enable redis) || \
-       (echo "Redis installation failed, continuing without it...") \
-    # Limpiar build dependencies y cache
-    && apk del .build-deps \
+        exif
+
+# Instalar Redis (crítico para la aplicación)
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
+# Limpiar dependencias de desarrollo
+RUN apk del .build-deps \
     && rm -rf /var/cache/apk/* \
     && rm -rf /tmp/* \
     && rm -rf /var/tmp/*

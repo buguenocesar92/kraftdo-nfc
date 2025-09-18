@@ -7,14 +7,14 @@
 [![PHP](https://img.shields.io/badge/PHP-8.3+-blue.svg)](https://php.net)
 [![License](https://img.shields.io/badge/license-Proprietary-red.svg)](LICENSE)
 
-> **Plataforma moderna de contenido dinámico NFC construida con Laravel 11, Filament 3, y FrankenPHP para máximo rendimiento.**
+> **Plataforma moderna de contenido dinámico NFC construida con Laravel 11, Filament 3, y Nginx + PHP-FPM para máximo rendimiento.**
 
 ## 🌟 **Características Principales**
 
 - 🏷️ **Gestión de Tokens NFC** - Crear y gestionar contenido dinámico para tarjetas NFC
 - 📊 **Analytics Avanzados** - Métricas detalladas de visualizaciones y engagement  
 - 🎨 **Panel de Administración** - Interfaz moderna con Filament 3
-- ⚡ **Alto Rendimiento** - FrankenPHP + Octane para máxima velocidad
+- ⚡ **Alto Rendimiento** - Nginx + PHP-FPM optimizado
 - 🔒 **Seguridad Robusta** - Autenticación, autorización y validación completa
 - 📱 **Responsive Design** - Compatible con todos los dispositivos
 - 🐳 **Containerizado** - Docker con configuraciones optimizadas  
@@ -60,7 +60,7 @@ docker compose -f docker-compose.dual.yml exec app php artisan livewire:publish 
 - **Framework**: Laravel 12
 - **Frontend**: Livewire v3 + Alpine.js
 - **Admin**: Filament v4
-- **Performance**: Laravel Octane + Swoole
+- **Performance**: Nginx + PHP-FPM + Redis
 - **Cache**: Redis
 - **Database**: MySQL
 - **Containers**: Docker + Nginx
@@ -71,8 +71,6 @@ Toda la documentación técnica está en la carpeta [`docs/`](./docs/):
 
 - [🔧 Configuración de Entornos](./docs/ENVIRONMENT.md)
 - [🐳 Configuración Docker](./docs/DOCKER.md)
-- [🚀 Migración Octane](./docs/OCTANE_MIGRATION.md)
-- [⚡ Redis + Octane Setup](./docs/REDIS_OCTANE_SETUP.md)
 - [👨‍💻 Uso de Filament](./docs/FILAMENT_USAGE.md)
 - [🎭 Tipos de Contenido](./docs/ADDING_NEW_CONTENT_TYPES.md)
 - [🔐 Permisos de Tokens](./docs/TOKEN_PERMISSIONS.md)
@@ -119,16 +117,13 @@ CACHE_DRIVER=redis
 SESSION_DRIVER=redis
 REDIS_HOST=your-redis-host
 
-# Octane
-OCTANE_SERVER=swoole
-OCTANE_WORKERS=auto
 ```
 
 ## 📈 **Características**
 
 - ✅ **NFC Content Management**: Gestión dinámica de contenido NFC
 - ✅ **Multi-Content Types**: Perfiles, eventos, productos, menús, turismo
-- ✅ **Real-time Performance**: Laravel Octane + Swoole
+- ✅ **Real-time Performance**: Nginx + PHP-FPM + Redis
 - ✅ **Admin Interface**: Filament panel con Livewire
 - ✅ **Media Management**: Galería, audio, video
 - ✅ **QR Code Generation**: Generación automática de códigos

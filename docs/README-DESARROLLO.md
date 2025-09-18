@@ -340,7 +340,7 @@ make monitor
 
 # Performance analysis
 make performance
-# Memory usage, Octane status, Cache hit ratio, Queue status
+# Memory usage, Cache hit ratio, Queue status
 ```
 
 ### **📋 Logs y Debugging:**

@@ -1,4 +1,4 @@
-# .dockerignore para Laravel NFC con FrankenPHP
+# .dockerignore para Laravel NFC con Nginx + PHP-FPM
 # Optimizado para reducir tamaño de imagen y mejorar velocidad de build
 
 # VERSION CONTROL
@@ -50,6 +50,7 @@ composer.lock.bak
 .env*
 !.env.example
 !.env.docker
+!.env
 
 # DOCKER
 docker-compose.override.yml

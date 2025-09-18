@@ -136,7 +136,7 @@ jobs:
           type=raw,value={{date 'YYYYMMDD-HHmmss'}}
         labels: |
           org.opencontainers.image.title=KraftDo NFC Production
-          org.opencontainers.image.description=Laravel app with FrankenPHP for NFC dynamic content
+          org.opencontainers.image.description=Laravel app with Nginx + PHP-FPM for NFC dynamic content
           org.opencontainers.image.vendor=KraftDo
     
     - name: 🔨 Build and push production image

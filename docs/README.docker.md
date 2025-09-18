@@ -30,7 +30,7 @@ docker compose -f docker-compose.hybrid.yml up -d
 
 **Características:**
 - ✅ **PROBADA Y FUNCIONANDO** - Basada en tu setup actual
-- FrankenPHP (frontend) + PHP-FPM (backend) 
+- Nginx + PHP-FPM (frontend y backend) 
 - Proxy optimizado para /storage/ hacia PHP-FPM
 - Base de datos externa configurada (192.168.100.20)
 - Redis para cache y sesiones
@@ -91,7 +91,6 @@ REDIS_PASSWORD=                        # Password de Redis (producción)
 | `APP_ENV` | `local` | `production` | Entorno de aplicación |
 | `APP_DEBUG` | `true` | `false` | Debugging habilitado |
 | `APP_PORT` | `8080` | `80` | Puerto principal |
-| `OCTANE_WORKERS` | `1` | `4` | Workers de Octane |
 | `QUEUE_WORKERS` | `1` | `4` | Workers de cola |
 | `OPCACHE_VALIDATE_TIMESTAMPS` | `1` | `0` | Validación OPcache |
 
@@ -290,7 +289,7 @@ make logs -f
 ### Configuración de Workers
 ```bash
 # En .env para ajustar según recursos del servidor:
-OCTANE_WORKERS=4           # 1 por CPU core recomendado
+QUEUE_WORKERS=4            # Workers para procesar colas
 QUEUE_WORKERS=2            # Según carga de trabajos
 WORKER_REPLICAS=2          # Múltiples contenedores worker
 ```

@@ -10,8 +10,6 @@ Esta carpeta contiene toda la documentación técnica del proyecto KraftDo NFC.
 - **[🚀 DEPLOYMENT_COMMANDS.md](./DEPLOYMENT_COMMANDS.md)** - Comandos para deploy y producción
 
 ### ⚡ **Performance y Arquitectura**
-- **[🚀 OCTANE_MIGRATION.md](./OCTANE_MIGRATION.md)** - Migración y configuración de Laravel Octane
-- **[⚡ REDIS_OCTANE_SETUP.md](./REDIS_OCTANE_SETUP.md)** - Setup Redis + Octane para máximo rendimiento
 
 ### 👨‍💻 **Desarrollo y Funcionalidades**
 - **[👨‍💻 FILAMENT_USAGE.md](./FILAMENT_USAGE.md)** - Guía de uso del panel administrativo
@@ -23,7 +21,7 @@ Esta carpeta contiene toda la documentación técnica del proyecto KraftDo NFC.
 ```mermaid
 graph TD
     A[Nginx] --> B[Admin Panel - PHP-FPM]
-    A --> C[Frontend - Octane/Swoole]
+    A --> C[Frontend - Nginx + PHP-FPM]
     B --> D[Filament + Livewire]
     C --> E[High Performance API]
     D --> F[MySQL Database]
@@ -68,9 +66,6 @@ php artisan view:cache
 php artisan migrate
 php artisan migrate:fresh --seed
 
-# Octane
-php artisan octane:start
-php artisan octane:reload
 ```
 
 ## 🔍 **Troubleshooting Rápido**
@@ -81,7 +76,6 @@ php artisan octane:reload
 | DB connection error | Verificar `.env` y MySQL externo | [ENVIRONMENT.md](./ENVIRONMENT.md) |
 | Docker build fails | Revisar Dockerfile.dual | [DOCKER.md](./DOCKER.md) |
 | Redis connection | Verificar Redis host en `.env` | [REDIS_OCTANE_SETUP.md](./REDIS_OCTANE_SETUP.md) |
-| Octane not starting | `pkill -f swoole` y reiniciar | [OCTANE_MIGRATION.md](./OCTANE_MIGRATION.md) |
 
 ## 📝 **Convenciones de Documentación**
 

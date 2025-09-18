@@ -6,7 +6,7 @@ Esta guía describe cómo desplegar KraftDo NFC en producción usando las herram
 
 ### Servidor de Producción
 - **Docker** 20.10+ y **Docker Compose** v2+
-- **Nginx** o proxy reverso (opcional, FrankenPHP incluye servidor web)
+- **Nginx** como servidor web y proxy reverso
 - **SSL/TLS** certificados configurados
 - **Dominio** apuntando al servidor
 
@@ -156,9 +156,9 @@ make deploy-prod-down
    - FPM pool configurado para alta concurrencia
    - PCOV para profiling opcional
 
-2. **frankenphp**: Proxy y servidor web
-   - HTTP/2 y HTTP/3 habilitado
-   - SSL/TLS automático con Caddy
+2. **nginx**: Servidor web y proxy reverso
+   - HTTP/2 habilitado
+   - SSL/TLS configurado
    - Compresión y cache de assets
 
 3. **redis**: Cache distribuido
@@ -252,7 +252,7 @@ docker-compose -f docker-compose.prod.yml logs -f
 
 # Logs específicos por servicio
 docker-compose -f docker-compose.prod.yml logs -f php-fpm
-docker-compose -f docker-compose.prod.yml logs -f frankenphp
+docker-compose -f docker-compose.prod.yml logs -f nginx
 docker-compose -f docker-compose.prod.yml logs -f redis
 ```
 

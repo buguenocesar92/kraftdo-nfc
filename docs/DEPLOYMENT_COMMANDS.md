@@ -1,4 +1,4 @@
-# 🚀 Comandos de Deployment - Redis + Octane
+# 🚀 Comandos de Deployment - Redis + Nginx + PHP-FPM
 
 ## 🏠 **TESTING LOCAL**
 
@@ -54,8 +54,6 @@ docker-compose -f docker-compose.prod.yml ps
 docker exec -it nfc-laravel-app-local php artisan tinker
 # En tinker: Redis::ping(); (should return "PONG")
 
-# Test Octane status
-docker exec -it nfc-laravel-app-local php artisan octane:status
 
 # Test cache
 docker exec -it nfc-laravel-app-local php artisan cache:clear
@@ -147,8 +145,6 @@ curl http://localhost:8080/health
 # Test Redis en VPS
 docker exec -it nfc-laravel-app-prod redis-cli -h redis -a SUPER_SECURE_PASSWORD_AQUI ping
 
-# Performance test
-docker exec -it nfc-laravel-app-prod php artisan octane:status
 
 # Clear cache después del deploy
 docker exec -it nfc-laravel-app-prod php artisan config:cache
@@ -240,14 +236,6 @@ docker-compose -f docker-compose.prod.yml logs redis
 docker-compose -f docker-compose.prod.yml restart redis
 ```
 
-### **Octane Issues**
-```bash
-# Restart Octane workers
-docker exec -it nfc-laravel-app-prod supervisorctl restart octane
-
-# Check Octane logs
-docker exec -it nfc-laravel-app-prod tail -f /var/log/supervisor/octane.log
-```
 
 ### **Performance Issues**
 ```bash
@@ -262,12 +250,12 @@ docker stats nfc-laravel-app-prod nfc-redis-prod
 
 ## ⚡ **EXPECTED PERFORMANCE**
 
-### **Before (sin Redis + Octane)**
+### **Before (sin Redis + Nginx optimizado)**
 - Response time: ~300ms
 - Concurrent users: ~500
 - Database queries: High load
 
-### **After (con Redis + Octane)**  
+### **After (con Redis + Nginx + PHP-FPM)**  
 - Response time: ~50ms (6x faster)
 - Concurrent users: ~10,000 (20x more)
 - Database queries: 90% reduction

@@ -298,7 +298,6 @@ class NfcContentController extends Controller
 
     /**
      * Preparar datos adicionales para las vistas según el tipo de contenido
-//      * Optimizado para Laravel Octane con mejor gestión de memoria
      */
     private function prepareViewData(DynamicContent $content): array
     {
@@ -361,7 +360,6 @@ class NfcContentController extends Controller
                     ]
                 ];
                 
-//                 // Octane optimization: Clean up large variables
                 unset($multimedia, $gift, $multimediaData);
                 break;
                 
@@ -391,7 +389,6 @@ class NfcContentController extends Controller
                     $data['menu_items'] = $content->menu_items ?? $content->data['menu_items'] ?? [];
                 }
                 
-//                 // Octane optimization: Clean up
                 unset($menu);
                 break;
                 
@@ -434,7 +431,6 @@ class NfcContentController extends Controller
                     });
                 })->toArray();
                 
-//                 // Octane optimization: Clean up
                 unset($profile);
                 break;
         }
