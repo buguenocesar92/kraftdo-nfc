@@ -165,7 +165,7 @@ COPY --chown=nginx:nginx .env .env
 COPY --from=node-build --chown=nginx:nginx /app/public/build ./public/build
 
 # Crear directorios necesarios y establecer permisos
-RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache && \
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache /var/log/supervisor && \
     chown -R nginx:nginx storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache
 
