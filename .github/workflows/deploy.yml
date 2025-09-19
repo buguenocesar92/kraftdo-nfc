@@ -1,242 +1,167 @@
-name: 🚀 Deploy to Production (Main)
+name: Deploy KraftDo NFC to VPS
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop ]
   workflow_dispatch:
-    inputs:
-      skip_tests:
-        description: 'Skip tests'
-        required: false
-        default: false
-        type: boolean
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  PHP_VERSION: '8.3'
-  NODE_VERSION: '20'
 
 jobs:
   tests:
     runs-on: ubuntu-latest
-    name: 🧪 Run Tests & Quality Checks
-    if: ${{ !inputs.skip_tests }}
-    
-    services:
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
+    name: Run Tests
     
     steps:
-    - name: 📥 Checkout repository
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
     
-    - name: 🐘 Setup PHP ${{ env.PHP_VERSION }}
+    - name: Setup PHP
       uses: shivammathur/setup-php@v2
       with:
-        php-version: ${{ env.PHP_VERSION }}
-        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql, gd, zip, redis, pcov
-        coverage: pcov
-        ini-values: memory_limit=512M
+        php-version: '8.3'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo_sqlite, mysql, gd, zip, redis, bcmath, exif
+        coverage: none
         
-    - name: 📦 Get Composer Cache Directory
-      id: composer-cache
-      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
       
-    - name: 🎯 Cache Composer dependencies
-      uses: actions/cache@v3
-      with:
-        path: ${{ steps.composer-cache.outputs.dir }}
-        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-        restore-keys: ${{ runner.os }}-composer-
-        
-    - name: 📋 Copy .env for testing
-      run: |
-        cp .env.example .env
-        echo "APP_KEY=$(php artisan key:generate --show)" >> .env
-        echo "CACHE_DRIVER=redis" >> .env
-        echo "SESSION_DRIVER=redis" >> .env
-        echo "REDIS_HOST=127.0.0.1" >> .env
+    - name: Install Dependencies
+      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       
-    - name: 📦 Install Dependencies (Makefile)
-      run: make ci-install
+    - name: Generate key
+      run: php artisan key:generate
       
-    - name: 🟢 Setup Node.js ${{ env.NODE_VERSION }}
+    - name: Directory Permissions
+      run: chmod -R 777 storage bootstrap/cache
+      
+    - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: ${{ env.NODE_VERSION }}
+        node-version: '20'
         cache: 'npm'
         
-    - name: 🏗️ Build Assets (Makefile)
-      run: make ci-build-assets
+    - name: Install Node dependencies
+      run: npm ci
+      
+    - name: Build Vite assets
+      run: npm run build
         
-    - name: 🔧 Setup CI Environment (Makefile)
-      run: make ci-setup
+    - name: Create Database
+      run: |
+        mkdir -p database
+        touch database/database.sqlite
         
-    - name: 🧪 Run All Tests (Makefile)
+    - name: Execute tests (Unit and Feature tests) via Pest
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-        CACHE_DRIVER: array
-        SESSION_DRIVER: array
-        REDIS_HOST: 127.0.0.1
-      run: make ci-test-full
-      
-    - name: 📊 Upload Coverage Reports
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: false
-        
-    - name: 🔍 Quality & Security Checks (Makefile)
-      run: make ci-quality-full
+      run: vendor/bin/pest
 
   build:
     needs: tests
     runs-on: ubuntu-latest
-    name: 🏗️ Build & Push Production Image
-    if: github.ref == 'refs/heads/main'
+    name: Build and Push to GHCR
+    if: github.ref == 'refs/heads/develop'
     
     permissions:
       contents: read
       packages: write
     
     steps:
-    - name: 📥 Checkout repository
+    - name: Checkout repository
       uses: actions/checkout@v4
     
-    - name: 🐳 Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      with:
-        platforms: linux/amd64,linux/arm64
-        
-    - name: 🔐 Log in to Container Registry
+    - name: Log in to Container Registry
       uses: docker/login-action@v3
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: 🏷️ Extract metadata
+    - name: Extract metadata
       id: meta
       uses: docker/metadata-action@v5
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
           type=ref,event=branch
-          type=sha,prefix=main-,format=short
-          type=raw,value=latest,enable={{is_default_branch}}
-          type=raw,value={{date 'YYYYMMDD-HHmmss'}}
-        labels: |
-          org.opencontainers.image.title=KraftDo NFC Production
-          org.opencontainers.image.description=Laravel app with Nginx + PHP-FPM for NFC dynamic content
-          org.opencontainers.image.vendor=KraftDo
+          type=sha,prefix={{branch}}-
+          type=raw,value=staging,enable={{is_default_branch}}
     
-    - name: 🔨 Build and push production image
+    - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./Dockerfile.phpfpm
+        file: ./Dockerfile.staging
         push: true
-        platforms: linux/amd64,linux/arm64
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        build-args: |
-          PHP_VERSION=${{ env.PHP_VERSION }}
-          NODE_VERSION=${{ env.NODE_VERSION }}
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    name: 🚀 Deploy to Production
-    if: github.ref == 'refs/heads/main'
-    environment:
-      name: production
-      url: https://kraftdo.cl
+    name: Deploy to Staging
+    if: github.ref == 'refs/heads/develop'
     
     steps:
-    - name: 📥 Checkout deployment files
-      uses: actions/checkout@v4
-      with:
-        sparse-checkout: |
-          docker-compose.prod.yml
-          .env.prod.example
-          deploy-prod.sh
-          Makefile
-          docker/
-          
-    - name: 🚀 Deploy to Production Server
+    - name: Deploy to VPS
       uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.VPS_HOST }}
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
-        port: ${{ secrets.VPS_PORT || 22 }}
-        command_timeout: 30m
+        port: ${{ secrets.VPS_PORT }}
         script: |
-          set -e
-          
-          # Navigate to project directory
-          PROJECT_DIR="${{ secrets.PROJECT_PATH || '/opt/kraftdo-nfc' }}"
-          echo "📁 Navigating to project directory: $PROJECT_DIR"
-          cd $PROJECT_DIR
-          
-          # Create backup before deployment
-          echo "💾 Creating pre-deployment backup..."
-          make deploy-prod-backup || echo "Warning: Backup failed"
-          
-          # Pull latest repository changes
-          echo "📥 Pulling latest changes..."
-          git fetch origin main
-          git reset --hard origin/main
-          
-          # Set permissions
-          chmod +x deploy-prod.sh
-          chmod +x docker/entrypoint-simple.sh
+          cd /root/kraftdo-nfc
           
           # Login to GitHub Container Registry
           echo "🔐 Logging into GitHub Container Registry..."
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Set environment variables for staging
+          echo "🔧 Setting environment variables..."
+          export DB_HOST=${{ secrets.DB_HOST }}
+          export DB_DATABASE=${{ secrets.DB_DATABASE }}
+          export DB_USERNAME=${{ secrets.DB_USERNAME }}
+          export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          export APP_KEY=${{ secrets.APP_KEY }}
           
           # Pull latest image
-          echo "⬇️ Pulling latest production image..."
-          docker pull ghcr.io/${{ github.repository }}:latest
+          echo "⬇️ Pulling latest staging image..."
+          docker pull ghcr.io/${{ github.repository }}:develop
+          
+          # Stop current container
+          echo "🛑 Stopping current containers..."
+          docker-compose -f docker-compose.staging.yml down || true
           
           # Update docker-compose to use registry image
-          echo "🔄 Updating docker-compose with registry image..."
-          if [ -f "docker-compose.prod.yml" ]; then
-            # Replace build configuration with image reference
-            sed -i 's|build:|# build:|g' docker-compose.prod.yml
-            sed -i 's|context: \.|# context: .|g' docker-compose.prod.yml
-            sed -i 's|dockerfile: Dockerfile\.phpfpm|# dockerfile: Dockerfile.phpfpm|g' docker-compose.prod.yml
-            
-            # Add image reference if not present
-            if ! grep -q "image: ghcr.io/${{ github.repository }}:latest" docker-compose.prod.yml; then
-              sed -i '/php-fpm:/a\    image: ghcr.io/${{ github.repository }}:latest' docker-compose.prod.yml
-            fi
+          echo "🔄 Updating image reference..."
+          sed -i '/build:/,/dockerfile: Dockerfile.staging/c\    image: ghcr.io/${{ github.repository }}:develop' docker-compose.staging.yml
+          
+          # Start services
+          echo "🚀 Starting staging services..."
+          docker-compose -f docker-compose.staging.yml up -d
+          
+          # Wait for container to be ready
+          echo "⏳ Waiting for container to be ready..."
+          sleep 20
+          
+          # Verify deployment
+          if [ "$(docker ps -q -f name=kraftdo-nfc-staging-web)" ]; then
+            echo "✅ Deployment successful!"
+            docker logs kraftdo-nfc-staging-web --tail 20
+          else
+            echo "❌ Deployment failed!"
+            docker logs kraftdo-nfc-staging-web
+            exit 1
           fi
           
-          # Execute automated deployment
-          echo "🚀 Starting automated deployment..."
-          export SKIP_MIGRATION_PROMPT=1
-          ./deploy-prod.sh
+          # Cleanup old images
+          echo "🧹 Cleaning up old images..."
+          docker image prune -f || true
           
-          # Verify deployment health
-          echo "🏥 Verifying deployment health..."
-          make deploy-prod-check
-          
-          # Final status
-          echo "📊 Final deployment status:"
-          make deploy-prod-logs --tail=20
-          
-          echo "🎉 Production deployment completed successfully!"
+          echo "🎉 KraftDo NFC Staging deployment completed successfully!"
+          echo "📱 App available at: http://kraftdo.cl:8084"

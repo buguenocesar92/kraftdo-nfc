@@ -28,8 +28,7 @@ RUN composer install --no-dev --no-scripts --no-autoloader --optimize-autoloader
     --ignore-platform-req=ext-intl --ignore-platform-req=ext-sockets --ignore-platform-req=ext-redis
 # Copiar código fuente y generar autoloader
 COPY . ./
-# FIX: Asegurar que .env se copia explícitamente
-COPY .env .env
+# Variables de entorno se pasan desde docker-compose
 RUN composer install --no-dev --optimize-autoloader \
     --ignore-platform-req=ext-intl --ignore-platform-req=ext-sockets --ignore-platform-req=ext-redis
 
@@ -157,8 +156,7 @@ WORKDIR /var/www/html
 # Copiar código desde etapa de Composer
 COPY --from=composer-build --chown=nginx:nginx /app ./
 
-# FIX: Asegurar que .env está presente en la imagen final
-COPY --chown=nginx:nginx .env .env
+# Variables de entorno se inyectan desde docker-compose
 
 # Copiar assets construidos desde etapa de Node.js
 COPY --from=node-build --chown=nginx:nginx /app/public/build ./public/build
