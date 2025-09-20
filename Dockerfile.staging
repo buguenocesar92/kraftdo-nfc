@@ -11,10 +11,18 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 # Instalar dependencias de Node.js (incluyendo dev para build)
 RUN npm ci
-# Copiar código fuente
-COPY . ./
+# Copiar archivos necesarios para Vite
+COPY vite.config.js ./
+COPY tailwind.config.js ./
+COPY postcss.config.js ./
+COPY resources/ ./resources/
+COPY public/ ./public/
+
 # Construir assets
 RUN npm run build
+
+# Verificar que se generaron los assets
+RUN ls -la public/build/ && cat public/build/manifest.json
 
 # -----------------------------------------------------------------------------
 # Etapa 2: Construcción con Composer
@@ -158,8 +166,14 @@ COPY --from=composer-build --chown=nginx:nginx /app ./
 
 # Variables de entorno se inyectan desde docker-compose
 
+# Crear directorio build antes de copiar assets
+RUN mkdir -p public/build
+
 # Copiar assets construidos desde etapa de Node.js
-COPY --from=node-build --chown=nginx:nginx /app/public/build ./public/build
+COPY --from=node-build --chown=nginx:nginx /app/public/build/ ./public/build/
+
+# Verificar que los assets se copiaron (debug)
+RUN ls -la public/build/ || echo "Warning: No build assets found"
 
 # Crear directorios necesarios y establecer permisos
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache && \
