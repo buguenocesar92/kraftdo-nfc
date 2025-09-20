@@ -119,6 +119,13 @@ jobs:
           mkdir -p /root/docker-projects/kraftdo-nfc-staging
           cd /root/docker-projects/kraftdo-nfc-staging
           
+          # Download latest docker-compose.staging.yml from repository
+          echo "📄 Downloading latest docker-compose configuration..."
+          curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+               -H "Accept: application/vnd.github.v3.raw" \
+               -L "https://api.github.com/repos/${{ github.repository }}/contents/docker-compose.staging.yml?ref=develop" \
+               -o docker-compose.staging.yml
+          
           # Login to GitHub Container Registry
           echo "🔐 Logging into GitHub Container Registry..."
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
@@ -144,9 +151,12 @@ jobs:
           echo "🛑 Stopping current containers..."
           docker-compose -f docker-compose.staging.yml down || true
           
-          # Update docker-compose to use registry image
-          echo "🔄 Updating image reference..."
-          sed -i '/build:/,/dockerfile: Dockerfile.staging/c\    image: ghcr.io/${{ github.repository }}:develop' docker-compose.staging.yml
+          # Verify docker-compose was downloaded
+          if [ ! -f "docker-compose.staging.yml" ]; then
+            echo "❌ Failed to download docker-compose.staging.yml"
+            exit 1
+          fi
+          echo "✅ Docker-compose configuration updated from repository"
           
           # Start services
           echo "🚀 Starting staging services..."
