@@ -130,6 +130,11 @@ jobs:
           export DB_USERNAME="${{ secrets.DB_USERNAME }}"
           export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
           export APP_KEY="${{ secrets.APP_KEY }}"
+          export APP_URL="${{ secrets.APP_URL }}"
+          export ASSET_URL="${{ secrets.ASSET_URL }}"
+          export LIVEWIRE_ASSET_URL="${{ secrets.LIVEWIRE_ASSET_URL }}"
+          export SESSION_DOMAIN="${{ secrets.SESSION_DOMAIN }}"
+          export SESSION_SECURE_COOKIE="${{ secrets.SESSION_SECURE_COOKIE }}"
           
           # Pull latest image
           echo "⬇️ Pulling latest staging image..."
