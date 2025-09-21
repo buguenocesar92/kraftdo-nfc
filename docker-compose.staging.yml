@@ -107,6 +107,9 @@ services:
       - DB_COLLATION=utf8mb4_unicode_ci
       - DB_STRICT=false
       - DB_ENGINE=null
+      # TRUST PROXY CONFIGURATION (for Docker networking)
+      - TRUSTED_PROXIES=*
+      - TRUSTED_HOSTS=staging.kraftdo.cl,localhost
     depends_on:
       redis:
         condition: service_healthy
