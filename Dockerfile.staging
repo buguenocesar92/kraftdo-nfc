@@ -157,8 +157,8 @@ RUN { \
     } > /usr/local/etc/php-fpm.d/www.conf
 
 # Configurar Nginx (mantener tus archivos externos)
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY nginx-site.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # Crear usuario nginx si no existe
 RUN addgroup -g 82 -S nginx || true && \
@@ -179,7 +179,11 @@ RUN mkdir -p public/build
 COPY --from=node-build --chown=nginx:nginx /app/public/build/ ./public/build/
 
 # Verificar que los assets se copiaron (debug)
-RUN ls -la public/build/ || echo "Warning: No build assets found"
+RUN echo "=== VERIFICANDO ASSETS COPIADOS ===" && \
+    ls -la public/build/ && \
+    echo "=== CONTENIDO DEL MANIFEST ===" && \
+    cat public/build/manifest.json && \
+    echo "=== FIN VERIFICACION ===" || echo "Warning: No build assets found"
 
 # Crear directorios necesarios y establecer permisos
 RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache && \

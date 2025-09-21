@@ -22,7 +22,9 @@ services:
       - ./routes:/var/www/html/routes
       - ./config:/var/www/html/config
       - ./database:/var/www/html/database
-      - ./public:/var/www/html/public
+      # Do NOT mount entire public directory - it overwrites Vite build assets
+      # Only mount specific subdirectories if needed:
+      - ./public/storage:/var/www/html/public/storage
     networks:
       - laravel-staging
     extra_hosts:
