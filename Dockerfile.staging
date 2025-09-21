@@ -126,23 +126,8 @@ COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 # Crear directorio para logs de PHP
 RUN mkdir -p /var/log/php && chown nginx:nginx /var/log/php
 
-# FIX 4: Configurar PHP-FPM con listen IP específica
-RUN { \
-        echo '[www]'; \
-        echo 'user = nginx'; \
-        echo 'group = nginx'; \
-        echo 'listen = 127.0.0.1:9000'; \
-        echo 'listen.owner = nginx'; \
-        echo 'listen.group = nginx'; \
-        echo 'pm = dynamic'; \
-        echo 'pm.max_children = 20'; \
-        echo 'pm.start_servers = 2'; \
-        echo 'pm.min_spare_servers = 1'; \
-        echo 'pm.max_spare_servers = 3'; \
-        echo 'pm.max_requests = 500'; \
-        echo 'clear_env = no'; \
-        echo 'catch_workers_output = yes'; \
-    } > /usr/local/etc/php-fpm.d/www.conf
+# Configurar PHP-FPM con archivo optimizado
+COPY docker/php-fpm/pool.conf /usr/local/etc/php-fpm.d/www.conf
 
 # Configurar Nginx (mantener tus archivos externos)
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
