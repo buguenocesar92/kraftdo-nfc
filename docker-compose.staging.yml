@@ -2,6 +2,8 @@
 # KRAFTDO NFC - STAGING DOCKER COMPOSE  
 # ===========================================
 # Puerto 8084 - Entorno de staging para desarrollo
+# OPTIMIZADO PARA 1500-2000 USUARIOS CONCURRENTES
+# Hardware: 3 CPU cores, 3.6GB RAM, SSD
 
 services:
   # ==========================================
@@ -13,6 +15,34 @@ services:
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8084}:80"
+    
+    # OPTIMIZACIONES DE RECURSOS PARA 3 CORES
+    deploy:
+      resources:
+        limits:
+          memory: 1.5G
+          cpus: '2.5'
+        reservations:
+          memory: 512M
+          cpus: '1.0'
+    
+    # CONFIGURACIONES DE RENDIMIENTO
+    tmpfs:
+      - /tmp:size=1G,noexec,nosuid,nodev
+    
+    shm_size: 512M  # Shared memory para OPcache
+    
+    security_opt:
+      - no-new-privileges:true
+    
+    # CPU AFFINITY PARA 3 CORES
+    cpuset: "0-2"
+    
+    sysctls:
+      - net.core.somaxconn=65535
+      - net.ipv4.tcp_keepalive_time=600
+      - net.ipv4.tcp_keepalive_intvl=30
+      - net.ipv4.tcp_keepalive_probes=3
     volumes:
       - app_storage:/var/www/html/storage
       - app_bootstrap_cache:/var/www/html/bootstrap/cache
@@ -32,7 +62,7 @@ services:
     environment:
       - APP_NAME=KraftDo NFC Staging
       - APP_ENV=staging
-      - APP_DEBUG=true
+      - APP_DEBUG=false
       - APP_KEY=${APP_KEY:?APP_KEY must be set}
       - APP_URL=${APP_URL:-https://staging.kraftdo.cl}
       - ASSET_URL=${ASSET_URL:-https://staging.kraftdo.cl}
@@ -55,41 +85,89 @@ services:
       - CACHE_DRIVER=redis
       - SESSION_DRIVER=redis
       - QUEUE_CONNECTION=redis
-      - LOG_LEVEL=debug
+      - LOG_LEVEL=warning
+      # OPTIMIZACIONES DE PERFORMANCE
+      - PHP_OPCACHE_VALIDATE_TIMESTAMPS=0
+      - PHP_OPCACHE_REVALIDATE_FREQ=0
+      - DB_CONNECTION_TIMEOUT=30
+      - DB_READ_TIMEOUT=60
+      - DB_WRITE_TIMEOUT=60
       # Staging specific
       - RUN_MIGRATIONS=true
+      # CACHE OPTIMIZATIONS
+      - CACHE_PREFIX=kraftdo_staging
+      - VIEW_CACHE_PATH=/tmp/views
+      - ROUTE_CACHE_PATH=/tmp/routes.php
+      - CONFIG_CACHE_PATH=/tmp/config.php
+      # QUEUE OPTIMIZATIONS  
+      - QUEUE_FAILED_DRIVER=redis
+      - HORIZON_BALANCE_STRATEGY=auto
+      # DATABASE OPTIMIZATIONS
+      - DB_CHARSET=utf8mb4
+      - DB_COLLATION=utf8mb4_unicode_ci
+      - DB_STRICT=false
+      - DB_ENGINE=null
     depends_on:
       redis:
         condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   # ==========================================
-  # REDIS (Cache y Sesiones)
+  # REDIS (Cache y Sesiones) - OPTIMIZADO
   # ==========================================
   redis:
     image: redis:7-alpine
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc-staging}-redis
     restart: unless-stopped
+    
+    # OPTIMIZACIONES DE RECURSOS
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+        reservations:
+          memory: 256M
+          cpus: '0.5'
+    
+    # CPU AFFINITY (USAR CORE DEDICADO)
+    cpuset: "2"
+    
+    # CONFIGURACIÓN OPTIMIZADA PARA ALTO RENDIMIENTO
     command: >
       redis-server
       --appendonly yes
-      --maxmemory ${REDIS_MAX_MEMORY:-512mb}
+      --maxmemory 768mb
       --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+      --lazyfree-lazy-eviction yes
+      --lazyfree-lazy-expire yes
+      --lazyfree-lazy-server-del yes
+      --tcp-keepalive 300
+      --tcp-backlog 511
+      --timeout 0
+      --databases 16
+      --maxclients 10000
     volumes:
-      - redis_data:/data
+      - redis_data:/data:z
+      - /opt/docker/redis/staging:/opt/redis-config:ro
     ports:
       - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     networks:
       - laravel-staging
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
 
 
 volumes:
@@ -103,3 +181,9 @@ volumes:
 networks:
   laravel-staging:
     driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: "kraftdo-staging"
+      com.docker.network.driver.mtu: "1500"
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
