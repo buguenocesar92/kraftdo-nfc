@@ -163,6 +163,10 @@ jobs:
           echo "🛑 Stopping current containers..."
           docker-compose -f docker-compose.staging.yml down || true
           
+          # Clean problematic directories that might conflict with Docker mounts
+          echo "🧹 Cleaning potential mount conflicts..."
+          rm -rf public/storage || true
+          
           # Verify docker-compose was downloaded
           if [ ! -f "docker-compose.staging.yml" ]; then
             echo "❌ Failed to download docker-compose.staging.yml"
