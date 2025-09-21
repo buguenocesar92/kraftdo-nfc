@@ -119,8 +119,20 @@ jobs:
           mkdir -p /root/docker-projects/kraftdo-nfc-staging
           cd /root/docker-projects/kraftdo-nfc-staging
           
-          # Download latest docker-compose.staging.yml from repository
-          echo "📄 Downloading latest docker-compose configuration..."
+          # Initialize git repository if it doesn't exist and pull latest code
+          echo "🔄 Updating source code from repository..."
+          if [ ! -d ".git" ]; then
+            echo "📥 Cloning repository for the first time..."
+            git clone https://github.com/${{ github.repository }}.git .
+            git checkout develop
+          else
+            echo "📥 Pulling latest changes..."
+            git fetch origin
+            git reset --hard origin/develop
+          fi
+          
+          # Download latest docker-compose.staging.yml from repository (backup method)
+          echo "📄 Ensuring latest docker-compose configuration..."
           curl -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
                -H "Accept: application/vnd.github.v3.raw" \
                -L "https://api.github.com/repos/${{ github.repository }}/contents/docker-compose.staging.yml?ref=develop" \
