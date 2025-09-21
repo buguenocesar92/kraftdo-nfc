@@ -8,9 +8,7 @@ services:
   # WEB SERVER - PHP-FPM (Laravel + Livewire)
   # ==========================================
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile.staging
+    image: ghcr.io/kraftdo/kraftdo-nfc:develop
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc-staging}-web
     restart: unless-stopped
     ports:
