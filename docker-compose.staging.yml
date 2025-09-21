@@ -156,8 +156,7 @@ services:
       --databases 16
       --maxclients 10000
     volumes:
-      - redis_data:/data:z
-      - /opt/docker/redis/staging:/opt/redis-config:ro
+      - redis_data:/data
     ports:
       - "127.0.0.1:${REDIS_PORT:-6379}:6379"
     networks:
@@ -186,4 +185,4 @@ networks:
       com.docker.network.driver.mtu: "1500"
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.25.0.0/16
