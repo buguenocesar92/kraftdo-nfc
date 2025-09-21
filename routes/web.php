@@ -19,7 +19,7 @@ Route::get('/health', function () {
     ]);
 });
 
-Route::view('dashboard', 'dashboard')
+Route::redirect('dashboard', '/admin')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
