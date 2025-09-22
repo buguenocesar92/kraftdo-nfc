@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
 use App\Models\NfcToken;
 use App\Models\DynamicContent;
 use App\Models\ContentMultimedia;
@@ -27,6 +28,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force clean URLs without index.php
+        URL::forceRootUrl(config('app.url'));
+        
         // 🚀 Registrar observers para invalidación automática de cache
         NfcToken::observe(NfcTokenObserver::class);
         DynamicContent::observe(DynamicContentObserver::class);
