@@ -28,8 +28,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Force clean URLs without index.php
+        // Force clean URLs without index.php globally
         URL::forceRootUrl(config('app.url'));
+        
+        // Add macro for clean route generation
+        URL::macro('cleanRoute', function (string $name, $parameters = [], bool $absolute = true) {
+            $url = route($name, $parameters, $absolute);
+            return str_replace('/index.php', '', $url);
+        });
+        
+        // Override default route function behavior if needed
+        if (config('app.force_clean_urls', true)) {
+            // This will be applied globally to all route() calls
+            URL::forceScheme(parse_url(config('app.url'), PHP_URL_SCHEME) ?: 'https');
+        }
         
         // 🚀 Registrar observers para invalidación automática de cache
         NfcToken::observe(NfcTokenObserver::class);
