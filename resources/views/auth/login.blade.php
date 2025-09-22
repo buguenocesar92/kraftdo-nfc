@@ -7,7 +7,7 @@
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form method="POST" action="{{ clean_route('login') }}" class="flex flex-col gap-6">
+    <form method="POST" action="{{ route('login') }}" class="flex flex-col gap-6">
         @csrf
 
         <!-- Email Address -->
@@ -50,7 +50,7 @@
             @enderror
 
             @if (Route::has('password.request'))
-                <a href="{{ clean_route('password.request') }}" class="absolute end-0 top-0 text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+                <a href="{{ route('password.request') }}" class="absolute end-0 top-0 text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
                     {{ __('Forgot your password?') }}
                 </a>
             @endif
@@ -79,7 +79,7 @@
     @if (Route::has('register'))
         <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
             <span>{{ __('Don\'t have an account?') }}</span>
-            <a href="{{ clean_route('register') }}" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">{{ __('Sign up') }}</a>
+            <a href="{{ route('register') }}" class="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">{{ __('Sign up') }}</a>
         </div>
     @endif
 </div>

@@ -1,25 +1,30 @@
 <?php
 
-if (!function_exists('clean_route')) {
+// Override the default route() helper to always generate clean URLs
+if (!function_exists('route')) {
     /**
-     * Generate a clean URL for the given route without index.php
+     * Generate a URL to a named route (clean version without index.php)
      */
-    function clean_route(string $name, $parameters = [], bool $absolute = true): string
+    function route($name, $parameters = [], $absolute = true)
     {
-        $url = route($name, $parameters, $absolute);
+        $url = app('url')->route($name, $parameters, $absolute);
         
         // Remove index.php from the URL if present
         return str_replace('/index.php', '', $url);
     }
 }
 
-if (!function_exists('clean_url')) {
+if (!function_exists('url')) {
     /**
-     * Generate a clean URL without index.php
+     * Generate a url for the application (clean version without index.php)
      */
-    function clean_url(string $path = '', bool $secure = null): string
+    function url($path = null, $parameters = [], $secure = null)
     {
-        $url = url($path, [], $secure);
+        if (is_null($path)) {
+            return app('url');
+        }
+
+        $url = app('url')->to($path, $parameters, $secure);
         
         // Remove index.php from the URL if present
         return str_replace('/index.php', '', $url);
