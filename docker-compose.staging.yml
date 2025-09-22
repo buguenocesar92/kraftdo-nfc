@@ -110,6 +110,12 @@ services:
       # TRUST PROXY CONFIGURATION (for Docker networking)
       - TRUSTED_PROXIES=*
       - TRUSTED_HOSTS=staging.kraftdo.cl,localhost
+      # URL REWRITING (clean URLs without index.php)
+      - APP_FORCE_HTTPS=false
+      - ASSET_PATH_PREFIX=
+      # FORCE CLEAN URLS (remove index.php from generated links)
+      - APP_INDEX_FILE=
+      - MIX_APP_URL=${APP_URL}
     depends_on:
       redis:
         condition: service_healthy
