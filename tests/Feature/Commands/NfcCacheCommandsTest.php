@@ -2,6 +2,7 @@
 
 use App\Models\NfcToken;
 use App\Models\NfcAnalytic;
+use App\Models\DynamicContent;
 use Illuminate\Support\Facades\Cache;
 
 describe('NFC Cache Commands', function () {

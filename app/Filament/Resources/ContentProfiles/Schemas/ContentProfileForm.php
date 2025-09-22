@@ -46,8 +46,29 @@ class ContentProfileForm
                             ->rows(4)
                             ->columnSpanFull(),
                         
+                        TextInput::make('profession')
+                            ->label('Profesión/Cargo')
+                            ->placeholder('Ej: Desarrollador Senior, CEO, Diseñador...')
+                            ->maxLength(255),
+                        
+                        TextInput::make('company')
+                            ->label('Empresa/Organización')
+                            ->placeholder('Nombre de la empresa o organización')
+                            ->maxLength(255),
+                        
+                        TextInput::make('location')
+                            ->label('Ubicación')
+                            ->placeholder('Ciudad, País')
+                            ->maxLength(255),
+                        
+                        TextInput::make('contact_info')
+                            ->label('Información de Contacto Principal')
+                            ->placeholder('Email principal o método de contacto preferido')
+                            ->maxLength(255)
+                            ->columnSpanFull(),
+                        
                         TextInput::make('contact_email')
-                            ->label('Correo Electrónico')
+                            ->label('Correo Electrónico Adicional')
                             ->email()
                             ->placeholder('contacto@ejemplo.com'),
                         

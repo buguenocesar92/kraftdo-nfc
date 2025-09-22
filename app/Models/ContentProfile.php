@@ -15,10 +15,14 @@ class ContentProfile extends Model
     protected $fillable = [
         'dynamic_content_id',
         'name',
+        'bio',
+        'profession',
+        'company',
+        'location',
+        'contact_info',
         'contact_email',
         'contact_phone',
         'contact_website',
-        'bio',
         'color_palette',
     ];
 
@@ -80,11 +84,12 @@ class ContentProfile extends Model
     }
 
     /**
-     * Obtener información de contacto como array
+     * Obtener información de contacto completa como array
      */
-    public function getContactInfoAttribute(): array
+    public function getContactInfoArrayAttribute(): array
     {
         return [
+            'main' => $this->attributes['contact_info'] ?? '',
             'email' => $this->contact_email,
             'phone' => $this->contact_phone,
             'website' => $this->contact_website,
@@ -96,7 +101,8 @@ class ContentProfile extends Model
      */
     public function hasContactInfo(): bool
     {
-        return !empty($this->contact_email) || 
+        return !empty($this->attributes['contact_info']) ||
+               !empty($this->contact_email) || 
                !empty($this->contact_phone) || 
                !empty($this->contact_website);
     }

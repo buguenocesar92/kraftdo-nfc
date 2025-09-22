@@ -195,10 +195,20 @@ class NfcCacheService
      */
     public static function getCacheStats(): array
     {
-        // Implementar métricas de hit/miss rate si es necesario
-        return [
-            'cache_driver' => config('cache.default'),
-            'redis_info' => Cache::getRedis()->info() ?? 'No disponible'
+        $driver = config('cache.default');
+        $stats = [
+            'cache_driver' => $driver,
         ];
+        
+        // Solo obtener info de Redis si estamos usando Redis
+        if ($driver === 'redis') {
+            try {
+                $stats['redis_info'] = Cache::getRedis()->info() ?? 'No disponible';
+            } catch (\Exception $e) {
+                $stats['redis_info'] = 'No disponible: ' . $e->getMessage();
+            }
+        }
+        
+        return $stats;
     }
 }

@@ -31,6 +31,9 @@ class RegisterController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Asignar rol NFC por defecto a usuarios registrados
+        $user->assignRole('NFC');
+
         event(new Registered($user));
 
         Auth::login($user);

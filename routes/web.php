@@ -9,6 +9,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
+
 // Health check para Docker
 Route::get('/health', function () {
     return response()->json([

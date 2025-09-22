@@ -57,6 +57,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->brandName('KRAFTDO NFC')
             ->favicon(asset('favicon.ico'))
+            ->loginRouteSlug('login')
             ->navigationGroups([
                 'Contenido NFC',
                 'Usuarios & Roles',

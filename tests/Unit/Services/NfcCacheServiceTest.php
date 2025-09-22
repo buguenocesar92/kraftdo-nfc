@@ -188,8 +188,8 @@ describe('NfcCacheService', function () {
     test('obtiene estadísticas de cache', function () {
         $stats = NfcCacheService::getCacheStats();
         
-        expect($stats)->toHaveKeys(['cache_driver', 'redis_info'])
-            ->and($stats['cache_driver'])->toBe('redis');
+        expect($stats)->toHaveKeys(['cache_driver'])
+            ->and($stats['cache_driver'])->toBe('array'); // En testing usa array driver
     });
 
     test('maneja tokens sin contenido dinámico', function () {

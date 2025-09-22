@@ -23,6 +23,12 @@ class EditContentProfile extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
+        // Asegurar que los nuevos campos estén incluidos
+        $data['profession'] = $this->record->profession;
+        $data['company'] = $this->record->company;
+        $data['location'] = $this->record->location;
+        $data['contact_info'] = $this->record->contact_info;
+        
         // Cargar contenido multimedia relacionado
         $contentMultimedia = ContentMultimedia::where('dynamic_content_id', $this->record->dynamic_content_id)->first();
         

@@ -12,6 +12,7 @@ use App\Models\ContentProfile;
 use App\Observers\NfcTokenObserver;
 use App\Observers\DynamicContentObserver;
 use App\Observers\ContentMultimediaObserver;
+use App\Observers\ContentProfileObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -39,6 +40,6 @@ class AppServiceProvider extends ServiceProvider
         
         // Observer genérico para otros tipos de contenido
         ContentGift::observe(DynamicContentObserver::class);
-        ContentProfile::observe(DynamicContentObserver::class);
+        ContentProfile::observe(ContentProfileObserver::class);
     }
 }

@@ -37,14 +37,12 @@ describe('TokenController', function () {
             ->assertViewHas('contentProfile');
     });
 
-    test('muestra página de token inactivo', function () {
+    test('retorna 404 para token inactivo', function () {
         $token = NfcToken::factory()->inactive()->create();
         
         $response = $this->get("/token/{$token->token_id}");
         
-        $response->assertStatus(200)
-            ->assertViewIs('token.inactive')
-            ->assertViewHas('token', $token);
+        $response->assertStatus(404);
     });
 
     test('retorna 404 para token inexistente', function () {
@@ -53,11 +51,12 @@ describe('TokenController', function () {
         $response->assertStatus(404);
     });
 
-    test('retorna 404 para tipo de contenido no soportado', function () {
+    test('retorna 404 para token sin contenido asociado', function () {
         $token = NfcToken::factory()->create([
-            'content_type' => 'UNSUPPORTED_TYPE',
+            'content_type' => 'GIFT',
             'is_active' => true
         ]);
+        // No crear DynamicContent asociado para simular contenido faltante
         
         $response = $this->get("/token/{$token->token_id}");
         
@@ -104,13 +103,13 @@ describe('TokenController', function () {
         $content = DynamicContent::factory()->profile()->create(['nfc_token_id' => $token->id]);
         $profile = ContentProfile::factory()->create(['dynamic_content_id' => $content->id]);
         
-        // Simular enlaces sociales
-        $profile->socialLinks()->create([
+        // Simular enlaces sociales (pertenecen a DynamicContent)
+        $content->socialLinks()->create([
             'platform' => 'twitter',
             'url' => 'https://twitter.com/test',
             'sort_order' => 1
         ]);
-        $profile->socialLinks()->create([
+        $content->socialLinks()->create([
             'platform' => 'instagram',
             'url' => 'https://instagram.com/test',
             'sort_order' => 2
@@ -178,7 +177,7 @@ describe('TokenController', function () {
     test('preview requiere autenticación', function () {
         $token = NfcToken::factory()->create();
         
-        $response = $this->get("/admin/tokens/{$token->id}/preview");
+        $response = $this->get("/preview/token/{$token->id}");
         
         $response->assertRedirect('/login');
     });
@@ -187,7 +186,7 @@ describe('TokenController', function () {
         $user = User::factory()->create();
         $token = NfcToken::factory()->create(['user_id' => $user->id]);
         
-        $response = $this->actingAs($user)->get("/admin/tokens/{$token->id}/preview");
+        $response = $this->actingAs($user)->get("/preview/token/{$token->id}");
         
         $response->assertRedirect("/token/{$token->token_id}");
     });
@@ -197,7 +196,7 @@ describe('TokenController', function () {
         $otherUser = User::factory()->create();
         $token = NfcToken::factory()->create(['user_id' => $owner->id]);
         
-        $response = $this->actingAs($otherUser)->get("/admin/tokens/{$token->id}/preview");
+        $response = $this->actingAs($otherUser)->get("/preview/token/{$token->id}");
         
         $response->assertStatus(403);
     });

@@ -409,7 +409,7 @@ class NfcContentController extends Controller
                 }
                 
                 // Enlaces sociales
-                $data['social_links'] = $content->socialLinks->ordered()->map(function ($link) {
+                $data['social_links'] = $content->socialLinks()->ordered()->get()->map(function ($link) {
                     return [
                         'platform' => $link->platform,
                         'url' => $link->url,
@@ -420,7 +420,7 @@ class NfcContentController extends Controller
                 })->toArray();
                 
                 // Habilidades agrupadas por categoría
-                $data['skills'] = $content->skills->ordered()->groupBy('category')->map(function ($skills) {
+                $data['skills'] = $content->skills()->ordered()->get()->groupBy('category')->map(function ($skills) {
                     return $skills->map(function ($skill) {
                         return [
                             'name' => $skill->name,
