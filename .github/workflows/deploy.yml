@@ -186,19 +186,6 @@ jobs:
           fi
           echo "✅ Docker-compose configuration updated from repository"
           
-          # Debug: Check what REDIS_PORT is being used
-          echo "🔍 Debug: Checking REDIS_PORT configuration..."
-          echo "REDIS_PORT from environment: ${REDIS_PORT:-not_set}"
-          grep -n "REDIS_PORT" docker-compose.staging.yml || echo "No REDIS_PORT found in compose file"
-          
-          # Debug: Check if there are other docker-compose files
-          echo "🔍 Debug: Checking for other docker-compose files..."
-          ls -la docker-compose* || echo "No other docker-compose files"
-          
-          # Debug: Validate the specific line that should use port 6001
-          echo "🔍 Debug: Checking line 165 specifically..."
-          sed -n '165p' docker-compose.staging.yml
-          
           # Start services
           echo "🚀 Starting staging services..."
           docker-compose -f docker-compose.staging.yml up -d

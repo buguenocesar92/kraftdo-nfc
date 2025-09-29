@@ -20,8 +20,8 @@ fi
 
 # Verificar Redis si está configurado
 if [ "$CACHE_DRIVER" = "redis" ] || [ "$SESSION_DRIVER" = "redis" ]; then
-    echo "⏳ Waiting for Redis on ${REDIS_HOST:-redis}:${REDIS_PORT:-6001}..."
-    while ! nc -z "${REDIS_HOST:-redis}" "${REDIS_PORT:-6001}"; do
+    echo "⏳ Waiting for Redis on ${REDIS_HOST:-redis}:6379..."
+    while ! nc -z "${REDIS_HOST:-redis}" "6379"; do
         echo "   Redis unavailable - retrying in 2s..."
         sleep 2
     done
