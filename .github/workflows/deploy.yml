@@ -60,7 +60,7 @@ jobs:
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: vendor/bin/pest tests/Unit/ExampleTest.php tests/Feature/ExampleTest.php tests/Feature/ApplicationTest.php --no-coverage
+      run: vendor/bin/pest --no-coverage
 
   build:
     needs: tests
