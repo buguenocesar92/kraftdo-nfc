@@ -186,6 +186,11 @@ jobs:
           fi
           echo "✅ Docker-compose configuration updated from repository"
           
+          # Debug: Check what REDIS_PORT is being used
+          echo "🔍 Debug: Checking REDIS_PORT configuration..."
+          echo "REDIS_PORT from environment: ${REDIS_PORT:-not_set}"
+          grep -n "REDIS_PORT" docker-compose.staging.yml || echo "No REDIS_PORT found in compose file"
+          
           # Start services
           echo "🚀 Starting staging services..."
           docker-compose -f docker-compose.staging.yml up -d
