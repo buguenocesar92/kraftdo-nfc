@@ -1,7 +1,7 @@
 # ===========================================
 # KRAFTDO NFC - STAGING DOCKER COMPOSE  
 # ===========================================
-# Puerto 8084 - Entorno de staging para desarrollo
+# Puerto 8081 - Entorno de staging para desarrollo NFC (impares staging)
 # OPTIMIZADO PARA 1500-2000 USUARIOS CONCURRENTES
 # Hardware: 3 CPU cores, 3.6GB RAM, SSD
 
@@ -14,7 +14,7 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc-staging}-web
     restart: unless-stopped
     ports:
-      - "${APP_PORT:-8084}:80"
+      - "${APP_PORT:-8081}:80"
     
     # OPTIMIZACIONES DE RECURSOS PARA 3 CORES
     deploy:
@@ -46,22 +46,15 @@ services:
     volumes:
       - app_storage:/var/www/html/storage
       - app_bootstrap_cache:/var/www/html/bootstrap/cache
-      # Solo montar directorios específicos, no el .env
-      - ./app:/var/www/html/app
-      - ./resources:/var/www/html/resources
-      - ./routes:/var/www/html/routes
-      - ./config:/var/www/html/config
-      - ./database:/var/www/html/database
-      # Do NOT mount entire public directory - it overwrites Vite build assets
-      # Only mount specific subdirectories if needed:
+      # Only mount storage link for file uploads (production-ready)
       - ./public/storage:/var/www/html/public/storage
     networks:
-      - laravel-staging
+      - laravel-nfc-staging
     extra_hosts:
       - "host.docker.internal:host-gateway"
     environment:
-      - APP_NAME=KraftDo NFC Staging
-      - APP_ENV=staging
+      - APP_NAME=KraftDo NFC
+      - APP_ENV=production  
       - APP_DEBUG=false
       - APP_KEY=${APP_KEY:?APP_KEY must be set}
       - APP_URL=${APP_URL:-https://staging.kraftdo.cl}
@@ -83,6 +76,7 @@ services:
       - REDIS_HOST=redis
       - REDIS_PASSWORD=
       - CACHE_DRIVER=redis
+      - CACHE_STORE=redis
       - SESSION_DRIVER=redis
       - QUEUE_CONNECTION=redis
       - LOG_LEVEL=warning
@@ -95,10 +89,10 @@ services:
       # Staging specific
       - RUN_MIGRATIONS=true
       # CACHE OPTIMIZATIONS
-      - CACHE_PREFIX=kraftdo_staging
-      - VIEW_CACHE_PATH=/tmp/views
-      - ROUTE_CACHE_PATH=/tmp/routes.php
-      - CONFIG_CACHE_PATH=/tmp/config.php
+      - CACHE_PREFIX=kraftdo_nfc_staging
+      - VIEW_CACHE_DRIVER=redis
+      - ROUTE_CACHE_DRIVER=redis
+      - CONFIG_CACHE_DRIVER=redis
       # QUEUE OPTIMIZATIONS  
       - QUEUE_FAILED_DRIVER=redis
       - HORIZON_BALANCE_STRATEGY=auto
@@ -115,6 +109,7 @@ services:
       - ASSET_PATH_PREFIX=
       # FORCE CLEAN URLS (remove index.php from generated links)
       - APP_INDEX_FILE=
+      - FORCE_CLEAN_URLS=true
       - MIX_APP_URL=${APP_URL}
     depends_on:
       redis:
@@ -167,9 +162,9 @@ services:
     volumes:
       - redis_data:/data
     ports:
-      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+      - "127.0.0.1:${REDIS_PORT:-6001}:6379"
     networks:
-      - laravel-staging
+      - laravel-nfc-staging
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -187,11 +182,5 @@ volumes:
     driver: local
 
 networks:
-  laravel-staging:
+  laravel-nfc-staging:
     driver: bridge
-    driver_opts:
-      com.docker.network.bridge.name: "kraftdo-staging"
-      com.docker.network.driver.mtu: "1500"
-    ipam:
-      config:
-        - subnet: 172.25.0.0/16

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo "🚀 Starting Laravel NFC App - Staging Mode..."
+echo "🚀 Starting Laravel CMS App - Staging Mode..."
 
 # Verificar directorio de trabajo
 if [ ! -f "artisan" ]; then
@@ -34,6 +34,33 @@ if [ -z "$APP_KEY" ] || [ "$APP_KEY" = "base64:" ]; then
     php artisan key:generate --no-interaction --force
 fi
 
+# Verificar autoloader y helpers
+echo "🔄 Checking autoloader and helpers..."
+if [ ! -f "vendor/autoload.php" ]; then
+    echo "❌ Autoloader not found!"
+    echo "📁 Current directory contents:"
+    ls -la
+    echo "📁 Vendor directory contents:"
+    ls -la vendor/ || echo "vendor directory not found"
+    exit 1
+fi
+
+# Verificar si helpers.php está en el autoloader
+if [ -f "vendor/composer/autoload_files.php" ] && grep -q "app/helpers.php" vendor/composer/autoload_files.php; then
+    echo "✅ helpers.php is loaded in autoloader"
+else
+    echo "⚠️  helpers.php not found in autoloader files (not critical)"
+fi
+
+# Verificar que el autoloader funciona
+echo "🔍 Testing autoloader..."
+if php -r "require 'vendor/autoload.php'; echo 'Autoloader working correctly\n';"; then
+    echo "✅ Autoloader test passed"
+else
+    echo "❌ Autoloader test failed"
+    exit 1
+fi
+
 # Crear directorios necesarios
 echo "📁 Creating required directories..."
 mkdir -p storage/framework/{cache/data,sessions,views} storage/logs bootstrap/cache
@@ -61,10 +88,12 @@ php artisan route:clear
 php artisan view:clear
 php artisan cache:clear
 
-# Run migrations if enabled
-if [ "$RUN_MIGRATIONS" = "true" ] && nc -z "$DB_HOST" "$DB_PORT"; then
+# Run migrations automatically
+if nc -z "$DB_HOST" "$DB_PORT"; then
     echo "🗄️  Running migrations..."
     php artisan migrate --force --no-interaction || echo "⚠️ Migration warning, continuing..."
+else
+    echo "⚠️  Database not available, skipping migrations..."
 fi
 
 # Publicar assets de Filament
@@ -81,8 +110,11 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-echo "✅ Laravel NFC App ready for staging!"
+echo "✅ Laravel CMS App ready for staging!"
 echo "🌐 Starting Nginx + PHP-FPM on port 80"
 
-# Iniciar supervisor
-exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+# Iniciar PHP-FPM en background
+/usr/local/sbin/php-fpm -D
+
+# Iniciar Nginx en foreground (mantiene el contenedor corriendo)
+exec nginx -g "daemon off;"

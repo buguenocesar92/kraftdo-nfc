@@ -30,6 +30,9 @@ jobs:
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
       
+    - name: Regenerate autoloader
+      run: composer dump-autoload
+      
     - name: Generate key
       run: php artisan key:generate
       
@@ -57,50 +60,54 @@ jobs:
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: vendor/bin/pest tests/Unit/ExampleTest.php tests/Feature/ExampleTest.php tests/Feature/Auth/ --no-coverage
+      run: vendor/bin/pest tests/Unit/ExampleTest.php tests/Feature/ExampleTest.php tests/Feature/ApplicationTest.php --no-coverage
 
   build:
     needs: tests
     runs-on: ubuntu-latest
-    name: Build and Push to GHCR
+    name: Build NFC Image
     if: github.ref == 'refs/heads/develop'
-    
     permissions:
       contents: read
       packages: write
     
     steps:
-    - name: Checkout repository
+    - name: Checkout
       uses: actions/checkout@v4
-    
-    - name: Log in to Container Registry
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Login to Container Registry
       uses: docker/login-action@v3
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     
-    - name: Extract metadata
-      id: meta
+    - name: Extract metadata for NFC image
+      id: meta-nfc
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/kraftdo-nfc
         tags: |
           type=ref,event=branch
+          type=raw,value=latest,enable={{is_default_branch}}
           type=sha,prefix={{branch}}-
-          type=raw,value=staging,enable={{is_default_branch}}
     
-    - name: Build and push Docker image
+    - name: Build and push NFC image
       uses: docker/build-push-action@v5
       with:
         context: .
-        file: ./Dockerfile.staging
+        file: ./Dockerfile
         push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: ${{ steps.meta-nfc.outputs.tags }}
+        labels: ${{ steps.meta-nfc.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
   deploy:
-    needs: build
+    needs: [tests, build]
     runs-on: ubuntu-latest
     name: Deploy to Staging
     if: github.ref == 'refs/heads/develop'
@@ -138,9 +145,14 @@ jobs:
                -L "https://api.github.com/repos/${{ github.repository }}/contents/docker-compose.staging.yml?ref=develop" \
                -o docker-compose.staging.yml
           
-          # Login to GitHub Container Registry
-          echo "🔐 Logging into GitHub Container Registry..."
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          # Login to GitHub Container Registry for private image access
+          echo "🔑 Logging into GitHub Container Registry..."
+          if [ -n "${{ secrets.GHCR_TOKEN }}" ]; then
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u buguenocesar92 --password-stdin
+          else
+            echo "⚠️  GHCR_TOKEN not found, trying with GITHUB_TOKEN..."
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          fi
           
           # Set environment variables for staging
           echo "🔧 Setting environment variables..."
@@ -149,15 +161,15 @@ jobs:
           export DB_USERNAME="${{ secrets.DB_USERNAME }}"
           export DB_PASSWORD="${{ secrets.DB_PASSWORD }}"
           export APP_KEY="${{ secrets.APP_KEY }}"
-          export APP_URL="${{ secrets.APP_URL }}"
-          export ASSET_URL="${{ secrets.ASSET_URL }}"
-          export LIVEWIRE_ASSET_URL="${{ secrets.LIVEWIRE_ASSET_URL }}"
-          export SESSION_DOMAIN="${{ secrets.SESSION_DOMAIN }}"
-          export SESSION_SECURE_COOKIE="${{ secrets.SESSION_SECURE_COOKIE }}"
+          export APP_URL="${{ secrets.APP_URL || 'https://staging.kraftdo.cl' }}"
+          export ASSET_URL="${{ secrets.ASSET_URL || 'https://staging.kraftdo.cl' }}"
+          export LIVEWIRE_ASSET_URL="${{ secrets.LIVEWIRE_ASSET_URL || 'https://staging.kraftdo.cl' }}"
+          export SESSION_DOMAIN="${{ secrets.SESSION_DOMAIN || 'staging.kraftdo.cl' }}"
+          export SESSION_SECURE_COOKIE="${{ secrets.SESSION_SECURE_COOKIE || 'true' }}"
           
-          # Pull latest image
+          # Pull latest image (using the pre-built base image)
           echo "⬇️ Pulling latest staging image..."
-          docker pull ghcr.io/${{ github.repository }}:develop
+          docker pull ghcr.io/buguenocesar92/kraftdo-nfc:develop
           
           # Stop current container
           echo "🛑 Stopping current containers..."
@@ -182,10 +194,49 @@ jobs:
           echo "⏳ Waiting for container to be ready..."
           sleep 20
           
+          # Verify application is working
+          echo "🔧 Verifying application..."
+          if ! docker-compose -f docker-compose.staging.yml exec -T web php artisan --version; then
+            echo "❌ Laravel application not working"
+            docker logs kraftdo-nfc-staging-web --tail 20
+            exit 1
+          fi
+          
+          # Run migrations
+          echo "🗄️ Running database migrations..."
+          if ! docker-compose -f docker-compose.staging.yml exec -T web php artisan migrate --force; then
+            echo "❌ Failed to run migrations"
+            exit 1
+          fi
+          
+          # Run seeders (optional - uncomment if needed)
+          # echo "🌱 Running database seeders..."
+          # docker-compose -f docker-compose.staging.yml exec -T web php artisan db:seed --force
+          
+          # Clear and optimize caches
+          echo "🧹 Clearing and optimizing application caches..."
+          docker-compose -f docker-compose.staging.yml exec -T web php artisan config:clear
+          docker-compose -f docker-compose.staging.yml exec -T web php artisan route:clear
+          docker-compose -f docker-compose.staging.yml exec -T web php artisan view:clear
+          docker-compose -f docker-compose.staging.yml exec -T web php artisan config:cache
+          docker-compose -f docker-compose.staging.yml exec -T web php artisan route:cache
+          docker-compose -f docker-compose.staging.yml exec -T web php artisan view:cache
+          
+          # Create storage link if needed
+          echo "🔗 Creating storage link..."
+          docker-compose -f docker-compose.staging.yml exec -T web php artisan storage:link || true
+          
+          # Create and fix admin user
+          echo "👤 Creating admin user..."
+          docker-compose -f docker-compose.staging.yml exec -T web php artisan admin:create || true
+          echo "👤 Fixing admin user privileges..."
+          docker-compose -f docker-compose.staging.yml exec -T web php artisan admin:fix || true
+          
           # Verify deployment
           if [ "$(docker ps -q -f name=kraftdo-nfc-staging-web)" ]; then
             echo "✅ Deployment successful!"
-            docker logs kraftdo-nfc-staging-web --tail 20
+            echo "📋 Recent application logs:"
+            docker logs kraftdo-nfc-staging-web --tail 50
           else
             echo "❌ Deployment failed!"
             docker logs kraftdo-nfc-staging-web
@@ -197,4 +248,4 @@ jobs:
           docker image prune -f || true
           
           echo "🎉 KraftDo NFC Staging deployment completed successfully!"
-          echo "📱 App available at: http://kraftdo.cl:8084"
+          echo "📱 App available at: https://staging.kraftdo.cl:8081"

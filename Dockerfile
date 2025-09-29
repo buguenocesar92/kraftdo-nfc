@@ -1,111 +1,97 @@
-# Multi-stage build para Laravel NFC App
-# Stage 1: Base image con extensiones PHP
-FROM php:8.3-fpm-alpine AS base
+# =============================================================================
+# KRAFTDO NFC - Imagen específica para el sistema NFC
+# =============================================================================
+# Extiende: kraftdo-base con funcionalidad específica del NFC
 
-# Instalar dependencias del sistema y extensiones PHP
-RUN apk add --no-cache \
-    sqlite \
-    sqlite-dev \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    zip \
-    libzip-dev \
-    oniguruma-dev \
-    curl-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j$(nproc) \
-        pdo \
-        pdo_mysql \
-        pdo_sqlite \
-        gd \
-        zip \
-        mbstring \
-        curl \
-        opcache
-
-# Configurar PHP
-COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
-COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
-
-# Instalar Composer
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Stage 2: Dependencias PHP
-FROM base AS php-deps
-
+# -----------------------------------------------------------------------------
+# Etapa 1: Construcción con Composer
+# -----------------------------------------------------------------------------
+FROM composer:2 AS composer-build
 WORKDIR /app
+# Copiar archivos de configuración de Composer
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
-
-# Stage 3: Assets build
-FROM node:18-alpine AS node-build
-
-WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci
-
+# Instalar dependencias de PHP (solo producción) ignorando platform requirements
+RUN composer install --no-dev --no-scripts --no-autoloader \
+    --ignore-platform-req=ext-intl --ignore-platform-req=ext-sockets --ignore-platform-req=ext-redis
+# Copiar código fuente y generar autoloader optimizado con archivos helpers
 COPY . ./
-RUN npm run build
+# Generar autoloader final optimizado incluyendo helpers.php
+RUN composer dump-autoload --optimize \
+    --ignore-platform-req=ext-intl --ignore-platform-req=ext-sockets --ignore-platform-req=ext-redis
 
-# Stage 4: Imagen final
-FROM base AS final
+# Verificar que helpers.php está incluido en el autoloader
+RUN echo "=== VERIFICANDO HELPERS.PHP EN AUTOLOADER ===" && \
+    grep -l "app/helpers.php" vendor/composer/autoload_files.php && \
+    echo "✅ helpers.php incluido correctamente" || \
+    (echo "❌ helpers.php NO encontrado en autoloader" && exit 1)
 
-# Instalar nginx, supervisor y git para runtime
-RUN apk add --no-cache \
-    nginx \
-    supervisor \
-    git \
-    netcat-openbsd
+# -----------------------------------------------------------------------------
+# Etapa 2: Construcción de assets con Node.js (después de Composer)
+# -----------------------------------------------------------------------------
+FROM node:20-alpine AS node-build
+WORKDIR /app
+# Copiar archivos de configuración de Node.js
+COPY package.json package-lock.json ./
+# Instalar dependencias de Node.js (incluyendo dev para build)
+RUN npm ci
+# Copiar archivos necesarios para Vite
+COPY vite.config.js ./
+COPY resources/ ./resources/
+COPY public/ ./public/
+# Copiar vendor desde la etapa de Composer (necesario para flux.css)
+COPY --from=composer-build /app/vendor ./vendor
 
-# Configurar Nginx y Supervisor
+# Set NODE_ENV for production build
+ENV NODE_ENV=production
+
+# Construir assets con debugging
+RUN echo "Building assets with Vite..." && \
+    npm run build && \
+    echo "Build completed, checking output..." && \
+    ls -la public/
+
+# Verificar que se generaron los assets
+RUN ls -la public/build/ && cat public/build/manifest.json
+
+# -----------------------------------------------------------------------------
+# Etapa 3: Imagen final extendiendo kraftdo-base externa
+# -----------------------------------------------------------------------------
+FROM ghcr.io/buguenocesar92/kraftdo-base:latest
+
+# Configurar PHP con archivos optimizados específicos del CMS
+COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+COPY docker/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+
+# Configurar PHP-FPM con archivo optimizado
+COPY docker/php-fpm/pool.conf /usr/local/etc/php-fpm.d/www.conf
+
+# Configurar Nginx específico para NFC
 COPY docker/nginx/nginx.conf /etc/nginx/nginx.conf
-COPY docker/nginx/default.conf /etc/nginx/http.d/default.conf
-COPY docker/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
-# Crear usuario de aplicación
-RUN addgroup -g 1000 -S www && \
-    adduser -u 1000 -D -S -G www www
+# Copiar código desde etapa de Composer
+COPY --from=composer-build --chown=nginx:nginx /app ./
 
-WORKDIR /var/www/html
+# Crear directorio build antes de copiar assets
+RUN mkdir -p public/build
 
-# Copiar dependencias de PHP desde stage anterior
-COPY --from=php-deps --chown=www:www /app/vendor ./vendor
+# Copiar assets construidos desde etapa de Node.js
+COPY --from=node-build --chown=nginx:nginx /app/public/build/ ./public/build/
 
-# Copiar assets compilados desde stage anterior
-COPY --from=node-build --chown=www:www /app/public/build ./public/build
+# Verificar que los assets se copiaron (debug)
+RUN echo "=== VERIFICANDO ASSETS COPIADOS ===" && \
+    ls -la public/build/ && \
+    echo "=== CONTENIDO DEL MANIFEST ===" && \
+    cat public/build/manifest.json && \
+    echo "=== FIN VERIFICACION ===" || echo "Warning: No build assets found"
 
-# Copiar código fuente
-COPY --chown=www:www . ./
+# Crear directorios necesarios y establecer permisos
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views bootstrap/cache && \
+    chown -R nginx:nginx storage bootstrap/cache && \
+    chmod -R 775 storage bootstrap/cache
 
-# Ejecutar scripts de Composer
-RUN composer run-script post-autoload-dump
-
-# Configurar permisos
-RUN mkdir -p storage bootstrap/cache \
-    && mkdir -p /var/log/supervisor \
-    && mkdir -p /run/nginx \
-    && mkdir -p /var/lib/nginx/tmp/client_body \
-    && mkdir -p /var/lib/nginx/tmp/fastcgi \
-    && mkdir -p /var/lib/nginx/tmp/proxy \
-    && mkdir -p /var/lib/nginx/tmp/scgi \
-    && mkdir -p /var/lib/nginx/tmp/uwsgi \
-    && chown -R www:www /var/www/html \
-    && chown -R www:www /var/lib/nginx/tmp \
-    && chmod -R 755 /var/www/html \
-    && chmod -R 777 storage bootstrap/cache \
-    && chmod -R 755 /var/lib/nginx/tmp \
-    && chmod 755 /var/lib/nginx
-
-# Variables de entorno
-ENV APP_ENV=local
-ENV APP_DEBUG=true
-
-# Script de inicio
+# Copiar entrypoint específico del NFC
 COPY docker/entrypoint-staging.sh /entrypoint-staging.sh
 RUN chmod +x /entrypoint-staging.sh
-
-# Exponer puerto 80 para Nginx
-EXPOSE 80
 
 ENTRYPOINT ["/entrypoint-staging.sh"]
