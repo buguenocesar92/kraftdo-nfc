@@ -34,10 +34,12 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 # Instalar dependencias de Node.js (incluyendo dev para build)
 RUN npm ci
-# Copiar archivos necesarios para Vite
-COPY vite.config.js ./
+# Copiar archivos necesarios para Vite y Tailwind
+COPY vite.config.js tailwind.config.js postcss.config.js ./
 COPY resources/ ./resources/
 COPY public/ ./public/
+# Copiar archivos Blade y PHP para que Tailwind los escanee
+COPY app/ ./app/
 # Copiar vendor desde la etapa de Composer (necesario para flux.css)
 COPY --from=composer-build /app/vendor ./vendor
 
