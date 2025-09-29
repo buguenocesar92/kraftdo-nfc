@@ -224,7 +224,14 @@ jobs:
           
           # Create storage link if needed
           echo "🔗 Creating storage link..."
-          docker-compose -f docker-compose.staging.yml exec -T web php artisan storage:link || true
+          docker-compose -f docker-compose.staging.yml exec -T web bash -c "
+            # Remove any existing public/storage directory/link
+            rm -rf public/storage || true
+            # Create the symbolic link manually if Laravel command fails
+            php artisan storage:link || ln -sfn /var/www/html/storage/app/public /var/www/html/public/storage
+            # Verify the link works
+            ls -la public/storage/
+          "
           
           # Create and fix admin user
           echo "👤 Creating admin user..."
