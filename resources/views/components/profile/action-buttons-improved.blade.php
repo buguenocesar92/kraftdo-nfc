@@ -66,25 +66,32 @@
             // Try different methods based on device and capabilities
             let success = false;
             
-            // Method 1: Web Share API (modern mobile browsers)
-            if (isMobile && navigator.share && navigator.canShare) {
-                console.log('Trying Web Share API...');
-                success = await tryWebShareAPI();
-                console.log('Web Share API result:', success);
-            }
-            
-            // Method 2: iOS specific handling
-            if (!success && isIOS) {
+            // Method 1: iOS specific handling (prioritize over Web Share API)
+            if (isIOS) {
                 console.log('Trying iOS integration...');
-                success = await tryiOSIntegration();
+                // Force iOS to always show action sheet if we have contact data
+                if (contactInfo.phone || contactInfo.email) {
+                    console.log('iOS - forcing action sheet due to contact data');
+                    showMobileActionSheet();
+                    success = true;
+                } else {
+                    success = await tryiOSIntegration();
+                }
                 console.log('iOS integration result:', success);
             }
             
-            // Method 3: Android specific handling  
-            if (!success && isAndroid) {
+            // Method 2: Android specific handling  
+            else if (isAndroid) {
                 console.log('Trying Android integration...');
                 success = await tryAndroidIntegration();
                 console.log('Android integration result:', success);
+            }
+            
+            // Method 3: Web Share API (for other modern mobile browsers)
+            else if (isMobile && navigator.share && navigator.canShare) {
+                console.log('Trying Web Share API...');
+                success = await tryWebShareAPI();
+                console.log('Web Share API result:', success);
             }
             
             // Method 4: Fallback - Enhanced vCard download
@@ -132,12 +139,18 @@
 
     // iOS specific integration
     async function tryiOSIntegration() {
+        console.log('iOS integration - contactInfo:', contactInfo);
+        console.log('iOS integration - has phone or email:', !!(contactInfo.phone || contactInfo.email));
+        
         // iOS doesn't support Web Share API with files well
         // So we create an action sheet with native app links
         if (contactInfo.phone || contactInfo.email) {
+            console.log('iOS - showing action sheet');
             showMobileActionSheet();
             return true;
         }
+        
+        console.log('iOS - no phone or email, returning false');
         return false;
     }
 
@@ -169,6 +182,8 @@
 
     // Show mobile action sheet for iOS/Android
     function showMobileActionSheet() {
+        console.log('showMobileActionSheet called with contactInfo:', contactInfo);
+        
         const modal = document.createElement('div');
         modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end justify-center';
         modal.style.backdropFilter = 'blur(4px)';
@@ -176,6 +191,7 @@
         const actions = [];
         
         if (contactInfo.phone) {
+            console.log('Adding phone actions for:', contactInfo.phone);
             actions.push({
                 icon: '📞',
                 title: 'Llamar',
@@ -213,12 +229,12 @@
         if (isAndroid) {
             actions.push({
                 icon: '📱',
-                title: 'Abrir Contactos',
-                subtitle: 'App de contactos',
+                title: 'Google Contactos',
+                subtitle: 'Abrir app',
                 action: () => {
                     try {
-                        // Try Google Contacts
-                        window.open('content://contacts/people/', '_self');
+                        // Try Google Contacts web app
+                        window.open('https://contacts.google.com/', '_blank');
                     } catch (e) {
                         // Fallback to download
                         downloadEnhancedVCard();
