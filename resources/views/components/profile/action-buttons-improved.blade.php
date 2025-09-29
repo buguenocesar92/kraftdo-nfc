@@ -60,27 +60,38 @@
             const isAndroid = /android/.test(userAgent);
             const isMobile = isIOS || isAndroid;
             
+            // Debug information
+            console.log('Device detection:', { isIOS, isAndroid, isMobile, hasShare: !!navigator.share, hasCanShare: !!navigator.canShare });
+            
             // Try different methods based on device and capabilities
             let success = false;
             
             // Method 1: Web Share API (modern mobile browsers)
             if (isMobile && navigator.share && navigator.canShare) {
+                console.log('Trying Web Share API...');
                 success = await tryWebShareAPI();
+                console.log('Web Share API result:', success);
             }
             
             // Method 2: iOS specific handling
             if (!success && isIOS) {
+                console.log('Trying iOS integration...');
                 success = await tryiOSIntegration();
+                console.log('iOS integration result:', success);
             }
             
             // Method 3: Android specific handling  
             if (!success && isAndroid) {
+                console.log('Trying Android integration...');
                 success = await tryAndroidIntegration();
+                console.log('Android integration result:', success);
             }
             
             // Method 4: Fallback - Enhanced vCard download
             if (!success) {
+                console.log('Using fallback vCard download...');
                 success = await downloadEnhancedVCard();
+                console.log('Fallback result:', success);
             }
             
             if (success) {
@@ -132,19 +143,27 @@
 
     // Android specific integration
     async function tryAndroidIntegration() {
-        // Try intent-based approach for Android
-        try {
-            const vcard = generateVCard(contactInfo);
-            const encodedVCard = encodeURIComponent(vcard);
-            
-            // Try Android contacts intent
-            const intentUrl = `intent://contacts/people/#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir%2Fcontact;extras=Bundle%28%28B%28%283%29vcard%2C${encodedVCard}%29%29%29;end`;
-            window.location.href = intentUrl;
-            
+        // For Android, show action sheet like iOS since intents are unreliable
+        if (contactInfo.phone || contactInfo.email) {
+            showMobileActionSheet();
             return true;
-        } catch (error) {
-            console.log('Android intent failed:', error);
         }
+        
+        // Try Web Share API as fallback
+        try {
+            if (navigator.share) {
+                const vcard = generateVCard(contactInfo);
+                await navigator.share({
+                    title: `Contacto: ${contactInfo.name}`,
+                    text: `Información de contacto de ${contactInfo.name}`,
+                    url: 'data:text/vcard;charset=utf-8,' + encodeURIComponent(vcard)
+                });
+                return true;
+            }
+        } catch (error) {
+            console.log('Android Web Share failed:', error);
+        }
+        
         return false;
     }
 
@@ -188,6 +207,27 @@
             });
         }
         
+        // Add Android-specific contact actions
+        const isAndroid = /android/.test(navigator.userAgent.toLowerCase());
+        
+        if (isAndroid) {
+            actions.push({
+                icon: '📱',
+                title: 'Abrir Contactos',
+                subtitle: 'App de contactos',
+                action: () => {
+                    try {
+                        // Try Google Contacts
+                        window.open('content://contacts/people/', '_self');
+                    } catch (e) {
+                        // Fallback to download
+                        downloadEnhancedVCard();
+                    }
+                    closeMobileActionSheet();
+                }
+            });
+        }
+        
         actions.push({
             icon: '📇',
             title: 'Descargar vCard',
@@ -197,6 +237,19 @@
                 closeMobileActionSheet();
             }
         });
+        
+        // Add copy contact info option
+        if (contactInfo.phone || contactInfo.email) {
+            actions.push({
+                icon: '📋',
+                title: 'Copiar información',
+                subtitle: 'Al portapapeles',
+                action: () => {
+                    copyContactInfo();
+                    closeMobileActionSheet();
+                }
+            });
+        }
 
         modal.innerHTML = `
             <div class="bg-white rounded-t-3xl w-full max-w-md mx-4 animate-slide-up">
@@ -259,6 +312,24 @@
             document.body.style.overflow = '';
         }
     };
+
+    // Copy contact info to clipboard
+    async function copyContactInfo() {
+        try {
+            let contactText = `📇 ${contactInfo.name}\n`;
+            if (contactInfo.title) contactText += `💼 ${contactInfo.title}\n`;
+            if (contactInfo.phone) contactText += `📞 ${contactInfo.phone}\n`;
+            if (contactInfo.email) contactText += `📧 ${contactInfo.email}\n`;
+            if (contactInfo.website) contactText += `🌐 ${contactInfo.website}\n`;
+            if (contactInfo.note) contactText += `📝 ${contactInfo.note}\n`;
+            
+            await navigator.clipboard.writeText(contactText);
+            showToast('Información copiada al portapapeles');
+        } catch (error) {
+            console.error('Error copying to clipboard:', error);
+            showToast('Error al copiar información');
+        }
+    }
 
     // Enhanced vCard download with better compatibility
     async function downloadEnhancedVCard() {
@@ -381,6 +452,18 @@
         }
         
         btn.disabled = currentState.disabled;
+    }
+
+    // Show toast notification
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg z-50 animate-fade-in';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
     }
 </script>
 
