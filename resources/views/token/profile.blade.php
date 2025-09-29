@@ -119,7 +119,7 @@
                         :social-links="$socialLinks"
                         :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
                     
-                    <x-profile.action-buttons 
+                    <x-profile.action-buttons-improved
                         :content-profile="$contentProfile" 
                         :token="$token"
                         :colors="['primary' => $primaryColor, 'secondary' => $secondaryColor, 'accent' => $accentColor]" />
