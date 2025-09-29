@@ -94,7 +94,7 @@ class ContentGiftForm
                             ->label('Archivo de video')
                             ->directory('videos')
                             ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/ogg'])
-                            ->maxSize(50 * 1024) // 50MB
+                            ->maxSize(100 * 1024) // 100MB
                             ->disk('public')
                             ->visibility('public')
                             ->preserveFilenames()
