@@ -165,6 +165,11 @@
                     setTimeout(() => {
                         tempLink.click();
                         document.body.removeChild(tempLink);
+                        
+                        // Show modal after data URL method as well
+                        const modalBlob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+                        const modalUrl = URL.createObjectURL(modalBlob);
+                        setTimeout(() => this.showInstructionsModal(modalUrl), 500);
                     }, 500);
                     
                     setButtonState(btn, 'success', '¡Contacto guardado!');
@@ -178,11 +183,13 @@
 
             downloadVCardFallback(vcard, btn, originalContent) {
                 try {
+                    // Create blob and URL for download
                     const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
+                    const downloadUrl = URL.createObjectURL(blob);
                     
-                    link.href = url;
+                    // Trigger download
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
                     link.download = `${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf`;
                     link.style.display = 'none';
                     
@@ -190,14 +197,19 @@
                     link.click();
                     document.body.removeChild(link);
                     
-                    // Don't revoke URL immediately, keep it for the modal
-                    // setTimeout(() => URL.revokeObjectURL(url), 100);
+                    // Clean up download URL immediately
+                    setTimeout(() => URL.revokeObjectURL(downloadUrl), 100);
                     
+                    // Update button state
                     setButtonState(btn, 'success', '¡Contacto descargado!');
                     setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
                     
-                    // Show instructions modal after download with vCard URL
-                    setTimeout(() => this.showInstructionsModal(url), 1000);
+                    // Create a NEW blob URL for the modal (separate from download)
+                    const modalBlob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+                    const modalUrl = URL.createObjectURL(modalBlob);
+                    
+                    // Show instructions modal after download with NEW vCard URL
+                    setTimeout(() => this.showInstructionsModal(modalUrl), 1000);
                     
                 } catch (error) {
                     console.error('Error downloading vCard:', error);
@@ -314,12 +326,11 @@
                         </div>
                         <div class="p-6 border-t border-gray-200 space-y-3">
                             ${vcardUrl ? `
-                                <a href="${vcardUrl}" 
-                                   download="${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf"
-                                   class="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 flex items-center justify-center gap-2">
+                                <button onclick="openContactsApp('${vcardUrl}', '${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf')" 
+                                        class="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 flex items-center justify-center gap-2">
                                     <span class="text-lg">📞</span>
-                                    Abrir archivo de contacto
-                                </a>
+                                    Abrir en Contactos
+                                </button>
                                 <div class="text-center text-sm text-gray-500">O sigue las instrucciones de arriba</div>
                             ` : ''}
                             <button onclick="this.closest('.fixed').remove(); ${vcardUrl ? `URL.revokeObjectURL('${vcardUrl}')` : ''}" 
@@ -447,6 +458,84 @@
         }
         
         btn.disabled = currentState.disabled;
+    }
+
+    // Global function to open contacts app from modal
+    window.openContactsApp = function(vcardUrl, filename) {
+        const isAndroid = /Android/.test(navigator.userAgent);
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+        
+        try {
+            // Method 1: Try data URL to trigger native handler
+            const vcard = contactInfo;
+            const vcardData = generateVCardData(vcard);
+            const dataURL = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcardData)}`;
+            
+            // Try to open with native handler
+            window.location.href = dataURL;
+            
+            // Method 2: If data URL doesn't work, try blob URL
+            setTimeout(() => {
+                window.open(vcardUrl, '_blank');
+            }, 500);
+            
+            // Method 3: Fallback - trigger download
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.href = vcardUrl;
+                link.download = filename;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }, 1000);
+            
+        } catch (error) {
+            console.error('Error opening contacts app:', error);
+            // Final fallback - direct download
+            const link = document.createElement('a');
+            link.href = vcardUrl;
+            link.download = filename;
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    }
+
+    // Helper function to generate vCard data
+    function generateVCardData(contact) {
+        let vcard = "BEGIN:VCARD\n";
+        vcard += "VERSION:3.0\n";
+        vcard += `FN:${contact.name}\n`;
+        
+        const nameParts = contact.name.split(' ');
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+        vcard += `N:${lastName};${firstName};;;\n`;
+        
+        if (contact.title) {
+            vcard += `ORG:${contact.title}\n`;
+        }
+        
+        if (contact.phone) {
+            vcard += `TEL;CELL:${contact.phone}\n`;
+        }
+        
+        if (contact.email) {
+            vcard += `EMAIL:${contact.email}\n`;
+        }
+        
+        if (contact.website) {
+            vcard += `URL:${contact.website}\n`;
+        }
+        
+        if (contact.note) {
+            vcard += `ADR;WORK:;;${contact.note}\n`;
+        }
+        
+        vcard += "END:VCARD";
+        return vcard;
     }
 
 </script>
