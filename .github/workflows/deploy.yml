@@ -256,3 +256,19 @@ jobs:
           
           echo "🎉 KraftDo NFC Staging deployment completed successfully!"
           echo "📱 App available at: https://staging.kraftdo.cl:8081"
+    
+    - name: Slack notification
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        text: |
+          🚀 *KraftDo NFC Deploy ${{ job.status }}*
+          
+          *Branch:* ${{ github.ref_name }}
+          *Commit:* `${{ github.sha }}`
+          *URL:* https://staging.kraftdo.cl:8081
+          *Time:* $(date)
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
