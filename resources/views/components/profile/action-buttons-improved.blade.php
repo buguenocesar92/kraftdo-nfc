@@ -190,16 +190,170 @@
                     link.click();
                     document.body.removeChild(link);
                     
-                    setTimeout(() => URL.revokeObjectURL(url), 100);
+                    // Don't revoke URL immediately, keep it for the modal
+                    // setTimeout(() => URL.revokeObjectURL(url), 100);
                     
                     setButtonState(btn, 'success', '¡Contacto descargado!');
                     setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
+                    
+                    // Show instructions modal after download with vCard URL
+                    setTimeout(() => this.showInstructionsModal(url), 1000);
                     
                 } catch (error) {
                     console.error('Error downloading vCard:', error);
                     setButtonState(btn, 'error', 'Error al descargar');
                     setTimeout(() => setButtonState(btn, 'default', originalContent), 3000);
                 }
+            },
+
+            showInstructionsModal(vcardUrl = null) {
+                const modal = document.createElement('div');
+                modal.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+                modal.style.backdropFilter = 'blur(4px)';
+                
+                const isAndroid = /Android/.test(navigator.userAgent);
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                
+                let instructions = '';
+                let icon = '📱';
+                
+                if (isAndroid) {
+                    instructions = `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                <span class="text-2xl">📥</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">1. Busca la notificación de descarga</div>
+                                    <div class="text-sm text-gray-600">En la parte superior de tu pantalla</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                <span class="text-2xl">👆</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">2. Toca la notificación</div>
+                                    <div class="text-sm text-gray-600">Se abrirá automáticamente</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                                <span class="text-2xl">📞</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">3. Selecciona "Contactos"</div>
+                                    <div class="text-sm text-gray-600">Android te preguntará con qué app abrir</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    icon = '🤖';
+                } else if (isIOS) {
+                    instructions = `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                <span class="text-2xl">📥</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">1. Ve a la app Archivos</div>
+                                    <div class="text-sm text-gray-600">Busca en Descargas</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                <span class="text-2xl">👆</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">2. Toca el archivo .vcf</div>
+                                    <div class="text-sm text-gray-600">Archivo de contacto descargado</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                                <span class="text-2xl">📞</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">3. Se abrirá en Contactos</div>
+                                    <div class="text-sm text-gray-600">Toca "Agregar contacto"</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    icon = '🍎';
+                } else {
+                    instructions = `
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                <span class="text-2xl">📥</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">1. Busca el archivo descargado</div>
+                                    <div class="text-sm text-gray-600">En tu carpeta de Descargas</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                                <span class="text-2xl">👆</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">2. Haz doble clic en el archivo .vcf</div>
+                                    <div class="text-sm text-gray-600">Se abrirá con tu app de contactos</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                                <span class="text-2xl">📞</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">3. Confirma agregar contacto</div>
+                                    <div class="text-sm text-gray-600">En tu aplicación de contactos</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    icon = '💻';
+                }
+                
+                modal.innerHTML = `
+                    <div class="bg-white rounded-2xl w-full max-w-md mx-4 animate-slide-up-modal">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-3xl">${icon}</span>
+                                <h3 class="text-xl font-bold text-gray-900">¡Casi listo!</h3>
+                            </div>
+                            <p class="text-gray-600">Sigue estos pasos para guardar el contacto:</p>
+                        </div>
+                        <div class="p-6">
+                            ${instructions}
+                        </div>
+                        <div class="p-6 border-t border-gray-200 space-y-3">
+                            ${vcardUrl ? `
+                                <a href="${vcardUrl}" 
+                                   download="${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf"
+                                   class="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 flex items-center justify-center gap-2">
+                                    <span class="text-lg">📞</span>
+                                    Abrir archivo de contacto
+                                </a>
+                                <div class="text-center text-sm text-gray-500">O sigue las instrucciones de arriba</div>
+                            ` : ''}
+                            <button onclick="this.closest('.fixed').remove(); ${vcardUrl ? `URL.revokeObjectURL('${vcardUrl}')` : ''}" 
+                                    class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200">
+                                ¡Entendido!
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                document.body.appendChild(modal);
+                document.body.style.overflow = 'hidden';
+                
+                // Close on backdrop click
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.remove();
+                        document.body.style.overflow = '';
+                        if (vcardUrl) {
+                            URL.revokeObjectURL(vcardUrl);
+                        }
+                    }
+                });
+                
+                // Auto close after 15 seconds and cleanup URL
+                setTimeout(() => {
+                    if (document.body.contains(modal)) {
+                        modal.remove();
+                        document.body.style.overflow = '';
+                        if (vcardUrl) {
+                            URL.revokeObjectURL(vcardUrl);
+                        }
+                    }
+                }, 15000);
             },
 
 
@@ -305,5 +459,14 @@
     
     .animate-fade-in-up {
         animation: fade-in-up 0.6s ease-out;
+    }
+    
+    @keyframes slide-up-modal {
+        0% { opacity: 0; transform: translateY(20px) scale(0.95); }
+        100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    
+    .animate-slide-up-modal {
+        animation: slide-up-modal 0.3s ease-out;
     }
 </style>
