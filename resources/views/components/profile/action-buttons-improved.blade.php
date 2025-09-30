@@ -79,13 +79,13 @@
                                     setButtonState(btn, 'default', originalContent);
                                     return;
                                 }
-                                // Fallback to data URL method
-                                this.tryDataURLMethod(vcard, btn, originalContent);
+                                // Fallback to download method
+                                this.downloadVCardFallback(vcard, btn, originalContent);
                             });
                             return;
                         }
                     } catch (error) {
-                        // Continue to data URL method
+                        // Continue to download method
                     }
                 }
                 
@@ -113,17 +113,20 @@
                     // Clean up download URL immediately
                     setTimeout(() => URL.revokeObjectURL(downloadUrl), 100);
                     
-                    // Update button state
-                    setButtonState(btn, 'success', '¡Contacto descargado!');
-                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                    
                     // Create a NEW blob URL for the modal (separate from download)
                     const modalBlob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
                     const modalUrl = URL.createObjectURL(modalBlob);
                     
+                    // Update button state first
+                    setButtonState(btn, 'success', '¡Contacto descargado!');
+                    
                     // Show instructions modal after download with NEW vCard URL
                     // Wait longer to ensure download popup is gone
-                    setTimeout(() => this.showInstructionsModal(modalUrl), 2000);
+                    setTimeout(() => {
+                        this.showInstructionsModal(modalUrl);
+                        // Reset button state after modal appears
+                        setTimeout(() => setButtonState(btn, 'default', originalContent), 500);
+                    }, 2000);
                     
                 } catch (error) {
                     console.error('Error downloading vCard:', error);
