@@ -307,3 +307,23 @@ jobs:
                }]
              }" \
              ${{ secrets.DISCORD_WEBHOOK_URL }}
+    
+    - name: Email notification
+      if: always()
+      uses: dawidd6/action-send-mail@v3
+      with:
+        server_address: smtp.gmail.com
+        server_port: 587
+        username: ${{ secrets.MAIL_USERNAME }}
+        password: ${{ secrets.MAIL_PASSWORD }}
+        subject: "${{ job.status == 'success' && '✅' || '❌' }} KraftDo NFC Deploy ${{ job.status }}"
+        body: |
+          Deploy del proyecto KraftDo NFC ha ${{ job.status == 'success' && 'completado exitosamente' || 'fallado' }}.
+          
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          URL: https://staging.kraftdo.cl
+          
+          Timestamp: ${{ github.event.head_commit.timestamp }}
+        to: ${{ secrets.NOTIFICATION_EMAIL }}
+        from: KraftDo Deploy <noreply@kraftdo.cl>
