@@ -235,22 +235,22 @@
                             <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
                                 <span class="text-2xl">📥</span>
                                 <div>
-                                    <div class="font-medium text-gray-900">1. Busca la notificación de descarga</div>
+                                    <div class="font-medium text-gray-900">1. Si no se abre automáticamente, busca la notificación de descarga</div>
                                     <div class="text-sm text-gray-600">En la parte superior de tu pantalla</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
                                 <span class="text-2xl">👆</span>
                                 <div>
-                                    <div class="font-medium text-gray-900">2. Toca la notificación</div>
-                                    <div class="text-sm text-gray-600">Se abrirá automáticamente</div>
+                                    <div class="font-medium text-gray-900">2. Toca la notificación o el archivo descargado</div>
+                                    <div class="text-sm text-gray-600">También puedes ir a Descargas</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                                 <span class="text-2xl">📞</span>
                                 <div>
-                                    <div class="font-medium text-gray-900">3. Selecciona "Contactos"</div>
-                                    <div class="text-sm text-gray-600">Android te preguntará con qué app abrir</div>
+                                    <div class="font-medium text-gray-900">3. Selecciona "Contactos" si te pregunta</div>
+                                    <div class="text-sm text-gray-600">Android elegirá automáticamente en la mayoría de casos</div>
                                 </div>
                             </div>
                         </div>
@@ -262,22 +262,22 @@
                             <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
                                 <span class="text-2xl">📥</span>
                                 <div>
-                                    <div class="font-medium text-gray-900">1. Ve a la app Archivos</div>
-                                    <div class="text-sm text-gray-600">Busca en Descargas</div>
+                                    <div class="font-medium text-gray-900">1. Si no se abre automáticamente, ve a la app Archivos</div>
+                                    <div class="text-sm text-gray-600">Busca en Descargas o revisa las notificaciones</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
                                 <span class="text-2xl">👆</span>
                                 <div>
-                                    <div class="font-medium text-gray-900">2. Toca el archivo .vcf</div>
-                                    <div class="text-sm text-gray-600">Archivo de contacto descargado</div>
+                                    <div class="font-medium text-gray-900">2. Toca el archivo .vcf descargado</div>
+                                    <div class="text-sm text-gray-600">En versiones nuevas puede abrirse automáticamente</div>
                                 </div>
                             </div>
                             <div class="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
                                 <span class="text-2xl">📞</span>
                                 <div>
                                     <div class="font-medium text-gray-900">3. Se abrirá en Contactos</div>
-                                    <div class="text-sm text-gray-600">Toca "Agregar contacto"</div>
+                                    <div class="text-sm text-gray-600">Toca "Agregar contacto" si aparece</div>
                                 </div>
                             </div>
                         </div>
@@ -319,7 +319,12 @@
                                 <span class="text-3xl">${icon}</span>
                                 <h3 class="text-xl font-bold text-gray-900">¡Casi listo!</h3>
                             </div>
-                            <p class="text-gray-600">Sigue estos pasos para guardar el contacto:</p>
+                            <div class="bg-blue-50 p-3 rounded-lg mb-3 border-l-4 border-blue-400">
+                                <p class="text-sm text-blue-800">
+                                    <span class="font-medium">💡 Nota:</span> En algunos dispositivos la app Contactos se abrirá automáticamente. Si no es tu caso, sigue estos pasos:
+                                </p>
+                            </div>
+                            <p class="text-gray-600">Pasos para guardar el contacto manualmente:</p>
                         </div>
                         <div class="p-6">
                             ${instructions}
