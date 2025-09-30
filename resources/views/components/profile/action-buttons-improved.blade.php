@@ -89,97 +89,10 @@
                     }
                 }
                 
-                // Method 2: Try iframe method (last attempt for native behavior)
-                if (!this.tryIframeMethod(vcard, btn, originalContent)) {
-                    // Method 3: Data URL method (simulates native behavior)
-                    this.tryDataURLMethod(vcard, btn, originalContent);
-                }
+                // Method 2: Direct download (most reliable)
+                this.downloadVCardFallback(vcard, btn, originalContent);
             },
 
-            tryIframeMethod(vcard, btn, originalContent) {
-                try {
-                    // Create blob URL for vCard
-                    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
-                    const blobURL = URL.createObjectURL(blob);
-                    
-                    // Create hidden iframe to try to trigger native handler
-                    const iframe = document.createElement('iframe');
-                    iframe.style.display = 'none';
-                    iframe.style.width = '0';
-                    iframe.style.height = '0';
-                    iframe.src = blobURL;
-                    
-                    document.body.appendChild(iframe);
-                    
-                    // Try alternative: set iframe src to data URL
-                    setTimeout(() => {
-                        const dataURL = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
-                        iframe.src = dataURL;
-                    }, 100);
-                    
-                    // Try opening in new window as final iframe attempt
-                    setTimeout(() => {
-                        try {
-                            const newWindow = window.open(blobURL, '_blank');
-                            if (newWindow) {
-                                newWindow.focus();
-                                setTimeout(() => newWindow.close(), 1000);
-                            }
-                        } catch (e) {
-                            // Ignore popup blocker errors
-                        }
-                    }, 200);
-                    
-                    // Clean up iframe after attempts
-                    setTimeout(() => {
-                        document.body.removeChild(iframe);
-                        URL.revokeObjectURL(blobURL);
-                    }, 2000);
-                    
-                    // Always return false to continue to next method
-                    // (iframe method is experimental and may not work)
-                    return false;
-                    
-                } catch (error) {
-                    return false;
-                }
-            },
-
-            tryDataURLMethod(vcard, btn, originalContent) {
-                try {
-                    // Create data URL that should trigger native contact handler
-                    const dataURL = `data:text/vcard;charset=utf-8;base64,${btoa(unescape(encodeURIComponent(vcard)))}`;
-                    
-                    // Create temporary link to trigger native handler
-                    const tempLink = document.createElement('a');
-                    tempLink.href = dataURL;
-                    tempLink.download = `${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf`;
-                    tempLink.style.display = 'none';
-                    
-                    document.body.appendChild(tempLink);
-                    
-                    // Try to open with native handler first
-                    window.location.href = dataURL;
-                    
-                    // Fallback: trigger download if native handler doesn't work
-                    setTimeout(() => {
-                        tempLink.click();
-                        document.body.removeChild(tempLink);
-                        
-                        // Show modal after data URL method as well
-                        const modalBlob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
-                        const modalUrl = URL.createObjectURL(modalBlob);
-                        setTimeout(() => this.showInstructionsModal(modalUrl), 500);
-                    }, 500);
-                    
-                    setButtonState(btn, 'success', '¡Contacto guardado!');
-                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                    
-                } catch (error) {
-                    // Final fallback: traditional download
-                    this.downloadVCardFallback(vcard, btn, originalContent);
-                }
-            },
 
             downloadVCardFallback(vcard, btn, originalContent) {
                 try {
@@ -209,7 +122,8 @@
                     const modalUrl = URL.createObjectURL(modalBlob);
                     
                     // Show instructions modal after download with NEW vCard URL
-                    setTimeout(() => this.showInstructionsModal(modalUrl), 1000);
+                    // Wait longer to ensure download popup is gone
+                    setTimeout(() => this.showInstructionsModal(modalUrl), 2000);
                     
                 } catch (error) {
                     console.error('Error downloading vCard:', error);
@@ -341,7 +255,7 @@
                 document.body.appendChild(modal);
                 document.body.style.overflow = 'hidden';
                 
-                // Close on backdrop click
+                // Close on backdrop click (but prevent accidental closure)
                 modal.addEventListener('click', (e) => {
                     if (e.target === modal) {
                         modal.remove();
@@ -351,8 +265,35 @@
                         }
                     }
                 });
+
+                // Prevent modal from closing due to focus/blur events
+                modal.addEventListener('focusout', (e) => {
+                    e.stopPropagation();
+                });
+
+                modal.addEventListener('blur', (e) => {
+                    e.stopPropagation();
+                });
+
+                // Prevent window events from closing modal
+                const preventClose = (e) => {
+                    e.stopPropagation();
+                };
+
+                window.addEventListener('blur', preventClose);
+                window.addEventListener('focus', preventClose);
+                document.addEventListener('visibilitychange', preventClose);
                 
-                // Auto close after 15 seconds and cleanup URL
+                // Cleanup window listeners when modal is removed
+                const originalRemove = modal.remove;
+                modal.remove = function() {
+                    window.removeEventListener('blur', preventClose);
+                    window.removeEventListener('focus', preventClose);
+                    document.removeEventListener('visibilitychange', preventClose);
+                    originalRemove.call(this);
+                };
+                
+                // Auto close after 20 seconds and cleanup URL (increased time)
                 setTimeout(() => {
                     if (document.body.contains(modal)) {
                         modal.remove();
@@ -361,7 +302,7 @@
                             URL.revokeObjectURL(vcardUrl);
                         }
                     }
-                }, 15000);
+                }, 20000);
             },
 
 
