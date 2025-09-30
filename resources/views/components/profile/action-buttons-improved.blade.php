@@ -324,15 +324,7 @@
                         <div class="p-6">
                             ${instructions}
                         </div>
-                        <div class="p-6 border-t border-gray-200 space-y-3">
-                            ${vcardUrl ? `
-                                <button onclick="openContactsApp('${vcardUrl}', '${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf')" 
-                                        class="w-full py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 flex items-center justify-center gap-2">
-                                    <span class="text-lg">📞</span>
-                                    Abrir en Contactos
-                                </button>
-                                <div class="text-center text-sm text-gray-500">O sigue las instrucciones de arriba</div>
-                            ` : ''}
+                        <div class="p-6 border-t border-gray-200">
                             <button onclick="this.closest('.fixed').remove(); ${vcardUrl ? `URL.revokeObjectURL('${vcardUrl}')` : ''}" 
                                     class="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200">
                                 ¡Entendido!
@@ -460,83 +452,6 @@
         btn.disabled = currentState.disabled;
     }
 
-    // Global function to open contacts app from modal
-    window.openContactsApp = function(vcardUrl, filename) {
-        const isAndroid = /Android/.test(navigator.userAgent);
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-        
-        try {
-            // Method 1: Try data URL to trigger native handler
-            const vcard = contactInfo;
-            const vcardData = generateVCardData(vcard);
-            const dataURL = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcardData)}`;
-            
-            // Try to open with native handler
-            window.location.href = dataURL;
-            
-            // Method 2: If data URL doesn't work, try blob URL
-            setTimeout(() => {
-                window.open(vcardUrl, '_blank');
-            }, 500);
-            
-            // Method 3: Fallback - trigger download
-            setTimeout(() => {
-                const link = document.createElement('a');
-                link.href = vcardUrl;
-                link.download = filename;
-                link.style.display = 'none';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }, 1000);
-            
-        } catch (error) {
-            console.error('Error opening contacts app:', error);
-            // Final fallback - direct download
-            const link = document.createElement('a');
-            link.href = vcardUrl;
-            link.download = filename;
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    }
-
-    // Helper function to generate vCard data
-    function generateVCardData(contact) {
-        let vcard = "BEGIN:VCARD\n";
-        vcard += "VERSION:3.0\n";
-        vcard += `FN:${contact.name}\n`;
-        
-        const nameParts = contact.name.split(' ');
-        const firstName = nameParts[0] || '';
-        const lastName = nameParts.slice(1).join(' ') || '';
-        vcard += `N:${lastName};${firstName};;;\n`;
-        
-        if (contact.title) {
-            vcard += `ORG:${contact.title}\n`;
-        }
-        
-        if (contact.phone) {
-            vcard += `TEL;CELL:${contact.phone}\n`;
-        }
-        
-        if (contact.email) {
-            vcard += `EMAIL:${contact.email}\n`;
-        }
-        
-        if (contact.website) {
-            vcard += `URL:${contact.website}\n`;
-        }
-        
-        if (contact.note) {
-            vcard += `ADR;WORK:;;${contact.note}\n`;
-        }
-        
-        vcard += "END:VCARD";
-        return vcard;
-    }
 
 </script>
 
