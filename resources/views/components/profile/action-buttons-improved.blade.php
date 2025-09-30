@@ -54,19 +54,18 @@
                 const btn = document.getElementById('saveContactBtn');
                 const originalContent = btn.innerHTML;
                 
-                // Set loading state immediately
                 setButtonState(btn, 'loading', 'Guardando...');
                 
-                // Generate vCard and file immediately (no async delay)
+                // Generate vCard and file immediately
                 const vcard = this.generateVCard();
                 const file = new File([vcard], `${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf`, {
                     type: 'text/vcard'
                 });
                 
-                // Call navigator.share immediately (no delays before this)
+                // Try Web Share API immediately
                 if (navigator.share) {
                     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        // Share file
+                        // Try sharing file first
                         navigator.share({
                             files: [file],
                             title: `Contacto: ${contactInfo.name}`
@@ -78,33 +77,34 @@
                                 setButtonState(btn, 'default', originalContent);
                                 return;
                             }
-                            alert(`ERROR: ${error.message}`);
-                            setButtonState(btn, 'error', 'Error al guardar');
-                            setTimeout(() => setButtonState(btn, 'default', originalContent), 3000);
+                            // If file sharing fails, try text sharing
+                            this.shareAsText(vcard, btn, originalContent);
                         });
                     } else {
-                        // Share as text
-                        navigator.share({
-                            title: `Contacto: ${contactInfo.name}`,
-                            text: vcard
-                        }).then(() => {
-                            setButtonState(btn, 'success', '¡Contacto guardado!');
-                            setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                        }).catch((error) => {
-                            if (error.name === 'AbortError') {
-                                setButtonState(btn, 'default', originalContent);
-                                return;
-                            }
-                            alert(`ERROR: ${error.message}`);
-                            setButtonState(btn, 'error', 'Error al guardar');
-                            setTimeout(() => setButtonState(btn, 'default', originalContent), 3000);
-                        });
+                        // Share as text if files not supported
+                        this.shareAsText(vcard, btn, originalContent);
                     }
                 } else {
-                    alert('Web Share API no disponible');
                     setButtonState(btn, 'error', 'No compatible');
                     setTimeout(() => setButtonState(btn, 'default', originalContent), 3000);
                 }
+            },
+
+            shareAsText(vcard, btn, originalContent) {
+                navigator.share({
+                    title: `Contacto: ${contactInfo.name}`,
+                    text: vcard
+                }).then(() => {
+                    setButtonState(btn, 'success', '¡Contacto guardado!');
+                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
+                }).catch((error) => {
+                    if (error.name === 'AbortError') {
+                        setButtonState(btn, 'default', originalContent);
+                        return;
+                    }
+                    setButtonState(btn, 'error', 'Error al guardar');
+                    setTimeout(() => setButtonState(btn, 'default', originalContent), 3000);
+                });
             },
 
             generateVCard() {
