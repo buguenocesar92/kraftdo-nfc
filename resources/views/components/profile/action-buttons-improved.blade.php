@@ -57,32 +57,54 @@
                 setButtonState(btn, 'loading', 'Guardando...');
                 
                 try {
+                    // Debug con alerts
+                    alert(`Web Share API: ${!!navigator.share}\ncanShare: ${!!navigator.canShare}`);
+                    
+                    // Check if Web Share API is available
+                    if (!navigator.share) {
+                        alert('Web Share API no disponible');
+                        throw new Error('Web Share API no está disponible en este navegador');
+                    }
+                    
                     const vcard = this.generateVCard();
-                    const file = new File([vcard], `${contactInfo.name}.vcf`, {
+                    alert('vCard generado correctamente');
+                    
+                    const file = new File([vcard], `${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf`, {
                         type: 'text/vcard'
                     });
+                    alert('Archivo creado');
                     
-                    if (navigator.canShare({ files: [file] })) {
+                    // Check if can share files
+                    if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+                        alert('Compartir archivos no soportado, usando texto');
+                        // Fallback: share as text
+                        await navigator.share({
+                            title: `Contacto: ${contactInfo.name}`,
+                            text: vcard
+                        });
+                    } else {
+                        alert('Intentando compartir archivo');
+                        // Share file normally
                         await navigator.share({
                             files: [file],
                             title: `Contacto: ${contactInfo.name}`
                         });
-                        
-                        setButtonState(btn, 'success', '¡Contacto guardado!');
-                        setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                    } else {
-                        throw new Error('Web Share API no disponible');
                     }
+                    
+                    setButtonState(btn, 'success', '¡Contacto guardado!');
+                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
                     
                 } catch (error) {
                     if (error.name === 'AbortError') {
+                        alert('Usuario canceló');
                         setButtonState(btn, 'default', originalContent);
                         return;
                     }
                     
-                    console.error('Error:', error);
+                    alert(`ERROR:\nNombre: ${error.name}\nMensaje: ${error.message}`);
+                    
                     setButtonState(btn, 'error', 'Error al guardar');
-                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
+                    setTimeout(() => setButtonState(btn, 'default', originalContent), 3000);
                 }
             },
 
@@ -178,29 +200,9 @@
         btn.disabled = currentState.disabled;
     }
 
-    // Show toast notification
-    function showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-lg z-50 animate-fade-in';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
-    }
 </script>
 
 <style>
-    @keyframes slide-up {
-        0% { transform: translateY(100%); opacity: 0; }
-        100% { transform: translateY(0); opacity: 1; }
-    }
-    
-    .animate-slide-up {
-        animation: slide-up 0.3s ease-out;
-    }
-    
     @keyframes fade-in-up {
         0% { opacity: 0; transform: translateY(10px); }
         100% { opacity: 1; transform: translateY(0); }
