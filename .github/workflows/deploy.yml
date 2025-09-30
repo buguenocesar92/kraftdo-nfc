@@ -271,13 +271,13 @@ jobs:
         
         curl -X POST -H 'Content-type: application/json' \
         --data "{
-          \"text\": \"$EMOJI KraftDo NFC Deploy $STATUS\",
+          \"text\": \"<!channel> $EMOJI KraftDo NFC Deploy $STATUS\",
           \"attachments\": [{
             \"color\": \"$COLOR\",
             \"fields\": [
               {\"title\": \"Branch\", \"value\": \"${{ github.ref_name }}\", \"short\": true},
               {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": true},
-              {\"title\": \"URL\", \"value\": \"https://staging.kraftdo.cl:8081\", \"short\": false}
+              {\"title\": \"URL\", \"value\": \"https://staging.kraftdo.cl\", \"short\": false}
             ]
           }]
         }" \
