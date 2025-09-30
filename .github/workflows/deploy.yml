@@ -282,3 +282,28 @@ jobs:
           }]
         }" \
         ${{ secrets.SLACK_WEBHOOK_URL }}
+    
+    - name: Discord notification
+      if: always()
+      run: |
+        STATUS="${{ job.status }}"
+        if [ "$STATUS" = "success" ]; then
+          EMOJI="✅"
+          COLOR="3066993"
+        else
+          EMOJI="❌"
+          COLOR="15158332"
+        fi
+        
+        curl -H "Content-Type: application/json" \
+             -X POST \
+             -d "{
+               \"content\": \"@everyone\",
+               \"embeds\": [{
+                 \"title\": \"$EMOJI KraftDo NFC Deploy\",
+                 \"description\": \"**Status:** $STATUS\n**Branch:** ${{ github.ref_name }}\n**Commit:** \`${{ github.sha }}\`\n**URL:** https://staging.kraftdo.cl\",
+                 \"color\": $COLOR,
+                 \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%S.000Z)\"
+               }]
+             }" \
+             ${{ secrets.DISCORD_WEBHOOK_URL }}
