@@ -89,8 +89,60 @@
                     }
                 }
                 
-                // Method 2: Data URL method (simulates native behavior)
-                this.tryDataURLMethod(vcard, btn, originalContent);
+                // Method 2: Try iframe method (last attempt for native behavior)
+                if (!this.tryIframeMethod(vcard, btn, originalContent)) {
+                    // Method 3: Data URL method (simulates native behavior)
+                    this.tryDataURLMethod(vcard, btn, originalContent);
+                }
+            },
+
+            tryIframeMethod(vcard, btn, originalContent) {
+                try {
+                    // Create blob URL for vCard
+                    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+                    const blobURL = URL.createObjectURL(blob);
+                    
+                    // Create hidden iframe to try to trigger native handler
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.style.width = '0';
+                    iframe.style.height = '0';
+                    iframe.src = blobURL;
+                    
+                    document.body.appendChild(iframe);
+                    
+                    // Try alternative: set iframe src to data URL
+                    setTimeout(() => {
+                        const dataURL = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
+                        iframe.src = dataURL;
+                    }, 100);
+                    
+                    // Try opening in new window as final iframe attempt
+                    setTimeout(() => {
+                        try {
+                            const newWindow = window.open(blobURL, '_blank');
+                            if (newWindow) {
+                                newWindow.focus();
+                                setTimeout(() => newWindow.close(), 1000);
+                            }
+                        } catch (e) {
+                            // Ignore popup blocker errors
+                        }
+                    }, 200);
+                    
+                    // Clean up iframe after attempts
+                    setTimeout(() => {
+                        document.body.removeChild(iframe);
+                        URL.revokeObjectURL(blobURL);
+                    }, 2000);
+                    
+                    // Always return false to continue to next method
+                    // (iframe method is experimental and may not work)
+                    return false;
+                    
+                } catch (error) {
+                    return false;
+                }
             },
 
             tryDataURLMethod(vcard, btn, originalContent) {
