@@ -95,8 +95,12 @@
                         // Method 2: iOS - Try data URL first
                         this.tryDataURL(vcard, btn, originalContent);
                     } else if (isAndroid) {
-                        // Method 3: Android Intent URL
-                        this.tryAndroidIntent(btn, originalContent) || this.tryDataURL(vcard, btn, originalContent);
+                        // Method 3: Try multiple Android methods
+                        if (!this.tryAndroidIntent(btn, originalContent)) {
+                            if (!this.tryAndroidIntent2(btn, originalContent)) {
+                                this.tryDataURL(vcard, btn, originalContent);
+                            }
+                        }
                     } else {
                         // Method 4: Desktop/other - Data URL
                         this.tryDataURL(vcard, btn, originalContent);
@@ -124,7 +128,39 @@
             tryAndroidIntent(btn, originalContent) {
                 try {
                     const contact = contactInfo;
-                    let intentUrl = "intent://contacts/people#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir%2Fcontact;";
+                    // Android Intent format 1 - Modern format
+                    let intentUrl = "intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;";
+                    
+                    if (contact.name) {
+                        intentUrl += `S.android.intent.extra.INSERT_NAME=${encodeURIComponent(contact.name)};`;
+                    }
+                    if (contact.phone) {
+                        intentUrl += `S.android.intent.extra.INSERT_PHONE=${encodeURIComponent(contact.phone)};`;
+                    }
+                    if (contact.email) {
+                        intentUrl += `S.android.intent.extra.INSERT_EMAIL=${encodeURIComponent(contact.email)};`;
+                    }
+                    if (contact.title) {
+                        intentUrl += `S.android.intent.extra.INSERT_COMPANY=${encodeURIComponent(contact.title)};`;
+                    }
+                    
+                    intentUrl += "package=com.android.contacts;end";
+                    
+                    window.location.href = intentUrl;
+                    
+                    setButtonState(btn, 'success', '¡Abriendo Contactos!');
+                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
+                    return true;
+                } catch (error) {
+                    return false;
+                }
+            },
+
+            tryAndroidIntent2(btn, originalContent) {
+                try {
+                    const contact = contactInfo;
+                    // Android Intent format 2 - Alternative format
+                    let intentUrl = "intent://add/#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;";
                     
                     if (contact.name) {
                         intentUrl += `S.name=${encodeURIComponent(contact.name)};`;
