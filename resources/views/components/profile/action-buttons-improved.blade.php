@@ -56,179 +56,47 @@
                 
                 setButtonState(btn, 'loading', 'Guardando...');
                 
-                const vcard = this.generateVCard();
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-                const isAndroid = /Android/.test(navigator.userAgent);
-                
-                // Method 1: Web Share API with files (iOS/Android modern)
-                if (navigator.share && navigator.canShare) {
-                    const file = new File([vcard], `${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf`, {
-                        type: 'text/vcard'
+                // Method 1: Direct vCard download (like TukCards.cl)
+                // This is the most reliable method across all devices
+                this.downloadVCardDirect(btn, originalContent);
+            },
+
+            downloadVCardDirect(btn, originalContent) {
+                try {
+                    const vcard = this.generateVCard();
+                    
+                    // Create blob with proper MIME type
+                    const blob = new Blob([vcard], { 
+                        type: 'text/vcard;charset=utf-8' 
                     });
                     
-                    if (navigator.canShare({ files: [file] })) {
-                        navigator.share({
-                            files: [file],
-                            title: `Contacto: ${contactInfo.name}`
-                        }).then(() => {
-                            setButtonState(btn, 'success', '¡Contacto guardado!');
-                            setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                        }).catch((error) => {
-                            if (error.name === 'AbortError') {
-                                setButtonState(btn, 'default', originalContent);
-                                return;
-                            }
-                            // Fallback to next method
-                            this.tryNativeMethods(vcard, btn, originalContent, isIOS, isAndroid);
-                        });
-                        return;
-                    }
-                }
-                
-                // If Web Share API fails, try native methods
-                this.tryNativeMethods(vcard, btn, originalContent, isIOS, isAndroid);
-            },
-
-            tryNativeMethods(vcard, btn, originalContent, isIOS, isAndroid) {
-                try {
-                    if (isIOS) {
-                        // Method 2: iOS - Try data URL first
-                        this.tryDataURL(vcard, btn, originalContent);
-                    } else if (isAndroid) {
-                        // Method 3: Try multiple Android methods
-                        if (!this.tryAndroidIntent(btn, originalContent)) {
-                            if (!this.tryAndroidIntent2(btn, originalContent)) {
-                                this.tryDataURL(vcard, btn, originalContent);
-                            }
-                        }
-                    } else {
-                        // Method 4: Desktop/other - Data URL
-                        this.tryDataURL(vcard, btn, originalContent);
-                    }
-                } catch (error) {
-                    // Final fallback: Web Share as text or download
-                    this.finalFallback(vcard, btn, originalContent);
-                }
-            },
-
-            tryDataURL(vcard, btn, originalContent) {
-                try {
-                    // Data URL - should trigger native handler
-                    const dataURL = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
-                    window.location.href = dataURL;
-                    
-                    setButtonState(btn, 'success', '¡Contacto guardado!');
-                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                    return true;
-                } catch (error) {
-                    return false;
-                }
-            },
-
-            tryAndroidIntent(btn, originalContent) {
-                try {
-                    const contact = contactInfo;
-                    // Android Intent format 1 - Modern format
-                    let intentUrl = "intent:#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;";
-                    
-                    if (contact.name) {
-                        intentUrl += `S.android.intent.extra.INSERT_NAME=${encodeURIComponent(contact.name)};`;
-                    }
-                    if (contact.phone) {
-                        intentUrl += `S.android.intent.extra.INSERT_PHONE=${encodeURIComponent(contact.phone)};`;
-                    }
-                    if (contact.email) {
-                        intentUrl += `S.android.intent.extra.INSERT_EMAIL=${encodeURIComponent(contact.email)};`;
-                    }
-                    if (contact.title) {
-                        intentUrl += `S.android.intent.extra.INSERT_COMPANY=${encodeURIComponent(contact.title)};`;
-                    }
-                    
-                    intentUrl += "package=com.android.contacts;end";
-                    
-                    window.location.href = intentUrl;
-                    
-                    setButtonState(btn, 'success', '¡Abriendo Contactos!');
-                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                    return true;
-                } catch (error) {
-                    return false;
-                }
-            },
-
-            tryAndroidIntent2(btn, originalContent) {
-                try {
-                    const contact = contactInfo;
-                    // Android Intent format 2 - Alternative format
-                    let intentUrl = "intent://add/#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir/contact;";
-                    
-                    if (contact.name) {
-                        intentUrl += `S.name=${encodeURIComponent(contact.name)};`;
-                    }
-                    if (contact.phone) {
-                        intentUrl += `S.phone=${encodeURIComponent(contact.phone)};`;
-                    }
-                    if (contact.email) {
-                        intentUrl += `S.email=${encodeURIComponent(contact.email)};`;
-                    }
-                    if (contact.title) {
-                        intentUrl += `S.company=${encodeURIComponent(contact.title)};`;
-                    }
-                    
-                    intentUrl += "end";
-                    
-                    window.location.href = intentUrl;
-                    
-                    setButtonState(btn, 'success', '¡Abriendo Contactos!');
-                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                    return true;
-                } catch (error) {
-                    return false;
-                }
-            },
-
-            finalFallback(vcard, btn, originalContent) {
-                // Try Web Share as text first
-                if (navigator.share) {
-                    navigator.share({
-                        title: `Contacto: ${contactInfo.name}`,
-                        text: vcard
-                    }).then(() => {
-                        setButtonState(btn, 'success', '¡Contacto compartido!');
-                        setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                    }).catch(() => {
-                        // Last resort: download
-                        this.downloadVCard(vcard, btn, originalContent);
-                    });
-                } else {
-                    // Last resort: download
-                    this.downloadVCard(vcard, btn, originalContent);
-                }
-            },
-
-            downloadVCard(vcard, btn, originalContent) {
-                try {
-                    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+                    // Create download URL
                     const url = URL.createObjectURL(blob);
-                    const link = document.createElement('a');
                     
+                    // Create invisible link and trigger download
+                    const link = document.createElement('a');
                     link.href = url;
                     link.download = `${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf`;
                     link.style.display = 'none';
                     
+                    // Add to DOM, click, and remove
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
                     
+                    // Clean up object URL
                     setTimeout(() => URL.revokeObjectURL(url), 100);
                     
-                    setButtonState(btn, 'success', '¡Descargado!');
+                    setButtonState(btn, 'success', '¡Contacto descargado!');
                     setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
+                    
                 } catch (error) {
-                    setButtonState(btn, 'error', 'Error al guardar');
+                    console.error('Error downloading vCard:', error);
+                    setButtonState(btn, 'error', 'Error al descargar');
                     setTimeout(() => setButtonState(btn, 'default', originalContent), 3000);
                 }
             },
+
 
             generateVCard() {
                 const contact = contactInfo;
