@@ -56,16 +56,17 @@
                 
                 setButtonState(btn, 'loading', 'Guardando...');
                 
-                // Generate vCard and file immediately
                 const vcard = this.generateVCard();
-                const file = new File([vcard], `${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf`, {
-                    type: 'text/vcard'
-                });
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                const isAndroid = /Android/.test(navigator.userAgent);
                 
-                // Try Web Share API immediately
-                if (navigator.share) {
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        // Try sharing file first
+                // Method 1: Web Share API with files (iOS/Android modern)
+                if (navigator.share && navigator.canShare) {
+                    const file = new File([vcard], `${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf`, {
+                        type: 'text/vcard'
+                    });
+                    
+                    if (navigator.canShare({ files: [file] })) {
                         navigator.share({
                             files: [file],
                             title: `Contacto: ${contactInfo.name}`
@@ -77,34 +78,120 @@
                                 setButtonState(btn, 'default', originalContent);
                                 return;
                             }
-                            // If file sharing fails, try text sharing
-                            this.shareAsText(vcard, btn, originalContent);
+                            // Fallback to next method
+                            this.tryNativeMethods(vcard, btn, originalContent, isIOS, isAndroid);
                         });
-                    } else {
-                        // Share as text if files not supported
-                        this.shareAsText(vcard, btn, originalContent);
+                        return;
                     }
-                } else {
-                    setButtonState(btn, 'error', 'No compatible');
-                    setTimeout(() => setButtonState(btn, 'default', originalContent), 3000);
+                }
+                
+                // If Web Share API fails, try native methods
+                this.tryNativeMethods(vcard, btn, originalContent, isIOS, isAndroid);
+            },
+
+            tryNativeMethods(vcard, btn, originalContent, isIOS, isAndroid) {
+                try {
+                    if (isIOS) {
+                        // Method 2: iOS - Try data URL first
+                        this.tryDataURL(vcard, btn, originalContent);
+                    } else if (isAndroid) {
+                        // Method 3: Android Intent URL
+                        this.tryAndroidIntent(btn, originalContent) || this.tryDataURL(vcard, btn, originalContent);
+                    } else {
+                        // Method 4: Desktop/other - Data URL
+                        this.tryDataURL(vcard, btn, originalContent);
+                    }
+                } catch (error) {
+                    // Final fallback: Web Share as text or download
+                    this.finalFallback(vcard, btn, originalContent);
                 }
             },
 
-            shareAsText(vcard, btn, originalContent) {
-                navigator.share({
-                    title: `Contacto: ${contactInfo.name}`,
-                    text: vcard
-                }).then(() => {
+            tryDataURL(vcard, btn, originalContent) {
+                try {
+                    // Data URL - should trigger native handler
+                    const dataURL = `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`;
+                    window.location.href = dataURL;
+                    
                     setButtonState(btn, 'success', '¡Contacto guardado!');
                     setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
-                }).catch((error) => {
-                    if (error.name === 'AbortError') {
-                        setButtonState(btn, 'default', originalContent);
-                        return;
+                    return true;
+                } catch (error) {
+                    return false;
+                }
+            },
+
+            tryAndroidIntent(btn, originalContent) {
+                try {
+                    const contact = contactInfo;
+                    let intentUrl = "intent://contacts/people#Intent;action=android.intent.action.INSERT;type=vnd.android.cursor.dir%2Fcontact;";
+                    
+                    if (contact.name) {
+                        intentUrl += `S.name=${encodeURIComponent(contact.name)};`;
                     }
+                    if (contact.phone) {
+                        intentUrl += `S.phone=${encodeURIComponent(contact.phone)};`;
+                    }
+                    if (contact.email) {
+                        intentUrl += `S.email=${encodeURIComponent(contact.email)};`;
+                    }
+                    if (contact.title) {
+                        intentUrl += `S.company=${encodeURIComponent(contact.title)};`;
+                    }
+                    
+                    intentUrl += "end";
+                    
+                    window.location.href = intentUrl;
+                    
+                    setButtonState(btn, 'success', '¡Abriendo Contactos!');
+                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
+                    return true;
+                } catch (error) {
+                    return false;
+                }
+            },
+
+            finalFallback(vcard, btn, originalContent) {
+                // Try Web Share as text first
+                if (navigator.share) {
+                    navigator.share({
+                        title: `Contacto: ${contactInfo.name}`,
+                        text: vcard
+                    }).then(() => {
+                        setButtonState(btn, 'success', '¡Contacto compartido!');
+                        setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
+                    }).catch(() => {
+                        // Last resort: download
+                        this.downloadVCard(vcard, btn, originalContent);
+                    });
+                } else {
+                    // Last resort: download
+                    this.downloadVCard(vcard, btn, originalContent);
+                }
+            },
+
+            downloadVCard(vcard, btn, originalContent) {
+                try {
+                    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    
+                    link.href = url;
+                    link.download = `${contactInfo.name.replace(/[^a-z0-9]/gi, '_')}.vcf`;
+                    link.style.display = 'none';
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    setTimeout(() => URL.revokeObjectURL(url), 100);
+                    
+                    setButtonState(btn, 'success', '¡Descargado!');
+                    setTimeout(() => setButtonState(btn, 'default', originalContent), 2500);
+                } catch (error) {
                     setButtonState(btn, 'error', 'Error al guardar');
                     setTimeout(() => setButtonState(btn, 'default', originalContent), 3000);
-                });
+                }
             },
 
             generateVCard() {
