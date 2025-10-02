@@ -398,13 +398,19 @@ class ContactSaver {
 
 /**
  * Factory function for Alpine.js component
- * @param {Object} contactInfo - Contact information object
+ * @param {Object} contactData - Contact information object passed from Alpine.js
  * @returns {Object} Alpine.js component data
  */
-window.contactComponent = function() {
+window.contactComponent = function(contactData) {
     return {
+        contactInfo: contactData || {},
+        
         async saveContact() {
-            const saver = new ContactSaver(contactInfo);
+            if (!this.contactInfo || !this.contactInfo.name) {
+                console.error('Contact information is missing or invalid');
+                return;
+            }
+            const saver = new ContactSaver(this.contactInfo);
             await saver.saveContact();
         }
     };

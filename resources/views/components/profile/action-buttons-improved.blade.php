@@ -5,6 +5,7 @@
     'colors' => ['primary' => '#3B82F6', 'secondary' => '#8B5CF6', 'accent' => '#EC4899']
 ])
 
+
 {{-- Include component assets --}}
 @push('styles')
 @vite('resources/css/components/contact-modal.css')
@@ -16,7 +17,26 @@
 
 <div class="space-y-3 sm:space-y-4 animate-fade-in-up" style="animation-delay: 0.6s">
     {{-- Primary Action Button - Smart Contact Save --}}
-    <button x-data="contactComponent()" 
+    <button x-data="contactComponent({
+                name: '{{ $contentProfile->name ?? $token->name ?? 'Contacto' }}',
+                @if($contentProfile)
+                    @if($contentProfile->contact_email)
+                        email: '{{ $contentProfile->contact_email }}',
+                    @endif
+                    @if($contentProfile->contact_phone)
+                        phone: '{{ $contentProfile->contact_phone }}',
+                    @endif
+                    @if($contentProfile->contact_website)
+                        website: '{{ $contentProfile->contact_website }}',
+                    @endif
+                    @if($contentProfile->job_title)
+                        title: '{{ $contentProfile->job_title }}',
+                    @endif
+                    @if($contentProfile->bio)
+                        note: '{{ str_replace(["\n", "\r", "'"], ["\\n", "", "\\'"], $contentProfile->bio) }}',
+                    @endif
+                @endif
+            })" 
             @click="saveContact()"
             id="saveContactBtn"
             class="w-full text-white px-6 py-3 sm:py-4 rounded-xl font-semibold hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 group relative overflow-hidden"
@@ -33,27 +53,3 @@
     </button>
 </div>
 
-{{-- Contact data for JavaScript --}}
-<script>
-    // Contact data from Laravel - available globally for the component
-    const contactInfo = {
-        name: "{{ $contentProfile->name ?? $token->name ?? 'Contacto' }}",
-        @if($contentProfile)
-            @if($contentProfile->contact_email)
-                email: "{{ $contentProfile->contact_email }}",
-            @endif
-            @if($contentProfile->contact_phone)
-                phone: "{{ $contentProfile->contact_phone }}",
-            @endif
-            @if($contentProfile->contact_website)
-                website: "{{ $contentProfile->contact_website }}",
-            @endif
-            @if($contentProfile->job_title)
-                title: "{{ $contentProfile->job_title }}",
-            @endif
-            @if($contentProfile->bio)
-                note: "{{ str_replace(["\n", "\r", '"'], ["\\n", "", "\'"], $contentProfile->bio) }}",
-            @endif
-        @endif
-    };
-</script>
