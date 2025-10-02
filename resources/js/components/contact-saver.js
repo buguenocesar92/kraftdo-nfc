@@ -3,8 +3,12 @@
  * Alpine.js component for vCard generation and sharing that mimics original functionality
  */
 
+// Test if this file is loading
+alert('ARCHIVO CARGADO: contact-saver.js se está ejecutando');
+
 // Alpine.js component factory function - EXACT replica of working version
 window.contactComponent = function(contactData) {
+    alert('FUNCIÓN LLAMADA: contactComponent ejecutándose con datos: ' + JSON.stringify(contactData));
     // If no contactData provided, create empty object
     const contactInfo = contactData || {};
     
