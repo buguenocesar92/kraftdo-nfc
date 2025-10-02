@@ -5,14 +5,7 @@
     'colors' => ['primary' => '#3B82F6', 'secondary' => '#8B5CF6', 'accent' => '#EC4899']
 ])
 
-{{-- Include component assets --}}
-@push('styles')
-@vite('resources/css/components/contact-saver.css')
-@endpush
-
-@push('scripts')
-@vite('resources/js/components/contact-saver.js')
-@endpush
+{{-- Assets are loaded in the main view --}}
 
 <div class="space-y-3 sm:space-y-4 animate-fade-in-up" style="animation-delay: 0.6s">
     {{-- Primary Action Button - Smart Contact Save --}}

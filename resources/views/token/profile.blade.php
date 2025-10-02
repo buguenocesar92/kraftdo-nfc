@@ -48,7 +48,8 @@
     @vite([
         'resources/css/app.css',
         'resources/css/multimedia-components.css',
-        'resources/css/profile-enhancements.css'
+        'resources/css/profile-enhancements.css',
+        'resources/css/components/contact-saver.css'
     ])
     
     {{-- Contact Saver Component - BEFORE Alpine.js --}}
