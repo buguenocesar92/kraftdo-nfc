@@ -1,0 +1,107 @@
+/* Contact Modal Animations and Styles */
+
+@keyframes fade-in-up {
+    0% { 
+        opacity: 0; 
+        transform: translateY(10px); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes slide-up-modal {
+    0% { 
+        opacity: 0; 
+        transform: translateY(20px) scale(0.95); 
+    }
+    100% { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out;
+}
+
+.animate-slide-up-modal {
+    animation: slide-up-modal 0.3s ease-out;
+}
+
+/* Contact Modal Base Styles */
+.contact-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+}
+
+.contact-modal-content {
+    background-color: white;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 28rem;
+    margin: 0 1rem;
+}
+
+.contact-modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.contact-modal-body {
+    padding: 1.5rem;
+}
+
+.contact-modal-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.contact-instruction-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.contact-instruction-step.blue {
+    background-color: #eff6ff;
+}
+
+.contact-instruction-step.green {
+    background-color: #f0fdf4;
+}
+
+.contact-note-box {
+    background-color: #eff6ff;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    border-left: 4px solid #3b82f6;
+}
+
+.contact-button-primary {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(to right, #2563eb, #7c3aed);
+    color: white;
+    font-weight: 600;
+    border-radius: 0.75rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.contact-button-primary:hover {
+    background: linear-gradient(to right, #1d4ed8, #6d28d9);
+}
