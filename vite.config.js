@@ -24,6 +24,8 @@ export default defineConfig({
                 'resources/css/video-container.css',
                 'resources/css/video-styles.css',
                 
+                // Component CSS files
+                'resources/css/components/contact-saver.css',
                 
                 // JavaScript files
                 'resources/js/app-initializer.js',
@@ -40,6 +42,8 @@ export default defineConfig({
                 'resources/js/video-orientation.js',
                 'resources/js/video-orientation-system.js',
                 
+                // Component JavaScript files
+                'resources/js/components/contact-saver.js',
             ],
             refresh: true,
         }),
