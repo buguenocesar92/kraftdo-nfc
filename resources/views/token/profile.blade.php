@@ -51,10 +51,13 @@
         'resources/css/profile-enhancements.css'
     ])
     
+    {{-- Contact Saver Component - BEFORE Alpine.js --}}
+    @vite('resources/js/components/contact-saver.js')
+    
     {{-- JavaScript --}}
     @vite([
         'resources/js/app.js',
-        'resources/js/multimedia-components.js',
+        'resources/js/multimedia-components.js'
     ])
 </head>
 

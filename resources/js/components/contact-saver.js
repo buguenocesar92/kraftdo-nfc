@@ -6,9 +6,13 @@
 // Test if this file is loading
 alert('ARCHIVO CARGADO: contact-saver.js se está ejecutando');
 
-// Alpine.js component factory function - EXACT replica of working version
-window.contactComponent = function(contactData) {
-    alert('FUNCIÓN LLAMADA: contactComponent ejecutándose con datos: ' + JSON.stringify(contactData));
+// Register component immediately
+function registerContactComponent() {
+    alert('REGISTRANDO: contactComponent se está registrando');
+    
+    // Alpine.js component factory function - EXACT replica of working version
+    window.contactComponent = function(contactData) {
+        alert('FUNCIÓN LLAMADA: contactComponent ejecutándose con datos: ' + JSON.stringify(contactData));
     // If no contactData provided, create empty object
     const contactInfo = contactData || {};
     
@@ -325,8 +329,10 @@ window.contactComponent = function(contactData) {
             vcard += "END:VCARD";
             return vcard;
         }
-    }
+    };
 }
+
+} // Cierre de registerContactComponent
 
 // Set button state with visual feedback - EXACT replica
 function setButtonState(btn, state, text) {
@@ -380,3 +386,6 @@ function setButtonState(btn, state, text) {
     
     btn.disabled = currentState.disabled;
 }
+
+// Call the registration function immediately
+registerContactComponent();
