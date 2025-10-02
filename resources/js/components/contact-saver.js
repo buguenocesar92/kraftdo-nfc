@@ -10,11 +10,33 @@ window.contactComponent = function(contactData) {
     
     return {
         saveContact() {
-            const btn = document.getElementById('saveContactBtn');
-            const originalContent = btn.innerHTML;
+            alert('1. Función saveContact ejecutada');
             
+            const btn = document.getElementById('saveContactBtn');
+            if (!btn) {
+                alert('2. ERROR: No se encontró el botón');
+                return;
+            }
+            
+            alert(`3. contactInfo recibido: ${JSON.stringify(contactInfo)}`);
+            
+            if (!contactInfo || !contactInfo.name) {
+                alert('4. ERROR: Sin datos de contacto válidos');
+                return;
+            }
+            
+            alert(`5. OK: Datos válidos para ${contactInfo.name}`);
+            
+            const originalContent = btn.innerHTML;
             setButtonState(btn, 'loading', 'Guardando...');
             
+            const vcard = this.generateVCard();
+            alert(`6. vCard generado: ${vcard.substring(0, 100)}...`);
+            
+            this.actualSaveContact(btn, originalContent);
+        },
+        
+        actualSaveContact(btn, originalContent) {
             const vcard = this.generateVCard();
             const isMobile = /Android|iPhone|iPad|iPod/.test(navigator.userAgent);
             
