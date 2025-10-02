@@ -3,43 +3,28 @@
  * Alpine.js component for vCard generation and sharing that mimics original functionality
  */
 
-// Test if this file is loading
-alert('ARCHIVO CARGADO: contact-saver.js se está ejecutando');
-
 // Register component immediately
 function registerContactComponent() {
-    alert('REGISTRANDO: contactComponent se está registrando');
-    
     // Alpine.js component factory function - EXACT replica of working version
     window.contactComponent = function(contactData) {
-        alert('FUNCIÓN LLAMADA: contactComponent ejecutándose con datos: ' + JSON.stringify(contactData));
     // If no contactData provided, create empty object
     const contactInfo = contactData || {};
     
     return {
         saveContact() {
-            alert('1. Función saveContact ejecutada');
-            
             const btn = document.getElementById('saveContactBtn');
             if (!btn) {
-                alert('2. ERROR: No se encontró el botón');
+                console.error('Contact button not found');
                 return;
             }
-            
-            alert(`3. contactInfo recibido: ${JSON.stringify(contactInfo)}`);
             
             if (!contactInfo || !contactInfo.name) {
-                alert('4. ERROR: Sin datos de contacto válidos');
+                console.error('No valid contact data provided');
                 return;
             }
-            
-            alert(`5. OK: Datos válidos para ${contactInfo.name}`);
             
             const originalContent = btn.innerHTML;
             setButtonState(btn, 'loading', 'Guardando...');
-            
-            const vcard = this.generateVCard();
-            alert(`6. vCard generado: ${vcard.substring(0, 100)}...`);
             
             this.actualSaveContact(btn, originalContent);
         },
