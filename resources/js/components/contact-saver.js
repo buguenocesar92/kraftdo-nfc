@@ -406,12 +406,47 @@ window.contactComponent = function(contactData) {
         contactInfo: contactData || {},
         
         async saveContact() {
-            if (!this.contactInfo || !this.contactInfo.name) {
-                console.error('Contact information is missing or invalid');
-                return;
+            // Debug visual feedback
+            const btn = document.getElementById('saveContactBtn');
+            
+            try {
+                // Show debug info
+                btn.innerHTML = `<span>Iniciando... Data: ${this.contactInfo.name || 'NO NAME'}</span>`;
+                
+                if (!this.contactInfo || !this.contactInfo.name) {
+                    btn.innerHTML = `<span>ERROR: Sin datos de contacto</span>`;
+                    setTimeout(() => {
+                        btn.innerHTML = `<span class="relative z-10 flex items-center justify-center gap-3">
+                            <div class="w-5 h-5 transition-transform duration-200 group-hover:scale-110">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <span class="text-sm sm:text-base">Guardar Contacto</span>
+                        </span>`;
+                    }, 3000);
+                    return;
+                }
+                
+                btn.innerHTML = `<span>Creando ContactSaver...</span>`;
+                const saver = new ContactSaver(this.contactInfo);
+                
+                btn.innerHTML = `<span>Ejecutando saveContact...</span>`;
+                await saver.saveContact();
+                
+            } catch (error) {
+                btn.innerHTML = `<span>ERROR: ${error.message}</span>`;
+                setTimeout(() => {
+                    btn.innerHTML = `<span class="relative z-10 flex items-center justify-center gap-3">
+                        <div class="w-5 h-5 transition-transform duration-200 group-hover:scale-110">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm sm:text-base">Guardar Contacto</span>
+                    </span>`;
+                }, 5000);
             }
-            const saver = new ContactSaver(this.contactInfo);
-            await saver.saveContact();
         }
     };
 };
