@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\NfcToken;
 use App\Models\ContentGift;
 use App\Models\ContentProfile;
+use App\Models\ContentBusiness;
 use App\Models\ContentMultimedia;
 use App\Models\NfcAnalytic;
 use Illuminate\Support\Facades\Cache;
@@ -50,6 +51,15 @@ class NfcCacheService
                     'profile' => ContentProfile::with(['socialLinks' => function($query) {
                         $query->ordered();
                     }])->where('dynamic_content_id', $dynamicContent->id)->first(),
+                    'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
+                        $query->orderBy('sort_order')->orderBy('id');
+                    }])->where('dynamic_content_id', $dynamicContent->id)->first()
+                ];
+            } elseif ($token->content_type === 'BUSINESS') {
+                $contentData = [
+                    'business' => ContentBusiness::with(['socialLinks' => function($query) {
+                        $query->ordered();
+                    }, 'products'])->where('dynamic_content_id', $dynamicContent->id)->first(),
                     'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
                         $query->orderBy('sort_order')->orderBy('id');
                     }])->where('dynamic_content_id', $dynamicContent->id)->first()

@@ -28,7 +28,7 @@ class TokenController extends Controller
         $content = $cachedData['content'];
 
         // Validaciones rápidas en memoria
-        if (!in_array($token->content_type, ['GIFT', 'PROFILE'])) {
+        if (!in_array($token->content_type, ['GIFT', 'PROFILE', 'BUSINESS'])) {
             abort(404, 'Tipo de contenido no disponible');
         }
 
@@ -78,7 +78,72 @@ class TokenController extends Controller
             ];
 
             return view('token.profile', $data);
+            
+        } elseif ($token->content_type === 'BUSINESS') {
+            $contentBusiness = $content['business'];
+            $contentMultimedia = $content['multimedia'];
+            $galleryImages = $contentMultimedia?->galleryImages ?? collect();
+            $socialLinks = $contentBusiness?->socialLinks ?? collect();
+
+            $data = [
+                'token' => $token,
+                'dynamicContent' => $dynamicContent,
+                'contentBusiness' => $contentBusiness,
+                'contentMultimedia' => $contentMultimedia,
+                'galleryImages' => $galleryImages,
+                'socialLinks' => $socialLinks,
+            ];
+
+            return view('token.business', $data);
         }
+    }
+
+    /**
+     * 🛍️ Mostrar catálogo completo de productos de un negocio
+     */
+    public function showProducts(Request $request, $tokenId)
+    {
+        // Obtener datos del token usando el cache
+        $cachedData = NfcCacheService::getTokenWithContent($tokenId);
+        
+        if (!$cachedData) {
+            abort(404, 'Token no encontrado');
+        }
+
+        $token = $cachedData['token'];
+        $dynamicContent = $cachedData['dynamicContent'];
+        $content = $cachedData['content'];
+
+        // Validar que sea un token de tipo BUSINESS
+        if ($token->content_type !== 'BUSINESS') {
+            abort(404, 'Esta página solo está disponible para negocios');
+        }
+
+        if (!$token->is_active) {
+            return view('token.inactive', compact('token'));
+        }
+
+        $contentBusiness = $content['business'];
+        
+        // Verificar que el negocio tenga catálogo habilitado
+        if (!$contentBusiness || !$contentBusiness->catalog_enabled) {
+            abort(404, 'Catálogo no disponible para este negocio');
+        }
+
+        // Obtener todos los productos del negocio
+        $products = $contentBusiness->products()->get();
+
+        // 📊 Registrar analytics
+        $this->recordAnalyticsAsync($dynamicContent->content_id, $token->content_type, $token->id);
+
+        $data = [
+            'token' => $token,
+            'dynamicContent' => $dynamicContent,
+            'contentBusiness' => $contentBusiness,
+            'products' => $products,
+        ];
+
+        return view('token.business-products', $data);
     }
 
     /**

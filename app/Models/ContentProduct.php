@@ -14,27 +14,23 @@ class ContentProduct extends Model
 
     protected $fillable = [
         'dynamic_content_id',
-        'product_price',
-        'product_currency',
-        'product_sku',
-        'product_stock',
-        'product_description',
-        'product_features',
-        'product_dimensions',
-        'product_weight',
-        'availability_status',
-        'shipping_info',
-        'warranty_info',
-        'return_policy',
+        'content_business_id',
+        'name',
+        'price',
+        'currency',
+        'sku',
+        'stock',
+        'in_stock',
+        'brand',
+        'specifications',
+        'purchase_url',
     ];
 
     protected $casts = [
-        'product_price' => 'decimal:2',
-        'product_stock' => 'integer',
-        'product_features' => 'array',
-        'product_dimensions' => 'array',
-        'product_weight' => 'decimal:3',
-        'shipping_info' => 'array',
+        'price' => 'decimal:2',
+        'stock' => 'integer',
+        'in_stock' => 'boolean',
+        'specifications' => 'string',
     ];
 
     /**
@@ -43,6 +39,14 @@ class ContentProduct extends Model
     public function dynamicContent(): BelongsTo
     {
         return $this->belongsTo(DynamicContent::class);
+    }
+
+    /**
+     * Relación directa con ContentBusiness
+     */
+    public function contentBusiness(): BelongsTo
+    {
+        return $this->belongsTo(ContentBusiness::class);
     }
 
     /**

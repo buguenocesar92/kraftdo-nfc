@@ -286,13 +286,14 @@ class NfcContentController extends Controller
     private function getViewForContentType(string $type): string
     {
         return match($type) {
-            DynamicContent::TYPE_GIFT => 'nfc.gift',
-            DynamicContent::TYPE_MENU => 'nfc.menu',
-            DynamicContent::TYPE_PROFILE => 'nfc.profile',
-            DynamicContent::TYPE_TOURIST => 'nfc.tourist',
-            DynamicContent::TYPE_EVENT => 'nfc.event',
-            DynamicContent::TYPE_PRODUCT => 'nfc.product',
-            default => 'nfc.default',
+            DynamicContent::TYPE_GIFT => 'token.gift',
+            DynamicContent::TYPE_MENU => 'token.menu',
+            DynamicContent::TYPE_PROFILE => 'token.profile',
+            DynamicContent::TYPE_TOURIST => 'token.tourist',
+            DynamicContent::TYPE_EVENT => 'token.event',
+            DynamicContent::TYPE_PRODUCT => 'token.product',
+            DynamicContent::TYPE_BUSINESS => 'token.business',
+            default => 'token.default',
         };
     }
 
@@ -433,6 +434,29 @@ class NfcContentController extends Controller
                 
                 unset($profile);
                 break;
+                
+            case DynamicContent::TYPE_BUSINESS:
+                // Usar tabla normalizada
+                $business = $content->business;
+                if ($business) {
+                    $data['contentBusiness'] = $business;
+                    $data['contentMultimedia'] = $content->multimedia;
+                    
+                    // Incluir productos si el catálogo está habilitado
+                    if ($business->catalog_enabled) {
+                        $data['products'] = $business->products()->with('dynamicContent')->get();
+                    }
+                    
+                    // Enlaces sociales
+                    $data['socialLinks'] = $content->socialLinks()->ordered()->get();
+                } else {
+                    // Fallback para datos anteriores si existen
+                    $data['contentBusiness'] = null;
+                    $data['contentMultimedia'] = $content->multimedia;
+                }
+                
+                unset($business);
+                break;
         }
         
         return $data;
@@ -559,6 +583,16 @@ class NfcContentController extends Controller
                 'primary' => 'text-yellow-600',
                 'message' => 'Un producto que te va a encantar',
                 'emoji' => '🛍️✨'
+            ],
+            'BUSINESS' => [
+                'title' => 'Negocio Digital',
+                'icon' => 'fas fa-store',
+                'color' => 'purple',
+                'gradient' => 'from-purple-50 to-indigo-50',
+                'border' => 'border-purple-200',
+                'primary' => 'text-purple-600',
+                'message' => 'Tu negocio en formato digital',
+                'emoji' => '🏢💼'
             ]
         ];
         
@@ -708,7 +742,7 @@ class NfcContentController extends Controller
     public function assignTokenToAuthenticatedUser(Request $request): RedirectResponse
     {
         $request->validate([
-            'type' => 'required|string|in:GIFT,MENU,PROFILE,EVENT,TOURIST,PRODUCT',
+            'type' => 'required|string|in:GIFT,MENU,PROFILE,EVENT,TOURIST,PRODUCT,BUSINESS',
             'id' => 'required|string|max:255',
         ]);
         
@@ -848,6 +882,21 @@ class NfcContentController extends Controller
                 'description' => 'Descripción del producto',
                 'price' => 'Precio',
                 'features' => ['Característica 1', 'Característica 2']
+            ],
+            'BUSINESS' => [
+                'business_name' => 'Nombre del negocio',
+                'description' => 'Descripción del negocio',
+                'business_type' => 'tienda',
+                'contact' => [
+                    'phone' => '+56 9 1234 5678',
+                    'email' => 'contacto@negocio.com',
+                    'address' => 'Dirección del negocio'
+                ],
+                'social_media' => [
+                    'instagram' => '',
+                    'facebook' => '',
+                    'whatsapp' => '+56 9 1234 5678'
+                ]
             ],
             default => []
         };

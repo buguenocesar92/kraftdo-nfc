@@ -54,15 +54,16 @@ return [
             'resource_class' => 'App\\Filament\\Resources\\ContentTourists\\ContentTouristResource',
             'model_class' => 'App\\Models\\ContentTourist',
         ],
+        'BUSINESS' => [
+            'label' => '🏢 Negocio/Feria',
+            'description' => 'Tarjetas de presentación para negocios y ferias',
+            'has_resource' => true,
+            'resource_class' => 'App\\Filament\\Resources\\ContentBusinesses\\ContentBusinessResource',
+            'model_class' => 'App\\Models\\ContentBusiness',
+        ],
     ],
 
     'future_types' => [
-        'BUSINESS' => [
-            'label' => '🏢 Tarjeta de Negocio',
-            'description' => 'Tarjetas de presentación digitales',
-            'has_resource' => false,
-            'planned_features' => ['Información de contacto', 'Horarios', 'Servicios'],
-        ],
         'PORTFOLIO' => [
             'label' => '🎨 Portafolio Creativo',
             'description' => 'Portafolios de diseñadores, artistas, fotógrafos',

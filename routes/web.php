@@ -40,6 +40,10 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/token/{tokenId}', [TokenController::class, 'show'])->name('token.show')
     ->where('tokenId', '[A-Za-z0-9\-]+');
 
+// 🛍️ RUTA PARA CATÁLOGO COMPLETO DE PRODUCTOS DE NEGOCIO
+Route::get('/token/{tokenId}/products', [TokenController::class, 'showProducts'])->name('token.products')
+    ->where('tokenId', '[A-Za-z0-9\-]+');
+
 // 🎯 Rutas específicas ANTES de las dinámicas (orden importa en Laravel)
 Route::get('/nfc/onboarding/{id}', [NfcContentController::class, 'onboardingById'])->name('nfc.onboarding.by-id')
     ->where('id', '[A-Za-z0-9\-]+');

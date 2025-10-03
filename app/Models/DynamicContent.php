@@ -39,6 +39,7 @@ class DynamicContent extends Model
         'event_id',
         'product_id',
         'tourist_id',
+        'business_id',
     ];
 
     protected $casts = [
@@ -97,6 +98,7 @@ class DynamicContent extends Model
             self::TYPE_MENU => self::TYPES[self::TYPE_MENU],
             self::TYPE_EVENT => self::TYPES[self::TYPE_EVENT],
             self::TYPE_PRODUCT => self::TYPES[self::TYPE_PRODUCT],
+            self::TYPE_BUSINESS => self::TYPES[self::TYPE_BUSINESS],
             self::TYPE_TOURIST => self::TYPES[self::TYPE_TOURIST],
         ];
     }
@@ -107,7 +109,6 @@ class DynamicContent extends Model
     public static function getFutureTypes(): array
     {
         return [
-            self::TYPE_BUSINESS => self::TYPES[self::TYPE_BUSINESS],
             self::TYPE_PORTFOLIO => self::TYPES[self::TYPE_PORTFOLIO],
             self::TYPE_CONTACT => self::TYPES[self::TYPE_CONTACT],
             self::TYPE_MULTIMEDIA => self::TYPES[self::TYPE_MULTIMEDIA],
@@ -209,6 +210,14 @@ class DynamicContent extends Model
         return $this->hasOne(ContentTourist::class);
     }
 
+    /**
+     * Relación con contenido business
+     */
+    public function business()
+    {
+        return $this->hasOne(ContentBusiness::class);
+    }
+
     // ========================================
     // MÉTODOS PARA SINCRONIZACIÓN DE REFERENCIAS
     // ========================================
@@ -244,6 +253,9 @@ class DynamicContent extends Model
                 break;
             case self::TYPE_TOURIST:
                 if ($this->tourist) $updates['tourist_id'] = $this->tourist->id;
+                break;
+            case self::TYPE_BUSINESS:
+                if ($this->business) $updates['business_id'] = $this->business->id;
                 break;
         }
         
@@ -357,6 +369,21 @@ class DynamicContent extends Model
         return $tourist;
     }
 
+    /**
+     * Crear o actualizar contenido business
+     */
+    public function createOrUpdateBusiness(array $data): ContentBusiness
+    {
+        $business = $this->business ?? new ContentBusiness(['dynamic_content_id' => $this->id]);
+        $business->fill($data);
+        $business->save();
+        
+        // Sincronizar referencia
+        $this->update(['business_id' => $business->id]);
+        
+        return $business;
+    }
+
     // ========================================
     // MÉTODOS DE CONTENIDO
     // ========================================
@@ -373,6 +400,7 @@ class DynamicContent extends Model
             self::TYPE_PROFILE => ['primary' => '#9C27B0', 'secondary' => '#F3E5F5'],
             self::TYPE_EVENT => ['primary' => '#FF9800', 'secondary' => '#FFF3E0'],
             self::TYPE_PRODUCT => ['primary' => '#4CAF50', 'secondary' => '#E8F5E8'],
+            self::TYPE_BUSINESS => ['primary' => '#673AB7', 'secondary' => '#F3E5F5'],
             default => ['primary' => '#607D8B', 'secondary' => '#ECEFF1'],
         };
     }
@@ -389,6 +417,7 @@ class DynamicContent extends Model
             self::TYPE_PROFILE => '👤',
             self::TYPE_EVENT => '📅',
             self::TYPE_PRODUCT => '📦',
+            self::TYPE_BUSINESS => '🏢',
             default => '📄',
         };
     }
