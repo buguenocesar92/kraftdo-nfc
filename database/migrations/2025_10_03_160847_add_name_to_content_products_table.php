@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('content_products', function (Blueprint $table) {
-            $table->string('name')->nullable()->after('content_business_id');
-        });
+        // Solo agregar la columna si no existe
+        if (!Schema::hasColumn('content_products', 'name')) {
+            Schema::table('content_products', function (Blueprint $table) {
+                $table->string('name')->nullable()->after('content_business_id');
+            });
+        }
     }
 
     /**
