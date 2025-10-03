@@ -17,18 +17,25 @@ class BusinessDemoSeeder extends Seeder
      */
     public function run(): void
     {
-        // Buscar un usuario admin existente o crear uno de demo
-        $user = User::where('email', 'admin@kraftdo.com')->first();
+        // Buscar un usuario admin existente o usar el primero disponible
+        $user = User::where('email', 'admin@kraftdo-nfc.com')->first();
         if (!$user) {
-            $user = User::where('is_admin', true)->first();
+            $user = User::whereHas('roles', function($query) {
+                $query->where('name', 'Super Admin');
+            })->first();
         }
         
         if (!$user) {
-            $user = User::factory()->create([
-                'name' => 'Demo Admin',
-                'email' => 'demo@kraftdo.com',
-                'is_admin' => true,
-            ]);
+            // Usar el primer usuario disponible o crear uno
+            $user = User::first();
+            if (!$user) {
+                $user = User::factory()->create([
+                    'name' => 'Demo Admin',
+                    'email' => 'demo@kraftdo.com',
+                ]);
+                // Asignar rol de Super Admin
+                $user->assignRole('Super Admin');
+            }
         }
 
         // Crear token NFC para el negocio
