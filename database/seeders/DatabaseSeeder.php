@@ -14,6 +14,9 @@ class DatabaseSeeder extends Seeder
         // Roles específicos NFC
         $this->call(NfcRoleSeeder::class);
 
+        // Permisos para Content Business
+        $this->call(ContentBusinessPermissionsSeeder::class);
+
         // Usuarios administradores y test
         $this->call(AdminUserSeeder::class);
 
