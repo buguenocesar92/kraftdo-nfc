@@ -58,8 +58,11 @@ class BusinessDemoSeeder extends Seeder
             'content_id' => Str::uuid(),
             'type' => 'BUSINESS',
             'title' => 'Artesanías La Feria - Productos Locales',
+            'description' => 'Puesto artesanal con productos únicos hechos a mano',
             'status' => 'published',
-            'visibility' => 'public',
+            'is_active' => true,
+            'published_at' => now(),
+            'data' => [], // Se castea automáticamente a JSON
         ]);
 
         // Crear negocio con datos completos
