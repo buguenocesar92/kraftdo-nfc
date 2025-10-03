@@ -13,7 +13,10 @@ return new class extends Migration
     public function up(): void
     {
         // Remover la restricción JSON del campo specifications para permitir texto simple
-        DB::statement('ALTER TABLE content_products MODIFY specifications LONGTEXT NULL');
+        // Solo aplicar en MySQL, SQLite no soporta MODIFY
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE content_products MODIFY specifications LONGTEXT NULL');
+        }
     }
 
     /**
@@ -22,6 +25,9 @@ return new class extends Migration
     public function down(): void
     {
         // Revertir: volver a agregar la restricción JSON
-        DB::statement('ALTER TABLE content_products MODIFY specifications LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`specifications`))');
+        // Solo aplicar en MySQL, SQLite no soporta MODIFY
+        if (DB::getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE content_products MODIFY specifications LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`specifications`))');
+        }
     }
 };

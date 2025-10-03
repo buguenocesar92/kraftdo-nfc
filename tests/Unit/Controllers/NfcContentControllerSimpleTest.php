@@ -16,13 +16,14 @@ describe('NfcContentController Simple Tests', function () {
         $method = new ReflectionMethod($controller, 'getViewForContentType');
         $method->setAccessible(true);
         
-        expect($method->invoke($controller, 'GIFT'))->toBe('nfc.gift');
-        expect($method->invoke($controller, 'MENU'))->toBe('nfc.menu');
-        expect($method->invoke($controller, 'PROFILE'))->toBe('nfc.profile');
-        expect($method->invoke($controller, 'TOURIST'))->toBe('nfc.tourist');
-        expect($method->invoke($controller, 'EVENT'))->toBe('nfc.event');
-        expect($method->invoke($controller, 'PRODUCT'))->toBe('nfc.product');
-        expect($method->invoke($controller, 'UNKNOWN'))->toBe('nfc.default');
+        expect($method->invoke($controller, 'GIFT'))->toBe('token.gift');
+        expect($method->invoke($controller, 'MENU'))->toBe('token.menu');
+        expect($method->invoke($controller, 'PROFILE'))->toBe('token.profile');
+        expect($method->invoke($controller, 'TOURIST'))->toBe('token.tourist');
+        expect($method->invoke($controller, 'EVENT'))->toBe('token.event');
+        expect($method->invoke($controller, 'PRODUCT'))->toBe('token.product');
+        expect($method->invoke($controller, 'BUSINESS'))->toBe('token.business');
+        expect($method->invoke($controller, 'UNKNOWN'))->toBe('token.default');
     });
 
     test('prepareViewData para tipo GIFT retorna estructura correcta', function () {

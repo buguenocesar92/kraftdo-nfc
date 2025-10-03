@@ -21,12 +21,15 @@ return new class extends Migration
             $table->index('content_business_id');
         });
         
-        // Llenar los datos existentes
-        DB::statement('
-            UPDATE content_products cp
-            JOIN content_businesses cb ON cp.dynamic_content_id = cb.dynamic_content_id
-            SET cp.content_business_id = cb.id
-        ');
+        // Llenar los datos existentes solo si ambas tablas existen
+        if (Schema::hasTable('content_businesses') && Schema::hasTable('content_products')) {
+            $businesses = DB::table('content_businesses')->get();
+            foreach ($businesses as $business) {
+                DB::table('content_products')
+                    ->where('dynamic_content_id', $business->dynamic_content_id)
+                    ->update(['content_business_id' => $business->id]);
+            }
+        }
     }
 
     /**
