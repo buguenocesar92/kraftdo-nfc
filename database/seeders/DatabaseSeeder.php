@@ -22,5 +22,8 @@ class DatabaseSeeder extends Seeder
 
         // Datos de demo NFC
         $this->call(NfcDemoSeeder::class);
+
+        // Demo de negocio para testing
+        $this->call(BusinessDemoSeeder::class);
     }
 }
