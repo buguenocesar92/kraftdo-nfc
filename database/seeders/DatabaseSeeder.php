@@ -25,5 +25,8 @@ class DatabaseSeeder extends Seeder
 
         // Demo de negocio para testing
         $this->call(BusinessDemoSeeder::class);
+
+        // Demo turístico: Cristo de la Hacienda
+        $this->call(CristoMachaliSeeder::class);
     }
 }
