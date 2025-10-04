@@ -17,5 +17,8 @@ import './token-gift.js';
 // Import multimedia components before starting Alpine
 import './multimedia-components.js';
 
+// Import tourist map components before starting Alpine
+import './tourist-map.js';
+
 // Start Alpine
 Alpine.start();

@@ -457,6 +457,49 @@ class NfcContentController extends Controller
                 
                 unset($business);
                 break;
+                
+            case DynamicContent::TYPE_TOURIST:
+                // Usar tabla normalizada
+                $tourist = $content->tourist;
+                if ($tourist) {
+                    $data['tourist'] = $tourist;
+                    $data['mapData'] = $tourist->getMapData();
+                    $data['nearbySpots'] = $tourist->activeNearbySpots;
+                    
+                    // Información de horarios y estado
+                    $data['todayHours'] = $tourist->getTodayHours();
+                    $data['isOpen'] = $tourist->isCurrentlyOpen();
+                    
+                    // Galería de imágenes
+                    $data['gallery'] = $tourist->gallery_images ?? [];
+                    $data['hasGallery'] = $tourist->hasGallery();
+                    
+                    // Datos de contacto
+                    $data['contact'] = [
+                        'phone' => $tourist->contact_phone,
+                        'email' => $tourist->contact_email,
+                        'website' => $tourist->website_url,
+                    ];
+                    
+                    // Información práctica
+                    $data['practical_info'] = [
+                        'opening_hours' => $tourist->opening_hours,
+                        'pricing_info' => $tourist->pricing_info,
+                        'accessibility_info' => $tourist->accessibility_info,
+                        'services' => $tourist->services,
+                        'attractions' => $tourist->attractions,
+                        'best_time_to_visit' => $tourist->best_time_to_visit,
+                        'languages_spoken' => $tourist->languages_spoken,
+                    ];
+                } else {
+                    // Fallback para datos básicos
+                    $data['tourist'] = null;
+                    $data['mapData'] = [];
+                    $data['nearbySpots'] = collect([]);
+                }
+                
+                unset($tourist);
+                break;
         }
         
         return $data;

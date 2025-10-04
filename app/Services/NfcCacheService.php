@@ -6,6 +6,7 @@ use App\Models\NfcToken;
 use App\Models\ContentGift;
 use App\Models\ContentProfile;
 use App\Models\ContentBusiness;
+use App\Models\ContentTourist;
 use App\Models\ContentMultimedia;
 use App\Models\NfcAnalytic;
 use Illuminate\Support\Facades\Cache;
@@ -62,6 +63,12 @@ class NfcCacheService
                     }, 'products'])->where('dynamic_content_id', $dynamicContent->id)->first(),
                     'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
                         $query->orderBy('sort_order')->orderBy('id');
+                    }])->where('dynamic_content_id', $dynamicContent->id)->first()
+                ];
+            } elseif ($token->content_type === 'TOURIST') {
+                $contentData = [
+                    'tourist' => ContentTourist::with(['nearbySpots' => function($query) {
+                        $query->where('is_active', true)->orderBy('distance_km')->orderBy('sort_order');
                     }])->where('dynamic_content_id', $dynamicContent->id)->first()
                 ];
             }

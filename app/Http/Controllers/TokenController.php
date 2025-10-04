@@ -28,7 +28,7 @@ class TokenController extends Controller
         $content = $cachedData['content'];
 
         // Validaciones rápidas en memoria
-        if (!in_array($token->content_type, ['GIFT', 'PROFILE', 'BUSINESS'])) {
+        if (!in_array($token->content_type, ['GIFT', 'PROFILE', 'BUSINESS', 'TOURIST'])) {
             abort(404, 'Tipo de contenido no disponible');
         }
 
@@ -95,6 +95,21 @@ class TokenController extends Controller
             ];
 
             return view('token.business', $data);
+            
+        } elseif ($token->content_type === 'TOURIST') {
+            $contentTourist = $content['tourist'];
+            $nearbySpots = $contentTourist?->activeNearbySpots ?? collect();
+
+            $data = [
+                'token' => $token,
+                'dynamicContent' => $dynamicContent,
+                'content' => $dynamicContent, // Para compatibilidad con la vista tourist
+                'tourist' => $contentTourist,
+                'mapData' => $contentTourist?->getMapData() ?? [],
+                'nearbySpots' => $nearbySpots,
+            ];
+
+            return view('token.tourist', $data);
         }
     }
 
