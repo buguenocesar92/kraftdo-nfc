@@ -12,6 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('content_tourist', function (Blueprint $table) {
+            // Primero eliminar el índice único antes de eliminar la columna
+            $table->dropUnique(['slug']);
             $table->dropColumn('slug');
         });
     }
@@ -22,7 +24,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('content_tourist', function (Blueprint $table) {
-            $table->string('slug')->nullable()->unique();
+            $table->string('slug')->nullable();
+            $table->unique('slug');
         });
     }
 };
