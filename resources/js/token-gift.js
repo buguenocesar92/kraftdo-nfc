@@ -980,6 +980,19 @@ function registerTokenGiftComponent() {
                 console.log('DOM ready state:', document.readyState);
                 console.log('Page load timing:', performance.now(), 'ms since page start');
                 
+                // Debug: Check actual elements in DOM
+                const videoEl = document.querySelector('video[x-ref="videoElement"]');
+                const iframeEl = document.querySelector('iframe[x-ref="iframeElement"], iframe[src*="youtube.com"], iframe[src*="vimeo.com"]');
+                const audioEl = document.querySelector('audio[x-ref="audioElement"]');
+                console.log('DOM Media Elements:', {
+                    videoElement: !!videoEl,
+                    iframeElement: !!iframeEl,
+                    audioElement: !!audioEl,
+                    calculatedHasVideo: !!(videoEl || iframeEl),
+                    passedHasVideo: this.hasVideo,
+                    passedHasAudio: this.hasAudio
+                });
+                
                 // Always show overlay when there's video, regardless of audio
                 this.showAutoplayOverlay = this.hasVideo;
                 console.log('Overlay visibility set to:', this.showAutoplayOverlay);
@@ -993,14 +1006,14 @@ function registerTokenGiftComponent() {
 
             getTitle() {
                 if (this.hasVideo && this.hasAudio) {
-                    return '¡Reproducir Audio Especial!';
+                    return '¡Ver Video Especial!';
                 }
                 return this.hasVideo ? '¡Activa tu Video!' : '¡Escucha tu Mensaje!';
             },
 
             getDescription() {
                 if (this.hasVideo && this.hasAudio) {
-                    return 'Disfruta del video y escucha el audio especial que han preparado para ti.';
+                    return 'Disfruta del video especial que han preparado para ti. El audio estará disponible por separado.';
                 }
                 return this.hasVideo ? 
                     'Para brindarte la mejor experiencia, necesitamos activar la reproducción automática del video.' : 
@@ -1009,30 +1022,44 @@ function registerTokenGiftComponent() {
 
             getButtonText() {
                 if (this.hasVideo && this.hasAudio) {
-                    return 'Reproducir Audio Especial';
+                    return 'Ver Video Especial';
                 }
                 return this.hasVideo ? 'Activar Video' : 'Escuchar Mensaje';
             },
 
             activateAutoplay() {
                 console.log('=== OVERLAY BUTTON CLICKED ===');
+                console.log('Current state:', { hasVideo: this.hasVideo, hasAudio: this.hasAudio });
                 console.log('Hiding overlay...');
                 this.showAutoplayOverlay = false;
                 
-                // If we have both video and audio, prioritize audio playback
+                // If we have both video and audio, prioritize VIDEO playback (not audio)
                 if (this.hasVideo && this.hasAudio) {
-                    console.log('Has both video and audio, playing audio directly...');
-                    const audio = document.querySelector('audio[x-ref="audioElement"]');
-                    if (audio) {
-                        window.enableAutoplayAudio(audio);
-                    } else {
-                        console.error('Audio element not found!');
+                    console.log('🎬 BRANCH: Has both video and audio, going directly to video (skipping audio autoplay)...');
+                    // Skip audio autoplay when video is present - let user decide
+                    if (window.enableAutoplay) {
+                        console.log('🎬 Calling window.enableAutoplay() for video priority...');
+                        window.enableAutoplay();
                     }
-                } else if (window.enableAutoplay) {
-                    console.log('window.enableAutoplay found, calling...');
-                    window.enableAutoplay();
+                } else if (this.hasVideo) {
+                    console.log('🎬 BRANCH: Has video only, calling enableAutoplay...');
+                    if (window.enableAutoplay) {
+                        window.enableAutoplay();
+                    }
+                } else if (this.hasAudio) {
+                    console.log('🎵 BRANCH: Has audio only, calling enableAutoplay...');
+                    if (window.enableAutoplay) {
+                        window.enableAutoplay();
+                    }
                 } else {
-                    console.error('window.enableAutoplay not found!');
+                    console.log('📝 BRANCH: No media, calling enableAutoplay for TTS...');
+                    if (window.enableAutoplay) {
+                        window.enableAutoplay();
+                    }
+                }
+                
+                if (!window.enableAutoplay) {
+                    console.error('❌ window.enableAutoplay not found!');
                 }
             }
         }));
@@ -1049,30 +1076,111 @@ window.enableAutoplay = function(skipDelay = false, retryCount = 0) {
     console.log('Function called at:', performance.now(), 'ms since page start');
     console.log('Document ready state:', document.readyState);
     
-    // Try to find and start video first
+    // Try to find and start video first (HTML5, YouTube, or Vimeo)
     let video = document.querySelector('video[x-ref="videoElement"]');
-    console.log('Video element search result:', !!video);
+    let iframe = document.querySelector('iframe[x-ref="iframeElement"], iframe[src*="youtube.com"], iframe[src*="vimeo.com"]');
+    let hasVideo = video || iframe;
     
-    // If video not found and we haven't exceeded max retries, wait for Alpine.js to render
-    if (!video && retryCount < 5) {
-        console.log(`Video element not found (attempt ${retryCount + 1}/5), waiting for Alpine.js...`);
+    console.log('Video search results:', { 
+        html5Video: !!video, 
+        iframe: !!iframe, 
+        hasAnyVideo: hasVideo 
+    });
+    
+    // If no video found and we haven't exceeded max retries, wait for Alpine.js to render
+    if (!hasVideo && retryCount < 5) {
+        console.log(`No video elements found (attempt ${retryCount + 1}/5), waiting for Alpine.js...`);
         setTimeout(() => {
             window.enableAutoplay(true, retryCount + 1); // Recursive call with retry count
         }, skipDelay ? 50 : 200); // Shorter delay on retries
         return;
     }
     
-    // If still no video after retries, continue to other media
-    if (!video) {
-        console.log('No video found after retries, checking for audio...');
-        const audio = document.querySelector('audio[x-ref="audioElement"]');
-        if (audio) {
-            window.enableAutoplayAudio(audio);
-            return;
-        } else {
-            console.log('No media elements found, starting text-to-speech');
-            window.readMessageAloud();
-            return;
+    // If we found any kind of video (HTML5, YouTube, Vimeo), prioritize video
+    if (hasVideo) {
+        if (video) {
+            console.log('Found HTML5 video, starting HTML5 video playback');
+            // Handle HTML5 video (existing logic below)
+        } else if (iframe) {
+            console.log('Found iframe video (YouTube/Vimeo), attempting autoplay after user interaction...');
+            // Scroll to the iframe video
+            iframe.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
+            });
+            
+            // Try to autoplay iframe video since user interacted with overlay
+            setTimeout(() => {
+                console.log('Attempting to autoplay iframe video...');
+                const currentSrc = iframe.src;
+                const videoId = iframe.getAttribute('data-video-id');
+                
+                console.log('Iframe details:', { src: currentSrc, dataVideoId: videoId });
+                
+                // Handle lazy-loaded YouTube iframe without src
+                if (!currentSrc && videoId) {
+                    console.log('Lazy-loaded YouTube iframe detected, using YouTube Player API...');
+                    
+                    // Load YouTube API if not already loaded
+                    if (!window.YT) {
+                        console.log('Loading YouTube API...');
+                        const script = document.createElement('script');
+                        script.src = 'https://www.youtube.com/iframe_api';
+                        document.head.appendChild(script);
+                        
+                        // Wait for API to load then create player
+                        window.onYouTubeIframeAPIReady = () => {
+                            console.log('YouTube API loaded, creating player...');
+                            createYouTubePlayer(iframe, videoId);
+                        };
+                    } else {
+                        createYouTubePlayer(iframe, videoId);
+                    }
+                    return;
+                }
+                
+                if (currentSrc.includes('youtube.com')) {
+                    console.log('YouTube iframe with existing src detected...');
+                    // Extract video ID from existing URL
+                    const urlVideoId = currentSrc.match(/embed\/([^?&]+)/)?.[1];
+                    if (urlVideoId) {
+                        console.log('Extracted video ID from URL:', urlVideoId);
+                        // Replace iframe with YouTube Player API
+                        createYouTubePlayer(iframe, urlVideoId);
+                    } else {
+                        // Fallback to URL parameter method
+                        console.log('Could not extract video ID, using URL parameters...');
+                        if (!currentSrc.includes('autoplay=1')) {
+                            const newSrc = currentSrc.includes('?') 
+                                ? currentSrc + '&autoplay=1&mute=1&controls=1'
+                                : currentSrc + '?autoplay=1&mute=1&controls=1';
+                            console.log('Setting new YouTube src with autoplay:', newSrc);
+                            iframe.src = newSrc;
+                        }
+                    }
+                } else if (currentSrc.includes('vimeo.com')) {
+                    console.log('Vimeo iframe detected, adding autoplay parameter...');
+                    // Add autoplay parameter to Vimeo URL
+                    if (!currentSrc.includes('autoplay=1')) {
+                        const newSrc = currentSrc.includes('?') 
+                            ? currentSrc + '&autoplay=1'
+                            : currentSrc + '?autoplay=1';
+                        console.log('Setting new Vimeo src with autoplay:', newSrc);
+                        iframe.src = newSrc;
+                    }
+                } else {
+                    console.log('Unknown iframe video type, using postMessage API...');
+                    // Try using postMessage API for iframe communication
+                    try {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                    } catch (e) {
+                        console.log('PostMessage failed:', e);
+                    }
+                }
+            }, 500); // Small delay to ensure scroll completes
+            
+            console.log('Video iframe autoplay initiated');
+            return; // Exit early - iframe videos handle their own playback
         }
     }
     
@@ -1169,16 +1277,90 @@ window.enableAutoplay = function(skipDelay = false, retryCount = 0) {
         return; // Exit early if video found
     }
     
-    // If no video, try to find and start audio
-    const audio = document.querySelector('audio[x-ref="audioElement"]');
-    if (audio) {
-        window.enableAutoplayAudio(audio);
-        return; // Exit early if audio found
+    // Only if no video at all (HTML5 or iframe), try audio fallback
+    if (!hasVideo) {
+        console.log('No video found after retries, checking for audio...');
+        const audio = document.querySelector('audio[x-ref="audioElement"]');
+        if (audio) {
+            window.enableAutoplayAudio(audio);
+            return; // Exit early if audio found
+        }
+        
+        // If no video/audio found, use text-to-speech for the message
+        console.log('No media elements found, starting text-to-speech');
+        window.readMessageAloud();
     }
+}
+
+// YouTube Player API integration for reliable autoplay
+function createYouTubePlayer(iframe, videoId) {
+    console.log('Creating YouTube Player with API for video:', videoId);
     
-    // If no video/audio found, use text-to-speech for the message
-    console.log('No media elements found, starting text-to-speech');
-    window.readMessageAloud();
+    // Create a unique ID for the iframe if it doesn't have one
+    const playerId = iframe.id || `youtube-player-${Date.now()}`;
+    iframe.id = playerId;
+    
+    // Clear the iframe src to avoid conflicts
+    iframe.src = '';
+    
+    try {
+        const player = new YT.Player(playerId, {
+            videoId: videoId,
+            width: iframe.width || '100%',
+            height: iframe.height || '315',
+            playerVars: {
+                autoplay: 1,
+                mute: 1, // Start muted for reliable autoplay
+                controls: 1,
+                rel: 0,
+                modestbranding: 1,
+                enablejsapi: 1
+            },
+            events: {
+                onReady: (event) => {
+                    console.log('YouTube player ready, starting playback...');
+                    event.target.playVideo();
+                    
+                    // Show message that video started muted
+                    setTimeout(() => {
+                        const messageEl = document.createElement('div');
+                        messageEl.innerHTML = `
+                            <div class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-75 text-white px-4 py-2 rounded-lg text-sm z-50 animate-fade-in">
+                                🔇 Video iniciado sin sonido - haz clic en el altavoz para activar audio
+                            </div>
+                        `;
+                        document.body.appendChild(messageEl);
+                        setTimeout(() => messageEl.remove(), 4000);
+                    }, 500);
+                },
+                onStateChange: (event) => {
+                    console.log('YouTube player state change:', event.data);
+                    if (event.data === YT.PlayerState.PLAYING) {
+                        console.log('✅ YouTube video is now playing!');
+                    } else if (event.data === YT.PlayerState.PAUSED) {
+                        console.log('YouTube video paused');
+                    } else if (event.data === YT.PlayerState.ENDED) {
+                        console.log('YouTube video ended');
+                    }
+                },
+                onError: (event) => {
+                    console.error('YouTube player error:', event.data);
+                    // Fallback to iframe method if API fails
+                    console.log('Falling back to iframe method...');
+                    iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&rel=0`;
+                }
+            }
+        });
+        
+        // Store player reference for later use
+        window.youtubePlayer = player;
+        
+    } catch (error) {
+        console.error('Failed to create YouTube Player:', error);
+        // Fallback to iframe method
+        console.log('Falling back to iframe method...');
+        iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=1&rel=0`;
+    }
 }
 
 // Separate function for audio playback
@@ -1780,6 +1962,21 @@ styleSheet.innerHTML = `
             transform: translateY(-100vh);
             opacity: 0;
         }
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out;
     }
 `;
 document.head.appendChild(styleSheet);
