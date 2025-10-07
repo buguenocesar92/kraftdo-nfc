@@ -930,17 +930,28 @@ function registerTokenGiftComponent() {
             },
 
             loadVoices() {
+                // Filter to show only Spanish (Spain) voices
                 this.availableVoices = speechSynthesis.getVoices().filter(voice => 
-                    voice.lang.startsWith('es') || voice.lang.startsWith('en')
+                    voice.lang.startsWith('es-ES')
                 );
+                
+                // If no es-ES voices found, fallback to any Spanish voice
+                if (this.availableVoices.length === 0) {
+                    console.log('No es-ES voices found, falling back to any Spanish voice');
+                    this.availableVoices = speechSynthesis.getVoices().filter(voice => 
+                        voice.lang.startsWith('es')
+                    );
+                }
+                
                 if (this.availableVoices.length > 0 && !this.selectedVoice) {
-                    // Try to find es-US (Remote) voice first
-                    this.selectedVoice = this.availableVoices.find(v => v.lang === 'es-US' && !v.localService) ||
-                                       this.availableVoices.find(v => v.lang === 'es-US') ||
+                    // Prioritize es-ES voices, prefer remote (cloud) voices for better quality
+                    this.selectedVoice = this.availableVoices.find(v => v.lang === 'es-ES' && !v.localService) ||
                                        this.availableVoices.find(v => v.lang === 'es-ES') ||
                                        this.availableVoices[0];
                     window.selectedTTSVoice = this.selectedVoice;
-                    console.log('Default voice selected:', this.selectedVoice.name, this.selectedVoice.lang, this.selectedVoice.localService ? '(Local)' : '(Remote)');
+                    console.log('Default Spanish voice selected:', this.selectedVoice.name, this.selectedVoice.lang, this.selectedVoice.localService ? '(Local)' : '(Remote)');
+                } else if (this.availableVoices.length === 0) {
+                    console.warn('No Spanish voices available in this browser');
                 }
             },
 
@@ -1527,13 +1538,15 @@ window.readMessageAloud = function() {
         console.log('Starting speech synthesis...');
         const utterance = new SpeechSynthesisUtterance(fullText);
         
-        // Use selected voice if available
+        // Use selected voice if available, defaulting to es-ES
         if (window.selectedTTSVoice) {
             utterance.voice = window.selectedTTSVoice;
             utterance.lang = window.selectedTTSVoice.lang;
-            console.log('Using selected voice:', window.selectedTTSVoice.name);
+            console.log('Using selected voice:', window.selectedTTSVoice.name, window.selectedTTSVoice.lang);
         } else {
+            // Default to Spanish (Spain) if no voice is selected
             utterance.lang = 'es-ES';
+            console.log('Using default language: es-ES');
         }
         
         utterance.rate = 0.9;
