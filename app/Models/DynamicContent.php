@@ -40,6 +40,7 @@ class DynamicContent extends Model
         'product_id',
         'tourist_id',
         'business_id',
+        'bus_stop_id',
     ];
 
     protected $casts = [
@@ -61,6 +62,7 @@ class DynamicContent extends Model
     
     // Constantes para futuros tipos de contenido
     public const TYPE_BUSINESS = 'BUSINESS';
+    public const TYPE_BUS_STOP = 'BUS_STOP';
     public const TYPE_PORTFOLIO = 'PORTFOLIO';
     public const TYPE_CONTACT = 'CONTACT';
     public const TYPE_MULTIMEDIA = 'MULTIMEDIA';
@@ -79,6 +81,7 @@ class DynamicContent extends Model
         
         // Tipos futuros (listos para implementar)
         self::TYPE_BUSINESS => '🏢 Tarjeta de Negocio',
+        self::TYPE_BUS_STOP => '🚏 Paradero de Transporte',
         self::TYPE_PORTFOLIO => '🎨 Portafolio Creativo',
         self::TYPE_CONTACT => '📞 Información de Contacto',
         self::TYPE_MULTIMEDIA => '📱 Contenido Multimedia',
@@ -218,6 +221,14 @@ class DynamicContent extends Model
         return $this->hasOne(ContentBusiness::class);
     }
 
+    /**
+     * Relación con contenido bus stop
+     */
+    public function busStop()
+    {
+        return $this->hasOne(BusStop::class);
+    }
+
     // ========================================
     // MÉTODOS PARA SINCRONIZACIÓN DE REFERENCIAS
     // ========================================
@@ -256,6 +267,9 @@ class DynamicContent extends Model
                 break;
             case self::TYPE_BUSINESS:
                 if ($this->business) $updates['business_id'] = $this->business->id;
+                break;
+            case self::TYPE_BUS_STOP:
+                if ($this->busStop) $updates['bus_stop_id'] = $this->busStop->id;
                 break;
         }
         

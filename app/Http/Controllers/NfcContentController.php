@@ -293,6 +293,7 @@ class NfcContentController extends Controller
             DynamicContent::TYPE_EVENT => 'token.event',
             DynamicContent::TYPE_PRODUCT => 'token.product',
             DynamicContent::TYPE_BUSINESS => 'token.business',
+            DynamicContent::TYPE_BUS_STOP => 'token.bus-stop',
             default => 'token.default',
         };
     }
@@ -499,6 +500,23 @@ class NfcContentController extends Controller
                 }
                 
                 unset($tourist);
+                break;
+                
+            case DynamicContent::TYPE_BUS_STOP:
+                // Usar tabla normalizada
+                $busStop = $content->busStop;
+                if ($busStop) {
+                    $data['busStop'] = $busStop;
+                    $data['routes'] = $busStop->routes()->with('schedules')->get();
+                    $data['utilityPhones'] = $busStop->utilityPhones()->active()->get();
+                } else {
+                    // Fallback para datos básicos  
+                    $data['busStop'] = null;
+                    $data['routes'] = collect([]);
+                    $data['utilityPhones'] = collect([]);
+                }
+                
+                unset($busStop);
                 break;
         }
         
