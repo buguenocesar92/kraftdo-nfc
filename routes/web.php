@@ -1,14 +1,7 @@
 <?php
 
-use App\Http\Controllers\NfcContentController;
 use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Route;
-use Livewire\Volt\Volt;
-
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
-
 
 // Health check para Docker
 Route::get('/health', function () {
@@ -20,95 +13,11 @@ Route::get('/health', function () {
     ]);
 });
 
-Route::redirect('dashboard', '/admin')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
 
-Route::middleware(['auth'])->group(function () {
-    Route::redirect('settings', 'settings/profile');
-
-    Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
-    Volt::route('settings/password', 'settings.password')->name('settings.password');
-    Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
-});
-
-// ========================================
-// RUTAS PÚBLICAS PARA CONTENIDO NFC
-// ========================================
-
-// 🎁 NUEVA RUTA PARA TOKENS/REGALOS
 Route::get('/token/{tokenId}', [TokenController::class, 'show'])->name('token.show')
     ->where('tokenId', '[A-Za-z0-9\-]+');
 
-// 🛍️ RUTA PARA CATÁLOGO COMPLETO DE PRODUCTOS DE NEGOCIO
 Route::get('/token/{tokenId}/products', [TokenController::class, 'showProducts'])->name('token.products')
     ->where('tokenId', '[A-Za-z0-9\-]+');
 
 
-// 🎯 Rutas específicas ANTES de las dinámicas (orden importa en Laravel)
-Route::get('/nfc/onboarding/{id}', [NfcContentController::class, 'onboardingById'])->name('nfc.onboarding.by-id')
-    ->where('id', '[A-Za-z0-9\-]+');
-Route::get('/nfc/onboarding', [NfcContentController::class, 'onboarding'])->name('nfc.onboarding');
-Route::post('/nfc/onboarding', [NfcContentController::class, 'createAccount'])->name('nfc.create-account');
-Route::get('/nfc/info', [NfcContentController::class, 'info'])->name('nfc.info');
-
-// RETROCOMPATIBILIDAD: Formato antiguo /nfc?TYPE=X&ID=uuid
-Route::get('/nfc', [NfcContentController::class, 'showLegacy'])
-    ->name('nfc.legacy');
-
-// FORMATO LIMPIO: /nfc/{id} - Ruta principal más SEO-friendly (DEBE IR AL FINAL)
-Route::get('/nfc/{id}', [NfcContentController::class, 'showById'])
-    ->name('nfc.show')
-    ->where('id', '[A-Za-z0-9\-]+');
-
-// 🔗 Ruta para asignar chip a usuario autenticado
-Route::post('/nfc/assign-token', [NfcContentController::class, 'assignTokenToAuthenticatedUser'])
-    ->middleware('auth')
-    ->name('nfc.assign-token');
-
-// Mostrar contenido por content_id (UUID)
-Route::get('/c/{contentId}', [NfcContentController::class, 'show'])
-    ->name('nfc.content')
-    ->where('contentId', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
-
-// Mostrar contenido por token_id (UUID del chip físico)
-Route::get('/t/{tokenId}', [NfcContentController::class, 'showByToken'])
-    ->name('nfc.token')
-    ->where('tokenId', '[A-Za-z0-9\-]+');
-
-
-// API para validación de contenido (público)
-Route::get('/api/validate/content/{contentId}', [NfcContentController::class, 'validateToken'])
-    ->name('api.validate.content');
-
-Route::get('/api/validate/token/{tokenId}', [NfcContentController::class, 'validateToken'])
-    ->name('api.validate.token');
-
-// ========================================
-// RUTAS PRIVADAS PARA USUARIOS AUTENTICADOS
-// ========================================
-
-Route::middleware(['auth'])->group(function () {
-    // Vista previa de contenido (solo propietarios)
-    Route::get('/preview/{contentId}', [NfcContentController::class, 'preview'])
-        ->name('nfc.preview')
-        ->where('contentId', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
-    
-    // Vista previa de token (solo propietarios)
-    Route::get('/preview/token/{tokenId}', [TokenController::class, 'preview'])
-        ->name('token.preview')
-        ->where('tokenId', '[0-9]+');
-    
-    // Estadísticas de contenido (solo propietarios)
-    Route::get('/api/stats/{contentId}', [NfcContentController::class, 'getStats'])
-        ->name('api.content.stats')
-        ->where('contentId', '[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}');
-});
-
-// ========================================
-// RUTAS GESTIONADAS AUTOMÁTICAMENTE POR FILAMENT
-// ========================================
-// Las rutas para my-tokens son manejadas automáticamente por Filament
-// usando el slug definido en la página: 'my-tokens/{tokenId?}'
-
-require __DIR__.'/auth.php';

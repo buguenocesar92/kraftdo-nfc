@@ -180,22 +180,4 @@ class TokenController extends Controller
             ]);
         }
     }
-
-    public function preview(Request $request, $tokenId)
-    {
-        // Similar al show pero para preview en el admin
-        $token = NfcToken::where('id', $tokenId)->first();
-        
-        if (!$token) {
-            abort(404, 'Token no encontrado');
-        }
-
-        // Verificar que el usuario tenga permisos para ver este token
-        if ($token->user_id !== auth()->id() && !auth()->user()->can('view_any_nfc_token')) {
-            abort(403, 'No tienes permisos para ver este token');
-        }
-
-        // Redirigir a la vista pública usando el token_id
-        return redirect()->route('token.show', $token->token_id);
-    }
 }
