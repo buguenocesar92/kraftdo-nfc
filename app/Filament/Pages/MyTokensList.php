@@ -13,6 +13,7 @@ use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Notifications\Notification;
+use Illuminate\Support\HtmlString;
 
 class MyTokensList extends Page implements HasTable
 {
@@ -66,13 +67,22 @@ class MyTokensList extends Page implements HasTable
 
                 BadgeColumn::make('content_type')
                     ->label('Tipo')
+                    ->formatStateUsing(function ($state) {
+                        return match($state) {
+                            'GIFT' => '🎁 Regalo',
+                            'BUSINESS' => '🏢 Negocio',
+                            'PROFILE' => '👤 Perfil',
+                            'TOURIST' => '🗺️ Turismo',
+                            'BUS_STOP' => '🚌 Paradero',
+                            default => $state
+                        };
+                    })
                     ->colors([
                         'success' => 'GIFT',
-                        'info' => 'MENU',
+                        'info' => 'BUSINESS', 
                         'warning' => 'PROFILE',
-                        'primary' => 'EVENT',
-                        'secondary' => 'PRODUCT',
-                        'danger' => 'TOURIST',
+                        'primary' => 'TOURIST',
+                        'secondary' => 'BUS_STOP',
                     ]),
 
                 BadgeColumn::make('is_active')
@@ -82,6 +92,44 @@ class MyTokensList extends Page implements HasTable
                         'success' => true,
                         'danger' => false,
                     ]),
+
+                TextColumn::make('preview_backend')
+                    ->label('Vista Previa Backend')
+                    ->state(function ($record) {
+                        return $record->is_active ? 'active' : 'inactive';
+                    })
+                    ->formatStateUsing(function ($state, $record) {
+                        if ($record->is_active) {
+                            $url = url("/token/{$record->token_id}");
+                            return new HtmlString("<a href='{$url}' target='_blank' class='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200'>
+                                <svg class='w-3 h-3 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'></path>
+                                </svg>
+                                Backend
+                            </a>");
+                        }
+                        return new HtmlString("<span class='text-gray-400 text-xs'>Inactivo</span>");
+                    })
+                    ->html(),
+
+                TextColumn::make('preview_frontend')
+                    ->label('Vista Previa Front')
+                    ->state(function ($record) {
+                        return $record->is_active ? 'active' : 'inactive';
+                    })
+                    ->formatStateUsing(function ($state, $record) {
+                        if ($record->is_active) {
+                            $url = "http://127.0.0.1:3000/token/{$record->token_id}";
+                            return new HtmlString("<a href='{$url}' target='_blank' class='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors duration-200'>
+                                <svg class='w-3 h-3 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                    <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'></path>
+                                </svg>
+                                Frontend
+                            </a>");
+                        }
+                        return new HtmlString("<span class='text-gray-400 text-xs'>Inactivo</span>");
+                    })
+                    ->html(),
 
                 TextColumn::make('created_at')
                     ->label('Creado')
@@ -121,43 +169,6 @@ class MyTokensList extends Page implements HasTable
                     )
                     ->url(fn (NfcToken $record): string => "/admin/my-tokens/{$record->id}/configure-profile")
                     ->openUrlInNewTab(false),
-
-                Action::make('preview')
-                    ->label('Vista Previa')
-                    ->icon('heroicon-o-eye')
-                    ->color('secondary')
-                    ->url(fn (NfcToken $record): string => "/token/{$record->token_id}")
-                    ->openUrlInNewTab(true),
-
-                Action::make('view')
-                    ->label('Info')
-                    ->icon('heroicon-o-information-circle')
-                    ->color('gray')
-                    ->action(function (NfcToken $record) {
-                        Notification::make()
-                            ->title('Token: ' . $record->name)
-                            ->body('ID: ' . $record->token_id . ' | Tipo: ' . $record->content_type)
-                            ->info()
-                            ->send();
-                    }),
-
-                Action::make('copy_url')
-                    ->label('Copiar URL')
-                    ->icon('heroicon-o-link')
-                    ->color('gray')
-                    ->action(function (NfcToken $record) {
-                        $url = config('app.url') . '/token/' . $record->token_id;
-                        
-                        Notification::make()
-                            ->title('URL copiada')
-                            ->body($url)
-                            ->success()
-                            ->send();
-                    })
-                    ->requiresConfirmation()
-                    ->modalHeading('Copiar URL del Token')
-                    ->modalDescription(fn (NfcToken $record) => 'URL: ' . config('app.url') . '/token/' . $record->token_id)
-                    ->modalSubmitActionLabel('Copiar'),
             ])
             ->bulkActions([
                 // Agregar acciones bulk si necesario

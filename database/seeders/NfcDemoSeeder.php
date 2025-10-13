@@ -15,20 +15,33 @@ class NfcDemoSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear usuario demo si no existe
-        $user = User::firstOrCreate(
-            ['email' => 'demo@nfc.com'],
-            [
-                'name' => 'Usuario Demo',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
-            ]
-        );
+        // Usar el Super Administrator existente
+        $user = User::where('email', 'admin@kraftdo-nfc.com')->first();
+        if (!$user) {
+            $user = User::whereHas('roles', function($query) {
+                $query->where('name', 'Super Admin');
+            })->first();
+        }
+        
+        if (!$user) {
+            throw new \Exception('Super Administrator no encontrado. Ejecuta AdminUserSeeder primero.');
+        }
+
+        // Primero, actualizar cualquier token MENU existente a BUSINESS
+        \App\Models\NfcToken::where('content_type', 'MENU')->update(['content_type' => 'BUSINESS']);
+        
+        // También actualizar cualquier contenido dinámico de tipo MENU a BUSINESS
+        \App\Models\DynamicContent::where('type', 'MENU')->update(['type' => 'BUSINESS']);
+        
+        // Usar UUIDs fijos para evitar duplicados
+        $giftTokenId = 'gift-demo-token-uuid-fixed-001';
+        $businessTokenId = 'menu-demo-token-uuid-fixed-002'; // Reusar el ID del menu existente
+        $profileTokenId = 'profile-demo-token-uuid-fixed-003';
 
         // Crear tokens NFC de demo
         $tokens = [
             [
-                'token_id' => Str::uuid()->toString(),
+                'token_id' => $giftTokenId,
                 'name' => 'Token Gift Demo',
                 'content_type' => 'GIFT',
                 'customization_plan' => 'PREMIUM',
@@ -38,9 +51,9 @@ class NfcDemoSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'token_id' => Str::uuid()->toString(),
-                'name' => 'Token Menu Demo',
-                'content_type' => 'MENU',
+                'token_id' => $businessTokenId,
+                'name' => 'Token Business Demo',
+                'content_type' => 'BUSINESS',
                 'customization_plan' => 'STANDARD',
                 'purchase_price' => 35.00,
                 'purchased_at' => now()->subDays(15),
@@ -48,7 +61,7 @@ class NfcDemoSeeder extends Seeder
                 'is_active' => true,
             ],
             [
-                'token_id' => Str::uuid()->toString(),
+                'token_id' => $profileTokenId,
                 'name' => 'Token Profile Demo',
                 'content_type' => 'PROFILE',
                 'customization_plan' => 'BASIC',
@@ -68,10 +81,10 @@ class NfcDemoSeeder extends Seeder
             $createdTokens[] = $token;
         }
 
-        // Crear contenido dinámico para cada token
-        $giftContentId = Str::uuid()->toString();
-        $menuContentId = Str::uuid()->toString();
-        $profileContentId = Str::uuid()->toString();
+        // Usar content_ids fijos para evitar duplicados
+        $giftContentId = 'gift-demo-content-uuid-fixed-001';
+        $businessContentId = 'menu-demo-content-uuid-fixed-002'; // Reusar el ID del contenido menu existente
+        $profileContentId = 'profile-demo-content-uuid-fixed-003';
         
         $contents = [
             [
@@ -100,8 +113,8 @@ class NfcDemoSeeder extends Seeder
                 'nfc_token_id' => $createdTokens[0]->id,
             ],
             [
-                'content_id' => $menuContentId,
-                'type' => DynamicContent::TYPE_MENU,
+                'content_id' => $businessContentId,
+                'type' => DynamicContent::TYPE_BUSINESS,
                 'tier' => 'luxury',
                 'title' => 'Restaurante La Bella Italia',
                 'description' => 'Auténtica cocina italiana en el corazón de la ciudad. Ingredientes frescos y recetas tradicionales.',
@@ -175,18 +188,151 @@ class NfcDemoSeeder extends Seeder
         ];
 
         foreach ($contents as $contentData) {
-            DynamicContent::updateOrCreate(
+            $dynamicContent = DynamicContent::updateOrCreate(
                 ['content_id' => $contentData['content_id']],
                 array_merge($contentData, ['user_id' => $user->id])
             );
+
+            // Crear contenido especializado según el tipo
+            $this->createSpecializedContent($dynamicContent, $contentData);
         }
 
         $this->command->info('✅ Demo NFC data created successfully!');
         $this->command->info('🔑 Demo user: demo@nfc.com / password');
         $this->command->info('📱 Test URLs:');
-        $this->command->info("   - Gift: /c/{$giftContentId}");
-        $this->command->info("   - Menu: /c/{$menuContentId}"); 
-        $this->command->info("   - Profile: /c/{$profileContentId}");
-        $this->command->info('   - By Token: /t/{token_uuid}');
+        $this->command->info("   - Gift: /token/{$giftTokenId}");
+        $this->command->info("   - Business: /token/{$businessTokenId}"); 
+        $this->command->info("   - Profile: /token/{$profileTokenId}");
+    }
+
+    private function createSpecializedContent($dynamicContent, $contentData)
+    {
+        switch ($dynamicContent->type) {
+            case DynamicContent::TYPE_GIFT:
+                $this->createGiftContent($dynamicContent, $contentData);
+                break;
+            case DynamicContent::TYPE_BUSINESS:
+                $this->createRestaurantContent($dynamicContent, $contentData);
+                break;
+            case DynamicContent::TYPE_PROFILE:
+                $this->createProfileContent($dynamicContent, $contentData);
+                break;
+        }
+    }
+
+    private function createGiftContent($dynamicContent, $contentData)
+    {
+        $giftData = $contentData['data'];
+        
+        $gift = \App\Models\ContentGift::updateOrCreate(
+            ['dynamic_content_id' => $dynamicContent->id],
+            [
+                'message' => $giftData['gift_message'] ?? 'Un regalo especial para ti',
+                'sender_name' => $giftData['sender'] ?? 'Carlos',
+                'recipient_name' => $giftData['recipient'] ?? 'María',
+            ]
+        );
+
+        // Actualizar referencia en DynamicContent
+        $dynamicContent->update(['gift_id' => $gift->id]);
+    }
+
+    private function createRestaurantContent($dynamicContent, $contentData)
+    {
+        $menuData = $contentData['data'];
+        
+        // Crear el business como restaurante
+        $business = \App\Models\ContentBusiness::updateOrCreate(
+            ['dynamic_content_id' => $dynamicContent->id],
+            [
+                'business_name' => $dynamicContent->title,
+                'description' => $dynamicContent->description,
+                'business_type' => 'restaurant',
+                'contact_phone' => $menuData['restaurant_info']['phone'] ?? null,
+                'address' => $menuData['restaurant_info']['address'] ?? null,
+                'operating_hours' => $menuData['restaurant_info']['hours'] ? 
+                    ['general' => $menuData['restaurant_info']['hours']] : null,
+                'catalog_enabled' => true,
+            ]
+        );
+
+        // Crear elementos del menú como productos
+        if (isset($menuData['menu_items'])) {
+            foreach ($menuData['menu_items'] as $item) {
+                \App\Models\ContentProduct::updateOrCreate(
+                    [
+                        'dynamic_content_id' => $dynamicContent->id,
+                        'content_business_id' => $business->id,
+                        'name' => $item['name']
+                    ],
+                    [
+                        'price' => $item['price'],
+                        'currency' => $item['currency'] ?? 'USD',
+                        'brand' => $item['category'], // Categoría como brand
+                        'specifications' => $item['description'],
+                        'stock' => 999, // Stock alto para items de menú
+                        'in_stock' => true,
+                    ]
+                );
+            }
+        }
+    }
+
+    private function createProfileContent($dynamicContent, $contentData)
+    {
+        $profileData = $contentData['data'];
+        
+        $profile = \App\Models\ContentProfile::updateOrCreate(
+            ['dynamic_content_id' => $dynamicContent->id],
+            [
+                'name' => explode(' - ', $dynamicContent->title)[0] ?? 'Ana García',
+                'profession' => 'Diseñadora Gráfica',
+                'bio' => $profileData['bio'] ?? $dynamicContent->description,
+                'contact_email' => $profileData['contact_info']['email'] ?? null,
+                'contact_phone' => $profileData['contact_info']['phone'] ?? null,
+                'contact_website' => $profileData['contact_info']['website'] ?? null,
+                'location' => 'Santiago, Chile',
+                'color_palette' => [
+                    'primary' => '#3B82F6',
+                    'secondary' => '#8B5CF6',
+                    'accent' => '#F59E0B'
+                ],
+            ]
+        );
+
+        // Crear habilidades
+        if (isset($profileData['skills'])) {
+            foreach ($profileData['skills'] as $skillName) {
+                \App\Models\ContentSkill::updateOrCreate(
+                    [
+                        'dynamic_content_id' => $dynamicContent->id,
+                        'name' => $skillName
+                    ],
+                    [
+                        'level' => 8, // Nivel de 1-10, 8 = avanzado
+                        'category' => 'technical',
+                    ]
+                );
+            }
+        }
+
+        // Crear enlaces sociales
+        if (isset($profileData['social_links'])) {
+            foreach ($profileData['social_links'] as $link) {
+                \App\Models\ContentSocialLink::updateOrCreate(
+                    [
+                        'dynamic_content_id' => $dynamicContent->id,
+                        'platform' => $link['platform']
+                    ],
+                    [
+                        'url' => $link['url'],
+                        'username' => basename($link['url']),
+                    ]
+                );
+            }
+        }
+
+        // Actualizar referencia en DynamicContent
+        $dynamicContent->update(['profile_id' => $profile->id]);
     }
 }

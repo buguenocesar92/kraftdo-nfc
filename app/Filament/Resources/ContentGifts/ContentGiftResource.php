@@ -29,6 +29,11 @@ class ContentGiftResource extends Resource
     {
         return 'Regalos';
     }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
 
     public static function canViewAny(): bool
     {

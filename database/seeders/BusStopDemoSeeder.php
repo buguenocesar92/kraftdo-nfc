@@ -15,20 +15,29 @@ class BusStopDemoSeeder extends Seeder
 {
     public function run(): void
     {
+        // Verificar si ya existe para evitar duplicados
+        if (NfcToken::where('name', 'Paradero Plaza de Armas - Machalí')->exists()) {
+            $this->command->info('BusStopDemo data already exists, skipping...');
+            return;
+        }
+
         // Usar el Super Administrator existente
-        $user = User::find(1); // Super Administrator
+        $user = User::where('email', 'admin@kraftdo-nfc.com')->first();
         if (!$user) {
-            $user = User::where('email', 'admin@kraftdo-nfc.com')->first();
+            $user = User::whereHas('roles', function($query) {
+                $query->where('name', 'Super Admin');
+            })->first();
         }
         
         if (!$user) {
-            throw new \Exception('Super Administrator no encontrado. Asegúrate de que existe un usuario con ID 1 o email admin@kraftdo-nfc.com');
+            throw new \Exception('Super Administrator no encontrado. Ejecuta AdminUserSeeder primero.');
         }
 
         // Crear token NFC para el paradero
-        $nfcToken = NfcToken::create([
+        $nfcToken = NfcToken::updateOrCreate(
+            ['name' => 'Paradero Plaza de Armas - Machalí'],
+            [
             'user_id' => $user->id,
-            'name' => 'Paradero Plaza de Armas - Machalí',
             'content_type' => 'BUS_STOP', // Nuevo tipo de contenido
             'customization_plan' => 'BASIC',
             'purchase_price' => 8000, // 8.000 CLP
@@ -36,27 +45,101 @@ class BusStopDemoSeeder extends Seeder
             'purchased_at' => now()->subDays(15),
             'purchase_notes' => 'Token NFC para paradero de demostración',
             'is_active' => true,
-        ]);
+            ]
+        );
 
         // Crear contenido dinámico para el paradero
-        $dynamicContent = DynamicContent::create([
+        $dynamicContent = DynamicContent::updateOrCreate(
+            ['title' => 'Paradero Plaza de Armas'],
+            [
             'content_id' => DynamicContent::generateUniqueContentId('BUS_STOP'),
             'type' => 'BUS_STOP',
             'title' => 'Paradero Plaza de Armas',
             'description' => 'Paradero principal ubicado en el corazón de Machalí, conecta con todas las líneas de transporte público de la comuna.',
             'image_url' => null,
-            'data' => [],
+            'data' => [
+                'stop_info' => [
+                    'stop_code' => 'PAR001',
+                    'stop_type' => 'Principal',
+                    'accessibility' => true,
+                    'shelter' => true,
+                    'bench' => true,
+                    'lighting' => true,
+                    'real_time_info' => false
+                ],
+                'location' => [
+                    'address' => 'Plaza de Armas s/n, Machalí, Región de O\'Higgins',
+                    'coordinates' => [
+                        'latitude' => -34.1833,
+                        'longitude' => -70.6500
+                    ],
+                    'comuna' => 'Machalí',
+                    'region' => 'O\'Higgins',
+                    'zone' => 'Centro'
+                ],
+                'municipality_info' => [
+                    'name' => 'Machalí',
+                    'mayor' => 'Juan Carlos Cerna',
+                    'population' => 33000,
+                    'website' => 'https://www.machali.cl',
+                    'tourism_office' => '+56 72 229 4400',
+                    'description' => 'Machalí, comuna cordillerana de la Región de O\'Higgins, conocida por su belleza natural, tradiciones mineras y cercanía a centros de esquí.'
+                ],
+                'transport_operators' => [
+                    [
+                        'name' => 'Buses Machalí',
+                        'contact' => '+56 72 229 1234',
+                        'routes' => ['1', '4'],
+                        'website' => 'https://busesmachali.cl'
+                    ],
+                    [
+                        'name' => 'Transporte Cordillera',
+                        'contact' => '+56 72 229 5678',
+                        'routes' => ['2'],
+                        'website' => 'https://transportecordillera.cl'
+                    ],
+                    [
+                        'name' => 'Buses Rancagua Express',
+                        'contact' => '+56 72 230 9999',
+                        'routes' => ['3'],
+                        'website' => 'https://rancaguaexpress.cl'
+                    ]
+                ],
+                'nearby_services' => [
+                    'Banco Estado - 50m',
+                    'Farmacia Cruz Verde - 100m',
+                    'Municipalidad de Machalí - 20m',
+                    'Correos de Chile - 80m',
+                    'Café Central - 30m',
+                    'Comisaría Machalí - 150m'
+                ],
+                'tourism_info' => [
+                    'nearby_attractions' => [
+                        'Cristo de la Hacienda - 5km',
+                        'Termas de Cauquenes - 15km',
+                        'Centro de Esquí El Arpa - 25km',
+                        'Reserva Nacional Río de los Cipreses - 30km'
+                    ],
+                    'local_events' => [
+                        'Festival de la Vendimia - Marzo',
+                        'Fiestas Patrias - Septiembre',
+                        'Festival de Invierno - Julio'
+                    ]
+                ]
+            ],
             'is_active' => true,
             'status' => 'published',
             'published_at' => now(),
             'user_id' => $user->id,
             'nfc_token_id' => $nfcToken->id,
-        ]);
+            ]
+        );
 
         // Crear el paradero
-        $busStop = BusStop::create([
+        $busStop = BusStop::updateOrCreate(
+            ['stop_id' => 'PAR001'],
+            [
             'dynamic_content_id' => $dynamicContent->id,
-            'stop_id' => 'PAR001',
             'name' => 'Plaza de Armas',
             'address' => 'Plaza de Armas s/n, Machalí, Región de O\'Higgins',
             'latitude' => -34.1833,
@@ -66,7 +149,8 @@ class BusStopDemoSeeder extends Seeder
             'municipality_description' => 'Machalí, comuna cordillerana de la Región de O\'Higgins, conocida por su belleza natural, tradiciones mineras y cercanía a centros de esquí. Puerta de entrada a la cordillera de Los Andes.',
             'municipality_website' => 'https://www.machali.cl',
             'is_active' => true,
-        ]);
+            ]
+        );
 
         // Sincronizar referencia en DynamicContent
         $dynamicContent->update(['bus_stop_id' => $busStop->id]);
@@ -109,9 +193,12 @@ class BusStopDemoSeeder extends Seeder
         ];
 
         foreach ($routes as $routeData) {
-            $route = Route::create(array_merge($routeData, [
-                'bus_stop_id' => $busStop->id,
-            ]));
+            $route = Route::updateOrCreate(
+                ['route_number' => $routeData['route_number'], 'bus_stop_id' => $busStop->id],
+                array_merge($routeData, [
+                    'bus_stop_id' => $busStop->id,
+                ])
+            );
 
             // Crear horarios para cada ruta
             $schedules = [
@@ -154,7 +241,10 @@ class BusStopDemoSeeder extends Seeder
             ];
 
             foreach ($schedules as $scheduleData) {
-                Schedule::create($scheduleData);
+                Schedule::updateOrCreate(
+                    ['route_id' => $scheduleData['route_id'], 'day_of_week' => $scheduleData['day_of_week']],
+                    $scheduleData
+                );
             }
         }
 
@@ -235,9 +325,12 @@ class BusStopDemoSeeder extends Seeder
         ];
 
         foreach ($utilityPhones as $phoneData) {
-            UtilityPhone::create(array_merge($phoneData, [
-                'bus_stop_id' => $busStop->id,
-            ]));
+            UtilityPhone::updateOrCreate(
+                ['phone_number' => $phoneData['phone_number'], 'bus_stop_id' => $busStop->id],
+                array_merge($phoneData, [
+                    'bus_stop_id' => $busStop->id,
+                ])
+            );
         }
 
         $this->command->info('✅ Seeder del Paradero Plaza de Armas ejecutado correctamente');

@@ -18,16 +18,21 @@ class ContentMultimediaResource extends Resource
 {
     protected static ?string $model = ContentMultimedia::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhoto;
     
     public static function getNavigationGroup(): ?string
     {
-        return 'Contenido Especializado';
+        return 'Configuración';
     }
     
     public static function getNavigationLabel(): string
     {
         return 'Multimedia';
+    }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
     }
 
     public static function canViewAny(): bool

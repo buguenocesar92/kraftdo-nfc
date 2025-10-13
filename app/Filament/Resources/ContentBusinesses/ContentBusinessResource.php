@@ -22,12 +22,17 @@ class ContentBusinessResource extends Resource
     
     public static function getNavigationGroup(): ?string
     {
-        return 'Contenido NFC';
+        return 'Contenido Especializado';
     }
     
     public static function getNavigationLabel(): string
     {
-        return 'Negocios/Ferias';
+        return 'Negocios & Restaurantes';
+    }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 3;
     }
 
     public static function canViewAny(): bool

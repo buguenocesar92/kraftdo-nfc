@@ -24,7 +24,7 @@ class DynamicContentResource extends Resource
     
     public static function getNavigationGroup(): ?string
     {
-        return 'Contenido Principal';
+        return 'Gestión NFC';
     }
     
     public static function getNavigationLabel(): string
@@ -34,7 +34,7 @@ class DynamicContentResource extends Resource
     
     public static function getNavigationSort(): ?int
     {
-        return 1;
+        return 2;
     }
 
     public static function canViewAny(): bool

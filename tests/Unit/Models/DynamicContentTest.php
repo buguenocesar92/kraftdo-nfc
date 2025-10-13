@@ -137,7 +137,7 @@ describe('DynamicContent Model', function () {
 
     test('obtiene constantes de tipos', function () {
         expect(DynamicContent::TYPE_GIFT)->toBe('GIFT')
-            ->and(DynamicContent::TYPE_MENU)->toBe('MENU')
+            ->and(DynamicContent::TYPE_BUSINESS)->toBe('BUSINESS')
             ->and(DynamicContent::TYPE_PROFILE)->toBe('PROFILE')
             ->and(DynamicContent::TYPE_TOURIST)->toBe('TOURIST')
             ->and(DynamicContent::TYPE_EVENT)->toBe('EVENT')

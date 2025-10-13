@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $content->title }} - Información de Transporte</title>
-    <meta name="description" content="{{ $content->description }}">
+    <title>{{ $content->title ?? 'Paradero' }} - Información de Transporte</title>
+    <meta name="description" content="{{ $content->description ?? 'Información del paradero' }}">
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>

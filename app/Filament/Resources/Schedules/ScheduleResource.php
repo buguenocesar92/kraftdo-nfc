@@ -18,7 +18,22 @@ class ScheduleResource extends Resource
 {
     protected static ?string $model = Schedule::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Transporte Público';
+    }
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Horarios';
+    }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 3;
+    }
 
     public static function form(Schema $schema): Schema
     {

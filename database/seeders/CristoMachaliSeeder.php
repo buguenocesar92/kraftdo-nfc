@@ -16,21 +16,29 @@ class CristoMachaliSeeder extends Seeder
      */
     public function run(): void
     {
+        // Verificar si ya existe para evitar duplicados
+        if (NfcToken::where('name', 'Cristo de la Hacienda - Token Turístico')->exists()) {
+            $this->command->info('CristoMachali data already exists, skipping...');
+            return;
+        }
+
         // Usar el Super Administrator existente
-        $user = User::find(1); // Super Administrator
+        $user = User::where('email', 'admin@kraftdo-nfc.com')->first();
         if (!$user) {
-            // Fallback: buscar por email si no existe ID 1
-            $user = User::where('email', 'admin@kraftdo-nfc.com')->first();
+            $user = User::whereHas('roles', function($query) {
+                $query->where('name', 'Super Admin');
+            })->first();
         }
         
         if (!$user) {
-            throw new \Exception('Super Administrator no encontrado. Asegúrate de que existe un usuario con ID 1 o email admin@kraftdo-nfc.com');
+            throw new \Exception('Super Administrator no encontrado. Ejecuta AdminUserSeeder primero.');
         }
 
         // Crear el token NFC físico primero (UUID se genera automáticamente)
-        $nfcToken = NfcToken::create([
+        $nfcToken = NfcToken::updateOrCreate(
+            ['name' => 'Cristo de la Hacienda - Token Turístico'],
+            [
             'user_id' => $user->id,
-            'name' => 'Cristo de la Hacienda - Token Turístico',
             'content_type' => DynamicContent::TYPE_TOURIST,
             'customization_plan' => 'premium',
             'purchase_price' => 15000, // 15.000 CLP
@@ -38,27 +46,104 @@ class CristoMachaliSeeder extends Seeder
             'purchased_at' => now()->subDays(30),
             'purchase_notes' => 'Token para demostración del Cristo de Machalí',
             'is_active' => true,
-        ]);
+            ]
+        );
 
         // Crear el contenido dinámico principal
-        $dynamicContent = DynamicContent::create([
+        $dynamicContent = DynamicContent::updateOrCreate(
+            ['title' => 'Cristo de la Hacienda'],
+            [
             'content_id' => DynamicContent::generateUniqueContentId(DynamicContent::TYPE_TOURIST),
             'type' => DynamicContent::TYPE_TOURIST,
             'title' => 'Cristo de la Hacienda',
             'description' => 'Santuario de peregrinación envuelto en una fascinante leyenda de los años 1920. Un lugar sagrado donde la fe popular y la historia se encuentran en el corazón de Machalí.',
             'image_url' => null,
-            'data' => [],
+            'data' => [
+                'location_info' => [
+                    'type' => 'Patrimonio Religioso',
+                    'category' => 'Santuario de peregrinación',
+                    'elevation' => 950, // metros sobre el nivel del mar
+                    'area' => '2.5 hectáreas',
+                    'established' => '1920-1930',
+                    'significance' => 'Centro de turismo religioso regional'
+                ],
+                'geographical' => [
+                    'address' => 'Camino La Hacienda, Machalí, Región de O\'Higgins, Chile',
+                    'coordinates' => [
+                        'latitude' => -34.183751,
+                        'longitude' => -70.6609645
+                    ],
+                    'comuna' => 'Machalí',
+                    'region' => 'O\'Higgins',
+                    'distance_from_santiago' => '80 km',
+                    'access_road' => 'Camino pavimentado hasta 2km del sitio'
+                ],
+                'legend_history' => [
+                    'main_character' => 'Vicente Sanfuentes Moreno',
+                    'period' => '1920-1930',
+                    'legend_type' => 'Pacto con el demonio',
+                    'resolution' => 'Instalación de cruz protectora',
+                    'cultural_impact' => 'Alto - Parte de la memoria local',
+                    'media_coverage' => 'TVN "Pactos y Maleficios" 2005'
+                ],
+                'religious_significance' => [
+                    'pilgrimage_type' => 'Permanente todo el año',
+                    'main_devotions' => [
+                        'Peticiones de milagros',
+                        'Agradecimientos',
+                        'Ofrendas votivas'
+                    ],
+                    'feast_days' => [
+                        'Semana Santa',
+                        'Festividades marianas',
+                        'Fiestas locales religiosas'
+                    ],
+                    'pilgrim_origin' => [
+                        'Región de O\'Higgins',
+                        'Región Metropolitana',
+                        'Regiones vecinas'
+                    ]
+                ],
+                'visitor_info' => [
+                    'best_season' => 'Todo el año',
+                    'peak_months' => ['Marzo', 'Abril', 'Septiembre', 'Octubre'],
+                    'recommended_duration' => '2-3 horas',
+                    'difficulty_level' => 'Fácil a moderado',
+                    'recommended_items' => [
+                        'Protector solar',
+                        'Agua',
+                        'Calzado cómodo',
+                        'Abrigo (temporada fría)'
+                    ]
+                ],
+                'accessibility' => [
+                    'parking' => 'Disponible',
+                    'restrooms' => 'Básicos',
+                    'food_services' => 'Limitados - traer provisiones',
+                    'wheelchair_access' => 'Parcial',
+                    'public_transport' => 'No disponible - vehículo propio recomendado'
+                ],
+                'cultural_value' => [
+                    'heritage_type' => 'Inmaterial',
+                    'storytelling_tradition' => 'Oral local',
+                    'tourism_category' => 'Religioso y cultural',
+                    'educational_value' => 'Historia local y folclore',
+                    'photographic_potential' => 'Alto - paisajes y arquitectura'
+                ]
+            ],
             'is_active' => true,
             'status' => 'published',
             'published_at' => now(),
             'user_id' => $user->id,
             'nfc_token_id' => $nfcToken->id, // Vincular con el token NFC
-        ]);
+            ]
+        );
 
         // Crear el contenido turístico específico
-        $tourist = ContentTourist::create([
+        $tourist = ContentTourist::updateOrCreate(
+            ['location_name' => 'Cristo de la Hacienda'],
+            [
             'dynamic_content_id' => $dynamicContent->id,
-            'location_name' => 'Cristo de la Hacienda',
             'place_type' => 'patrimonio',
             'location_address' => 'Camino La Hacienda, Machalí, Región de O\'Higgins, Chile',
             'history' => '<h2>Historia del Cristo de la Hacienda</h2>
@@ -135,7 +220,8 @@ class CristoMachaliSeeder extends Seeder
                 'español' => 'Nativo',
                 'inglés' => 'Básico (guías locales)',
             ],
-        ]);
+            ]
+        );
 
         // Sincronizar referencias en DynamicContent
         $dynamicContent->update(['tourist_id' => $tourist->id]);
@@ -269,11 +355,14 @@ class CristoMachaliSeeder extends Seeder
         ];
 
         foreach ($nearbySpots as $spotData) {
-            NearbySpot::create(array_merge($spotData, [
-                'content_tourist_id' => $tourist->id,
-                'sort_order' => 0,
-                'is_active' => true,
-            ]));
+            NearbySpot::updateOrCreate(
+                ['name' => $spotData['name'], 'content_tourist_id' => $tourist->id],
+                array_merge($spotData, [
+                    'content_tourist_id' => $tourist->id,
+                    'sort_order' => 0,
+                    'is_active' => true,
+                ])
+            );
         }
 
         $this->command->info('✅ Seeder del Cristo de la Hacienda ejecutado correctamente');

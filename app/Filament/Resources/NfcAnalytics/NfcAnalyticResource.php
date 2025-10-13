@@ -18,7 +18,22 @@ class NfcAnalyticResource extends Resource
 {
     protected static ?string $model = NfcAnalytic::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChartBar;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Analytics';
+    }
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Analíticas NFC';
+    }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
 
     public static function canViewAny(): bool
     {

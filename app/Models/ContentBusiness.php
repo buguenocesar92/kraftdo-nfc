@@ -287,4 +287,81 @@ class ContentBusiness extends Model
 
         return false;
     }
+
+    // ========== MÉTODOS ESPECÍFICOS PARA RESTAURANTES ==========
+
+    /**
+     * Verificar si es un restaurante
+     */
+    public function isRestaurant(): bool
+    {
+        return $this->business_type === 'restaurant';
+    }
+
+    /**
+     * Obtener items del menú (productos) organizados por categoría
+     */
+    public function getMenuItemsByCategoryAttribute(): array
+    {
+        if (!$this->isRestaurant()) {
+            return [];
+        }
+
+        return $this->directProducts()
+            ->orderBy('brand') // brand contiene la categoría para restaurantes
+            ->orderBy('name')
+            ->get()
+            ->groupBy('brand')
+            ->toArray();
+    }
+
+    /**
+     * Obtener items del menú disponibles
+     */
+    public function getAvailableMenuItemsAttribute()
+    {
+        if (!$this->isRestaurant()) {
+            return collect();
+        }
+
+        return $this->directProducts()
+            ->where('in_stock', true)
+            ->orderBy('brand')
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * Obtener categorías del menú únicas
+     */
+    public function getMenuCategoriesAttribute(): array
+    {
+        if (!$this->isRestaurant()) {
+            return [];
+        }
+
+        return $this->directProducts()
+            ->distinct('brand')
+            ->pluck('brand')
+            ->filter()
+            ->sort()
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * Scope para filtrar solo restaurantes
+     */
+    public function scopeRestaurants($query)
+    {
+        return $query->where('business_type', 'restaurant');
+    }
+
+    /**
+     * Scope para filtrar negocios (no restaurantes)
+     */
+    public function scopeBusinesses($query)
+    {
+        return $query->where('business_type', '!=', 'restaurant')->orWhereNull('business_type');
+    }
 }

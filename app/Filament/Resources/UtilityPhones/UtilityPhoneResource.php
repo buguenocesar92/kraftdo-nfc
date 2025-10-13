@@ -18,7 +18,22 @@ class UtilityPhoneResource extends Resource
 {
     protected static ?string $model = UtilityPhone::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhone;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Transporte Público';
+    }
+    
+    public static function getNavigationLabel(): string
+    {
+        return 'Teléfonos Útiles';
+    }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 4;
+    }
 
     public static function form(Schema $schema): Schema
     {

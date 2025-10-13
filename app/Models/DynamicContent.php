@@ -52,16 +52,15 @@ class DynamicContent extends Model
         'published_snapshot' => 'array',
     ];
 
-    // Constantes para tipos de contenido existentes
-    public const TYPE_MENU = 'MENU';
+    // Constantes para tipos de contenido
     public const TYPE_GIFT = 'GIFT';
-    public const TYPE_TOURIST = 'TOURIST';
+    public const TYPE_BUSINESS = 'BUSINESS'; // Incluye negocios y restaurantes
     public const TYPE_PROFILE = 'PROFILE';
+    public const TYPE_TOURIST = 'TOURIST';
     public const TYPE_EVENT = 'EVENT';
     public const TYPE_PRODUCT = 'PRODUCT';
     
-    // Constantes para futuros tipos de contenido
-    public const TYPE_BUSINESS = 'BUSINESS';
+    // Constantes para tipos especializados
     public const TYPE_BUS_STOP = 'BUS_STOP';
     public const TYPE_PORTFOLIO = 'PORTFOLIO';
     public const TYPE_CONTACT = 'CONTACT';
@@ -73,15 +72,14 @@ class DynamicContent extends Model
     public const TYPES = [
         // Tipos activos (con recursos especializados)
         self::TYPE_GIFT => '🎁 Regalo Personalizado',
-        self::TYPE_PROFILE => '👤 Perfil Personal',
-        self::TYPE_MENU => '🍽️ Menú de Restaurante',
+        self::TYPE_PROFILE => '👤 Perfil Personal', 
+        self::TYPE_BUSINESS => '🏢 Negocio / Restaurante',
+        self::TYPE_TOURIST => '🗺️ Información Turística',
         self::TYPE_EVENT => '📅 Evento',
         self::TYPE_PRODUCT => '📦 Producto',
-        self::TYPE_TOURIST => '🗺️ Información Turística',
         
-        // Tipos futuros (listos para implementar)
-        self::TYPE_BUSINESS => '🏢 Tarjeta de Negocio',
-        self::TYPE_BUS_STOP => '🚏 Paradero de Transporte',
+        // Tipos especializados
+        self::TYPE_BUS_STOP => '🚌 Paradero de Transporte',
         self::TYPE_PORTFOLIO => '🎨 Portafolio Creativo',
         self::TYPE_CONTACT => '📞 Información de Contacto',
         self::TYPE_MULTIMEDIA => '📱 Contenido Multimedia',
@@ -98,11 +96,11 @@ class DynamicContent extends Model
         return [
             self::TYPE_GIFT => self::TYPES[self::TYPE_GIFT],
             self::TYPE_PROFILE => self::TYPES[self::TYPE_PROFILE],
-            self::TYPE_MENU => self::TYPES[self::TYPE_MENU],
-            self::TYPE_EVENT => self::TYPES[self::TYPE_EVENT],
-            self::TYPE_PRODUCT => self::TYPES[self::TYPE_PRODUCT],
             self::TYPE_BUSINESS => self::TYPES[self::TYPE_BUSINESS],
             self::TYPE_TOURIST => self::TYPES[self::TYPE_TOURIST],
+            self::TYPE_EVENT => self::TYPES[self::TYPE_EVENT],
+            self::TYPE_PRODUCT => self::TYPES[self::TYPE_PRODUCT],
+            self::TYPE_BUS_STOP => self::TYPES[self::TYPE_BUS_STOP],
         ];
     }
 
@@ -158,10 +156,11 @@ class DynamicContent extends Model
     }
 
     /**
-     * Relación con contenido menu
+     * Relación con contenido menu (DEPRECATED - usar business() en su lugar)
      */
     public function menu()
     {
+        // DEPRECATED: MENU type migrated to BUSINESS type
         return $this->hasOne(ContentMenu::class);
     }
 
@@ -250,9 +249,7 @@ class DynamicContent extends Model
             case self::TYPE_GIFT:
                 if ($this->gift) $updates['gift_id'] = $this->gift->id;
                 break;
-            case self::TYPE_MENU:
-                if ($this->menu) $updates['menu_id'] = $this->menu->id;
-                break;
+            // MENU type deprecated - now handled by BUSINESS type
             case self::TYPE_PROFILE:
                 if ($this->profile) $updates['profile_id'] = $this->profile->id;
                 break;
@@ -309,10 +306,11 @@ class DynamicContent extends Model
     }
 
     /**
-     * Crear o actualizar contenido menu
+     * Crear o actualizar contenido menu (DEPRECATED - usar createOrUpdateBusiness en su lugar)
      */
     public function createOrUpdateMenu(array $data): ContentMenu
     {
+        // DEPRECATED: MENU type migrated to BUSINESS type
         $menu = $this->menu ?? new ContentMenu(['dynamic_content_id' => $this->id]);
         $menu->fill($data);
         $menu->save();
@@ -408,13 +406,13 @@ class DynamicContent extends Model
     public static function getTypeColors(string $type): array
     {
         return match($type) {
-            self::TYPE_MENU => ['primary' => '#FF6B35', 'secondary' => '#FFF3E0'],
             self::TYPE_GIFT => ['primary' => '#E91E63', 'secondary' => '#FCE4EC'],
-            self::TYPE_TOURIST => ['primary' => '#2196F3', 'secondary' => '#E3F2FD'],
+            self::TYPE_BUSINESS => ['primary' => '#FF6B35', 'secondary' => '#FFF3E0'], // Incluye restaurantes
             self::TYPE_PROFILE => ['primary' => '#9C27B0', 'secondary' => '#F3E5F5'],
+            self::TYPE_TOURIST => ['primary' => '#2196F3', 'secondary' => '#E3F2FD'],
             self::TYPE_EVENT => ['primary' => '#FF9800', 'secondary' => '#FFF3E0'],
             self::TYPE_PRODUCT => ['primary' => '#4CAF50', 'secondary' => '#E8F5E8'],
-            self::TYPE_BUSINESS => ['primary' => '#673AB7', 'secondary' => '#F3E5F5'],
+            self::TYPE_BUS_STOP => ['primary' => '#673AB7', 'secondary' => '#F3E5F5'],
             default => ['primary' => '#607D8B', 'secondary' => '#ECEFF1'],
         };
     }
@@ -425,13 +423,13 @@ class DynamicContent extends Model
     public static function getTypeIcon(string $type): string
     {
         return match($type) {
-            self::TYPE_MENU => '🍽️',
             self::TYPE_GIFT => '🎁',
-            self::TYPE_TOURIST => '🗺️',
+            self::TYPE_BUSINESS => '🏢', // Incluye restaurantes 🍽️
             self::TYPE_PROFILE => '👤',
+            self::TYPE_TOURIST => '🗺️',
             self::TYPE_EVENT => '📅',
             self::TYPE_PRODUCT => '📦',
-            self::TYPE_BUSINESS => '🏢',
+            self::TYPE_BUS_STOP => '🚌',
             default => '📄',
         };
     }
@@ -568,26 +566,22 @@ class DynamicContent extends Model
     }
 
     /**
-     * Obtener platos del menú como colección (solo para tipo MENU)
+     * Obtener items del menú como colección (para negocios tipo restaurante)
+     * @deprecated Use ContentBusiness->directProducts() instead
      */
     public function getDishesAttribute()
     {
-        if ($this->type !== self::TYPE_MENU) {
+        // Método deprecado - usar ContentBusiness->directProducts() en su lugar
+        if ($this->type !== self::TYPE_BUSINESS) {
             return collect([]);
         }
 
-        // Usar datos normalizados o fallback a JSON para retrocompatibilidad
-        $items = $this->menu?->menu_items ?? $this->data['menu_items'] ?? [];
-        
-        return collect($items)->map(function ($item, $index) {
-            return (object) array_merge($item, [
-                'id' => $index,
-                'index' => $index,
-                'content_id' => $this->id,
-                'created_at' => $this->created_at,
-                'updated_at' => $this->updated_at,
-            ]);
-        });
+        // Intentar obtener productos de la relación business
+        if ($this->business && $this->business->isRestaurant()) {
+            return $this->business->directProducts;
+        }
+
+        return collect([]);
     }
 
     /**

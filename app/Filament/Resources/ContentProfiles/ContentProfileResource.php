@@ -18,7 +18,7 @@ class ContentProfileResource extends Resource
 {
     protected static ?string $model = ContentProfile::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUser;
     
     public static function getNavigationGroup(): ?string
     {
@@ -28,6 +28,11 @@ class ContentProfileResource extends Resource
     public static function getNavigationLabel(): string
     {
         return 'Perfiles';
+    }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 2;
     }
 
     public static function canViewAny(): bool

@@ -76,7 +76,7 @@ class DynamicContentForm
                             ->helperText('Ingresa una URL por línea')
                             ->columnSpanFull(),
                     ])
-                    ->visible(fn (Get $get) => in_array($get('type'), [DynamicContent::TYPE_GIFT, DynamicContent::TYPE_MENU, DynamicContent::TYPE_PROFILE, DynamicContent::TYPE_EVENT, DynamicContent::TYPE_PRODUCT, DynamicContent::TYPE_TOURIST]))
+                    ->visible(fn (Get $get) => in_array($get('type'), [DynamicContent::TYPE_GIFT, DynamicContent::TYPE_BUSINESS, DynamicContent::TYPE_PROFILE, DynamicContent::TYPE_EVENT, DynamicContent::TYPE_PRODUCT, DynamicContent::TYPE_TOURIST]))
                     ->columns(2)
                     ->collapsible(),
 
@@ -110,7 +110,7 @@ class DynamicContentForm
                             ->helperText('Formato JSON: [{"name": "Plato", "price": 15.99, "description": "Descripción"}]')
                             ->columnSpanFull(),
                     ])
-                    ->visible(fn (Get $get) => $get('type') === DynamicContent::TYPE_MENU)
+                    ->visible(fn (Get $get) => $get('type') === DynamicContent::TYPE_BUSINESS)
                     ->columns(2)
                     ->collapsible(),
 

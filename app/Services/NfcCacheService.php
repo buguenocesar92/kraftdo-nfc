@@ -71,6 +71,20 @@ class NfcCacheService
                         $query->where('is_active', true)->orderBy('distance_km')->orderBy('sort_order');
                     }])->where('dynamic_content_id', $dynamicContent->id)->first()
                 ];
+            } elseif ($token->content_type === 'MENU') {
+                // MENU is deprecated - treating as BUSINESS (restaurantes)
+                $contentData = [
+                    'business' => ContentBusiness::with(['socialLinks' => function($query) {
+                        $query->ordered();
+                    }, 'directProducts'])->where('dynamic_content_id', $dynamicContent->id)->first(),
+                    'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
+                        $query->orderBy('sort_order')->orderBy('id');
+                    }])->where('dynamic_content_id', $dynamicContent->id)->first()
+                ];
+            } elseif ($token->content_type === 'BUS_STOP') {
+                $contentData = [
+                    'bus_stop' => \App\Models\BusStop::with(['routes.schedules', 'utilityPhones'])->where('dynamic_content_id', $dynamicContent->id)->first()
+                ];
             }
 
             return [

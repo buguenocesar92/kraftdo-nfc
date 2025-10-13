@@ -26,13 +26,6 @@ return [
             'resource_class' => 'App\\Filament\\Resources\\ContentProfiles\\ContentProfileResource',
             'model_class' => 'App\\Models\\ContentProfile',
         ],
-        'MENU' => [
-            'label' => '🍽️ Menú de Restaurante',
-            'description' => 'Menús de restaurantes con multimedia',
-            'has_resource' => true,
-            'resource_class' => 'App\\Filament\\Resources\\ContentMenus\\ContentMenuResource',
-            'model_class' => 'App\\Models\\ContentMenu',
-        ],
         'EVENT' => [
             'label' => '📅 Evento',
             'description' => 'Información de eventos con multimedia',
@@ -55,11 +48,18 @@ return [
             'model_class' => 'App\\Models\\ContentTourist',
         ],
         'BUSINESS' => [
-            'label' => '🏢 Negocio/Feria',
-            'description' => 'Tarjetas de presentación para negocios y ferias',
+            'label' => '🏢 Negocio / Restaurante',
+            'description' => 'Negocios, restaurantes y ferias con catálogos de productos',
             'has_resource' => true,
             'resource_class' => 'App\\Filament\\Resources\\ContentBusinesses\\ContentBusinessResource',
             'model_class' => 'App\\Models\\ContentBusiness',
+        ],
+        'BUS_STOP' => [
+            'label' => '🚌 Paradero de Transporte',
+            'description' => 'Información de paraderos de transporte público',
+            'has_resource' => true,
+            'resource_class' => 'App\\Filament\\Resources\\BusStops\\BusStopResource',
+            'model_class' => 'App\\Models\\BusStop',
         ],
     ],
 

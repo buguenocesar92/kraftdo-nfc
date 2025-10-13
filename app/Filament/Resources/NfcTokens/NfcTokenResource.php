@@ -25,6 +25,16 @@ class NfcTokenResource extends Resource
     protected static ?string $pluralModelLabel = 'Chips NFC';
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Gestión NFC';
+    }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 1;
+    }
 
     public static function canViewAny(): bool
     {

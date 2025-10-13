@@ -31,7 +31,26 @@ class ContentBusinessesTable
                     ->label('Tipo')
                     ->searchable()
                     ->badge()
-                    ->color('info'),
+                    ->formatStateUsing(function ($state) {
+                        return match($state) {
+                            'restaurant' => '🍽️ Restaurante',
+                            'retail' => '🛍️ Retail',
+                            'service' => '🔧 Servicios',
+                            'fair' => '🎪 Feria',
+                            'other' => '📋 Otro',
+                            default => $state ?? 'Sin tipo'
+                        };
+                    })
+                    ->color(function ($state) {
+                        return match($state) {
+                            'restaurant' => 'warning',
+                            'retail' => 'success',
+                            'service' => 'info',
+                            'fair' => 'primary',
+                            'other' => 'gray',
+                            default => 'gray'
+                        };
+                    }),
                     
                 TextColumn::make('contact_phone')
                     ->label('Teléfono')

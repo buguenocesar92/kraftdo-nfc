@@ -36,12 +36,25 @@ class ContentBusinessForm
                             ->required()
                             ->columnSpanFull(),
                         
+                        Select::make('business_type')
+                            ->label('Tipo de Negocio')
+                            ->options([
+                                'restaurant' => '🍽️ Restaurante / Café',
+                                'retail' => '🛍️ Tienda / Retail',
+                                'service' => '🔧 Servicios',
+                                'fair' => '🎪 Feria / Evento',
+                                'other' => '📋 Otro',
+                            ])
+                            ->default('other')
+                            ->required()
+                            ->columnSpan(1),
+
                         TextInput::make('business_name')
                             ->label('Nombre del Negocio')
                             ->placeholder('Ej: Café Central, Feria de Artesanías...')
                             ->required()
                             ->maxLength(255)
-                            ->columnSpanFull(),
+                            ->columnSpan(1),
                         
                         Textarea::make('description')
                             ->label('Descripción')

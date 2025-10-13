@@ -73,7 +73,7 @@
                     $typeIcons = [
                         'PROFILE' => ['icon' => 'fas fa-user', 'color' => 'kraftdo-blue', 'name' => 'Perfiles'],
                         'GIFT' => ['icon' => 'fas fa-gift', 'color' => 'kraftdo-green', 'name' => 'Regalos'],
-                        'MENU' => ['icon' => 'fas fa-utensils', 'color' => 'kraftdo-lime', 'name' => 'Menús'],
+                        'BUSINESS' => ['icon' => 'fas fa-building', 'color' => 'kraftdo-lime', 'name' => 'Negocios'],
                         'TOURIST' => ['icon' => 'fas fa-map-marked-alt', 'color' => 'kraftdo-blue', 'name' => 'Turístico'],
                         'EVENT' => ['icon' => 'fas fa-calendar-alt', 'color' => 'kraftdo-green', 'name' => 'Eventos'],
                         'PRODUCT' => ['icon' => 'fas fa-box', 'color' => 'kraftdo-lime', 'name' => 'Productos'],

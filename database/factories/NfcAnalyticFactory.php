@@ -14,7 +14,7 @@ class NfcAnalyticFactory extends Factory
     {
         return [
             'content_id' => $this->faker->uuid,
-            'content_type' => $this->faker->randomElement(['GIFT', 'PROFILE', 'MENU']),
+            'content_type' => $this->faker->randomElement(['GIFT', 'PROFILE', 'BUSINESS']),
             'nfc_token_id' => NfcToken::factory(),
             'ip_address' => $this->faker->ipv4,
             'user_agent' => $this->faker->userAgent,

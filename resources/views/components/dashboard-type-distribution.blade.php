@@ -17,10 +17,11 @@
                 $typeIcons = [
                     'PROFILE' => ['icon' => 'fas fa-user', 'color' => 'kraftdo-gradient', 'name' => 'Perfil'],
                     'GIFT' => ['icon' => 'fas fa-gift', 'color' => 'kraftdo-gradient-reverse', 'name' => 'Regalo'],
-                    'MENU' => ['icon' => 'fas fa-utensils', 'color' => 'kraftdo-gradient', 'name' => 'Menú'],
+                    'BUSINESS' => ['icon' => 'fas fa-building', 'color' => 'kraftdo-gradient', 'name' => 'Negocio'],
                     'TOURIST' => ['icon' => 'fas fa-map-marked-alt', 'color' => 'kraftdo-gradient-reverse', 'name' => 'Turístico'],
                     'EVENT' => ['icon' => 'fas fa-calendar-alt', 'color' => 'kraftdo-gradient', 'name' => 'Evento'],
                     'PRODUCT' => ['icon' => 'fas fa-box', 'color' => 'kraftdo-gradient-reverse', 'name' => 'Producto'],
+                    'BUS_STOP' => ['icon' => 'fas fa-bus', 'color' => 'kraftdo-gradient', 'name' => 'Paradero'],
                 ];
             @endphp
             

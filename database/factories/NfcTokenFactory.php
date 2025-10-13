@@ -16,7 +16,7 @@ class NfcTokenFactory extends Factory
             'token_id' => $this->faker->uuid,
             'user_id' => User::factory(),
             'name' => $this->faker->words(3, true),
-            'content_type' => $this->faker->randomElement(['GIFT', 'PROFILE', 'MENU', 'EVENT']),
+            'content_type' => $this->faker->randomElement(['GIFT', 'PROFILE', 'BUSINESS', 'EVENT']),
             'customization_plan' => $this->faker->randomElement(['BASIC', 'STANDARD', 'PREMIUM', 'DELUXE']),
             'purchase_price' => $this->faker->randomFloat(2, 10, 500),
             'purchased_at' => $this->faker->dateTimeBetween('-1 year'),

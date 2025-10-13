@@ -18,7 +18,9 @@ class ContentMenuResource extends Resource
 {
     protected static ?string $model = ContentMenu::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
+    
+    protected static bool $shouldRegisterNavigation = false;
     
     public static function getNavigationGroup(): ?string
     {
@@ -28,6 +30,11 @@ class ContentMenuResource extends Resource
     public static function getNavigationLabel(): string
     {
         return 'Restaurantes';
+    }
+    
+    public static function getNavigationSort(): ?int
+    {
+        return 4;
     }
 
     public static function canViewAny(): bool

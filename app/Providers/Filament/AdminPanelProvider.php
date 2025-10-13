@@ -59,8 +59,10 @@ class AdminPanelProvider extends PanelProvider
             ->favicon(asset('favicon.ico'))
             ->loginRouteSlug('login')
             ->navigationGroups([
-                'Contenido NFC',
-                'Usuarios & Roles',
+                'Gestión NFC',
+                'Contenido Especializado',
+                'Transporte Público',
+                'Administración',
                 'Analytics',
                 'Configuración'
             ]);

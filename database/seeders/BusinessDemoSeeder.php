@@ -17,7 +17,13 @@ class BusinessDemoSeeder extends Seeder
      */
     public function run(): void
     {
-        // Buscar un usuario admin existente o usar el primero disponible
+        // Verificar si ya existe para evitar duplicados
+        if (NfcToken::where('name', 'Puesto Artesanías La Feria')->exists()) {
+            $this->command->info('BusinessDemo data already exists, skipping...');
+            return;
+        }
+
+        // Usar el Super Administrator existente
         $user = User::where('email', 'admin@kraftdo-nfc.com')->first();
         if (!$user) {
             $user = User::whereHas('roles', function($query) {
@@ -26,49 +32,104 @@ class BusinessDemoSeeder extends Seeder
         }
         
         if (!$user) {
-            // Usar el primer usuario disponible o crear uno
-            $user = User::first();
-            if (!$user) {
-                $user = User::factory()->create([
-                    'name' => 'Demo Admin',
-                    'email' => 'demo@kraftdo.com',
-                ]);
-                // Asignar rol de Super Admin
-                $user->assignRole('Super Admin');
-            }
+            throw new \Exception('Super Administrator no encontrado. Ejecuta AdminUserSeeder primero.');
         }
 
         // Crear token NFC para el negocio
-        $token = NfcToken::create([
-            'token_id' => Str::uuid(),
+        $token = NfcToken::updateOrCreate(
+            ['name' => 'Puesto Artesanías La Feria'],
+            [
             'user_id' => $user->id,
-            'name' => 'Puesto Artesanías La Feria',
             'content_type' => 'BUSINESS',
             'customization_plan' => 'PREMIUM',
             'purchase_price' => 25000.00,
             'purchase_currency' => 'CLP',
             'purchased_at' => now(),
             'is_active' => true,
-        ]);
+            ]
+        );
 
         // Crear contenido dinámico
-        $dynamicContent = DynamicContent::create([
+        $dynamicContent = DynamicContent::updateOrCreate(
+            ['title' => 'Artesanías La Feria - Productos Locales'],
+            [
             'user_id' => $user->id,
             'nfc_token_id' => $token->id,
-            'content_id' => Str::uuid(),
+            'content_id' => DynamicContent::generateUniqueContentId('BUSINESS'),
             'type' => 'BUSINESS',
-            'title' => 'Artesanías La Feria - Productos Locales',
             'description' => 'Puesto artesanal con productos únicos hechos a mano',
             'status' => 'published',
             'is_active' => true,
             'published_at' => now(),
-            'data' => [], // Se castea automáticamente a JSON
-        ]);
+            'data' => [
+                'business_info' => [
+                    'category' => 'Artesanías y Productos Locales',
+                    'established_year' => 2008,
+                    'owner_name' => 'Rosa Martinez',
+                    'employees_count' => 3,
+                    'specialties' => [
+                        'Tejidos tradicionales mapuches',
+                        'Cerámica artesanal',
+                        'Productos naturales de la región',
+                        'Miel de ulmo',
+                        'Mermeladas caseras'
+                    ]
+                ],
+                'location' => [
+                    'address' => 'Feria Franklin, Local 45, Santiago, Región Metropolitana',
+                    'coordinates' => [
+                        'latitude' => -33.4569,
+                        'longitude' => -70.6483
+                    ],
+                    'neighborhood' => 'Franklin',
+                    'comuna' => 'Santiago',
+                    'region' => 'Metropolitana'
+                ],
+                'contact_info' => [
+                    'phone' => '+56 9 8765 4321',
+                    'email' => 'artesanias@laferia.cl',
+                    'website' => 'https://artesaniaslaferia.cl',
+                    'whatsapp' => '+56987654321',
+                    'instagram' => '@artesanias_laferia',
+                    'facebook' => 'ArtesaniasLaFeria'
+                ],
+                'business_hours' => [
+                    'monday' => 'Cerrado',
+                    'tuesday' => '10:00-18:00',
+                    'wednesday' => '10:00-18:00',
+                    'thursday' => '10:00-18:00',
+                    'friday' => '10:00-19:00',
+                    'saturday' => '09:00-19:00',
+                    'sunday' => '09:00-17:00'
+                ],
+                'services' => [
+                    'Venta de productos artesanales',
+                    'Tejidos a mano personalizados',
+                    'Envío a domicilio en Santiago',
+                    'Pago con tarjeta y transferencia',
+                    'Embalaje especial para regalos',
+                    'Asesoría en decoración rústica'
+                ],
+                'payment_methods' => [
+                    'Efectivo',
+                    'Tarjetas de débito/crédito',
+                    'Transferencia bancaria',
+                    'Mercado Pago'
+                ],
+                'certifications' => [
+                    'Sello de Origen Indígena',
+                    'Producto Artesanal Certificado',
+                    'Comercio Justo'
+                ]
+            ]
+            ]
+        );
 
         // Crear negocio con datos completos
-        $business = ContentBusiness::create([
+        $business = ContentBusiness::updateOrCreate(
+            ['business_name' => 'Artesanías La Feria'],
+            [
             'dynamic_content_id' => $dynamicContent->id,
-            'business_name' => 'Artesanías La Feria',
             'description' => 'Puesto artesanal con productos únicos hechos a mano por artesanos locales. Especialistas en tejidos, cerámica y productos naturales de la región. Más de 15 años llevando tradición y calidad a nuestros clientes.',
             'business_type' => 'feria',
             'logo_url' => null, // Se puede agregar después
@@ -106,7 +167,8 @@ class BusinessDemoSeeder extends Seeder
                 'secondary' => '#D2691E',  // Naranja terracota  
                 'accent' => '#228B22'      // Verde bosque
             ],
-        ]);
+            ]
+        );
 
         // Crear productos para el catálogo
         $products = [
@@ -179,10 +241,13 @@ class BusinessDemoSeeder extends Seeder
         ];
 
         foreach ($products as $productData) {
-            ContentProduct::create(array_merge($productData, [
-                'dynamic_content_id' => $dynamicContent->id,
-                'content_business_id' => $business->id,
-            ]));
+            ContentProduct::updateOrCreate(
+                ['sku' => $productData['sku']],
+                array_merge($productData, [
+                    'dynamic_content_id' => $dynamicContent->id,
+                    'content_business_id' => $business->id,
+                ])
+            );
         }
 
         $this->command->info('✅ Creado puesto de feria "Artesanías La Feria" con:');

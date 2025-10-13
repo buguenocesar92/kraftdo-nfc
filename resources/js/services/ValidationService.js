@@ -297,10 +297,10 @@ class ValidationService {
                     'data[contact_info][email]': ['email']
                 };
                 
-            case 'MENU':
+            case 'BUSINESS':
                 return {
                     ...baseRules,
-                    'data[restaurant_info][name]': ['required']
+                    'data[business_info][name]': ['required']
                 };
                 
             case 'EVENT':

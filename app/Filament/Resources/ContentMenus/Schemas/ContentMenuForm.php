@@ -18,7 +18,7 @@ class ContentMenuForm
                     ->relationship(
                         name: 'dynamicContent', 
                         titleAttribute: 'title',
-                        modifyQueryUsing: fn ($query) => $query->where('type', DynamicContent::TYPE_MENU)
+                        modifyQueryUsing: fn ($query) => $query->where('type', DynamicContent::TYPE_BUSINESS)->where('content_businesses.business_type', 'restaurant')
                     )
                     ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->title} - {$record->content_id}")
                     ->searchable()
