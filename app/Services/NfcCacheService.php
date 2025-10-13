@@ -7,6 +7,7 @@ use App\Models\ContentGift;
 use App\Models\ContentProfile;
 use App\Models\ContentBusiness;
 use App\Models\ContentTourist;
+use App\Models\ContentBusinessGroup;
 use App\Models\ContentMultimedia;
 use App\Models\NfcAnalytic;
 use Illuminate\Support\Facades\Cache;
@@ -84,6 +85,19 @@ class NfcCacheService
             } elseif ($token->content_type === 'BUS_STOP') {
                 $contentData = [
                     'bus_stop' => \App\Models\BusStop::with(['routes.schedules', 'utilityPhones'])->where('dynamic_content_id', $dynamicContent->id)->first()
+                ];
+            } elseif ($token->content_type === 'BUSINESS_GROUP') {
+                $businessGroup = ContentBusinessGroup::with([
+                    'memberBusinesses' => function($query) {
+                        $query->wherePivot('member_status', 'active')
+                              ->orderByPivot('display_order')
+                              ->orderByPivot('is_featured', 'desc');
+                    },
+                    'memberBusinesses.dynamicContent'
+                ])->where('dynamic_content_id', $dynamicContent->id)->first();
+                
+                $contentData = [
+                    'business_group' => $businessGroup
                 ];
             }
 

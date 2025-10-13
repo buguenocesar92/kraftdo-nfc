@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -363,5 +364,34 @@ class ContentBusiness extends Model
     public function scopeBusinesses($query)
     {
         return $query->where('business_type', '!=', 'restaurant')->orWhereNull('business_type');
+    }
+
+    /**
+     * Relación many-to-many con grupos de negocios
+     */
+    public function businessGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            ContentBusinessGroup::class,
+            'business_group_members',
+            'member_business_id',
+            'business_group_id'
+        )
+        ->withPivot([
+            'display_order',
+            'is_featured',
+            'custom_position',
+            'member_status',
+            'member_notes'
+        ])
+        ->withTimestamps();
+    }
+
+    /**
+     * Alias para businessGroups() - para compatibilidad con Filament
+     */
+    public function contentBusinessGroups(): BelongsToMany
+    {
+        return $this->businessGroups();
     }
 }

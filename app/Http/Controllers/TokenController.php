@@ -61,7 +61,7 @@ class TokenController extends Controller
         \Log::info('Token content type: ' . $token->content_type);
 
         // Validaciones rápidas en memoria
-        if (!in_array($token->content_type, ['GIFT', 'PROFILE', 'BUSINESS', 'TOURIST', 'MENU', 'BUS_STOP'])) { // MENU kept for legacy compatibility
+        if (!in_array($token->content_type, ['GIFT', 'PROFILE', 'BUSINESS', 'TOURIST', 'MENU', 'BUS_STOP', 'BUSINESS_GROUP'])) { // MENU kept for legacy compatibility
             if ($request->expectsJson()) {
                 return response()->json([
                     'data' => null,
@@ -341,6 +341,27 @@ class TokenController extends Controller
 </html>';
             
             return $html;
+            
+        } elseif ($token->content_type === 'BUSINESS_GROUP') {
+            $businessGroupData = $content['business_group'] ?? null;
+            
+            $data = [
+                'token' => $token,
+                'dynamicContent' => $dynamicContent,
+                'content' => $dynamicContent, // Alias para compatibilidad
+                'businessGroup' => $businessGroupData,
+                'memberBusinesses' => $businessGroupData ? $businessGroupData->activeMemberBusinesses : collect([]),
+            ];
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'data' => $data,
+                    'message' => 'Token obtenido exitosamente',
+                    'status' => 200
+                ]);
+            }
+
+            return view('token.business-group', $data);
         }
     }
 
