@@ -43,7 +43,21 @@ class MemberBusinessesRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                AttachAction::make(),
+                AttachAction::make()
+                    ->preloadRecordSelect()
+                    ->recordSelectOptionsQuery(function ($query) {
+                        // Obtener IDs de negocios ya asignados a cualquier grupo
+                        $assignedBusinessIds = \DB::table('business_group_members')
+                            ->pluck('member_business_id')
+                            ->unique();
+                        
+                        // Filtrar solo negocios no asignados - especificar tabla para evitar ambigüedad
+                        return $query->whereNotIn('content_businesses.id', $assignedBusinessIds);
+                    })
+                    ->recordSelectSearchColumns(['business_name', 'contact_phone'])
+                    ->modalHeading('Attach Business')
+                    ->modalDescription('Select businesses that are not already part of any business group')
+                    ->successNotificationTitle('Business attached successfully'),
             ])
             ->recordActions([
                 EditAction::make()
