@@ -14,10 +14,24 @@ return new class extends Migration
     {
         // Check if we're using MySQL to use ENUM, otherwise use string
         if (DB::getDriverName() === 'mysql') {
-            // MySQL: Actualizar el enum en nfc_tokens para incluir BUSINESS_GROUP
-            DB::statement("ALTER TABLE nfc_tokens MODIFY COLUMN content_type ENUM('GIFT', 'TOURIST', 'PROFILE', 'EVENT', 'PRODUCT', 'BUSINESS', 'BUS_STOP', 'BUSINESS_GROUP') NULL COMMENT 'Tipo de contenido del chip'");
+            // STEP 1: Migrate existing incompatible data first
+            // Convert any 'MENU' types to 'BUSINESS' (legacy data migration)
+            DB::table('nfc_tokens')->where('content_type', 'MENU')->update(['content_type' => 'BUSINESS']);
+            DB::table('dynamic_content')->where('type', 'MENU')->update(['type' => 'BUSINESS']);
             
-            // MySQL: Actualizar el enum en dynamic_content para incluir BUSINESS_GROUP
+            // Convert any other potential legacy types
+            $legacyTypes = ['RESTAURANT', 'FOOD', 'DINING'];
+            foreach ($legacyTypes as $legacyType) {
+                DB::table('nfc_tokens')->where('content_type', $legacyType)->update(['content_type' => 'BUSINESS']);
+                DB::table('dynamic_content')->where('type', $legacyType)->update(['type' => 'BUSINESS']);
+            }
+            
+            // STEP 2: First change to a temporary broader ENUM to include both old and new values
+            DB::statement("ALTER TABLE nfc_tokens MODIFY COLUMN content_type ENUM('GIFT', 'TOURIST', 'PROFILE', 'EVENT', 'PRODUCT', 'BUSINESS', 'BUS_STOP', 'BUSINESS_GROUP', 'MENU', 'RESTAURANT', 'FOOD', 'DINING') NULL COMMENT 'Tipo de contenido del chip'");
+            DB::statement("ALTER TABLE dynamic_content MODIFY COLUMN type ENUM('GIFT', 'TOURIST', 'PROFILE', 'EVENT', 'PRODUCT', 'BUSINESS', 'BUS_STOP', 'BUSINESS_GROUP', 'MENU', 'RESTAURANT', 'FOOD', 'DINING') NOT NULL COMMENT 'Tipo de contenido dinámico'");
+            
+            // STEP 3: Now safely change to the final ENUM with only valid values
+            DB::statement("ALTER TABLE nfc_tokens MODIFY COLUMN content_type ENUM('GIFT', 'TOURIST', 'PROFILE', 'EVENT', 'PRODUCT', 'BUSINESS', 'BUS_STOP', 'BUSINESS_GROUP') NULL COMMENT 'Tipo de contenido del chip'");
             DB::statement("ALTER TABLE dynamic_content MODIFY COLUMN type ENUM('GIFT', 'TOURIST', 'PROFILE', 'EVENT', 'PRODUCT', 'BUSINESS', 'BUS_STOP', 'BUSINESS_GROUP') NOT NULL COMMENT 'Tipo de contenido dinámico'");
         } else {
             // SQLite and other databases: Change to string type
