@@ -11,32 +11,35 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('content_businesses', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('dynamic_content_id')->constrained('dynamic_content')->onDelete('cascade');
-            $table->string('business_name');
-            $table->text('description')->nullable();
-            $table->string('business_type')->nullable();
-            $table->string('logo_url')->nullable();
-            $table->string('contact_phone')->nullable();
-            $table->string('contact_email')->nullable();
-            $table->string('contact_website')->nullable();
-            $table->text('address')->nullable();
-            $table->string('google_maps_url')->nullable();
-            $table->string('google_reviews_url')->nullable();
-            $table->string('google_place_id')->nullable();
-            $table->string('instagram_url')->nullable();
-            $table->string('facebook_url')->nullable();
-            $table->string('whatsapp_number')->nullable();
-            $table->json('operating_hours')->nullable();
-            $table->json('services')->nullable();
-            $table->boolean('catalog_enabled')->default(false);
-            $table->json('color_palette')->nullable();
-            $table->timestamps();
-            
-            $table->unique('dynamic_content_id');
-            $table->index('business_type');
-        });
+        // Check if table already exists to avoid conflicts in production
+        if (!Schema::hasTable('content_businesses')) {
+            Schema::create('content_businesses', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('dynamic_content_id')->constrained('dynamic_content')->onDelete('cascade');
+                $table->string('business_name');
+                $table->text('description')->nullable();
+                $table->string('business_type')->nullable();
+                $table->string('logo_url')->nullable();
+                $table->string('contact_phone')->nullable();
+                $table->string('contact_email')->nullable();
+                $table->string('contact_website')->nullable();
+                $table->text('address')->nullable();
+                $table->string('google_maps_url')->nullable();
+                $table->string('google_reviews_url')->nullable();
+                $table->string('google_place_id')->nullable();
+                $table->string('instagram_url')->nullable();
+                $table->string('facebook_url')->nullable();
+                $table->string('whatsapp_number')->nullable();
+                $table->json('operating_hours')->nullable();
+                $table->json('services')->nullable();
+                $table->boolean('catalog_enabled')->default(false);
+                $table->json('color_palette')->nullable();
+                $table->timestamps();
+                
+                $table->unique('dynamic_content_id');
+                $table->index('business_type');
+            });
+        }
     }
 
     /**

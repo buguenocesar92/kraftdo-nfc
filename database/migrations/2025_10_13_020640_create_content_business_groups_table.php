@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('content_business_groups', function (Blueprint $table) {
+        // Check if table already exists to avoid conflicts in production
+        if (!Schema::hasTable('content_business_groups')) {
+            Schema::create('content_business_groups', function (Blueprint $table) {
             $table->id();
             $table->foreignId('dynamic_content_id')->constrained('dynamic_content')->onDelete('cascade');
             $table->string('group_name'); // "Ecoparque Machalí"
@@ -31,7 +33,8 @@ return new class extends Migration
             $table->timestamps();
             
             $table->index(['group_type', 'is_active']);
-        });
+            });
+        }
     }
 
     /**

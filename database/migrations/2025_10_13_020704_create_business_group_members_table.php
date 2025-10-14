@@ -11,7 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('business_group_members', function (Blueprint $table) {
+        // Check if table already exists to avoid conflicts in production
+        if (!Schema::hasTable('business_group_members')) {
+            Schema::create('business_group_members', function (Blueprint $table) {
             $table->id();
             $table->foreignId('business_group_id')->constrained('content_business_groups')->onDelete('cascade');
             $table->foreignId('member_business_id')->constrained('content_businesses')->onDelete('cascade');
@@ -26,7 +28,8 @@ return new class extends Migration
             $table->unique(['business_group_id', 'member_business_id'], 'unique_group_member');
             $table->index(['business_group_id', 'display_order']);
             $table->index(['member_business_id']);
-        });
+            });
+        }
     }
 
     /**
