@@ -44,12 +44,21 @@ class ContentProduct extends Model
         // Auto-crear DynamicContent cuando se crea un ContentProduct
         static::creating(function ($product) {
             if (!$product->dynamic_content_id) {
+                // Crear NFC Token
+                $nfcToken = \App\Models\NfcToken::create([
+                    'name' => 'Token: ' . $product->name,
+                    'content_type' => 'PRODUCT',
+                    'user_id' => auth()->id() ?? 1,
+                    'is_active' => true,
+                ]);
+
                 $dynamicContent = DynamicContent::create([
                     'content_id' => Str::uuid()->toString(),
                     'type' => DynamicContent::TYPE_PRODUCT,
                     'title' => $product->name,
                     'description' => $product->specifications ?? 'Producto de ' . ($product->brand ?? 'marca'),
                     'data' => [],
+                    'nfc_token_id' => $nfcToken->id,
                     'is_active' => true,
                     'status' => 'published',
                     'user_id' => auth()->id() ?? 1,

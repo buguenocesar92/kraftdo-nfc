@@ -53,12 +53,21 @@ class ContentBusinessGroup extends Model
         // Auto-crear DynamicContent cuando se crea un ContentBusinessGroup
         static::creating(function ($businessGroup) {
             if (!$businessGroup->dynamic_content_id) {
+                // Crear NFC Token
+                $nfcToken = \App\Models\NfcToken::create([
+                    'name' => 'Token: ' . $businessGroup->group_name,
+                    'content_type' => 'BUSINESS_GROUP',
+                    'user_id' => auth()->id() ?? 1,
+                    'is_active' => true,
+                ]);
+
                 $dynamicContent = DynamicContent::create([
                     'content_id' => Str::uuid()->toString(),
                     'type' => DynamicContent::TYPE_BUSINESS_GROUP,
                     'title' => $businessGroup->group_name,
                     'description' => $businessGroup->description,
                     'data' => [], // Campo requerido
+                    'nfc_token_id' => $nfcToken->id,
                     'is_active' => $businessGroup->is_active ?? true,
                     'status' => 'published',
                     'user_id' => auth()->id() ?? 1,

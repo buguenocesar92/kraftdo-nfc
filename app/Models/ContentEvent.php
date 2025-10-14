@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class ContentEvent extends Model
 {
@@ -18,12 +19,9 @@ class ContentEvent extends Model
         'event_start_date',
         'event_end_date',
         'event_organizer',
-        'event_description',
-        'event_capacity',
-        'registration_required',
-        'registration_url',
         'ticket_price',
-        'contact_info',
+        'ticket_currency',
+        'registration_url',
     ];
 
     protected $casts = [
@@ -33,6 +31,52 @@ class ContentEvent extends Model
         'ticket_price' => 'decimal:2',
         'contact_info' => 'array',
     ];
+
+    /**
+     * Boot del modelo
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Auto-crear DynamicContent cuando se crea un ContentEvent
+        static::creating(function ($event) {
+            if (!$event->dynamic_content_id) {
+                // Crear NFC Token
+                $nfcToken = \App\Models\NfcToken::create([
+                    'name' => 'Token: Evento ' . ($event->event_organizer ?? 'Sin nombre'),
+                    'content_type' => 'EVENT',
+                    'user_id' => auth()->id() ?? 1,
+                    'is_active' => true,
+                ]);
+
+                $dynamicContent = DynamicContent::create([
+                    'content_id' => Str::uuid()->toString(),
+                    'type' => DynamicContent::TYPE_EVENT,
+                    'title' => 'Evento: ' . ($event->event_organizer ?? 'Sin nombre'),
+                    'description' => 'Evento en ' . ($event->event_location ?? 'ubicación por definir'),
+                    'data' => [],
+                    'nfc_token_id' => $nfcToken->id,
+                    'is_active' => true,
+                    'status' => 'published',
+                    'user_id' => auth()->id() ?? 1,
+                ]);
+                
+                $event->dynamic_content_id = $dynamicContent->id;
+            }
+        });
+
+        // Actualizar DynamicContent cuando se actualiza el evento
+        static::updated(function ($event) {
+            if ($event->dynamicContent) {
+                $event->dynamicContent->update([
+                    'title' => 'Evento: ' . ($event->event_organizer ?? 'Sin nombre'),
+                    'description' => 'Evento en ' . ($event->event_location ?? 'ubicación por definir'),
+                    'is_active' => $event->isActive(),
+                ]);
+            }
+        });
+    }
 
     /**
      * Relación con el contenido dinámico padre
