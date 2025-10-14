@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class ContentBusinessGroup extends Model
 {
@@ -36,6 +37,48 @@ class ContentBusinessGroup extends Model
         'amenities' => 'array',
         'is_active' => 'boolean',
     ];
+
+    protected $appends = [
+        'logo_public_url',
+        'banner_public_url',
+    ];
+
+    /**
+     * Boot del modelo
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Auto-crear DynamicContent cuando se crea un ContentBusinessGroup
+        static::creating(function ($businessGroup) {
+            if (!$businessGroup->dynamic_content_id) {
+                $dynamicContent = DynamicContent::create([
+                    'content_id' => Str::uuid()->toString(),
+                    'type' => DynamicContent::TYPE_BUSINESS_GROUP,
+                    'title' => $businessGroup->group_name,
+                    'description' => $businessGroup->description,
+                    'data' => [], // Campo requerido
+                    'is_active' => $businessGroup->is_active ?? true,
+                    'status' => 'published',
+                    'user_id' => auth()->id() ?? 1,
+                ]);
+                
+                $businessGroup->dynamic_content_id = $dynamicContent->id;
+            }
+        });
+
+        // Actualizar DynamicContent cuando se actualiza el grupo
+        static::updated(function ($businessGroup) {
+            if ($businessGroup->dynamicContent) {
+                $businessGroup->dynamicContent->update([
+                    'title' => $businessGroup->group_name,
+                    'description' => $businessGroup->description,
+                    'is_active' => $businessGroup->is_active,
+                ]);
+            }
+        });
+    }
 
     /**
      * Relación con el contenido dinámico padre
@@ -131,26 +174,37 @@ class ContentBusinessGroup extends Model
     /**
      * Accessors & Mutators
      */
-    public function getLogoUrlAttribute($value)
+    
+    /**
+     * Get the full URL for logo (for frontend display)
+     */
+    public function getLogoPublicUrlAttribute(): ?string
     {
-        if (!$value) return null;
+        $logoUrl = $this->getOriginal('logo_url');
         
-        if (str_starts_with($value, 'http')) {
-            return $value;
+        if (!$logoUrl) return null;
+        
+        if (str_starts_with($logoUrl, 'http')) {
+            return $logoUrl;
         }
         
-        return url("storage/{$value}");
+        return url("storage/{$logoUrl}");
     }
 
-    public function getBannerImageAttribute($value)
+    /**
+     * Get the full URL for banner (for frontend display)
+     */
+    public function getBannerPublicUrlAttribute(): ?string
     {
-        if (!$value) return null;
+        $bannerImage = $this->getOriginal('banner_image');
         
-        if (str_starts_with($value, 'http')) {
-            return $value;
+        if (!$bannerImage) return null;
+        
+        if (str_starts_with($bannerImage, 'http')) {
+            return $bannerImage;
         }
         
-        return url("storage/{$value}");
+        return url("storage/{$bannerImage}");
     }
 
     /**
@@ -211,9 +265,16 @@ class ContentBusinessGroup extends Model
      */
     public function setOperatingHoursAttribute($value)
     {
-        if (is_string($value) && !empty($value)) {
+        if (is_array($value)) {
+            $this->attributes['operating_hours'] = json_encode($value);
+        } elseif (is_string($value) && !empty($value)) {
+            // Verificar si ya es JSON válido
             $decoded = json_decode($value, true);
-            $this->attributes['operating_hours'] = $decoded ? json_encode($decoded) : null;
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $this->attributes['operating_hours'] = $value;
+            } else {
+                $this->attributes['operating_hours'] = json_encode($value);
+            }
         } else {
             $this->attributes['operating_hours'] = $value;
         }
@@ -224,9 +285,15 @@ class ContentBusinessGroup extends Model
      */
     public function setLocationCoordinatesAttribute($value)
     {
-        if (is_string($value) && !empty($value)) {
+        if (is_array($value)) {
+            $this->attributes['location_coordinates'] = json_encode($value);
+        } elseif (is_string($value) && !empty($value)) {
             $decoded = json_decode($value, true);
-            $this->attributes['location_coordinates'] = $decoded ? json_encode($decoded) : null;
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $this->attributes['location_coordinates'] = $value;
+            } else {
+                $this->attributes['location_coordinates'] = json_encode($value);
+            }
         } else {
             $this->attributes['location_coordinates'] = $value;
         }
@@ -237,9 +304,15 @@ class ContentBusinessGroup extends Model
      */
     public function setAmenitiesAttribute($value)
     {
-        if (is_string($value) && !empty($value)) {
+        if (is_array($value)) {
+            $this->attributes['amenities'] = json_encode($value);
+        } elseif (is_string($value) && !empty($value)) {
             $decoded = json_decode($value, true);
-            $this->attributes['amenities'] = $decoded ? json_encode($decoded) : null;
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $this->attributes['amenities'] = $value;
+            } else {
+                $this->attributes['amenities'] = json_encode($value);
+            }
         } else {
             $this->attributes['amenities'] = $value;
         }

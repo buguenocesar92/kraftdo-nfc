@@ -17,11 +17,12 @@ class ContentBusinessGroupForm
     {
         return $schema
             ->components([
-                Select::make('dynamic_content_id')
-                    ->relationship('dynamicContent', 'title')
-                    ->searchable()
-                    ->required()
-                    ->label('Contenido Dinámico Asociado'),
+                // Campo oculto - se crea automáticamente
+                // Select::make('dynamic_content_id')
+                //     ->relationship('dynamicContent', 'title')
+                //     ->label('Contenido Dinámico Asociado')
+                //     ->disabled()
+                //     ->helperText('Se crea automáticamente con los datos del grupo'),
                 
                 TextInput::make('group_name')
                     ->required()
@@ -60,13 +61,31 @@ class ContentBusinessGroupForm
                     ->url()
                     ->label('Sitio Web'),
                 
-                TextInput::make('logo_url')
-                    ->url()
-                    ->label('URL del Logo'),
+                FileUpload::make('logo_url')
+                    ->image()
+                    ->label('Logo del Grupo')
+                    ->disk('public')
+                    ->directory('business-groups/logos')
+                    ->visibility('public')
+                    ->maxSize(2048)
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->imageResizeMode('cover')
+                    ->imageCropAspectRatio('1:1')
+                    ->imageResizeTargetWidth('400')
+                    ->imageResizeTargetHeight('400'),
                 
                 FileUpload::make('banner_image')
                     ->image()
-                    ->label('Imagen de Banner'),
+                    ->label('Imagen de Banner')
+                    ->disk('public')
+                    ->directory('business-groups/banners')
+                    ->visibility('public')
+                    ->maxSize(5120)
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                    ->imageResizeMode('cover')
+                    ->imageCropAspectRatio('16:9')
+                    ->imageResizeTargetWidth('1200')
+                    ->imageResizeTargetHeight('675'),
                 
                 Repeater::make('operating_hours')
                     ->label('Horarios de Operación')

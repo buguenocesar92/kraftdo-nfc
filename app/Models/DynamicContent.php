@@ -161,12 +161,13 @@ class DynamicContent extends Model
 
     /**
      * Relación con contenido menu (DEPRECATED - usar business() en su lugar)
+     * COMENTADO: La tabla content_menus fue eliminada
      */
-    public function menu()
-    {
-        // DEPRECATED: MENU type migrated to BUSINESS type
-        return $this->hasOne(ContentMenu::class);
-    }
+    // public function menu()
+    // {
+    //     // DEPRECATED: MENU type migrated to BUSINESS type
+    //     return $this->hasOne(ContentMenu::class);
+    // }
 
     /**
      * Relación con contenido profile
@@ -262,6 +263,9 @@ class DynamicContent extends Model
                 if ($this->gift) $updates['gift_id'] = $this->gift->id;
                 break;
             // MENU type deprecated - now handled by BUSINESS type
+            // case 'MENU': // DEPRECATED - tabla eliminada
+            //     if ($this->menu) $updates['menu_id'] = $this->menu->id;
+            //     break;
             case self::TYPE_PROFILE:
                 if ($this->profile) $updates['profile_id'] = $this->profile->id;
                 break;
@@ -322,19 +326,20 @@ class DynamicContent extends Model
 
     /**
      * Crear o actualizar contenido menu (DEPRECATED - usar createOrUpdateBusiness en su lugar)
+     * COMENTADO: La tabla content_menus fue eliminada
      */
-    public function createOrUpdateMenu(array $data): ContentMenu
-    {
-        // DEPRECATED: MENU type migrated to BUSINESS type
-        $menu = $this->menu ?? new ContentMenu(['dynamic_content_id' => $this->id]);
-        $menu->fill($data);
-        $menu->save();
-        
-        // Sincronizar referencia
-        $this->update(['menu_id' => $menu->id]);
-        
-        return $menu;
-    }
+    // public function createOrUpdateMenu(array $data): ContentMenu
+    // {
+    //     // DEPRECATED: MENU type migrated to BUSINESS type
+    //     $menu = $this->menu ?? new ContentMenu(['dynamic_content_id' => $this->id]);
+    //     $menu->fill($data);
+    //     $menu->save();
+    //     
+    //     // Sincronizar referencia
+    //     $this->update(['menu_id' => $menu->id]);
+    //     
+    //     return $menu;
+    // }
 
     /**
      * Crear o actualizar contenido profile

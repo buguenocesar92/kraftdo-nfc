@@ -93,7 +93,8 @@ class NfcCacheService
                               ->orderByPivot('display_order')
                               ->orderByPivot('is_featured', 'desc');
                     },
-                    'memberBusinesses.dynamicContent'
+                    'memberBusinesses.dynamicContent',
+                    'memberBusinesses.dynamicContent.nfcToken'
                 ])->where('dynamic_content_id', $dynamicContent->id)->first();
                 
                 $contentData = [

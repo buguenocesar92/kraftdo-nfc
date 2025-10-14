@@ -42,14 +42,25 @@ class EditDynamicContent extends EditRecord
             ];
         }
         
-        // Menu
-        if ($record->menu && $record->type === 'MENU') {
-            $data['menu'] = [
-                'restaurant_name' => $record->menu->restaurant_name,
-                'restaurant_phone' => $record->menu->restaurant_phone,
-                'restaurant_address' => $record->menu->restaurant_address,
-                'restaurant_hours' => $record->menu->restaurant_hours,
-                'menu_items' => $record->menu->menu_items ?? [],
+        // Menu (DEPRECATED - migrado a Business)
+        // if ($record->menu && $record->type === 'MENU') {
+        //     $data['menu'] = [
+        //         'restaurant_name' => $record->menu->restaurant_name,
+        //         'restaurant_phone' => $record->menu->restaurant_phone,
+        //         'restaurant_address' => $record->menu->restaurant_address,
+        //         'restaurant_hours' => $record->menu->restaurant_hours,
+        //         'menu_items' => $record->menu->menu_items ?? [],
+        //     ];
+        // }
+        
+        // Business (reemplaza a Menu)
+        if ($record->business && $record->type === 'BUSINESS') {
+            $data['business'] = [
+                'business_name' => $record->business->business_name,
+                'contact_phone' => $record->business->contact_phone,
+                'address' => $record->business->address,
+                'business_hours' => $record->business->business_hours,
+                'business_type' => $record->business->business_type,
             ];
         }
         

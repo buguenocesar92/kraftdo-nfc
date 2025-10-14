@@ -2,10 +2,12 @@
 
 namespace App\Filament\Resources\ContentBusinessGroups\RelationManagers;
 
+use App\Filament\Resources\ContentBusinesses\ContentBusinessResource;
 use Filament\Actions\AttachAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DetachAction;
 use Filament\Actions\DetachBulkAction;
+use Filament\Actions\EditAction;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
@@ -44,6 +46,8 @@ class MemberBusinessesRelationManager extends RelationManager
                 AttachAction::make(),
             ])
             ->recordActions([
+                EditAction::make()
+                    ->url(fn ($record) => ContentBusinessResource::getUrl('edit', ['record' => $record])),
                 DetachAction::make(),
             ])
             ->toolbarActions([

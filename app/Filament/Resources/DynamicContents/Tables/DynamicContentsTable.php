@@ -15,7 +15,7 @@ class DynamicContentsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn ($query) => $query->with(['multimedia', 'gift', 'menu', 'profile', 'event', 'product', 'tourist', 'socialLinks', 'skills']))
+            ->modifyQueryUsing(fn ($query) => $query->with(['multimedia', 'gift', 'profile', 'event', 'product', 'tourist', 'business', 'socialLinks', 'skills']))
             ->columns([
                 TextColumn::make('content_id')
                     ->searchable(),
@@ -46,10 +46,11 @@ class DynamicContentsTable
                                 }
                                 break;
                                 
-                            case 'MENU':
-                                if ($record->menu) {
-                                    if ($record->menu->restaurant_phone) $summary[] = "Tel: {$record->menu->restaurant_phone}";
-                                    if ($record->menu->menu_items) $summary[] = count($record->menu->menu_items) . " platos";
+                            case 'MENU': // DEPRECATED - tipo migrado a BUSINESS
+                            case 'BUSINESS':
+                                if ($record->business) {
+                                    if ($record->business->contact_phone) $summary[] = "Tel: {$record->business->contact_phone}";
+                                    if ($record->business->directProducts) $summary[] = $record->business->directProducts->count() . " productos";
                                 }
                                 break;
                                 

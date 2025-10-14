@@ -36,31 +36,12 @@ class ContentBusinessForm
                             ->required()
                             ->columnSpanFull(),
                         
-                        Select::make('business_type')
-                            ->label('Tipo de Negocio')
-                            ->options([
-                                'restaurant' => '🍽️ Restaurante / Café',
-                                'retail' => '🛍️ Tienda / Retail',
-                                'service' => '🔧 Servicios',
-                                'fair' => '🎪 Feria / Evento',
-                                'other' => '📋 Otro',
-                            ])
-                            ->default('other')
-                            ->required()
-                            ->columnSpan(1),
-
                         TextInput::make('business_name')
                             ->label('Nombre del Negocio')
                             ->placeholder('Ej: Café Central, Feria de Artesanías...')
                             ->required()
                             ->maxLength(255)
                             ->columnSpan(1),
-                        
-                        Textarea::make('description')
-                            ->label('Descripción')
-                            ->placeholder('Describe tu negocio, productos o servicios...')
-                            ->rows(4)
-                            ->columnSpanFull(),
                         
                         Select::make('business_type')
                             ->label('Tipo de Negocio')
@@ -78,7 +59,15 @@ class ContentBusinessForm
                                 'otro' => '🏢 Otro',
                             ])
                             ->searchable()
-                            ->required(),
+                            ->default('otro')
+                            ->required()
+                            ->columnSpan(1),
+                        
+                        Textarea::make('description')
+                            ->label('Descripción')
+                            ->placeholder('Describe tu negocio, productos o servicios...')
+                            ->rows(4)
+                            ->columnSpanFull(),
                         
                         FileUpload::make('logo_url')
                             ->label('Logo del Negocio')
@@ -218,6 +207,14 @@ class ContentBusinessForm
                         Repeater::make('directProducts')
                             ->relationship('directProducts')
                             ->label('Productos del Catálogo')
+                            ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $livewire): array {
+                                // Obtener el dynamic_content_id del registro actual del negocio
+                                $record = $livewire->getRecord();
+                                if ($record && $record->dynamic_content_id) {
+                                    $data['dynamic_content_id'] = $record->dynamic_content_id;
+                                }
+                                return $data;
+                            })
                             ->schema([
                                 TextInput::make('name')
                                     ->label('Nombre del Producto')
