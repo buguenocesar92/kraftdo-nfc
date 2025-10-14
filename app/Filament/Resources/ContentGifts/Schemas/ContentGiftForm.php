@@ -23,13 +23,31 @@ class ContentGiftForm
                             ->relationship(
                                 name: 'dynamicContent', 
                                 titleAttribute: 'title',
-                                modifyQueryUsing: fn ($query) => $query->where('type', DynamicContent::TYPE_GIFT)
-                                    ->whereIn('status', ['draft', 'published'])
+                                modifyQueryUsing: function ($query, $livewire) {
+                                    $query->where('type', DynamicContent::TYPE_GIFT)
+                                          ->whereIn('status', ['draft', 'published']);
+                                    
+                                    // Excluir DynamicContent ya asignados a otros ContentGift
+                                    $assignedIds = \App\Models\ContentGift::pluck('dynamic_content_id')->filter();
+                                    
+                                    // En modo edición, permitir el contenido actualmente asignado
+                                    if ($livewire->record) {
+                                        $assignedIds = $assignedIds->reject(fn($id) => $id === $livewire->record->dynamic_content_id);
+                                    }
+                                    
+                                    if ($assignedIds->isNotEmpty()) {
+                                        $query->whereNotIn('id', $assignedIds);
+                                    }
+                                    
+                                    return $query;
+                                }
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->title} - {$record->content_id}")
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->placeholder('Selecciona contenido dinámico disponible...')
+                            ->helperText('Solo se muestran contenidos tipo GIFT que no estén asignados a otros regalos')
                             ->columnSpanFull(),
                         TextInput::make('sender_name')
                             ->label('Nombre del remitente')

@@ -15,16 +15,18 @@ class ContentProductForm
     {
         return $schema
             ->components([
-                Select::make('dynamic_content_id')
-                    ->relationship(
-                        name: 'dynamicContent', 
-                        titleAttribute: 'title',
-                        modifyQueryUsing: fn ($query) => $query->where('type', DynamicContent::TYPE_PRODUCT)
-                    )
-                    ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->title} - {$record->content_id}")
-                    ->searchable()
-                    ->preload()
-                    ->required(),
+                // Campo oculto - se crea automáticamente
+                // Select::make('dynamic_content_id')
+                //     ->relationship('dynamicContent', 'title')
+                //     ->label('Contenido Dinámico Asociado')
+                //     ->disabled()
+                //     ->helperText('Se crea automáticamente con los datos del producto'),
+                
+                TextInput::make('name')
+                    ->label('Nombre del Producto')
+                    ->required()
+                    ->maxLength(255)
+                    ->columnSpanFull(),
                 TextInput::make('price')
                     ->required()
                     ->numeric()

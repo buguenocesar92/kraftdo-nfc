@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
 class ContentProduct extends Model
 {
@@ -32,6 +33,43 @@ class ContentProduct extends Model
         'in_stock' => 'boolean',
         'specifications' => 'string',
     ];
+
+    /**
+     * Boot del modelo
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Auto-crear DynamicContent cuando se crea un ContentProduct
+        static::creating(function ($product) {
+            if (!$product->dynamic_content_id) {
+                $dynamicContent = DynamicContent::create([
+                    'content_id' => Str::uuid()->toString(),
+                    'type' => DynamicContent::TYPE_PRODUCT,
+                    'title' => $product->name,
+                    'description' => $product->specifications ?? 'Producto de ' . ($product->brand ?? 'marca'),
+                    'data' => [],
+                    'is_active' => true,
+                    'status' => 'published',
+                    'user_id' => auth()->id() ?? 1,
+                ]);
+                
+                $product->dynamic_content_id = $dynamicContent->id;
+            }
+        });
+
+        // Actualizar DynamicContent cuando se actualiza el producto
+        static::updated(function ($product) {
+            if ($product->dynamicContent) {
+                $product->dynamicContent->update([
+                    'title' => $product->name,
+                    'description' => $product->specifications ?? 'Producto de ' . ($product->brand ?? 'marca'),
+                    'is_active' => $product->in_stock,
+                ]);
+            }
+        });
+    }
 
     /**
      * Relación con el contenido dinámico padre

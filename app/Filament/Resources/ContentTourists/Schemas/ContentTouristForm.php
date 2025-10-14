@@ -29,12 +29,30 @@ class ContentTouristForm
                             ->relationship(
                                 name: 'dynamicContent', 
                                 titleAttribute: 'title',
-                                modifyQueryUsing: fn ($query) => $query->where('type', DynamicContent::TYPE_TOURIST)
+                                modifyQueryUsing: function ($query, $livewire) {
+                                    $query->where('type', DynamicContent::TYPE_TOURIST);
+                                    
+                                    // Excluir DynamicContent ya asignados a otros ContentTourist
+                                    $assignedIds = \App\Models\ContentTourist::pluck('dynamic_content_id')->filter();
+                                    
+                                    // En modo edición, permitir el contenido actualmente asignado
+                                    if ($livewire->record) {
+                                        $assignedIds = $assignedIds->reject(fn($id) => $id === $livewire->record->dynamic_content_id);
+                                    }
+                                    
+                                    if ($assignedIds->isNotEmpty()) {
+                                        $query->whereNotIn('id', $assignedIds);
+                                    }
+                                    
+                                    return $query;
+                                }
                             )
                             ->getOptionLabelFromRecordUsing(fn ($record) => "{$record->title} - {$record->content_id}")
                             ->searchable()
                             ->preload()
                             ->required()
+                            ->placeholder('Selecciona contenido dinámico disponible...')
+                            ->helperText('Solo se muestran contenidos tipo TOURIST que no estén asignados a otros lugares turísticos')
                             ->columnSpanFull(),
                         
                         Grid::make(2)
