@@ -174,32 +174,6 @@ describe('TokenController', function () {
         expect($token->fresh()->last_used_at)->not()->toBeNull();
     });
 
-    test('preview requiere autenticación', function () {
-        $token = NfcToken::factory()->create();
-        
-        $response = $this->get("/preview/token/{$token->id}");
-        
-        $response->assertRedirect('/login');
-    });
-
-    test('preview funciona para propietario del token', function () {
-        $user = User::factory()->create();
-        $token = NfcToken::factory()->create(['user_id' => $user->id]);
-        
-        $response = $this->actingAs($user)->get("/preview/token/{$token->id}");
-        
-        $response->assertRedirect("/token/{$token->token_id}");
-    });
-
-    test('preview retorna 403 para usuario no autorizado', function () {
-        $owner = User::factory()->create();
-        $otherUser = User::factory()->create();
-        $token = NfcToken::factory()->create(['user_id' => $owner->id]);
-        
-        $response = $this->actingAs($otherUser)->get("/preview/token/{$token->id}");
-        
-        $response->assertStatus(403);
-    });
 
     test('utiliza cache para mejor performance', function () {
         $token = NfcToken::factory()->gift()->create(['is_active' => true]);

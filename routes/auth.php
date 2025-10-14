@@ -41,6 +41,21 @@ Route::middleware('auth')->group(function () {
     Volt::route('confirm-password', 'auth.confirm-password')
         ->name('password.confirm');
 
+    // Dashboard route - redirect to admin
+    Route::get('dashboard', function () {
+        return redirect('/admin');
+    })->name('dashboard');
+
+    // Settings routes
+    Volt::route('settings/profile', 'settings.profile')
+        ->name('settings.profile');
+    
+    Volt::route('settings/password', 'settings.password')
+        ->name('settings.password');
+    
+    Volt::route('settings/appearance', 'settings.appearance')
+        ->name('settings.appearance');
+
     // Logout route
     Route::post('logout', [LoginController::class, 'logout'])
         ->name('logout');

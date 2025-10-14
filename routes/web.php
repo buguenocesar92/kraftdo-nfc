@@ -3,6 +3,14 @@
 use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Route;
 
+// Include auth routes
+require __DIR__.'/auth.php';
+
+// Home route
+Route::get('/', function () {
+    return view('welcome');
+})->name('home');
+
 // Health check para Docker
 Route::get('/health', function () {
     return response()->json([

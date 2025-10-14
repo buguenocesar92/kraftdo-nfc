@@ -53,9 +53,9 @@ describe('DynamicContent Model', function () {
         $content = DynamicContent::factory()->create();
         
         expect(method_exists($content, 'multimedia'))->toBeTrue();
-        expect(method_exists($content, 'menu'))->toBeTrue();
         expect(method_exists($content, 'socialLinks'))->toBeTrue();
         expect(method_exists($content, 'skills'))->toBeTrue();
+        expect(method_exists($content, 'business'))->toBeTrue();
     });
 
     test('verifica si está públicamente accesible', function () {
