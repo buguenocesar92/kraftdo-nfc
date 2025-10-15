@@ -350,7 +350,7 @@ class TokenController extends Controller
                 'dynamicContent' => $dynamicContent,
                 'content' => $dynamicContent, // Alias para compatibilidad
                 'businessGroup' => $businessGroupData,
-                'memberBusinesses' => $businessGroupData ? $businessGroupData->activeMemberBusinesses : collect([]),
+                'memberBusinesses' => $businessGroupData ? $businessGroupData->memberBusinesses : collect([]),
             ];
 
             if ($request->expectsJson()) {
