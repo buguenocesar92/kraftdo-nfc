@@ -23,7 +23,9 @@ return [
         'http://localhost:3000',
         'http://127.0.0.1:3000',
         'https://kraftdo-nfc-frontend.vercel.app',
-        // Agregar tu dominio de producción aquí
+        'https://app.kraftdo.cl',
+        'https://app-staging.kraftdo.cl',
+        // Dominios de producción y staging
     ],
 
     'allowed_origins_patterns' => [],
