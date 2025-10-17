@@ -25,6 +25,7 @@ return [
         'https://kraftdo-nfc-frontend.vercel.app',
         'https://app.kraftdo.cl',
         'https://app-staging.kraftdo.cl',
+        'https://front-staging.kraftdo.cl',
         // Dominios de producción y staging
     ],
 
