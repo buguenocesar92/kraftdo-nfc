@@ -147,6 +147,15 @@ class TokenController extends Controller
             $contentMultimedia = $content['multimedia'];
             $galleryImages = $contentMultimedia?->galleryImages ?? collect();
             $socialLinks = $contentBusiness?->socialLinks ?? collect();
+            
+            // Debug operating hours
+            \Log::info('🕐 Operating hours debug', [
+                'token_id' => $tokenId,
+                'operating_hours_raw' => $contentBusiness?->operating_hours,
+                'operating_hours_type' => gettype($contentBusiness?->operating_hours),
+                'operating_hours_json' => json_encode($contentBusiness?->operating_hours),
+                'formatted_hours' => $contentBusiness?->getFormattedOperatingHours()
+            ]);
 
             $data = [
                 'token' => $token,
