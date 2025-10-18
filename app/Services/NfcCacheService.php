@@ -61,7 +61,7 @@ class NfcCacheService
                 $contentData = [
                     'business' => ContentBusiness::with(['socialLinks' => function($query) {
                         $query->ordered();
-                    }, 'products'])->where('dynamic_content_id', $dynamicContent->id)->first(),
+                    }, 'products', 'activeMenuImages'])->where('dynamic_content_id', $dynamicContent->id)->first(),
                     'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
                         $query->orderBy('sort_order')->orderBy('id');
                     }])->where('dynamic_content_id', $dynamicContent->id)->first()
@@ -77,7 +77,7 @@ class NfcCacheService
                 $contentData = [
                     'business' => ContentBusiness::with(['socialLinks' => function($query) {
                         $query->ordered();
-                    }, 'directProducts'])->where('dynamic_content_id', $dynamicContent->id)->first(),
+                    }, 'directProducts', 'activeMenuImages'])->where('dynamic_content_id', $dynamicContent->id)->first(),
                     'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
                         $query->orderBy('sort_order')->orderBy('id');
                     }])->where('dynamic_content_id', $dynamicContent->id)->first()

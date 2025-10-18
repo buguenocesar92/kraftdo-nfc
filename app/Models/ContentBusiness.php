@@ -120,6 +120,22 @@ class ContentBusiness extends Model
     }
 
     /**
+     * Relación con las imágenes del menú
+     */
+    public function menuImages(): HasMany
+    {
+        return $this->hasMany(ContentMenuImage::class, 'content_business_id');
+    }
+
+    /**
+     * Relación con las imágenes activas del menú, ordenadas
+     */
+    public function activeMenuImages(): HasMany
+    {
+        return $this->menuImages()->active()->ordered();
+    }
+
+    /**
      * Obtener información de contacto completa como array
      */
     public function getContactInfoArrayAttribute(): array
@@ -200,6 +216,41 @@ class ContentBusiness extends Model
     public function hasCatalog(): bool
     {
         return $this->catalog_enabled && $this->products()->count() > 0;
+    }
+
+    /**
+     * Verificar si tiene imágenes de menú configuradas
+     */
+    public function hasMenuImages(): bool
+    {
+        return $this->activeMenuImages()->count() > 0;
+    }
+
+    /**
+     * Verificar si debe mostrar catálogo de productos o imágenes de menú
+     * Prioridad: Imágenes de menú > Catálogo de productos
+     */
+    public function shouldShowProductCatalog(): bool
+    {
+        return $this->catalog_enabled && !$this->hasMenuImages() && $this->products()->count() > 0;
+    }
+
+    /**
+     * Verificar si debe mostrar las imágenes del menú
+     */
+    public function shouldShowMenuImages(): bool
+    {
+        return $this->catalog_enabled && $this->hasMenuImages();
+    }
+
+    /**
+     * Obtener las URLs públicas de las imágenes del menú
+     */
+    public function getMenuImagesPublicUrlsAttribute(): array
+    {
+        return $this->activeMenuImages->map(function ($menuImage) {
+            return $menuImage->public_url;
+        })->toArray();
     }
 
     /**

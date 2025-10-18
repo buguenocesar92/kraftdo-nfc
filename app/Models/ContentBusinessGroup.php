@@ -22,6 +22,8 @@ class ContentBusinessGroup extends Model
         'contact_phone',
         'contact_email',
         'contact_website',
+        'google_place_id',
+        'google_reviews_url',
         'operating_hours',
         'banner_image',
         'logo_url',

@@ -61,6 +61,19 @@ class ContentBusinessGroupForm
                     ->url()
                     ->label('Sitio Web'),
                 
+                TextInput::make('google_place_id')
+                    ->label('Google Place ID')
+                    ->placeholder('ChIJN165LjbZYpYRpVEG8L8m1k8')
+                    ->helperText('ID del lugar en Google Maps. Puedes obtenerlo desde Google Place ID Finder.')
+                    ->maxLength(255),
+                
+                TextInput::make('google_reviews_url')
+                    ->url()
+                    ->label('URL de Reseñas de Google')
+                    ->placeholder('https://g.page/r/CBNeW_qBgKGlEAE/review')
+                    ->helperText('URL directa a las reseñas del lugar en Google.')
+                    ->maxLength(255),
+                
                 FileUpload::make('logo_url')
                     ->image()
                     ->label('Logo del Grupo')

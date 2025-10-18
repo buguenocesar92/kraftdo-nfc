@@ -218,13 +218,60 @@ class ContentBusinessForm
                         
                         Toggle::make('catalog_enabled')
                             ->label('Habilitar Catálogo de Productos')
-                            ->helperText('Permite mostrar productos en la tarjeta del negocio')
+                            ->helperText('Permite mostrar productos o menú en la tarjeta del negocio')
                             ->live()
+                            ->columnSpanFull(),
+
+                        Repeater::make('menuImages')
+                            ->relationship('menuImages')
+                            ->label('Imágenes del Menú')
+                            ->schema([
+                                FileUpload::make('image_url')
+                                    ->label('Imagen')
+                                    ->directory('businesses/menus')
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->maxSize(5 * 1024) // 5MB por imagen
+                                    ->disk('public')
+                                    ->visibility('public')
+                                    ->preserveFilenames()
+                                    ->imageEditor()
+                                    ->imagePreviewHeight('150')
+                                    ->required()
+                                    ->columnSpanFull(),
+                                
+                                TextInput::make('title')
+                                    ->label('Título (Opcional)')
+                                    ->placeholder('Ej: Entrantes, Platos Principales, Postres...')
+                                    ->maxLength(255),
+                                
+                                Textarea::make('description')
+                                    ->label('Descripción (Opcional)')
+                                    ->placeholder('Descripción de esta sección del menú...')
+                                    ->rows(2),
+                                
+                                TextInput::make('display_order')
+                                    ->label('Orden')
+                                    ->numeric()
+                                    ->default(0)
+                                    ->helperText('Orden de visualización (menor número aparece primero)'),
+                                
+                                Toggle::make('is_active')
+                                    ->label('Activa')
+                                    ->default(true)
+                                    ->helperText('Desmarcar para ocultar temporalmente esta imagen'),
+                            ])
+                            ->columns(2)
+                            ->defaultItems(0)
+                            ->addActionLabel('Agregar Imagen del Menú')
+                            ->reorderable('display_order')
+                            ->helperText('🖼️ Sube imágenes del menú con metadatos. Si subes imágenes, se mostrarán como galería continua en lugar del catálogo de productos individual. Sin límite de imágenes.')
+                            ->visible(fn ($get) => $get('catalog_enabled'))
                             ->columnSpanFull(),
                         
                         Repeater::make('directProducts')
                             ->relationship('directProducts')
-                            ->label('Productos del Catálogo')
+                            ->label('Productos del Catálogo Individual')
+                            ->helperText('📦 Agrega productos individuales. Solo se mostrará si NO hay imágenes de menú subidas.')
                             ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $livewire): array {
                                 // Obtener el dynamic_content_id del registro actual del negocio
                                 $record = $livewire->getRecord();
