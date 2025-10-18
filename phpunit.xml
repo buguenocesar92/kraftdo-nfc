@@ -32,11 +32,13 @@
         <env name="TELESCOPE_ENABLED" value="false"/>
     </php>
     
-    <!-- Coverage Configuration -->
+    <!-- Coverage Configuration - Disabled for development -->
+    <!--
     <coverage>
         <report>
             <html outputDirectory="coverage-report"/>
             <text outputFile="coverage.txt"/>
         </report>
     </coverage>
+    -->
 </phpunit>

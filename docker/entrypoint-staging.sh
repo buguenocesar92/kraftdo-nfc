@@ -91,7 +91,15 @@ php artisan cache:clear
 # Run migrations automatically
 if nc -z "$DB_HOST" "$DB_PORT"; then
     echo "🗄️  Running migrations..."
-    php artisan migrate --force --no-interaction || echo "⚠️ Migration warning, continuing..."
+    if php artisan migrate --force --no-interaction; then
+        echo "✅ Migrations completed successfully"
+        # Check database schema
+        echo "🔍 Checking database schema..."
+        php artisan debug:check-schema || echo "⚠️ Schema check failed"
+    else
+        echo "❌ Migration failed! This may cause data saving issues."
+        exit 1
+    fi
 else
     echo "⚠️  Database not available, skipping migrations..."
 fi
