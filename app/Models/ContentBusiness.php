@@ -24,6 +24,8 @@ class ContentBusiness extends Model
         'contact_email',
         'contact_website',
         'address',
+        'latitude',
+        'longitude',
         'google_maps_url',
         'google_reviews_url',
         'google_place_id',

@@ -30,6 +30,9 @@ class DebugBusinessHours extends Command
         foreach ($businesses as $business) {
             $this->line("Business ID: {$business->id}");
             $this->line("Business Name: {$business->business_name}");
+            $this->line("Address: " . ($business->address ?? 'NULL'));
+            $this->line("Latitude: " . ($business->latitude ?? 'NULL'));
+            $this->line("Longitude: " . ($business->longitude ?? 'NULL'));
             $this->line("Operating Hours Raw: " . json_encode($business->operating_hours));
             $this->line("Operating Hours Type: " . gettype($business->operating_hours));
             $this->line("Is Array: " . (is_array($business->operating_hours) ? 'Yes' : 'No'));

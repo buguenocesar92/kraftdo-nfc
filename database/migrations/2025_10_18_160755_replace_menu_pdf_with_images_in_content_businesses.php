@@ -12,11 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('content_businesses', function (Blueprint $table) {
-            // Remove the old PDF field
-            $table->dropColumn('menu_pdf_url');
+            // Remove the old PDF field if it exists
+            if (Schema::hasColumn('content_businesses', 'menu_pdf_url')) {
+                $table->dropColumn('menu_pdf_url');
+            }
             
-            // Add new field for multiple menu images
-            $table->json('menu_images')->nullable()->after('catalog_enabled');
+            // Don't add menu_images here since we're using a separate table now
+            // The menu images are now in the content_menu_images table
         });
     }
 
@@ -29,8 +31,10 @@ return new class extends Migration
             // Restore the old PDF field
             $table->string('menu_pdf_url')->nullable()->after('catalog_enabled');
             
-            // Remove the new images field
-            $table->dropColumn('menu_images');
+            // Remove menu_images field if it exists
+            if (Schema::hasColumn('content_businesses', 'menu_images')) {
+                $table->dropColumn('menu_images');
+            }
         });
     }
 };

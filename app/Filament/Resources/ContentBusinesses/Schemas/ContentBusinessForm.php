@@ -127,6 +127,20 @@ class ContentBusinessForm
                             ->rows(2)
                             ->columnSpanFull(),
                         
+                        TextInput::make('latitude')
+                            ->label('Latitud')
+                            ->placeholder('-33.4489')
+                            ->numeric()
+                            ->step(0.0000001)
+                            ->helperText('Latitud de la ubicación (decimal)'),
+                        
+                        TextInput::make('longitude')
+                            ->label('Longitud')
+                            ->placeholder('-70.6693')
+                            ->numeric()
+                            ->step(0.0000001)
+                            ->helperText('Longitud de la ubicación (decimal)'),
+                        
                         TextInput::make('whatsapp_number')
                             ->label('WhatsApp')
                             ->placeholder('+56912345678')
