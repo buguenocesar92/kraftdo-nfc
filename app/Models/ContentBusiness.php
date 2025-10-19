@@ -236,7 +236,7 @@ class ContentBusiness extends Model
      */
     public function shouldShowProductCatalog(): bool
     {
-        return $this->catalog_enabled && ! $this->hasMenuImages() && $this->products()->count() > 0;
+        return $this->catalog_enabled && !$this->hasMenuImages() && $this->products()->count() > 0;
     }
 
     /**

@@ -292,6 +292,7 @@ class ContentBusinessForm
                             ->relationship('directProducts')
                             ->label('Productos del Catálogo Individual')
                             ->helperText('📦 Agrega productos individuales. Solo se mostrará si NO hay imágenes de menú subidas.')
+                            ->visible(fn ($get) => $get('catalog_enabled'))
                             ->mutateRelationshipDataBeforeCreateUsing(function (array $data, $livewire): array {
                                 // Obtener el dynamic_content_id del registro actual del negocio
                                 $record = $livewire->getRecord();

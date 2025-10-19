@@ -16,8 +16,6 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Crear todos los permisos de Filament Resources automáticamente
         $permissions = [
-            // Content Menus
-            'view_content_menus', 'view_any_content_menus', 'create_content_menus', 'update_content_menus', 'delete_content_menus', 'delete_any_content_menus',
             
             // Routes  
             'view_routes', 'view_any_routes', 'create_routes', 'update_routes', 'delete_routes', 'delete_any_routes',
@@ -103,7 +101,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_any_dynamic_contents', 'create_dynamic_contents', 'update_dynamic_contents', 'delete_any_dynamic_contents',
             'view_any_content_gifts', 'create_content_gifts', 'update_content_gifts', 'delete_any_content_gifts',
             'view_any_content_profiles', 'create_content_profiles', 'update_content_profiles', 'delete_any_content_profiles',
-            'view_any_content_menus', 'create_content_menus', 'update_content_menus', 'delete_any_content_menus',
             'view_any_content_events', 'create_content_events', 'update_content_events', 'delete_any_content_events',
             'view_any_content_products', 'create_content_products', 'update_content_products', 'delete_any_content_products',
             'view_any_content_tourists', 'create_content_tourists', 'update_content_tourists', 'delete_any_content_tourists',
@@ -135,7 +132,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_dynamic_contents', 'create_dynamic_contents', 'update_dynamic_contents',
             'view_content_gifts', 'create_content_gifts', 'update_content_gifts',
             'view_content_profiles', 'create_content_profiles', 'update_content_profiles',
-            'view_content_menus', 'create_content_menus', 'update_content_menus',
             'view_content_events', 'create_content_events', 'update_content_events',
             'view_content_products', 'create_content_products', 'update_content_products',
             'view_content_tourists', 'create_content_tourists', 'update_content_tourists',
@@ -160,7 +156,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_dynamic_contents',
             'view_content_gifts',
             'view_content_profiles',
-            'view_content_menus',
             'view_content_events',
             'view_content_products',
             'view_content_tourists',
@@ -183,7 +178,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_any_dynamic_contents', 'create_dynamic_contents', 'update_dynamic_contents', 'delete_dynamic_contents',
             'view_any_content_gifts', 'create_content_gifts', 'update_content_gifts', 'delete_content_gifts',
             'view_any_content_profiles', 'create_content_profiles', 'update_content_profiles', 'delete_content_profiles',
-            'view_any_content_menus', 'create_content_menus', 'update_content_menus', 'delete_content_menus',
             'view_any_content_events', 'create_content_events', 'update_content_events', 'delete_content_events',
             'view_any_content_products', 'create_content_products', 'update_content_products', 'delete_content_products',
             'view_any_content_tourists', 'create_content_tourists', 'update_content_tourists', 'delete_content_tourists',
