@@ -37,32 +37,32 @@ class RoleResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_any_role') || auth()->user()->can('view_role');
+        return auth()->user()->can('view_any_roles') || auth()->user()->can('view_roles');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_role');
+        return auth()->user()->can('create_roles');
     }
 
     public static function canView($record): bool
     {
-        return auth()->user()->can('view_role', $record) || auth()->user()->can('view_any_role');
+        return auth()->user()->can('view_roles', $record) || auth()->user()->can('view_any_roles');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('update_role', $record);
+        return auth()->user()->can('update_roles', $record);
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->can('delete_role', $record) || auth()->user()->can('delete_any_role');
+        return auth()->user()->can('delete_roles', $record) || auth()->user()->can('delete_any_roles');
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()->can('delete_any_role');
+        return auth()->user()->can('delete_any_roles');
     }
 
     public static function form(Schema $schema): Schema
@@ -74,6 +74,12 @@ class RoleResource extends Resource
     {
         return RolesTable::configure($table)
             ->modifyQueryUsing(fn ($query) => $query->withCount(['permissions', 'users']));
+    }
+    
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        // NO cargar permissions automáticamente - se cargarán bajo demanda
+        return parent::getEloquentQuery();
     }
 
     public static function getRelations(): array

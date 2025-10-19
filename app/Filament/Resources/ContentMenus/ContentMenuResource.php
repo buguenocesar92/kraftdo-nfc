@@ -20,7 +20,7 @@ class ContentMenuResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static bool $shouldRegisterNavigation = true;
 
     public static function getNavigationGroup(): ?string
     {
@@ -39,32 +39,32 @@ class ContentMenuResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_any_content_menu') || auth()->user()->can('view_content_menu');
+        return auth()->user()->can('view_any_content_menus') || auth()->user()->can('view_content_menus');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_content_menu');
+        return auth()->user()->can('create_content_menus');
     }
 
     public static function canView($record): bool
     {
-        return auth()->user()->can('view_content_menu', $record) || auth()->user()->can('view_any_content_menu');
+        return auth()->user()->can('view_content_menus', $record) || auth()->user()->can('view_any_content_menus');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('update_content_menu', $record);
+        return auth()->user()->can('update_content_menus', $record);
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->can('delete_content_menu', $record) || auth()->user()->can('delete_any_content_menu');
+        return auth()->user()->can('delete_content_menus', $record) || auth()->user()->can('delete_any_content_menus');
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()->can('delete_any_content_menu');
+        return auth()->user()->can('delete_any_content_menus');
     }
 
     public static function form(Schema $schema): Schema

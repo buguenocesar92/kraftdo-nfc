@@ -37,32 +37,32 @@ class ContentBusinessResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_any_content_business') || auth()->user()->can('view_content_business');
+        return auth()->user()->can('view_any_content_businesses') || auth()->user()->can('view_content_businesses');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_content_business');
+        return auth()->user()->can('create_content_businesses');
     }
 
     public static function canView($record): bool
     {
-        return auth()->user()->can('view_content_business', $record) || auth()->user()->can('view_any_content_business');
+        return auth()->user()->can('view_content_businesses', $record) || auth()->user()->can('view_any_content_businesses');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('update_content_business', $record);
+        return auth()->user()->can('update_content_businesses', $record);
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->can('delete_content_business', $record) || auth()->user()->can('delete_any_content_business');
+        return auth()->user()->can('delete_content_businesses', $record) || auth()->user()->can('delete_any_content_businesses');
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()->can('delete_any_content_business');
+        return auth()->user()->can('delete_any_content_businesses');
     }
 
     public static function form(Schema $schema): Schema

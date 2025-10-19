@@ -37,32 +37,32 @@ class ContentEventResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_any_content_event') || auth()->user()->can('view_content_event');
+        return auth()->user()->can('view_any_content_events') || auth()->user()->can('view_content_events');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_content_event');
+        return auth()->user()->can('create_content_events');
     }
 
     public static function canView($record): bool
     {
-        return auth()->user()->can('view_content_event', $record) || auth()->user()->can('view_any_content_event');
+        return auth()->user()->can('view_content_events', $record) || auth()->user()->can('view_any_content_events');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('update_content_event', $record);
+        return auth()->user()->can('update_content_events', $record);
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->can('delete_content_event', $record) || auth()->user()->can('delete_any_content_event');
+        return auth()->user()->can('delete_content_events', $record) || auth()->user()->can('delete_any_content_events');
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()->can('delete_any_content_event');
+        return auth()->user()->can('delete_any_content_events');
     }
 
     public static function form(Schema $schema): Schema

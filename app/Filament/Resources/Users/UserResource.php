@@ -37,32 +37,32 @@ class UserResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_any_user') || auth()->user()->can('view_user');
+        return auth()->user()->can('view_any_users') || auth()->user()->can('view_users');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_user');
+        return auth()->user()->can('create_users');
     }
 
     public static function canView($record): bool
     {
-        return auth()->user()->can('view_user', $record) || auth()->user()->can('view_any_user');
+        return auth()->user()->can('view_users', $record) || auth()->user()->can('view_any_users');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('update_user', $record);
+        return auth()->user()->can('update_users', $record);
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->can('delete_user', $record) || auth()->user()->can('delete_any_user');
+        return auth()->user()->can('delete_users', $record) || auth()->user()->can('delete_any_users');
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()->can('delete_any_user');
+        return auth()->user()->can('delete_any_users');
     }
 
     public static function form(Schema $schema): Schema

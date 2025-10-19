@@ -37,32 +37,32 @@ class ContentProfileResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_any_content_profile') || auth()->user()->can('view_content_profile');
+        return auth()->user()->can('view_any_content_profiles') || auth()->user()->can('view_content_profiles');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_content_profile');
+        return auth()->user()->can('create_content_profiles');
     }
 
     public static function canView($record): bool
     {
-        return auth()->user()->can('view_content_profile', $record) || auth()->user()->can('view_any_content_profile');
+        return auth()->user()->can('view_content_profiles', $record) || auth()->user()->can('view_any_content_profiles');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('update_content_profile', $record);
+        return auth()->user()->can('update_content_profiles', $record);
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->can('delete_content_profile', $record) || auth()->user()->can('delete_any_content_profile');
+        return auth()->user()->can('delete_content_profiles', $record) || auth()->user()->can('delete_any_content_profiles');
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()->can('delete_any_content_profile');
+        return auth()->user()->can('delete_any_content_profiles');
     }
 
     public static function form(Schema $schema): Schema

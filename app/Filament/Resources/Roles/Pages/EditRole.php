@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Roles\Pages;
 
 use App\Filament\Resources\Roles\RoleResource;
+use App\Services\PermissionCacheService;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -19,12 +20,13 @@ class EditRole extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        // Load the permissions relationship
-        $this->record->load('permissions');
+        // Cargar permisos solo si no están cargados (evitar duplicación)
+        if (!$this->record->relationLoaded('permissions')) {
+            $this->record->load('permissions');
+        }
 
-        // Set the permissions as an array of IDs for the CheckboxList
+        // Configurar permisos como array de IDs para CheckboxList
         $data['permissions'] = $this->record->permissions->pluck('id')->toArray();
-
 
         return $data;
     }
@@ -41,15 +43,18 @@ class EditRole extends EditRecord
 
     protected function afterSave(): void
     {
-        // Sync permissions after saving the role
+        // Sincronizar permisos después de guardar el rol
         if (isset($this->permissionsData)) {
-            // Convert permission IDs to permission names for syncPermissions
-            $permissionNames = \Spatie\Permission\Models\Permission::whereIn('id', $this->permissionsData)
+            // Usar consulta directa sin crear objetos Eloquent
+            $permissionNames = \DB::table('permissions')
+                ->whereIn('id', $this->permissionsData)
                 ->pluck('name')
                 ->toArray();
 
+            // Sincronizar permisos (esto ya refresca la relación internamente)
             $this->record->syncPermissions($permissionNames);
-            $this->record->load('permissions');
+            
+            // NO volver a cargar - syncPermissions ya actualiza la relación
         }
     }
 

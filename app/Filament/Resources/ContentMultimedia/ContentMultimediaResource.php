@@ -37,32 +37,32 @@ class ContentMultimediaResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_any_dynamic_content') || auth()->user()->can('view_dynamic_content');
+        return auth()->user()->can('view_any_dynamic_contents') || auth()->user()->can('view_dynamic_contents');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_dynamic_content');
+        return auth()->user()->can('create_dynamic_contents');
     }
 
     public static function canView($record): bool
     {
-        return auth()->user()->can('view_dynamic_content', $record) || auth()->user()->can('view_any_dynamic_content');
+        return auth()->user()->can('view_dynamic_contents', $record) || auth()->user()->can('view_any_dynamic_contents');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('update_dynamic_content', $record);
+        return auth()->user()->can('update_dynamic_contents', $record);
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->can('delete_dynamic_content', $record) || auth()->user()->can('delete_any_dynamic_content');
+        return auth()->user()->can('delete_dynamic_contents', $record) || auth()->user()->can('delete_any_dynamic_contents');
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()->can('delete_any_dynamic_content');
+        return auth()->user()->can('delete_any_dynamic_contents');
     }
 
     public static function form(Schema $schema): Schema

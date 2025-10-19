@@ -37,32 +37,32 @@ class ContentTouristResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_any_content_tourist') || auth()->user()->can('view_content_tourist');
+        return auth()->user()->can('view_any_content_tourists') || auth()->user()->can('view_content_tourists');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_content_tourist');
+        return auth()->user()->can('create_content_tourists');
     }
 
     public static function canView($record): bool
     {
-        return auth()->user()->can('view_content_tourist', $record) || auth()->user()->can('view_any_content_tourist');
+        return auth()->user()->can('view_content_tourists', $record) || auth()->user()->can('view_any_content_tourists');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('update_content_tourist', $record);
+        return auth()->user()->can('update_content_tourists', $record);
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->can('delete_content_tourist', $record) || auth()->user()->can('delete_any_content_tourist');
+        return auth()->user()->can('delete_content_tourists', $record) || auth()->user()->can('delete_any_content_tourists');
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()->can('delete_any_content_tourist');
+        return auth()->user()->can('delete_any_content_tourists');
     }
 
     public static function form(Schema $schema): Schema

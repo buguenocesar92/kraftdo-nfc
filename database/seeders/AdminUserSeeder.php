@@ -20,10 +20,13 @@ class AdminUserSeeder extends Seeder
             ]
         );
 
-        // Assign Super Admin role
+        // Asignar rol de Super Admin y TODOS los permisos
         if (! $superAdmin->hasRole('Super Admin')) {
             $superAdmin->assignRole('Super Admin');
         }
+        
+        // Asegurar que tenga TODOS los permisos existentes (incluye nuevos permisos automáticamente)
+        $superAdmin->syncPermissions(\Spatie\Permission\Models\Permission::all());
 
         // Create other test users
         $admin = User::updateOrCreate(
@@ -87,8 +90,8 @@ class AdminUserSeeder extends Seeder
             $nfcUser->assignRole('NFC');
         }
 
-        $this->command->info('Admin users created successfully!');
-        $this->command->info('Super Admin: admin@kraftdo-nfc.com / password');
+        $this->command->info('¡Usuarios administradores creados exitosamente!');
+        $this->command->info('Super Admin: admin@kraftdo-nfc.com / password (TODOS los permisos)');
         $this->command->info('Admin: admin@example.com / password');
         $this->command->info('Editor: editor@example.com / password');
         $this->command->info('Viewer: viewer@example.com / password');

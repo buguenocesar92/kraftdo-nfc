@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Services\PermissionCacheService;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
@@ -13,95 +14,69 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Create permissions for NFC Content Management
+        // Crear todos los permisos de Filament Resources automáticamente
         $permissions = [
-            // DynamicContent permissions
-            'view_dynamic_content',
-            'view_any_dynamic_content',
-            'create_dynamic_content',
-            'update_dynamic_content',
-            'delete_dynamic_content',
-            'delete_any_dynamic_content',
+            // Content Menus
+            'view_content_menus', 'view_any_content_menus', 'create_content_menus', 'update_content_menus', 'delete_content_menus', 'delete_any_content_menus',
+            
+            // Routes  
+            'view_routes', 'view_any_routes', 'create_routes', 'update_routes', 'delete_routes', 'delete_any_routes',
+            
+            // Roles
+            'view_roles', 'view_any_roles', 'create_roles', 'update_roles', 'delete_roles', 'delete_any_roles',
+            
+            // Users
+            'view_users', 'view_any_users', 'create_users', 'update_users', 'delete_users', 'delete_any_users',
+            
+            // NFC Analytics
+            'view_nfc_analytics', 'view_any_nfc_analytics', 'create_nfc_analytics', 'update_nfc_analytics', 'delete_nfc_analytics', 'delete_any_nfc_analytics',
+            
+            // NFC Tokens
+            'view_nfc_tokens', 'view_any_nfc_tokens', 'create_nfc_tokens', 'update_nfc_tokens', 'delete_nfc_tokens', 'delete_any_nfc_tokens',
+            
+            // Content Gifts
+            'view_content_gifts', 'view_any_content_gifts', 'create_content_gifts', 'update_content_gifts', 'delete_content_gifts', 'delete_any_content_gifts',
+            
+            // Content Business Groups
+            'view_content_business_groups', 'view_any_content_business_groups', 'create_content_business_groups', 'update_content_business_groups', 'delete_content_business_groups', 'delete_any_content_business_groups',
+            
+            // Content Profiles
+            'view_content_profiles', 'view_any_content_profiles', 'create_content_profiles', 'update_content_profiles', 'delete_content_profiles', 'delete_any_content_profiles',
+            
+            // Schedules
+            'view_schedules', 'view_any_schedules', 'create_schedules', 'update_schedules', 'delete_schedules', 'delete_any_schedules',
+            
+            // Content Businesses
+            'view_content_businesses', 'view_any_content_businesses', 'create_content_businesses', 'update_content_businesses', 'delete_content_businesses', 'delete_any_content_businesses',
+            
+            // Content Events
+            'view_content_events', 'view_any_content_events', 'create_content_events', 'update_content_events', 'delete_content_events', 'delete_any_content_events',
+            
+            // Content Products
+            'view_content_products', 'view_any_content_products', 'create_content_products', 'update_content_products', 'delete_content_products', 'delete_any_content_products',
+            
+            // Bus Stops
+            'view_bus_stops', 'view_any_bus_stops', 'create_bus_stops', 'update_bus_stops', 'delete_bus_stops', 'delete_any_bus_stops',
+            
+            // Utility Phones
+            'view_utility_phones', 'view_any_utility_phones', 'create_utility_phones', 'update_utility_phones', 'delete_utility_phones', 'delete_any_utility_phones',
+            
+            // Dynamic Contents
+            'view_dynamic_contents', 'view_any_dynamic_contents', 'create_dynamic_contents', 'update_dynamic_contents', 'delete_dynamic_contents', 'delete_any_dynamic_contents',
+            
+            // Content Multimedia
+            'view_content_multimedia', 'view_any_content_multimedia', 'create_content_multimedia', 'update_content_multimedia', 'delete_content_multimedia', 'delete_any_content_multimedia',
+            
+            // Content Tourists
+            'view_content_tourists', 'view_any_content_tourists', 'create_content_tourists', 'update_content_tourists', 'delete_content_tourists', 'delete_any_content_tourists',
 
-            // ContentGift permissions
-            'view_content_gift',
-            'view_any_content_gift',
-            'create_content_gift',
-            'update_content_gift',
-            'delete_content_gift',
-            'delete_any_content_gift',
-
-            // ContentProfile permissions
-            'view_content_profile',
-            'view_any_content_profile',
-            'create_content_profile',
-            'update_content_profile',
-            'delete_content_profile',
-            'delete_any_content_profile',
-
-            // ContentMenu permissions
-            'view_content_menu',
-            'view_any_content_menu',
-            'create_content_menu',
-            'update_content_menu',
-            'delete_content_menu',
-            'delete_any_content_menu',
-
-            // ContentEvent permissions
-            'view_content_event',
-            'view_any_content_event',
-            'create_content_event',
-            'update_content_event',
-            'delete_content_event',
-            'delete_any_content_event',
-
-            // ContentProduct permissions
-            'view_content_product',
-            'view_any_content_product',
-            'create_content_product',
-            'update_content_product',
-            'delete_content_product',
-            'delete_any_content_product',
-
-            // ContentTourist permissions
-            'view_content_tourist',
-            'view_any_content_tourist',
-            'create_content_tourist',
-            'update_content_tourist',
-            'delete_content_tourist',
-            'delete_any_content_tourist',
-
-            // NfcToken permissions
-            'view_nfc_token',
-            'view_any_nfc_token',
-            'create_nfc_token',
-            'update_nfc_token',
-            'delete_nfc_token',
-            'delete_any_nfc_token',
-
-            // User management permissions
-            'view_user',
-            'view_any_user',
-            'create_user',
-            'update_user',
-            'delete_user',
-            'delete_any_user',
-
-            // Role management permissions
-            'view_role',
-            'view_any_role',
-            'create_role',
-            'update_role',
-            'delete_role',
-            'delete_any_role',
-
-            // General admin permissions
+            // Permisos generales del sistema
             'access_admin_panel',
             'view_analytics',
             'manage_system_settings',
             'bulk_actions',
 
-            // Token management permissions for users
+            // Permisos para gestión de tokens propios
             'view_own_tokens',
             'configure_own_tokens',
             'manage_own_token_content',
@@ -111,92 +86,112 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Create roles with permissions
+        // Crear roles con permisos
 
-        // 1. Super Admin - Full access
+        // 1. Super Admin - Acceso completo a TODOS los permisos
         $superAdmin = Role::firstOrCreate(['name' => 'Super Admin']);
+        // Sincronizar con TODOS los permisos existentes en el sistema
         $superAdmin->syncPermissions(Permission::all());
 
-        // 2. Admin - Can manage content and users
+        // 2. Administrador - Puede gestionar contenido y usuarios
         $admin = Role::firstOrCreate(['name' => 'Admin']);
         $admin->syncPermissions([
             'access_admin_panel',
             'view_analytics',
 
-            // Full content management
-            'view_any_dynamic_content', 'create_dynamic_content', 'update_dynamic_content', 'delete_any_dynamic_content',
-            'view_any_content_gift', 'create_content_gift', 'update_content_gift', 'delete_any_content_gift',
-            'view_any_content_profile', 'create_content_profile', 'update_content_profile', 'delete_any_content_profile',
-            'view_any_content_menu', 'create_content_menu', 'update_content_menu', 'delete_any_content_menu',
-            'view_any_content_event', 'create_content_event', 'update_content_event', 'delete_any_content_event',
-            'view_any_content_product', 'create_content_product', 'update_content_product', 'delete_any_content_product',
-            'view_any_content_tourist', 'create_content_tourist', 'update_content_tourist', 'delete_any_content_tourist',
+            // Gestión completa de contenido
+            'view_any_dynamic_contents', 'create_dynamic_contents', 'update_dynamic_contents', 'delete_any_dynamic_contents',
+            'view_any_content_gifts', 'create_content_gifts', 'update_content_gifts', 'delete_any_content_gifts',
+            'view_any_content_profiles', 'create_content_profiles', 'update_content_profiles', 'delete_any_content_profiles',
+            'view_any_content_menus', 'create_content_menus', 'update_content_menus', 'delete_any_content_menus',
+            'view_any_content_events', 'create_content_events', 'update_content_events', 'delete_any_content_events',
+            'view_any_content_products', 'create_content_products', 'update_content_products', 'delete_any_content_products',
+            'view_any_content_tourists', 'create_content_tourists', 'update_content_tourists', 'delete_any_content_tourists',
+            'view_any_content_businesses', 'create_content_businesses', 'update_content_businesses', 'delete_any_content_businesses',
+            'view_any_content_business_groups', 'create_content_business_groups', 'update_content_business_groups', 'delete_any_content_business_groups',
+            'view_any_content_multimedia', 'create_content_multimedia', 'update_content_multimedia', 'delete_any_content_multimedia',
 
-            // NFC Token management
-            'view_any_nfc_token', 'create_nfc_token', 'update_nfc_token', 'delete_any_nfc_token',
+            // Gestión de NFC Tokens
+            'view_any_nfc_tokens', 'create_nfc_tokens', 'update_nfc_tokens', 'delete_any_nfc_tokens',
 
-            // Limited user management
-            'view_any_user', 'create_user', 'update_user',
+            // Gestión de usuarios limitada
+            'view_any_users', 'create_users', 'update_users',
+
+            // Transporte público
+            'view_any_bus_stops', 'create_bus_stops', 'update_bus_stops', 'delete_any_bus_stops',
+            'view_any_routes', 'create_routes', 'update_routes', 'delete_any_routes',
+            'view_any_schedules', 'create_schedules', 'update_schedules', 'delete_any_schedules',
+            'view_any_utility_phones', 'create_utility_phones', 'update_utility_phones', 'delete_any_utility_phones',
 
             'bulk_actions',
         ]);
 
-        // 3. Editor - Can create and edit content
+        // 3. Editor - Puede crear y editar contenido
         $editor = Role::firstOrCreate(['name' => 'Editor']);
         $editor->syncPermissions([
             'access_admin_panel',
 
-            // Content management (own content)
-            'view_dynamic_content', 'create_dynamic_content', 'update_dynamic_content',
-            'view_content_gift', 'create_content_gift', 'update_content_gift',
-            'view_content_profile', 'create_content_profile', 'update_content_profile',
-            'view_content_menu', 'create_content_menu', 'update_content_menu',
-            'view_content_event', 'create_content_event', 'update_content_event',
-            'view_content_product', 'create_content_product', 'update_content_product',
-            'view_content_tourist', 'create_content_tourist', 'update_content_tourist',
+            // Gestión de contenido (contenido propio)
+            'view_dynamic_contents', 'create_dynamic_contents', 'update_dynamic_contents',
+            'view_content_gifts', 'create_content_gifts', 'update_content_gifts',
+            'view_content_profiles', 'create_content_profiles', 'update_content_profiles',
+            'view_content_menus', 'create_content_menus', 'update_content_menus',
+            'view_content_events', 'create_content_events', 'update_content_events',
+            'view_content_products', 'create_content_products', 'update_content_products',
+            'view_content_tourists', 'create_content_tourists', 'update_content_tourists',
+            'view_content_businesses', 'create_content_businesses', 'update_content_businesses',
+            'view_content_multimedia', 'create_content_multimedia', 'update_content_multimedia',
 
-            // Can view but not manage tokens
-            'view_nfc_token',
+            // Puede ver pero no gestionar tokens
+            'view_nfc_tokens',
 
-            // Own tokens management
+            // Gestión de tokens propios
             'view_own_tokens',
             'configure_own_tokens',
             'manage_own_token_content',
         ]);
 
-        // 4. Viewer - Read-only access
+        // 4. Visualizador - Acceso solo de lectura
         $viewer = Role::firstOrCreate(['name' => 'Viewer']);
         $viewer->syncPermissions([
             'access_admin_panel',
 
-            // View-only permissions
-            'view_dynamic_content',
-            'view_content_gift',
-            'view_content_profile',
-            'view_content_menu',
-            'view_content_event',
-            'view_content_product',
-            'view_content_tourist',
-            'view_nfc_token',
+            // Permisos solo de visualización
+            'view_dynamic_contents',
+            'view_content_gifts',
+            'view_content_profiles',
+            'view_content_menus',
+            'view_content_events',
+            'view_content_products',
+            'view_content_tourists',
+            'view_content_businesses',
+            'view_content_multimedia',
+            'view_nfc_tokens',
+            'view_bus_stops',
+            'view_routes',
+            'view_schedules',
+            'view_utility_phones',
         ]);
 
-        // 5. Content Manager - Specialized for content types
+        // 5. Gestor de Contenido - Especializado en tipos de contenido
         $contentManager = Role::firstOrCreate(['name' => 'Content Manager']);
         $contentManager->syncPermissions([
             'access_admin_panel',
             'view_analytics',
 
-            // Full content management but no user/system management
-            'view_any_dynamic_content', 'create_dynamic_content', 'update_dynamic_content', 'delete_dynamic_content',
-            'view_any_content_gift', 'create_content_gift', 'update_content_gift', 'delete_content_gift',
-            'view_any_content_profile', 'create_content_profile', 'update_content_profile', 'delete_content_profile',
-            'view_any_content_menu', 'create_content_menu', 'update_content_menu', 'delete_content_menu',
-            'view_any_content_event', 'create_content_event', 'update_content_event', 'delete_content_event',
-            'view_any_content_product', 'create_content_product', 'update_content_product', 'delete_content_product',
-            'view_any_content_tourist', 'create_content_tourist', 'update_content_tourist', 'delete_content_tourist',
+            // Gestión completa de contenido pero no gestión de usuarios/sistema
+            'view_any_dynamic_contents', 'create_dynamic_contents', 'update_dynamic_contents', 'delete_dynamic_contents',
+            'view_any_content_gifts', 'create_content_gifts', 'update_content_gifts', 'delete_content_gifts',
+            'view_any_content_profiles', 'create_content_profiles', 'update_content_profiles', 'delete_content_profiles',
+            'view_any_content_menus', 'create_content_menus', 'update_content_menus', 'delete_content_menus',
+            'view_any_content_events', 'create_content_events', 'update_content_events', 'delete_content_events',
+            'view_any_content_products', 'create_content_products', 'update_content_products', 'delete_content_products',
+            'view_any_content_tourists', 'create_content_tourists', 'update_content_tourists', 'delete_content_tourists',
+            'view_any_content_businesses', 'create_content_businesses', 'update_content_businesses', 'delete_content_businesses',
+            'view_any_content_multimedia', 'create_content_multimedia', 'update_content_multimedia', 'delete_content_multimedia',
 
-            // NFC Token management
-            'view_any_nfc_token', 'create_nfc_token', 'update_nfc_token',
+            // Gestión de NFC Tokens
+            'view_any_nfc_tokens', 'create_nfc_tokens', 'update_nfc_tokens',
 
             'bulk_actions',
         ]);
@@ -210,6 +205,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage_own_token_content',
         ]);
 
-        $this->command->info('Roles and permissions created successfully!');
+        // Limpiar y refrescar cache de permisos después de crear/actualizar
+        PermissionCacheService::refreshCache();
+        
+        $this->command->info('¡Roles y permisos creados exitosamente!');
     }
 }

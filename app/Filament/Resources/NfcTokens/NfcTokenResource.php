@@ -38,32 +38,32 @@ class NfcTokenResource extends Resource
 
     public static function canViewAny(): bool
     {
-        return auth()->user()->can('view_any_nfc_token') || auth()->user()->can('view_nfc_token');
+        return auth()->user()->can('view_any_nfc_tokens') || auth()->user()->can('view_nfc_tokens');
     }
 
     public static function canCreate(): bool
     {
-        return auth()->user()->can('create_nfc_token');
+        return auth()->user()->can('create_nfc_tokens');
     }
 
     public static function canView($record): bool
     {
-        return auth()->user()->can('view_nfc_token', $record) || auth()->user()->can('view_any_nfc_token');
+        return auth()->user()->can('view_nfc_tokens', $record) || auth()->user()->can('view_any_nfc_tokens');
     }
 
     public static function canEdit($record): bool
     {
-        return auth()->user()->can('update_nfc_token', $record);
+        return auth()->user()->can('update_nfc_tokens', $record);
     }
 
     public static function canDelete($record): bool
     {
-        return auth()->user()->can('delete_nfc_token', $record) || auth()->user()->can('delete_any_nfc_token');
+        return auth()->user()->can('delete_nfc_tokens', $record) || auth()->user()->can('delete_any_nfc_tokens');
     }
 
     public static function canDeleteAny(): bool
     {
-        return auth()->user()->can('delete_any_nfc_token');
+        return auth()->user()->can('delete_any_nfc_tokens');
     }
 
     public static function form(Schema $schema): Schema
