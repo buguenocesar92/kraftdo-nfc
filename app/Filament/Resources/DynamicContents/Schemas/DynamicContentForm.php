@@ -6,14 +6,11 @@ use App\Models\DynamicContent;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Repeater;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Group;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 
 class DynamicContentForm
@@ -56,7 +53,7 @@ class DynamicContentForm
                                 'file_upload' => 'Archivo subido',
                                 'youtube' => 'YouTube',
                                 'vimeo' => 'Vimeo',
-                                'direct' => 'URL directa'
+                                'direct' => 'URL directa',
                             ]),
                         TextInput::make('audio_url')
                             ->label('URL del Audio')
@@ -68,7 +65,7 @@ class DynamicContentForm
                                 'youtube_music' => 'YouTube Music',
                                 'spotify' => 'Spotify',
                                 'soundcloud' => 'SoundCloud',
-                                'direct' => 'URL directa'
+                                'direct' => 'URL directa',
                             ]),
                         Textarea::make('gallery_images')
                             ->label('URLs de Galería (una por línea)')
@@ -250,8 +247,10 @@ class DynamicContentForm
                             ->dehydrateStateUsing(function ($state) {
                                 if (is_string($state)) {
                                     $decoded = json_decode($state, true);
+
                                     return json_last_error() === JSON_ERROR_NONE ? $decoded : $state;
                                 }
+
                                 return $state;
                             })
                             ->helperText('Formato JSON para configuraciones y datos de diseño.'),
@@ -267,7 +266,7 @@ class DynamicContentForm
                             ->options([
                                 'draft' => 'Borrador',
                                 'published' => 'Publicado',
-                                'paused' => 'Pausado'
+                                'paused' => 'Pausado',
                             ])
                             ->required()
                             ->default('draft'),

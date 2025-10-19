@@ -4,12 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     public function up(): void
     {
         // Check if table already exists to avoid conflicts in production
-        if (!Schema::hasTable('routes')) {
+        if (! Schema::hasTable('routes')) {
             Schema::create('routes', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('bus_stop_id')->constrained('bus_stops')->onDelete('cascade');
@@ -23,7 +22,7 @@ return new class extends Migration
                 $table->string('color', 7)->default('#007BFF')->comment('Color de identificación de la línea');
                 $table->boolean('is_active')->default(true);
                 $table->timestamps();
-                
+
                 $table->index(['bus_stop_id', 'is_active']);
                 $table->index('route_number');
             });

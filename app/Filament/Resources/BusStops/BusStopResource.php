@@ -19,22 +19,22 @@ class BusStopResource extends Resource
     protected static ?string $model = BusStop::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
-    
+
     public static function canAccess(): bool
     {
         return auth()->user()?->can('view_bus_stops') ?? false;
     }
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Transporte Público';
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Paraderos';
     }
-    
+
     public static function getNavigationSort(): ?int
     {
         return 1;

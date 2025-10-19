@@ -4,8 +4,8 @@ namespace App\Filament\Resources\ContentProducts\Schemas;
 
 use App\Models\DynamicContent;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -21,7 +21,7 @@ class ContentProductForm
                 //     ->label('Contenido Dinámico Asociado')
                 //     ->disabled()
                 //     ->helperText('Se crea automáticamente con los datos del producto'),
-                
+
                 TextInput::make('name')
                     ->label('Nombre del Producto')
                     ->required()

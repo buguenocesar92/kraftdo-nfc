@@ -19,17 +19,17 @@ class ContentProfileResource extends Resource
     protected static ?string $model = ContentProfile::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUser;
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Contenido Especializado';
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Perfiles';
     }
-    
+
     public static function getNavigationSort(): ?int
     {
         return 2;

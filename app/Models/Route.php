@@ -46,10 +46,10 @@ class Route extends Model
 
     public function getFormattedFareAttribute(): string
     {
-        if (!$this->fare) {
+        if (! $this->fare) {
             return 'Consultar';
         }
-        
+
         return '$' . number_format($this->fare, 0, ',', '.') . ' ' . $this->currency;
     }
 

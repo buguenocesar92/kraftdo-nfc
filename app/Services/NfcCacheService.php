@@ -2,23 +2,23 @@
 
 namespace App\Services;
 
-use App\Models\NfcToken;
-use App\Models\ContentGift;
-use App\Models\ContentProfile;
 use App\Models\ContentBusiness;
-use App\Models\ContentTourist;
 use App\Models\ContentBusinessGroup;
+use App\Models\ContentGift;
 use App\Models\ContentMultimedia;
+use App\Models\ContentProfile;
+use App\Models\ContentTourist;
 use App\Models\NfcAnalytic;
+use App\Models\NfcToken;
 use Illuminate\Support\Facades\Cache;
 
 class NfcCacheService
 {
     // TTL en segundos
-    const TOKEN_CACHE_TTL = 3600;        // 1 hora - tokens cambian poco
-    const CONTENT_CACHE_TTL = 1800;      // 30 min - contenido puede editarse
-    const ANALYTICS_CACHE_TTL = 600;     // 10 min - analytics se actualizan frecuentemente
-    const STATIC_CACHE_TTL = 86400;      // 24 horas - datos estáticos
+    public const TOKEN_CACHE_TTL = 3600;        // 1 hora - tokens cambian poco
+    public const CONTENT_CACHE_TTL = 1800;      // 30 min - contenido puede editarse
+    public const ANALYTICS_CACHE_TTL = 600;     // 10 min - analytics se actualizan frecuentemente
+    public const STATIC_CACHE_TTL = 86400;      // 24 horas - datos estáticos
 
     /**
      * Obtener token con cache optimizado para escaneos NFC
@@ -26,14 +26,14 @@ class NfcCacheService
     public static function getTokenWithContent(string $tokenId): ?array
     {
         $cacheKey = "nfc_token_full:{$tokenId}";
-        
-        return Cache::remember($cacheKey, self::TOKEN_CACHE_TTL, function() use ($tokenId) {
+
+        return Cache::remember($cacheKey, self::TOKEN_CACHE_TTL, function () use ($tokenId) {
             $token = NfcToken::with(['dynamicContent', 'user'])
                 ->where('token_id', $tokenId)
                 ->where('is_active', true)
                 ->first();
 
-            if (!$token || !$token->dynamicContent) {
+            if (! $token || ! $token->dynamicContent) {
                 return null;
             }
 
@@ -44,68 +44,68 @@ class NfcCacheService
             if ($token->content_type === 'GIFT') {
                 $contentData = [
                     'gift' => ContentGift::where('dynamic_content_id', $dynamicContent->id)->first(),
-                    'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
+                    'multimedia' => ContentMultimedia::with(['galleryImages' => function ($query) {
                         $query->orderBy('sort_order')->orderBy('id');
-                    }])->where('dynamic_content_id', $dynamicContent->id)->first()
+                    }])->where('dynamic_content_id', $dynamicContent->id)->first(),
                 ];
             } elseif ($token->content_type === 'PROFILE') {
                 $contentData = [
-                    'profile' => ContentProfile::with(['socialLinks' => function($query) {
+                    'profile' => ContentProfile::with(['socialLinks' => function ($query) {
                         $query->ordered();
                     }])->where('dynamic_content_id', $dynamicContent->id)->first(),
-                    'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
+                    'multimedia' => ContentMultimedia::with(['galleryImages' => function ($query) {
                         $query->orderBy('sort_order')->orderBy('id');
-                    }])->where('dynamic_content_id', $dynamicContent->id)->first()
+                    }])->where('dynamic_content_id', $dynamicContent->id)->first(),
                 ];
             } elseif ($token->content_type === 'BUSINESS') {
                 $contentData = [
-                    'business' => ContentBusiness::with(['socialLinks' => function($query) {
+                    'business' => ContentBusiness::with(['socialLinks' => function ($query) {
                         $query->ordered();
                     }, 'products', 'activeMenuImages'])->where('dynamic_content_id', $dynamicContent->id)->first(),
-                    'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
+                    'multimedia' => ContentMultimedia::with(['galleryImages' => function ($query) {
                         $query->orderBy('sort_order')->orderBy('id');
-                    }])->where('dynamic_content_id', $dynamicContent->id)->first()
+                    }])->where('dynamic_content_id', $dynamicContent->id)->first(),
                 ];
             } elseif ($token->content_type === 'TOURIST') {
                 $contentData = [
-                    'tourist' => ContentTourist::with(['nearbySpots' => function($query) {
+                    'tourist' => ContentTourist::with(['nearbySpots' => function ($query) {
                         $query->where('is_active', true)->orderBy('distance_km')->orderBy('sort_order');
-                    }])->where('dynamic_content_id', $dynamicContent->id)->first()
+                    }])->where('dynamic_content_id', $dynamicContent->id)->first(),
                 ];
             } elseif ($token->content_type === 'MENU') {
                 // MENU is deprecated - treating as BUSINESS (restaurantes)
                 $contentData = [
-                    'business' => ContentBusiness::with(['socialLinks' => function($query) {
+                    'business' => ContentBusiness::with(['socialLinks' => function ($query) {
                         $query->ordered();
                     }, 'directProducts', 'activeMenuImages'])->where('dynamic_content_id', $dynamicContent->id)->first(),
-                    'multimedia' => ContentMultimedia::with(['galleryImages' => function($query) {
+                    'multimedia' => ContentMultimedia::with(['galleryImages' => function ($query) {
                         $query->orderBy('sort_order')->orderBy('id');
-                    }])->where('dynamic_content_id', $dynamicContent->id)->first()
+                    }])->where('dynamic_content_id', $dynamicContent->id)->first(),
                 ];
             } elseif ($token->content_type === 'BUS_STOP') {
                 $contentData = [
-                    'bus_stop' => \App\Models\BusStop::with(['routes.schedules', 'utilityPhones'])->where('dynamic_content_id', $dynamicContent->id)->first()
+                    'bus_stop' => \App\Models\BusStop::with(['routes.schedules', 'utilityPhones'])->where('dynamic_content_id', $dynamicContent->id)->first(),
                 ];
             } elseif ($token->content_type === 'BUSINESS_GROUP') {
                 $businessGroup = ContentBusinessGroup::with([
-                    'memberBusinesses' => function($query) {
+                    'memberBusinesses' => function ($query) {
                         $query->wherePivot('member_status', 'active')
-                              ->orderByPivot('display_order')
-                              ->orderByPivot('is_featured', 'desc');
+                            ->orderByPivot('display_order')
+                            ->orderByPivot('is_featured', 'desc');
                     },
                     'memberBusinesses.dynamicContent',
-                    'memberBusinesses.dynamicContent.nfcToken'
+                    'memberBusinesses.dynamicContent.nfcToken',
                 ])->where('dynamic_content_id', $dynamicContent->id)->first();
-                
+
                 $contentData = [
-                    'business_group' => $businessGroup
+                    'business_group' => $businessGroup,
                 ];
             }
 
             return [
                 'token' => $token,
                 'dynamicContent' => $dynamicContent,
-                'content' => $contentData
+                'content' => $contentData,
             ];
         });
     }
@@ -116,8 +116,8 @@ class NfcCacheService
     public static function getCachedAnalytics(string $contentId): array
     {
         $cacheKey = "analytics_stats:{$contentId}";
-        
-        return Cache::remember($cacheKey, self::ANALYTICS_CACHE_TTL, function() use ($contentId) {
+
+        return Cache::remember($cacheKey, self::ANALYTICS_CACHE_TTL, function () use ($contentId) {
             return NfcAnalytic::getStatsForContent($contentId);
         });
     }
@@ -128,8 +128,8 @@ class NfcCacheService
     public static function getCachedGlobalStats(): array
     {
         $cacheKey = "global_analytics_stats";
-        
-        return Cache::remember($cacheKey, self::ANALYTICS_CACHE_TTL, function() {
+
+        return Cache::remember($cacheKey, self::ANALYTICS_CACHE_TTL, function () {
             return NfcAnalytic::getGlobalStats();
         });
     }
@@ -139,7 +139,7 @@ class NfcCacheService
      */
     public static function getCachedCustomizationPlans(): array
     {
-        return Cache::rememberForever('customization_plans', function() {
+        return Cache::rememberForever('customization_plans', function () {
             return NfcToken::getCustomizationPlans();
         });
     }
@@ -150,9 +150,10 @@ class NfcCacheService
     public static function getCachedTokenROI(int $tokenId): array
     {
         $cacheKey = "token_roi:{$tokenId}";
-        
-        return Cache::remember($cacheKey, 300, function() use ($tokenId) { // 5 min TTL
+
+        return Cache::remember($cacheKey, 300, function () use ($tokenId) { // 5 min TTL
             $token = NfcToken::find($tokenId);
+
             return $token ? $token->getROI() : [];
         });
     }
@@ -162,7 +163,7 @@ class NfcCacheService
      */
     public static function getCachedThemes(): array
     {
-        return Cache::rememberForever('multimedia_themes', function() {
+        return Cache::rememberForever('multimedia_themes', function () {
             return \App\Helpers\ThemeHelper::getAllThemes();
         });
     }
@@ -177,7 +178,7 @@ class NfcCacheService
     public static function invalidateTokenCache(string $tokenId): void
     {
         Cache::forget("nfc_token_full:{$tokenId}");
-        
+
         // Si tenemos el ID numérico, invalidar ROI también
         $token = NfcToken::where('token_id', $tokenId)->first();
         if ($token) {
@@ -191,12 +192,12 @@ class NfcCacheService
     public static function invalidateContentCache(string $contentId): void
     {
         Cache::forget("analytics_stats:{$contentId}");
-        
+
         // Buscar token relacionado e invalidar
-        $token = NfcToken::whereHas('dynamicContent', function($query) use ($contentId) {
+        $token = NfcToken::whereHas('dynamicContent', function ($query) use ($contentId) {
             $query->where('content_id', $contentId);
         })->first();
-        
+
         if ($token) {
             self::invalidateTokenCache($token->token_id);
         }
@@ -219,11 +220,11 @@ class NfcCacheService
         // Obtener todas las claves de cache NFC
         $patterns = [
             'nfc_token_full:*',
-            'analytics_stats:*', 
+            'analytics_stats:*',
             'token_roi:*',
             'global_analytics_stats',
             'customization_plans',
-            'multimedia_themes'
+            'multimedia_themes',
         ];
 
         foreach ($patterns as $pattern) {
@@ -245,7 +246,7 @@ class NfcCacheService
         $stats = [
             'cache_driver' => $driver,
         ];
-        
+
         // Solo obtener info de Redis si estamos usando Redis
         if ($driver === 'redis') {
             try {
@@ -254,7 +255,7 @@ class NfcCacheService
                 $stats['redis_info'] = 'No disponible: ' . $e->getMessage();
             }
         }
-        
+
         return $stats;
     }
 }

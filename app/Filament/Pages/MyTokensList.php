@@ -6,13 +6,12 @@ use App\Models\NfcToken;
 use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 
 class MyTokensList extends Page implements HasTable
@@ -29,8 +28,6 @@ class MyTokensList extends Page implements HasTable
 
     protected static ?string $slug = 'my-tokens';
 
-
-
     public function getView(): string
     {
         return 'filament.pages.my-tokens-list';
@@ -39,6 +36,7 @@ class MyTokensList extends Page implements HasTable
     public function getTitle(): string
     {
         $tokensCount = $this->getTableQuery()->count();
+
         return "Mis Tokens ({$tokensCount})";
     }
 
@@ -51,7 +49,7 @@ class MyTokensList extends Page implements HasTable
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
-                
+
                 TextColumn::make('name')
                     ->label('Nombre')
                     ->sortable()
@@ -68,7 +66,7 @@ class MyTokensList extends Page implements HasTable
                 BadgeColumn::make('content_type')
                     ->label('Tipo')
                     ->formatStateUsing(function ($state) {
-                        return match($state) {
+                        return match ($state) {
                             'GIFT' => '🎁 Regalo',
                             'BUSINESS' => '🏢 Negocio',
                             'PROFILE' => '👤 Perfil',
@@ -79,7 +77,7 @@ class MyTokensList extends Page implements HasTable
                     })
                     ->colors([
                         'success' => 'GIFT',
-                        'info' => 'BUSINESS', 
+                        'info' => 'BUSINESS',
                         'warning' => 'PROFILE',
                         'primary' => 'TOURIST',
                         'secondary' => 'BUS_STOP',
@@ -101,6 +99,7 @@ class MyTokensList extends Page implements HasTable
                     ->formatStateUsing(function ($state, $record) {
                         if ($record->is_active) {
                             $url = url("/token/{$record->token_id}");
+
                             return new HtmlString("<a href='{$url}' target='_blank' class='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200'>
                                 <svg class='w-3 h-3 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                     <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'></path>
@@ -108,6 +107,7 @@ class MyTokensList extends Page implements HasTable
                                 Backend
                             </a>");
                         }
+
                         return new HtmlString("<span class='text-gray-400 text-xs'>Inactivo</span>");
                     })
                     ->html(),
@@ -120,6 +120,7 @@ class MyTokensList extends Page implements HasTable
                     ->formatStateUsing(function ($state, $record) {
                         if ($record->is_active) {
                             $url = "http://127.0.0.1:3000/token/{$record->token_id}";
+
                             return new HtmlString("<a href='{$url}' target='_blank' class='inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors duration-200'>
                                 <svg class='w-3 h-3 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                     <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'></path>
@@ -127,6 +128,7 @@ class MyTokensList extends Page implements HasTable
                                 Frontend
                             </a>");
                         }
+
                         return new HtmlString("<span class='text-gray-400 text-xs'>Inactivo</span>");
                     })
                     ->html(),
@@ -150,8 +152,9 @@ class MyTokensList extends Page implements HasTable
                     ->label('Configurar')
                     ->icon('heroicon-o-cog-6-tooth')
                     ->color('primary')
-                    ->visible(fn (NfcToken $record) => 
-                        $record->content_type === 'GIFT' && 
+                    ->visible(
+                        fn (NfcToken $record) =>
+                        $record->content_type === 'GIFT' &&
                         auth()->user()->can('configure_own_tokens') &&
                         $record->user_id === auth()->id()
                     )
@@ -162,8 +165,9 @@ class MyTokensList extends Page implements HasTable
                     ->label('Configurar Perfil')
                     ->icon('heroicon-o-user')
                     ->color('success')
-                    ->visible(fn (NfcToken $record) => 
-                        $record->content_type === 'PROFILE' && 
+                    ->visible(
+                        fn (NfcToken $record) =>
+                        $record->content_type === 'PROFILE' &&
                         auth()->user()->can('configure_own_tokens') &&
                         $record->user_id === auth()->id()
                     )

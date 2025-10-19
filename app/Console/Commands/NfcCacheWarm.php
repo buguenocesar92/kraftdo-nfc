@@ -69,19 +69,19 @@ class NfcCacheWarm extends Command
 
         foreach ($tokens as $token) {
             $cacheKey = "nfc_token_full:{$token->token_id}";
-            
-            if (!$force && \Cache::has($cacheKey)) {
+
+            if (! $force && \Cache::has($cacheKey)) {
                 $skipped++;
             } else {
                 // Pre-cachear token con contenido
                 NfcCacheService::getTokenWithContent($token->token_id);
-                
+
                 // Pre-cachear ROI si es necesario
                 NfcCacheService::getCachedTokenROI($token->id);
-                
+
                 $cached++;
             }
-            
+
             $bar->advance();
         }
 

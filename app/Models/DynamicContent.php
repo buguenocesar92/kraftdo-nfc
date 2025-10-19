@@ -30,7 +30,7 @@ class DynamicContent extends Model
         'published_snapshot',
         'user_id',
         'nfc_token_id',
-        
+
         // Referencias a tablas especializadas
         'multimedia_id',
         'gift_id',
@@ -60,7 +60,7 @@ class DynamicContent extends Model
     public const TYPE_TOURIST = 'TOURIST';
     public const TYPE_EVENT = 'EVENT';
     public const TYPE_PRODUCT = 'PRODUCT';
-    
+
     // Constantes para tipos especializados
     public const TYPE_BUS_STOP = 'BUS_STOP';
     public const TYPE_BUSINESS_GROUP = 'BUSINESS_GROUP'; // Para agrupar múltiples negocios
@@ -74,12 +74,12 @@ class DynamicContent extends Model
     public const TYPES = [
         // Tipos activos (con recursos especializados)
         self::TYPE_GIFT => '🎁 Regalo Personalizado',
-        self::TYPE_PROFILE => '👤 Perfil Personal', 
+        self::TYPE_PROFILE => '👤 Perfil Personal',
         self::TYPE_BUSINESS => '🏢 Negocio / Restaurante',
         self::TYPE_TOURIST => '🗺️ Información Turística',
         self::TYPE_EVENT => '📅 Evento',
         self::TYPE_PRODUCT => '📦 Producto',
-        
+
         // Tipos especializados
         self::TYPE_BUS_STOP => '🚌 Paradero de Transporte',
         self::TYPE_BUSINESS_GROUP => '🏪 Grupo de Negocios',
@@ -251,45 +251,69 @@ class DynamicContent extends Model
     public function syncReferences(): void
     {
         $updates = [];
-        
+
         // Multimedia
         if ($this->multimedia) {
             $updates['multimedia_id'] = $this->multimedia->id;
         }
-        
+
         // Tipo específico
         switch ($this->type) {
             case self::TYPE_GIFT:
-                if ($this->gift) $updates['gift_id'] = $this->gift->id;
+                if ($this->gift) {
+                    $updates['gift_id'] = $this->gift->id;
+                }
+
                 break;
-            // MENU type deprecated - now handled by BUSINESS type
-            // case 'MENU': // DEPRECATED - tabla eliminada
-            //     if ($this->menu) $updates['menu_id'] = $this->menu->id;
-            //     break;
+                // MENU type deprecated - now handled by BUSINESS type
+                // case 'MENU': // DEPRECATED - tabla eliminada
+                //     if ($this->menu) $updates['menu_id'] = $this->menu->id;
+                //     break;
             case self::TYPE_PROFILE:
-                if ($this->profile) $updates['profile_id'] = $this->profile->id;
+                if ($this->profile) {
+                    $updates['profile_id'] = $this->profile->id;
+                }
+
                 break;
             case self::TYPE_EVENT:
-                if ($this->event) $updates['event_id'] = $this->event->id;
+                if ($this->event) {
+                    $updates['event_id'] = $this->event->id;
+                }
+
                 break;
             case self::TYPE_PRODUCT:
-                if ($this->product) $updates['product_id'] = $this->product->id;
+                if ($this->product) {
+                    $updates['product_id'] = $this->product->id;
+                }
+
                 break;
             case self::TYPE_TOURIST:
-                if ($this->tourist) $updates['tourist_id'] = $this->tourist->id;
+                if ($this->tourist) {
+                    $updates['tourist_id'] = $this->tourist->id;
+                }
+
                 break;
             case self::TYPE_BUSINESS:
-                if ($this->business) $updates['business_id'] = $this->business->id;
+                if ($this->business) {
+                    $updates['business_id'] = $this->business->id;
+                }
+
                 break;
             case self::TYPE_BUS_STOP:
-                if ($this->busStop) $updates['bus_stop_id'] = $this->busStop->id;
+                if ($this->busStop) {
+                    $updates['bus_stop_id'] = $this->busStop->id;
+                }
+
                 break;
             case self::TYPE_BUSINESS_GROUP:
-                if ($this->businessGroup) $updates['business_group_id'] = $this->businessGroup->id;
+                if ($this->businessGroup) {
+                    $updates['business_group_id'] = $this->businessGroup->id;
+                }
+
                 break;
         }
-        
-        if (!empty($updates)) {
+
+        if (! empty($updates)) {
             $this->update($updates);
         }
     }
@@ -302,10 +326,10 @@ class DynamicContent extends Model
         $multimedia = $this->multimedia ?? new ContentMultimedia(['dynamic_content_id' => $this->id]);
         $multimedia->fill($data);
         $multimedia->save();
-        
+
         // Sincronizar referencia
         $this->update(['multimedia_id' => $multimedia->id]);
-        
+
         return $multimedia;
     }
 
@@ -317,10 +341,10 @@ class DynamicContent extends Model
         $gift = $this->gift ?? new ContentGift(['dynamic_content_id' => $this->id]);
         $gift->fill($data);
         $gift->save();
-        
+
         // Sincronizar referencia
         $this->update(['gift_id' => $gift->id]);
-        
+
         return $gift;
     }
 
@@ -334,10 +358,10 @@ class DynamicContent extends Model
     //     $menu = $this->menu ?? new ContentMenu(['dynamic_content_id' => $this->id]);
     //     $menu->fill($data);
     //     $menu->save();
-    //     
+    //
     //     // Sincronizar referencia
     //     $this->update(['menu_id' => $menu->id]);
-    //     
+    //
     //     return $menu;
     // }
 
@@ -349,10 +373,10 @@ class DynamicContent extends Model
         $profile = $this->profile ?? new ContentProfile(['dynamic_content_id' => $this->id]);
         $profile->fill($data);
         $profile->save();
-        
+
         // Sincronizar referencia
         $this->update(['profile_id' => $profile->id]);
-        
+
         return $profile;
     }
 
@@ -364,10 +388,10 @@ class DynamicContent extends Model
         $event = $this->event ?? new ContentEvent(['dynamic_content_id' => $this->id]);
         $event->fill($data);
         $event->save();
-        
+
         // Sincronizar referencia
         $this->update(['event_id' => $event->id]);
-        
+
         return $event;
     }
 
@@ -379,10 +403,10 @@ class DynamicContent extends Model
         $product = $this->product ?? new ContentProduct(['dynamic_content_id' => $this->id]);
         $product->fill($data);
         $product->save();
-        
+
         // Sincronizar referencia
         $this->update(['product_id' => $product->id]);
-        
+
         return $product;
     }
 
@@ -394,10 +418,10 @@ class DynamicContent extends Model
         $tourist = $this->tourist ?? new ContentTourist(['dynamic_content_id' => $this->id]);
         $tourist->fill($data);
         $tourist->save();
-        
+
         // Sincronizar referencia
         $this->update(['tourist_id' => $tourist->id]);
-        
+
         return $tourist;
     }
 
@@ -409,10 +433,10 @@ class DynamicContent extends Model
         $business = $this->business ?? new ContentBusiness(['dynamic_content_id' => $this->id]);
         $business->fill($data);
         $business->save();
-        
+
         // Sincronizar referencia
         $this->update(['business_id' => $business->id]);
-        
+
         return $business;
     }
 
@@ -424,10 +448,10 @@ class DynamicContent extends Model
         $businessGroup = $this->businessGroup ?? new ContentBusinessGroup(['dynamic_content_id' => $this->id]);
         $businessGroup->fill($data);
         $businessGroup->save();
-        
+
         // Sincronizar referencia
         $this->update(['business_group_id' => $businessGroup->id]);
-        
+
         return $businessGroup;
     }
 
@@ -440,7 +464,7 @@ class DynamicContent extends Model
      */
     public static function getTypeColors(string $type): array
     {
-        return match($type) {
+        return match ($type) {
             self::TYPE_GIFT => ['primary' => '#E91E63', 'secondary' => '#FCE4EC'],
             self::TYPE_BUSINESS => ['primary' => '#FF6B35', 'secondary' => '#FFF3E0'], // Incluye restaurantes
             self::TYPE_PROFILE => ['primary' => '#9C27B0', 'secondary' => '#F3E5F5'],
@@ -458,7 +482,7 @@ class DynamicContent extends Model
      */
     public static function getTypeIcon(string $type): string
     {
-        return match($type) {
+        return match ($type) {
             self::TYPE_GIFT => '🎁',
             self::TYPE_BUSINESS => '🏢', // Incluye restaurantes 🍽️
             self::TYPE_PROFILE => '👤',
@@ -477,8 +501,8 @@ class DynamicContent extends Model
     public static function findActiveByContentId(string $contentId, ?string $type = null): ?self
     {
         $query = self::where('content_id', $contentId)
-                    ->where('is_active', true)
-                    ->where('status', 'published');
+            ->where('is_active', true)
+            ->where('status', 'published');
 
         if ($type) {
             $query->where('type', $type);
@@ -493,10 +517,10 @@ class DynamicContent extends Model
     public static function getByType(string $type): \Illuminate\Database\Eloquent\Collection
     {
         return self::where('type', $type)
-                  ->where('is_active', true)
-                  ->where('status', 'published')
-                  ->orderBy('created_at', 'desc')
-                  ->get();
+            ->where('is_active', true)
+            ->where('status', 'published')
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     /**
@@ -627,7 +651,7 @@ class DynamicContent extends Model
     public function getMultimediaDataAttribute()
     {
         $multimedia = $this->multimedia;
-        
+
         return [
             'video' => array_merge(
                 ['url' => $multimedia?->video_url, 'type' => $multimedia?->video_type],
@@ -638,7 +662,7 @@ class DynamicContent extends Model
                 $this->data['multimedia']['audio'] ?? []
             ),
             'gallery' => $multimedia?->gallery_images ?? $this->data['multimedia']['gallery'] ?? [],
-            'design' => $this->data['multimedia']['design'] ?? []
+            'design' => $this->data['multimedia']['design'] ?? [],
         ];
     }
 
@@ -711,7 +735,7 @@ class DynamicContent extends Model
             'status' => 'published',
             'published_at' => now(),
             'published_snapshot' => $this->createSnapshot(),
-            'is_active' => true
+            'is_active' => true,
         ]);
     }
 
@@ -721,7 +745,7 @@ class DynamicContent extends Model
     public function pause(): void
     {
         $this->update([
-            'status' => 'paused'
+            'status' => 'paused',
         ]);
     }
 
@@ -731,12 +755,12 @@ class DynamicContent extends Model
     public function updateDraft(array $data): void
     {
         $data['last_draft_update'] = now();
-        
+
         // Si está publicado, contar como modificación post-publicación
         if ($this->isPublished()) {
             $data['post_publish_modifications'] = $this->post_publish_modifications + 1;
         }
-        
+
         $this->update($data);
     }
 
@@ -777,7 +801,7 @@ class DynamicContent extends Model
             'description' => $this->description,
             'data' => $this->data,
             'image_url' => $this->image_url,
-            'created_at' => now()->toISOString()
+            'created_at' => now()->toISOString(),
         ];
     }
 
@@ -787,15 +811,17 @@ class DynamicContent extends Model
 
     /**
      * Scope para contenido público
+     * @param mixed $query
      */
     public function scopePublic($query)
     {
         return $query->where('status', 'published')
-                    ->where('is_active', true);
+            ->where('is_active', true);
     }
 
     /**
      * Scope para borradores
+     * @param mixed $query
      */
     public function scopeDrafts($query)
     {
@@ -804,6 +830,7 @@ class DynamicContent extends Model
 
     /**
      * Scope por tipo
+     * @param mixed $query
      */
     public function scopeOfType($query, string $type)
     {

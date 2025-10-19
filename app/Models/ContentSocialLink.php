@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContentSocialLink extends Model
 {
@@ -31,7 +31,7 @@ class ContentSocialLink extends Model
             'base_url' => 'https://instagram.com/',
         ],
         'linkedin' => [
-            'name' => 'LinkedIn', 
+            'name' => 'LinkedIn',
             'icon' => 'fab fa-linkedin',
             'color' => 'text-blue-600',
             'base_url' => 'https://linkedin.com/in/',
@@ -114,6 +114,7 @@ class ContentSocialLink extends Model
 
     /**
      * Scope ordenado por sort_order
+     * @param mixed $query
      */
     public function scopeOrdered($query)
     {

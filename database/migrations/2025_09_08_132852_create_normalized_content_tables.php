@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -22,7 +21,7 @@ return new class extends Migration
             $table->json('gallery_images')->nullable();
             $table->json('settings')->nullable()->comment('Configuraciones de multimedia (autoplay, loop, etc.)');
             $table->timestamps();
-            
+
             $table->index('dynamic_content_id');
         });
 
@@ -34,7 +33,7 @@ return new class extends Migration
             $table->string('recipient_name')->nullable();
             $table->text('message')->nullable();
             $table->timestamps();
-            
+
             $table->unique('dynamic_content_id');
         });
 
@@ -47,7 +46,7 @@ return new class extends Migration
             $table->text('restaurant_address')->nullable();
             $table->string('restaurant_hours')->nullable();
             $table->timestamps();
-            
+
             $table->unique('dynamic_content_id');
         });
 
@@ -64,7 +63,7 @@ return new class extends Migration
             $table->boolean('available')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-            
+
             $table->index(['content_menu_id', 'category']);
             $table->index(['content_menu_id', 'sort_order']);
         });
@@ -78,7 +77,7 @@ return new class extends Migration
             $table->string('contact_website')->nullable();
             $table->text('bio')->nullable();
             $table->timestamps();
-            
+
             $table->unique('dynamic_content_id');
         });
 
@@ -91,7 +90,7 @@ return new class extends Migration
             $table->string('username')->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-            
+
             $table->index(['dynamic_content_id', 'platform']);
         });
 
@@ -104,7 +103,7 @@ return new class extends Migration
             $table->string('category')->nullable();
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-            
+
             $table->index(['dynamic_content_id', 'category']);
         });
 
@@ -120,7 +119,7 @@ return new class extends Migration
             $table->string('ticket_currency', 3)->default('USD');
             $table->string('registration_url')->nullable();
             $table->timestamps();
-            
+
             $table->unique('dynamic_content_id');
             $table->index('event_start_date');
         });
@@ -138,7 +137,7 @@ return new class extends Migration
             $table->json('specifications')->nullable();
             $table->string('purchase_url')->nullable();
             $table->timestamps();
-            
+
             $table->unique('dynamic_content_id');
             $table->index('sku');
         });
@@ -157,7 +156,7 @@ return new class extends Migration
             $table->string('website_url')->nullable();
             $table->string('phone')->nullable();
             $table->timestamps();
-            
+
             $table->unique('dynamic_content_id');
             $table->index(['latitude', 'longitude']);
         });

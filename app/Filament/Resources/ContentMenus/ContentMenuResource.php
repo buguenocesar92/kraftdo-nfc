@@ -19,19 +19,19 @@ class ContentMenuResource extends Resource
     protected static ?string $model = ContentMenu::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
-    
+
     protected static bool $shouldRegisterNavigation = false;
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Contenido Especializado';
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Restaurantes';
     }
-    
+
     public static function getNavigationSort(): ?int
     {
         return 4;

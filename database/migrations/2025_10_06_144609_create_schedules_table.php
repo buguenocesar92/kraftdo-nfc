@@ -4,12 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     public function up(): void
     {
         // Check if table already exists to avoid conflicts in production
-        if (!Schema::hasTable('schedules')) {
+        if (! Schema::hasTable('schedules')) {
             Schema::create('schedules', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('route_id')->constrained('routes')->onDelete('cascade');
@@ -19,7 +18,7 @@ return new class extends Migration
                 $table->text('notes')->nullable()->comment('Notas adicionales sobre el horario');
                 $table->boolean('is_active')->default(true);
                 $table->timestamps();
-                
+
                 $table->index(['route_id', 'day_of_week', 'is_active']);
             });
         }

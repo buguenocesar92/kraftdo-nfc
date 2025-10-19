@@ -17,7 +17,7 @@ class CreateNfcToken extends CreateRecord
     protected function afterCreate(): void
     {
         $nfcToken = $this->record;
-        
+
         // Crear contenido dinámico automáticamente
         DynamicContent::create([
             'content_id' => $nfcToken->token_id, // Usar el mismo UUID del token

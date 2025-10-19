@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class ContentTourist extends Model
 {
@@ -79,17 +78,17 @@ class ContentTourist extends Model
      */
     public function isCurrentlyOpen(): ?bool
     {
-        if (!$this->opening_hours) {
+        if (! $this->opening_hours) {
             return null; // No se conocen los horarios
         }
 
         $now = now();
-        $dayOfWeek = strtolower($now->format('l')); // monday, tuesday, etc.
+        $dayOfWeek = mb_strtolower($now->format('l')); // monday, tuesday, etc.
         $currentTime = $now->format('H:i');
 
         $todayHours = $this->opening_hours[$dayOfWeek] ?? null;
 
-        if (!$todayHours || $todayHours === 'closed') {
+        if (! $todayHours || $todayHours === 'closed') {
             return false;
         }
 
@@ -106,8 +105,8 @@ class ContentTourist extends Model
         // Si es string (formato actual: "06:00 - 20:00")
         if (is_string($todayHours) && str_contains($todayHours, ' - ')) {
             [$open, $close] = explode(' - ', $todayHours);
-            $open = trim($open);
-            $close = trim($close);
+            $open = mb_trim($open);
+            $close = mb_trim($close);
 
             if ($open && $close) {
                 return $currentTime >= $open && $currentTime <= $close;
@@ -122,7 +121,7 @@ class ContentTourist extends Model
      */
     public function getCoordinatesString(): ?string
     {
-        if (!$this->latitude || !$this->longitude) {
+        if (! $this->latitude || ! $this->longitude) {
             return null;
         }
 
@@ -135,8 +134,8 @@ class ContentTourist extends Model
     public function getGoogleMapsUrl(): ?string
     {
         $coords = $this->getCoordinatesString();
-        
-        if (!$coords) {
+
+        if (! $coords) {
             return null;
         }
 
@@ -148,7 +147,7 @@ class ContentTourist extends Model
      */
     public function hasAccessibilityInfo(): bool
     {
-        return !empty($this->accessibility_info) && is_array($this->accessibility_info);
+        return ! empty($this->accessibility_info) && is_array($this->accessibility_info);
     }
 
     /**
@@ -156,14 +155,14 @@ class ContentTourist extends Model
      */
     public function getTodayHours(): mixed
     {
-        if (!$this->opening_hours) {
+        if (! $this->opening_hours) {
             return null;
         }
 
-        $today = strtolower(now()->format('l'));
+        $today = mb_strtolower(now()->format('l'));
+
         return $this->opening_hours[$today] ?? null;
     }
-
 
     /**
      * Obtener tipos de lugares disponibles
@@ -189,7 +188,7 @@ class ContentTourist extends Model
      */
     public function getMapData(): array
     {
-        if (!$this->latitude || !$this->longitude) {
+        if (! $this->latitude || ! $this->longitude) {
             return [];
         }
 
@@ -206,10 +205,11 @@ class ContentTourist extends Model
                 'description' => $this->dynamicContent?->description ?? '',
                 'type' => 'main',
                 'color' => '#DC2626',
-                'icon' => 'map-pin'
+                'icon' => 'map-pin',
             ],
             'nearbySpots' => $this->activeNearbySpots->map(function ($spot) {
                 $typeInfo = $spot->getSpotTypeInfo();
+
                 return [
                     'lat' => (float) $spot->latitude,
                     'lng' => (float) $spot->longitude,
@@ -247,10 +247,10 @@ class ContentTourist extends Model
 
     /**
      * Scope para buscar por lugar tipo
+     * @param mixed $query
      */
     public function scopeByPlaceType($query, string $type)
     {
         return $query->where('place_type', $type);
     }
-
 }

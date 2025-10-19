@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContentMultimedia extends Model
 {
@@ -54,6 +54,7 @@ class ContentMultimedia extends Model
         if ($this->video_type === 'file_upload' && $this->video_file) {
             return asset('storage/' . $this->video_file);
         }
+
         return $this->video_url;
     }
 
@@ -65,6 +66,7 @@ class ContentMultimedia extends Model
         if ($this->audio_type === 'file_upload' && $this->audio_file) {
             return asset('storage/' . $this->audio_file);
         }
+
         return $this->audio_url;
     }
 

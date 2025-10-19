@@ -1,12 +1,9 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -14,7 +11,7 @@ return new class extends Migration
     {
         // 1. Migrar datos de content_menus a content_businesses
         $menus = DB::table('content_menus')->get();
-        
+
         foreach ($menus as $menu) {
             // Crear el registro de business para cada menu
             DB::table('content_businesses')->insert([
@@ -49,7 +46,7 @@ return new class extends Migration
             ->select([
                 'content_menu_items.*',
                 'content_menus.dynamic_content_id',
-                'content_businesses.id as content_business_id'
+                'content_businesses.id as content_business_id',
             ])
             ->get();
 
@@ -73,9 +70,9 @@ return new class extends Migration
 
         // 3. Actualizar dynamic_content type de MENU a BUSINESS para restaurantes
         DB::table('dynamic_content')
-            ->whereIn('id', function($query) {
+            ->whereIn('id', function ($query) {
                 $query->select('dynamic_content_id')
-                      ->from('content_menus');
+                    ->from('content_menus');
             })
             ->update(['type' => 'BUSINESS']);
 
@@ -93,33 +90,33 @@ return new class extends Migration
         // Revertir los cambios si es necesario
         // Nota: Esto sería complejo ya que perdemos la información de separación
         // Entre restaurantes y negocios normales, pero podemos usar business_type
-        
+
         // 1. Restaurar nfc_tokens
         DB::table('nfc_tokens')
-            ->whereIn('token_id', function($query) {
+            ->whereIn('token_id', function ($query) {
                 $query->select('nfc_tokens.token_id')
-                      ->from('nfc_tokens')
-                      ->join('dynamic_content', 'nfc_tokens.content_id', '=', 'dynamic_content.content_id')
-                      ->join('content_businesses', 'dynamic_content.id', '=', 'content_businesses.dynamic_content_id')
-                      ->where('content_businesses.business_type', 'restaurant');
+                    ->from('nfc_tokens')
+                    ->join('dynamic_content', 'nfc_tokens.content_id', '=', 'dynamic_content.content_id')
+                    ->join('content_businesses', 'dynamic_content.id', '=', 'content_businesses.dynamic_content_id')
+                    ->where('content_businesses.business_type', 'restaurant');
             })
             ->update(['content_type' => 'MENU']);
 
         // 2. Restaurar dynamic_content
         DB::table('dynamic_content')
-            ->whereIn('id', function($query) {
+            ->whereIn('id', function ($query) {
                 $query->select('dynamic_content_id')
-                      ->from('content_businesses')
-                      ->where('business_type', 'restaurant');
+                    ->from('content_businesses')
+                    ->where('business_type', 'restaurant');
             })
             ->update(['type' => 'MENU']);
 
         // 3. Eliminar productos que eran items de menú
         DB::table('content_products')
-            ->whereIn('content_business_id', function($query) {
+            ->whereIn('content_business_id', function ($query) {
                 $query->select('id')
-                      ->from('content_businesses')
-                      ->where('business_type', 'restaurant');
+                    ->from('content_businesses')
+                    ->where('business_type', 'restaurant');
             })
             ->delete();
 

@@ -41,7 +41,7 @@ class ContentEvent extends Model
 
         // Auto-crear DynamicContent cuando se crea un ContentEvent
         static::creating(function ($event) {
-            if (!$event->dynamic_content_id) {
+            if (! $event->dynamic_content_id) {
                 // Crear NFC Token
                 $nfcToken = \App\Models\NfcToken::create([
                     'name' => 'Token: Evento ' . ($event->event_organizer ?? 'Sin nombre'),
@@ -61,7 +61,7 @@ class ContentEvent extends Model
                     'status' => 'published',
                     'user_id' => auth()->id() ?? 1,
                 ]);
-                
+
                 $event->dynamic_content_id = $dynamicContent->id;
             }
         });
@@ -99,7 +99,7 @@ class ContentEvent extends Model
      */
     public function requiresRegistration(): bool
     {
-        return $this->registration_required && !empty($this->registration_url);
+        return $this->registration_required && ! empty($this->registration_url);
     }
 
     /**
@@ -107,7 +107,7 @@ class ContentEvent extends Model
      */
     public function getDurationInHours(): ?int
     {
-        if (!$this->event_start_date || !$this->event_end_date) {
+        if (! $this->event_start_date || ! $this->event_end_date) {
             return null;
         }
 

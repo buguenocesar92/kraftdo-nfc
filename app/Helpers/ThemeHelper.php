@@ -22,7 +22,7 @@ class ThemeHelper
                     'section_bg' => 'from-pink-50 to-rose-50',
                     'section_border' => 'border-pink-200',
                     'section_text' => 'from-pink-600 via-rose-600 to-red-600',
-                ]
+                ],
             ],
             'birthday' => [
                 'name' => 'Cumpleaños',
@@ -39,7 +39,7 @@ class ThemeHelper
                     'section_bg' => 'from-yellow-50 to-orange-50',
                     'section_border' => 'border-orange-200',
                     'section_text' => 'from-yellow-600 via-orange-600 to-red-600',
-                ]
+                ],
             ],
             'anniversary' => [
                 'name' => 'Aniversario',
@@ -56,7 +56,7 @@ class ThemeHelper
                     'section_bg' => 'from-amber-50 to-yellow-50',
                     'section_border' => 'border-amber-200',
                     'section_text' => 'from-amber-600 via-yellow-600 to-orange-600',
-                ]
+                ],
             ],
             'friendship' => [
                 'name' => 'Amistad',
@@ -73,7 +73,7 @@ class ThemeHelper
                     'section_bg' => 'from-blue-50 to-teal-50',
                     'section_border' => 'border-blue-200',
                     'section_text' => 'from-blue-600 via-teal-600 to-green-600',
-                ]
+                ],
             ],
             'graduation' => [
                 'name' => 'Graduación',
@@ -90,7 +90,7 @@ class ThemeHelper
                     'section_bg' => 'from-indigo-50 to-purple-50',
                     'section_border' => 'border-indigo-200',
                     'section_text' => 'from-indigo-600 via-purple-600 to-blue-600',
-                ]
+                ],
             ],
             'christmas' => [
                 'name' => 'Navidad',
@@ -107,7 +107,7 @@ class ThemeHelper
                     'section_bg' => 'from-red-50 to-green-50',
                     'section_border' => 'border-red-200',
                     'section_text' => 'from-red-600 via-green-600 to-red-600',
-                ]
+                ],
             ],
             'valentine' => [
                 'name' => 'San Valentín',
@@ -124,7 +124,7 @@ class ThemeHelper
                     'section_bg' => 'from-rose-50 to-pink-50',
                     'section_border' => 'border-rose-200',
                     'section_text' => 'from-rose-600 via-pink-600 to-red-600',
-                ]
+                ],
             ],
             'mother_day' => [
                 'name' => 'Día de la Madre',
@@ -141,7 +141,7 @@ class ThemeHelper
                     'section_bg' => 'from-pink-50 to-purple-50',
                     'section_border' => 'border-pink-200',
                     'section_text' => 'from-pink-600 via-purple-600 to-rose-600',
-                ]
+                ],
             ],
             'father_day' => [
                 'name' => 'Día del Padre',
@@ -158,7 +158,7 @@ class ThemeHelper
                     'section_bg' => 'from-gray-50 to-blue-50',
                     'section_border' => 'border-gray-200',
                     'section_text' => 'from-gray-600 via-blue-600 to-slate-600',
-                ]
+                ],
             ],
             'congratulations' => [
                 'name' => 'Felicitaciones',
@@ -175,7 +175,7 @@ class ThemeHelper
                     'section_bg' => 'from-emerald-50 to-blue-50',
                     'section_border' => 'border-emerald-200',
                     'section_text' => 'from-emerald-600 via-blue-600 to-purple-600',
-                ]
+                ],
             ],
         ];
 

@@ -19,17 +19,17 @@ class ContentEventResource extends Resource
     protected static ?string $model = ContentEvent::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCalendarDays;
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Contenido Especializado';
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Eventos';
     }
-    
+
     public static function getNavigationSort(): ?int
     {
         return 7;

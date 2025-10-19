@@ -62,17 +62,17 @@ class UtilityPhone extends Model
     public function getFormattedPhoneAttribute(): string
     {
         $phone = $this->phone_number;
-        
+
         // Formatear números chilenos
         if (preg_match('/^\+56/', $phone)) {
             return $phone;
         }
-        
+
         // Números de emergencia
         if (in_array($phone, ['132', '133', '134', '131'])) {
             return $phone;
         }
-        
+
         // Otros números
         return $phone;
     }

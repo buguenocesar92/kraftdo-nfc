@@ -31,6 +31,7 @@ class NfcCacheClear extends Command
             $this->info("Limpiando cache del token: {$tokenId}");
             NfcCacheService::invalidateTokenCache($tokenId);
             $this->info('✅ Cache del token limpiado');
+
             return;
         }
 
@@ -38,23 +39,27 @@ class NfcCacheClear extends Command
             case 'tokens':
                 $this->info('🚀 Limpiando cache de tokens...');
                 $this->clearTokensCache();
+
                 break;
-                
+
             case 'analytics':
                 $this->info('📊 Limpiando cache de analytics...');
                 $this->clearAnalyticsCache();
+
                 break;
-                
+
             case 'themes':
                 $this->info('🎨 Limpiando cache de temas...');
                 $this->clearThemesCache();
+
                 break;
-                
+
             case 'all':
             default:
                 $this->info('🧹 Limpiando todo el cache NFC...');
                 NfcCacheService::clearAllNfcCache();
                 $this->info('✅ Todo el cache NFC ha sido limpiado');
+
                 break;
         }
     }

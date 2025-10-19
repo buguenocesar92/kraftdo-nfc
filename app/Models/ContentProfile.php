@@ -2,11 +2,11 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class ContentProfile extends Model
 {
@@ -101,9 +101,9 @@ class ContentProfile extends Model
      */
     public function hasContactInfo(): bool
     {
-        return !empty($this->attributes['contact_info']) ||
-               !empty($this->contact_email) || 
-               !empty($this->contact_phone) || 
-               !empty($this->contact_website);
+        return ! empty($this->attributes['contact_info']) ||
+               ! empty($this->contact_email) ||
+               ! empty($this->contact_phone) ||
+               ! empty($this->contact_website);
     }
 }

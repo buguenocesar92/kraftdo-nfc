@@ -83,7 +83,7 @@ class NearbySpot extends Model
     public function updateDistanceFromMainPoint(): void
     {
         $tourist = $this->contentTourist;
-        
+
         if ($tourist && $tourist->latitude && $tourist->longitude) {
             $distanceMeters = $this->calculateDistanceFrom($tourist->latitude, $tourist->longitude);
             $this->update(['distance_km' => round($distanceMeters / 1000, 2)]);
@@ -92,6 +92,7 @@ class NearbySpot extends Model
 
     /**
      * Scope para puntos activos
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -100,6 +101,7 @@ class NearbySpot extends Model
 
     /**
      * Scope para ordenar por tipo y luego por orden
+     * @param mixed $query
      */
     public function scopeOrdered($query)
     {
@@ -161,6 +163,7 @@ class NearbySpot extends Model
     public function getSpotTypeInfo(): array
     {
         $types = self::getSpotTypes();
+
         return $types[$this->spot_type] ?? [
             'label' => ucfirst($this->spot_type),
             'icon' => 'map-pin',

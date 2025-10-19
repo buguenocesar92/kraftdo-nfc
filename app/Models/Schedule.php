@@ -71,7 +71,7 @@ class Schedule extends Model
         }
 
         $currentTime = now()->format('H:i');
-        
+
         foreach ($this->departure_times as $time) {
             if ($time > $currentTime) {
                 return $time;

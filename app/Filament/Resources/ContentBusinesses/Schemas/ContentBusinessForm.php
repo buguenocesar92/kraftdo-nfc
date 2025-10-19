@@ -3,15 +3,14 @@
 namespace App\Filament\Resources\ContentBusinesses\Schemas;
 
 use App\Models\DynamicContent;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TagsInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -26,23 +25,23 @@ class ContentBusinessForm
                     ->schema([
                         Select::make('dynamic_content_id')
                             ->relationship(
-                                name: 'dynamicContent', 
+                                name: 'dynamicContent',
                                 titleAttribute: 'title',
                                 modifyQueryUsing: function ($query, $livewire) {
                                     $query->where('type', DynamicContent::TYPE_BUSINESS);
-                                    
+
                                     // Excluir DynamicContent ya asignados a otros ContentBusiness
                                     $assignedIds = \App\Models\ContentBusiness::pluck('dynamic_content_id')->filter();
-                                    
+
                                     // En modo edición, permitir el contenido actualmente asignado
                                     if ($livewire->record) {
-                                        $assignedIds = $assignedIds->reject(fn($id) => $id === $livewire->record->dynamic_content_id);
+                                        $assignedIds = $assignedIds->reject(fn ($id) => $id === $livewire->record->dynamic_content_id);
                                     }
-                                    
+
                                     if ($assignedIds->isNotEmpty()) {
                                         $query->whereNotIn('id', $assignedIds);
                                     }
-                                    
+
                                     return $query;
                                 }
                             )
@@ -53,14 +52,14 @@ class ContentBusinessForm
                             ->placeholder('Selecciona contenido dinámico disponible...')
                             ->helperText('Solo se muestran contenidos tipo BUSINESS que no estén asignados a otros negocios')
                             ->columnSpanFull(),
-                        
+
                         TextInput::make('business_name')
                             ->label('Nombre del Negocio')
                             ->placeholder('Ej: Café Central, Feria de Artesanías...')
                             ->required()
                             ->maxLength(255)
                             ->columnSpan(1),
-                        
+
                         Select::make('business_type')
                             ->label('Tipo de Negocio')
                             ->options([
@@ -80,13 +79,13 @@ class ContentBusinessForm
                             ->default('otro')
                             ->required()
                             ->columnSpan(1),
-                        
+
                         Textarea::make('description')
                             ->label('Descripción')
                             ->placeholder('Describe tu negocio, productos o servicios...')
                             ->rows(4)
                             ->columnSpanFull(),
-                        
+
                         FileUpload::make('logo_url')
                             ->label('Logo del Negocio')
                             ->directory('businesses/logos')
@@ -109,38 +108,38 @@ class ContentBusinessForm
                             ->label('Teléfono')
                             ->placeholder('+56 9 1234 5678')
                             ->tel(),
-                        
+
                         TextInput::make('contact_email')
                             ->label('Email')
                             ->email()
                             ->placeholder('contacto@negocio.com'),
-                        
+
                         TextInput::make('contact_website')
                             ->label('Sitio Web')
                             ->url()
                             ->placeholder('https://mi-negocio.com')
                             ->columnSpanFull(),
-                        
+
                         Textarea::make('address')
                             ->label('Dirección')
                             ->placeholder('Calle 123, Ciudad, Región')
                             ->rows(2)
                             ->columnSpanFull(),
-                        
+
                         TextInput::make('latitude')
                             ->label('Latitud')
                             ->placeholder('-33.4489')
                             ->numeric()
                             ->step(0.0000001)
                             ->helperText('Latitud de la ubicación (decimal)'),
-                        
+
                         TextInput::make('longitude')
                             ->label('Longitud')
                             ->placeholder('-70.6693')
                             ->numeric()
                             ->step(0.0000001)
                             ->helperText('Longitud de la ubicación (decimal)'),
-                        
+
                         TextInput::make('whatsapp_number')
                             ->label('WhatsApp')
                             ->placeholder('+56912345678')
@@ -157,7 +156,7 @@ class ContentBusinessForm
                             ->url()
                             ->placeholder('https://instagram.com/mi_negocio')
                             ->prefixIcon('heroicon-o-camera'),
-                        
+
                         TextInput::make('facebook_url')
                             ->label('Facebook')
                             ->url()
@@ -175,13 +174,13 @@ class ContentBusinessForm
                             ->url()
                             ->placeholder('https://maps.google.com/maps?q=...')
                             ->helperText('URL directa de Google Maps para tu ubicación'),
-                        
+
                         TextInput::make('google_reviews_url')
                             ->label('URL de Google Reviews')
                             ->url()
                             ->placeholder('https://g.page/r/...')
                             ->helperText('URL para que los clientes dejen reseñas'),
-                        
+
                         TextInput::make('google_place_id')
                             ->label('Google Place ID')
                             ->placeholder('ChIJ...')
@@ -208,7 +207,7 @@ class ContentBusinessForm
                                         'sunday' => 'Domingo',
                                     ])
                                     ->required(),
-                                
+
                                 TextInput::make('hours')
                                     ->label('Horario')
                                     ->placeholder('09:00-18:00 o Cerrado')
@@ -236,7 +235,7 @@ class ContentBusinessForm
                             ->placeholder('Delivery, Estacionamiento, WiFi, etc.')
                             ->helperText('Presiona Enter para agregar cada servicio')
                             ->columnSpanFull(),
-                        
+
                         Toggle::make('catalog_enabled')
                             ->label('Habilitar Catálogo de Productos')
                             ->helperText('Permite mostrar productos o menú en la tarjeta del negocio')
@@ -259,23 +258,23 @@ class ContentBusinessForm
                                     ->imagePreviewHeight('150')
                                     ->required()
                                     ->columnSpanFull(),
-                                
+
                                 TextInput::make('title')
                                     ->label('Título (Opcional)')
                                     ->placeholder('Ej: Entrantes, Platos Principales, Postres...')
                                     ->maxLength(255),
-                                
+
                                 Textarea::make('description')
                                     ->label('Descripción (Opcional)')
                                     ->placeholder('Descripción de esta sección del menú...')
                                     ->rows(2),
-                                
+
                                 TextInput::make('display_order')
                                     ->label('Orden')
                                     ->numeric()
                                     ->default(0)
                                     ->helperText('Orden de visualización (menor número aparece primero)'),
-                                
+
                                 Toggle::make('is_active')
                                     ->label('Activa')
                                     ->default(true)
@@ -288,7 +287,7 @@ class ContentBusinessForm
                             ->helperText('🖼️ Sube imágenes del menú con metadatos. Si subes imágenes, se mostrarán como galería continua en lugar del catálogo de productos individual. Sin límite de imágenes.')
                             ->visible(fn ($get) => $get('catalog_enabled'))
                             ->columnSpanFull(),
-                        
+
                         Repeater::make('directProducts')
                             ->relationship('directProducts')
                             ->label('Productos del Catálogo Individual')
@@ -299,6 +298,7 @@ class ContentBusinessForm
                                 if ($record && $record->dynamic_content_id) {
                                     $data['dynamic_content_id'] = $record->dynamic_content_id;
                                 }
+
                                 return $data;
                             })
                             ->schema([
@@ -308,18 +308,18 @@ class ContentBusinessForm
                                     ->required()
                                     ->maxLength(255)
                                     ->columnSpanFull(),
-                                
+
                                 TextInput::make('sku')
                                     ->label('Código/SKU')
                                     ->placeholder('PROD-001')
                                     ->maxLength(255),
-                                
+
                                 TextInput::make('price')
                                     ->label('Precio')
                                     ->numeric()
                                     ->prefix('$')
                                     ->required(),
-                                
+
                                 Select::make('currency')
                                     ->label('Moneda')
                                     ->options([
@@ -329,27 +329,27 @@ class ContentBusinessForm
                                     ])
                                     ->default('CLP')
                                     ->required(),
-                                
+
                                 TextInput::make('brand')
                                     ->label('Marca')
                                     ->placeholder('Marca del producto')
                                     ->maxLength(255),
-                                
+
                                 TextInput::make('stock')
                                     ->label('Stock')
                                     ->numeric()
                                     ->placeholder('Cantidad disponible'),
-                                
+
                                 Toggle::make('in_stock')
                                     ->label('En Stock')
                                     ->default(true),
-                                
+
                                 Textarea::make('specifications')
                                     ->label('Especificaciones/Descripción')
                                     ->placeholder('Descripción del producto, ingredientes, características...')
                                     ->rows(3)
                                     ->columnSpanFull(),
-                                
+
                                 TextInput::make('purchase_url')
                                     ->label('URL de Compra')
                                     ->url()
@@ -372,12 +372,12 @@ class ContentBusinessForm
                             ->label('Color Primario')
                             ->default('#3B82F6')
                             ->helperText('Color principal de la tarjeta'),
-                            
+
                         ColorPicker::make('color_palette.secondary')
                             ->label('Color Secundario')
                             ->default('#8B5CF6')
                             ->helperText('Color secundario para elementos destacados'),
-                            
+
                         ColorPicker::make('color_palette.accent')
                             ->label('Color de Acento')
                             ->default('#EC4899')

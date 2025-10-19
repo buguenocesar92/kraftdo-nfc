@@ -18,13 +18,13 @@ class ContentProfilesTable
                     ->label('Título')
                     ->searchable()
                     ->sortable(),
-                    
+
                 TextColumn::make('name')
                     ->label('Nombre completo')
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
-                    
+
                 TextColumn::make('contact_email')
                     ->label('Email')
                     ->searchable(),

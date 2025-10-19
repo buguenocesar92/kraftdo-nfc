@@ -1,134 +1,164 @@
 <?php
 
-use Tests\TestCase;
 use App\Http\Controllers\TokenController;
-use App\Models\NfcAnalytic;
+use App\Models\ContentGift;
+use App\Models\DynamicContent;
 use App\Models\NfcToken;
-use App\Services\NfcCacheService;
+use App\Services\AnalyticsService;
+use App\Services\TokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use Mockery;
+use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);
 
-describe('TokenController Simple Tests', function () {
-    
-    test('recordAnalyticsAsync method registra acceso correctamente', function () {
-        // Simular request HTTP
-        $this->get('/');
-        
-        // Mock del cache service para evitar errores
-        $this->mock(NfcCacheService::class, function ($mock) {
-            $mock->shouldReceive('invalidateAnalyticsCache')->andReturn(null);
-        });
-        
-        $controller = new TokenController();
-        $method = new ReflectionMethod($controller, 'recordAnalyticsAsync');
-        $method->setAccessible(true);
-        
-        // Crear un token válido primero
-        $token = NfcToken::factory()->create();
-        
-        $contentId = 'test-content-id';
-        $contentType = 'GIFT';
-        $tokenId = $token->id;
-        
-        $method->invoke($controller, $contentId, $contentType, $tokenId);
-        
-        expect(NfcAnalytic::count())->toBe(1);
-        $analytic = NfcAnalytic::first();
-        expect($analytic->content_id)->toBe($contentId);
-        expect($analytic->content_type)->toBe($contentType);
-        expect($analytic->nfc_token_id)->toBe($tokenId);
-    });
+describe('TokenController Refactored Tests', function () {
+    test('controller puede ser instanciado con dependencias', function () {
+        $tokenService = Mockery::mock(TokenService::class);
+        $analyticsService = Mockery::mock(AnalyticsService::class);
 
-    test('recordAnalyticsAsync method maneja excepciones silenciosamente', function () {
-        // Simular request HTTP pero con datos faltantes que causen error
-        $this->withoutMiddleware();
-        
-        // Crear un token válido
-        $token = NfcToken::factory()->create();
-        
-        $controller = new TokenController();
-        $method = new ReflectionMethod($controller, 'recordAnalyticsAsync');
-        $method->setAccessible(true);
-        
-        // Mock para capturar el log de warning (puede o no ocurrir dependiendo del error)
-        Log::shouldReceive('warning')
-            ->atMost()
-            ->once()
-            ->with('Analytics recording failed', \Mockery::type('array'));
-        
-        // Mock del cache service para que falle
-        $this->mock(NfcCacheService::class, function ($mock) {
-            $mock->shouldReceive('invalidateAnalyticsCache')
-                ->andThrow(new \Exception('Cache service failed'));
-        });
-        
-        // No debe lanzar excepción, debe manejarla silenciosamente
-        expect(fn() => $method->invoke($controller, 'test', 'GIFT', $token->id))
-            ->not->toThrow(\Exception::class);
-    });
+        $controller = new TokenController($tokenService, $analyticsService);
 
-    test('controller puede ser instanciado', function () {
-        $controller = new TokenController();
-        
         expect($controller)->toBeInstanceOf(TokenController::class);
     });
 
-    test('recordAnalyticsAsync method valida parámetros', function () {
-        // Simular request HTTP
-        $this->get('/');
-        
-        // Mock del cache service para evitar errores
-        $this->mock(NfcCacheService::class, function ($mock) {
-            $mock->shouldReceive('invalidateAnalyticsCache')->andReturn(null);
-        });
-        
-        $controller = new TokenController();
-        $method = new ReflectionMethod($controller, 'recordAnalyticsAsync');
-        $method->setAccessible(true);
-        
-        // Crear un token válido primero
-        $token = NfcToken::factory()->create();
-        
-        // Test con diferentes tipos de parámetros
-        $method->invoke($controller, 'content-123', 'PROFILE', $token->id);
-        
-        expect(NfcAnalytic::count())->toBe(1);
-        $analytic = NfcAnalytic::first();
-        expect($analytic->content_id)->toBe('content-123');
-        expect($analytic->content_type)->toBe('PROFILE');
-        expect($analytic->nfc_token_id)->toBe($token->id);
+    test('show method maneja token no encontrado', function () {
+        $tokenService = Mockery::mock(TokenService::class);
+        $analyticsService = Mockery::mock(AnalyticsService::class);
+
+        $tokenService->shouldReceive('getTokenWithContent')
+            ->with('invalid-token')
+            ->andReturn(null);
+
+        $tokenService->shouldReceive('validateToken')
+            ->with(null)
+            ->andReturn(false);
+
+        $tokenService->shouldReceive('handleNotFound')
+            ->once()
+            ->andReturn(response()->json(['message' => 'Token no encontrado'], 404));
+
+        $controller = new TokenController($tokenService, $analyticsService);
+        $request = Request::create('/token/invalid-token');
+        $request->headers->set('Accept', 'application/json');
+
+        $response = $controller->show($request, 'invalid-token');
+
+        expect($response->getStatusCode())->toBe(404);
     });
 
-    test('recordAnalyticsAsync method procesa múltiples registros', function () {
-        // Simular request HTTP
-        $this->get('/');
-        
-        // Mock del cache service para evitar errores
-        $this->mock(NfcCacheService::class, function ($mock) {
-            $mock->shouldReceive('invalidateAnalyticsCache')->andReturn(null);
-        });
-        
-        $controller = new TokenController();
-        $method = new ReflectionMethod($controller, 'recordAnalyticsAsync');
-        $method->setAccessible(true);
-        
-        // Crear tokens válidos primero
-        $token1 = NfcToken::factory()->create();
-        $token2 = NfcToken::factory()->create();
-        $token3 = NfcToken::factory()->create();
-        
-        // Registrar múltiples accesos
-        $method->invoke($controller, 'content-1', 'GIFT', $token1->id);
-        $method->invoke($controller, 'content-2', 'MENU', $token2->id);
-        $method->invoke($controller, 'content-3', 'PROFILE', $token3->id);
-        
-        expect(NfcAnalytic::count())->toBe(3);
-        
-        $types = NfcAnalytic::pluck('content_type')->toArray();
-        expect($types)->toContain('GIFT')
-            ->and($types)->toContain('MENU')
-            ->and($types)->toContain('PROFILE');
+    test('show method procesa token válido correctamente', function () {
+        // Crear datos de prueba
+        $user = \App\Models\User::factory()->create();
+        $token = NfcToken::factory()->create(['user_id' => $user->id, 'content_type' => 'GIFT']);
+        $dynamicContent = DynamicContent::factory()->create(['nfc_token_id' => $token->id]);
+        $contentGift = ContentGift::factory()->create();
+
+        $tokenData = [
+            'token' => $token,
+            'dynamicContent' => $dynamicContent,
+            'content' => ['gift' => $contentGift, 'multimedia' => null],
+        ];
+
+        $tokenService = Mockery::mock(TokenService::class);
+        $analyticsService = Mockery::mock(AnalyticsService::class);
+
+        $tokenService->shouldReceive('getTokenWithContent')
+            ->with($token->token_id)
+            ->andReturn($tokenData);
+
+        $tokenService->shouldReceive('validateToken')
+            ->with($tokenData)
+            ->andReturn(true);
+
+        $analyticsService->shouldReceive('recordAccess')
+            ->with($tokenData)
+            ->once();
+
+        $tokenService->shouldReceive('renderResponse')
+            ->once()
+            ->andReturn(response()->json(['data' => $tokenData]));
+
+        $controller = new TokenController($tokenService, $analyticsService);
+        $request = Request::create('/token/' . $token->token_id);
+        $request->headers->set('Accept', 'application/json');
+
+        $response = $controller->show($request, $token->token_id);
+
+        expect($response)->not->toBeNull();
+    });
+
+    test('show method maneja token inactivo', function () {
+        $user = \App\Models\User::factory()->create();
+        $token = NfcToken::factory()->create([
+            'user_id' => $user->id,
+            'content_type' => 'GIFT',
+            'is_active' => false,
+        ]);
+        $dynamicContent = DynamicContent::factory()->create(['nfc_token_id' => $token->id]);
+
+        $tokenData = [
+            'token' => $token,
+            'dynamicContent' => $dynamicContent,
+            'content' => [],
+        ];
+
+        $tokenService = Mockery::mock(TokenService::class);
+        $analyticsService = Mockery::mock(AnalyticsService::class);
+
+        $tokenService->shouldReceive('getTokenWithContent')
+            ->andReturn($tokenData);
+
+        $tokenService->shouldReceive('validateToken')
+            ->andReturn(true);
+
+        $tokenService->shouldReceive('handleInactiveToken')
+            ->once()
+            ->andReturn(response()->json(['message' => 'Token inactivo']));
+
+        $controller = new TokenController($tokenService, $analyticsService);
+        $request = Request::create('/token/' . $token->token_id);
+        $request->headers->set('Accept', 'application/json');
+
+        $response = $controller->show($request, $token->token_id);
+
+        expect($response)->not->toBeNull();
+    });
+
+    test('showProducts method valida tipo de contenido', function () {
+        $user = \App\Models\User::factory()->create();
+        $token = NfcToken::factory()->create([
+            'user_id' => $user->id,
+            'content_type' => 'GIFT', // No es BUSINESS
+        ]);
+
+        $tokenData = [
+            'token' => $token,
+            'dynamicContent' => null,
+            'content' => [],
+        ];
+
+        $tokenService = Mockery::mock(TokenService::class);
+        $analyticsService = Mockery::mock(AnalyticsService::class);
+
+        $tokenService->shouldReceive('getTokenWithContent')
+            ->andReturn($tokenData);
+
+        $tokenService->shouldReceive('validateToken')
+            ->andReturn(true);
+
+        $tokenService->shouldReceive('handleNotFound')
+            ->once()
+            ->with(Mockery::any(), 'Esta página solo está disponible para negocios')
+            ->andReturn(response()->json(['message' => 'No disponible'], 404));
+
+        $controller = new TokenController($tokenService, $analyticsService);
+        $request = Request::create('/token/' . $token->token_id . '/products');
+        $request->headers->set('Accept', 'application/json');
+
+        $response = $controller->showProducts($request, $token->token_id);
+
+        expect($response->getStatusCode())->toBe(404);
     });
 });

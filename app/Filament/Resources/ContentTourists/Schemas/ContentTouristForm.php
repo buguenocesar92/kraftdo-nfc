@@ -6,12 +6,12 @@ use App\Models\ContentTourist;
 use App\Models\DynamicContent;
 use App\Models\NearbySpot;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\KeyValue;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -27,23 +27,23 @@ class ContentTouristForm
                     ->schema([
                         Select::make('dynamic_content_id')
                             ->relationship(
-                                name: 'dynamicContent', 
+                                name: 'dynamicContent',
                                 titleAttribute: 'title',
                                 modifyQueryUsing: function ($query, $livewire) {
                                     $query->where('type', DynamicContent::TYPE_TOURIST);
-                                    
+
                                     // Excluir DynamicContent ya asignados a otros ContentTourist
                                     $assignedIds = \App\Models\ContentTourist::pluck('dynamic_content_id')->filter();
-                                    
+
                                     // En modo edición, permitir el contenido actualmente asignado
                                     if ($livewire->record) {
-                                        $assignedIds = $assignedIds->reject(fn($id) => $id === $livewire->record->dynamic_content_id);
+                                        $assignedIds = $assignedIds->reject(fn ($id) => $id === $livewire->record->dynamic_content_id);
                                     }
-                                    
+
                                     if ($assignedIds->isNotEmpty()) {
                                         $query->whereNotIn('id', $assignedIds);
                                     }
-                                    
+
                                     return $query;
                                 }
                             )
@@ -54,21 +54,21 @@ class ContentTouristForm
                             ->placeholder('Selecciona contenido dinámico disponible...')
                             ->helperText('Solo se muestran contenidos tipo TOURIST que no estén asignados a otros lugares turísticos')
                             ->columnSpanFull(),
-                        
+
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('location_name')
                                     ->label('Nombre del Lugar')
                                     ->required()
                                     ->maxLength(255),
-                                
+
                                 Select::make('place_type')
                                     ->label('Tipo de Lugar')
                                     ->options(ContentTourist::getPlaceTypes())
                                     ->required(),
                             ]),
-                        
-                        
+
+
                         Textarea::make('location_address')
                             ->label('Dirección')
                             ->columnSpanFull()
@@ -85,7 +85,7 @@ class ContentTouristForm
                                     ->numeric()
                                     ->step(0.00000001)
                                     ->placeholder('-34.123456'),
-                                
+
                                 TextInput::make('longitude')
                                     ->label('Longitud')
                                     ->numeric()
@@ -100,11 +100,11 @@ class ContentTouristForm
                         TextInput::make('contact_phone')
                             ->label('Teléfono')
                             ->tel(),
-                        
+
                         TextInput::make('contact_email')
                             ->label('Email')
                             ->email(),
-                        
+
                         TextInput::make('website_url')
                             ->label('Sitio Web')
                             ->url(),
@@ -234,7 +234,7 @@ class ContentTouristForm
 
                                         Select::make('spot_type')
                                             ->label('Tipo')
-                                            ->options(array_map(fn($type) => $type['label'], NearbySpot::getSpotTypes()))
+                                            ->options(array_map(fn ($type) => $type['label'], NearbySpot::getSpotTypes()))
                                             ->required(),
 
                                         TextInput::make('distance_km')

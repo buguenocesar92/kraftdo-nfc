@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\ContentGifts\Pages;
 
 use App\Filament\Resources\ContentGifts\ContentGiftResource;
-use App\Models\ContentMultimedia;
 use App\Models\ContentGalleryImage;
+use App\Models\ContentMultimedia;
 use Filament\Resources\Pages\CreateRecord;
 
 class CreateContentGift extends CreateRecord
@@ -20,7 +20,7 @@ class CreateContentGift extends CreateRecord
             'recipient_name' => $data['recipient_name'],
             'message' => $data['message'],
         ];
-        
+
         // Guardar datos multimedia para después
         $this->multimediaData = [
             'video_url' => $data['video_url'] ?? null,
@@ -31,22 +31,22 @@ class CreateContentGift extends CreateRecord
             'audio_type' => $data['audio_type'] ?? 'direct',
             'settings' => $data['settings'] ?? ['theme' => 'love'],
         ];
-        
+
         $this->galleryImages = $data['gallery_images'] ?? [];
-        
+
         return $giftData;
     }
 
     protected function afterCreate(): void
     {
         // Crear registro multimedia después de crear el regalo
-        if (!empty($this->multimediaData)) {
+        if (! empty($this->multimediaData)) {
             $multimedia = ContentMultimedia::create(array_merge($this->multimediaData, [
-                'dynamic_content_id' => $this->record->dynamic_content_id
+                'dynamic_content_id' => $this->record->dynamic_content_id,
             ]));
-            
+
             // Crear imágenes de galería si existen
-            if (!empty($this->galleryImages) && is_array($this->galleryImages)) {
+            if (! empty($this->galleryImages) && is_array($this->galleryImages)) {
                 foreach ($this->galleryImages as $index => $imagePath) {
                     if ($imagePath) {
                         ContentGalleryImage::create([

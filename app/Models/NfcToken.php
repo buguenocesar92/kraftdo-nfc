@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class NfcToken extends Model
@@ -44,7 +44,7 @@ class NfcToken extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($token) {
             if (empty($token->token_id)) {
                 $token->token_id = self::generateUniqueTokenId();
@@ -97,7 +97,7 @@ class NfcToken extends Model
      */
     public function getOrCreateContent(): DynamicContent
     {
-        if (!$this->dynamicContent) {
+        if (! $this->dynamicContent) {
             $this->dynamicContent()->create([
                 'content_id' => DynamicContent::generateUniqueContentId($this->content_type ?? 'PROFILE'),
                 'type' => $this->content_type ?? 'PROFILE',
@@ -127,12 +127,13 @@ class NfcToken extends Model
      */
     public function isContentReady(): bool
     {
-        if (!$this->hasContent()) {
+        if (! $this->hasContent()) {
             return false;
         }
 
         $content = $this->dynamicContent;
-        return $content->status === 'published' && !empty($content->title) && !empty($content->description);
+
+        return $content->status === 'published' && ! empty($content->title) && ! empty($content->description);
     }
 
     /**
@@ -140,7 +141,7 @@ class NfcToken extends Model
      */
     public function isAssigned(): bool
     {
-        return !is_null($this->user_id);
+        return ! is_null($this->user_id);
     }
 
     /**
@@ -159,7 +160,7 @@ class NfcToken extends Model
     {
         if ($this->total_investment_views > 0 && $this->purchase_price > 0) {
             $this->update([
-                'cost_per_view' => $this->purchase_price / $this->total_investment_views
+                'cost_per_view' => $this->purchase_price / $this->total_investment_views,
             ]);
         }
     }
@@ -212,7 +213,7 @@ class NfcToken extends Model
                     'social_links' => false,
                     'custom_design' => false,
                     'multimedia_advanced' => false,
-                ]
+                ],
             ],
             'STANDARD' => [
                 'name' => 'Estándar',
@@ -229,7 +230,7 @@ class NfcToken extends Model
                     'social_links' => true,
                     'custom_design' => true,
                     'multimedia_advanced' => false,
-                ]
+                ],
             ],
             'PREMIUM' => [
                 'name' => 'Premium',
@@ -246,7 +247,7 @@ class NfcToken extends Model
                     'social_links' => true,
                     'custom_design' => true,
                     'multimedia_advanced' => false,
-                ]
+                ],
             ],
             'DELUXE' => [
                 'name' => 'Deluxe',
@@ -263,8 +264,8 @@ class NfcToken extends Model
                     'social_links' => true,
                     'custom_design' => true,
                     'multimedia_advanced' => true,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -274,6 +275,7 @@ class NfcToken extends Model
     public function getCustomizationPlan(): array
     {
         $plans = self::getCustomizationPlans();
+
         return $plans[$this->customization_plan] ?? $plans['BASIC'];
     }
 
@@ -293,6 +295,7 @@ class NfcToken extends Model
         if ($this->total_investment_views > 0 && $this->purchase_price > 0) {
             return (float) ($this->purchase_price / $this->total_investment_views);
         }
+
         return 0.0;
     }
 
@@ -302,7 +305,7 @@ class NfcToken extends Model
     public function getROIMetrics(): array
     {
         $costPerView = $this->calculateCostPerView();
-        
+
         return [
             'cost_per_view' => $costPerView,
             'total_investment' => (float) $this->purchase_price,
@@ -317,6 +320,7 @@ class NfcToken extends Model
     public function hasFeature(string $feature): bool
     {
         $plan = $this->getCustomizationPlan();
+
         return $plan['features'][$feature] ?? false;
     }
 
@@ -326,6 +330,7 @@ class NfcToken extends Model
     public function getAdjustedPrice(): float
     {
         $plan = $this->getCustomizationPlan();
+
         return ((float) $this->purchase_price) * $plan['price_multiplier'];
     }
 
@@ -335,7 +340,8 @@ class NfcToken extends Model
     public function getAvailableFeatures(): array
     {
         $plan = $this->getCustomizationPlan();
-        return array_filter($plan['features'], function($available) {
+
+        return array_filter($plan['features'], function ($available) {
             return $available === true;
         });
     }
@@ -350,12 +356,13 @@ class NfcToken extends Model
     public static function findActiveByTokenId(string $tokenId): ?self
     {
         return self::where('token_id', $tokenId)
-                  ->where('is_active', true)
-                  ->first();
+            ->where('is_active', true)
+            ->first();
     }
 
     /**
      * Scope para tokens activos
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -364,6 +371,7 @@ class NfcToken extends Model
 
     /**
      * Scope para tokens asignados
+     * @param mixed $query
      */
     public function scopeAssigned($query)
     {
@@ -372,6 +380,7 @@ class NfcToken extends Model
 
     /**
      * Scope para tokens no asignados
+     * @param mixed $query
      */
     public function scopeUnassigned($query)
     {
@@ -380,6 +389,7 @@ class NfcToken extends Model
 
     /**
      * Scope para tokens por tipo de contenido
+     * @param mixed $query
      */
     public function scopeOfType($query, string $type)
     {

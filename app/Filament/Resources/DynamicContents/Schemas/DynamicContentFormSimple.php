@@ -4,8 +4,8 @@ namespace App\Filament\Resources\DynamicContents\Schemas;
 
 use App\Models\DynamicContent;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
 
@@ -39,7 +39,7 @@ class DynamicContentFormSimple
                     ->options([
                         'draft' => 'Borrador',
                         'published' => 'Publicado',
-                        'paused' => 'Pausado'
+                        'paused' => 'Pausado',
                     ])
                     ->required()
                     ->default('draft'),
@@ -51,8 +51,10 @@ class DynamicContentFormSimple
                     ->dehydrateStateUsing(function ($state) {
                         if (is_string($state)) {
                             $decoded = json_decode($state, true);
+
                             return json_last_error() === JSON_ERROR_NONE ? $decoded : $state;
                         }
+
                         return $state;
                     })
                     ->helperText('Formato JSON para todos los datos específicos del tipo de contenido.'),

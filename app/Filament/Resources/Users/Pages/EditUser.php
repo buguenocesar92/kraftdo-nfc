@@ -21,11 +21,11 @@ class EditUser extends EditRecord
     {
         // Load the roles relationship
         $this->record->load('roles');
-        
+
         // Set the roles as an array of IDs for the CheckboxList
         $data['roles'] = $this->record->roles->pluck('id')->toArray();
-        
-        
+
+
         return $data;
     }
 
@@ -34,13 +34,13 @@ class EditUser extends EditRecord
         // Store roles data for later processing
         $this->rolesData = $data['roles'] ?? [];
         unset($data['roles']);
-        
+
         // Remove password if empty to avoid overwriting with empty value
         if (empty($data['password'])) {
             unset($data['password']);
         }
-        
-        
+
+
         return $data;
     }
 
@@ -52,7 +52,7 @@ class EditUser extends EditRecord
             $roleNames = \Spatie\Permission\Models\Role::whereIn('id', $this->rolesData)
                 ->pluck('name')
                 ->toArray();
-            
+
             $this->record->syncRoles($roleNames);
             $this->record->load('roles');
         }

@@ -49,9 +49,9 @@ class NfcAnalytic extends Model
         $userAgent = $request->userAgent();
 
         // Verificar si es una visita única (primera vez que esta IP accede a este contenido)
-        $isUniqueVisit = !self::where('content_id', $contentId)
-                              ->where('ip_address', $ipAddress)
-                              ->exists();
+        $isUniqueVisit = ! self::where('content_id', $contentId)
+            ->where('ip_address', $ipAddress)
+            ->exists();
 
         // Detectar tipo de dispositivo básico
         $deviceType = self::detectDeviceType($userAgent);
@@ -86,7 +86,7 @@ class NfcAnalytic extends Model
     public static function getStatsForContent(string $contentId): array
     {
         // Obtener el token asociado para métricas ROI
-        $token = NfcToken::whereHas('dynamicContent', function($query) use ($contentId) {
+        $token = NfcToken::whereHas('dynamicContent', function ($query) use ($contentId) {
             $query->where('content_id', $contentId);
         })->first();
 
@@ -98,34 +98,34 @@ class NfcAnalytic extends Model
             'views_this_week' => self::where('content_id', $contentId)->whereBetween('accessed_at', [now()->startOfWeek(), now()->endOfWeek()])->count(),
             'views_this_month' => self::where('content_id', $contentId)->whereMonth('accessed_at', now()->month)->count(),
             'top_countries' => self::where('content_id', $contentId)
-                                   ->select('country', DB::raw('count(*) as total'))
-                                   ->whereNotNull('country')
-                                   ->groupBy('country')
-                                   ->orderByDesc('total')
-                                   ->limit(5)
-                                   ->get(),
+                ->select('country', DB::raw('count(*) as total'))
+                ->whereNotNull('country')
+                ->groupBy('country')
+                ->orderByDesc('total')
+                ->limit(5)
+                ->get(),
             'device_breakdown' => self::where('content_id', $contentId)
-                                      ->select('device_type', DB::raw('count(*) as total'))
-                                      ->whereNotNull('device_type')
-                                      ->groupBy('device_type')
-                                      ->orderByDesc('total')
-                                      ->get(),
+                ->select('device_type', DB::raw('count(*) as total'))
+                ->whereNotNull('device_type')
+                ->groupBy('device_type')
+                ->orderByDesc('total')
+                ->get(),
             'browser_breakdown' => self::where('content_id', $contentId)
-                                       ->select('browser', DB::raw('count(*) as total'))
-                                       ->whereNotNull('browser')
-                                       ->groupBy('browser')
-                                       ->orderByDesc('total')
-                                       ->limit(5)
-                                       ->get(),
+                ->select('browser', DB::raw('count(*) as total'))
+                ->whereNotNull('browser')
+                ->groupBy('browser')
+                ->orderByDesc('total')
+                ->limit(5)
+                ->get(),
             'daily_views' => self::where('content_id', $contentId)
-                                 ->select(
-                                     DB::raw('DATE(accessed_at) as date'),
-                                     DB::raw('count(*) as views')
-                                 )
-                                 ->whereBetween('accessed_at', [now()->subDays(30), now()])
-                                 ->groupBy('date')
-                                 ->orderBy('date')
-                                 ->get(),
+                ->select(
+                    DB::raw('DATE(accessed_at) as date'),
+                    DB::raw('count(*) as views')
+                )
+                ->whereBetween('accessed_at', [now()->subDays(30), now()])
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get(),
         ];
 
         // Agregar métricas financieras si existe el token
@@ -144,9 +144,9 @@ class NfcAnalytic extends Model
     public static function getGlobalStats(): array
     {
         $contentTypeBreakdown = self::select('content_type', DB::raw('count(*) as total'))
-                                   ->groupBy('content_type')
-                                   ->pluck('total', 'content_type')
-                                   ->toArray();
+            ->groupBy('content_type')
+            ->pluck('total', 'content_type')
+            ->toArray();
 
         return [
             'total_scans' => self::count(),
@@ -158,15 +158,15 @@ class NfcAnalytic extends Model
             'published_content' => DynamicContent::where('status', 'published')->where('is_active', true)->count(),
             'content_type_breakdown' => $contentTypeBreakdown,
             'content_by_type' => DynamicContent::select('type', DB::raw('count(*) as total'))
-                                              ->where('status', 'published')
-                                              ->where('is_active', true)
-                                              ->groupBy('type')
-                                              ->get(),
+                ->where('status', 'published')
+                ->where('is_active', true)
+                ->groupBy('type')
+                ->get(),
             'top_performing_content' => self::select('content_id', 'content_type', DB::raw('count(*) as total_views'))
-                                            ->groupBy('content_id', 'content_type')
-                                            ->orderByDesc('total_views')
-                                            ->limit(10)
-                                            ->get(),
+                ->groupBy('content_id', 'content_type')
+                ->orderByDesc('total_views')
+                ->limit(10)
+                ->get(),
         ];
     }
 
@@ -183,12 +183,14 @@ class NfcAnalytic extends Model
      */
     private static function detectDeviceType(?string $userAgent): ?string
     {
-        if (!$userAgent) return null;
+        if (! $userAgent) {
+            return null;
+        }
 
         if (preg_match('/iPad/', $userAgent)) {
             return 'tablet';
         }
-        
+
         if (preg_match('/Mobile|Android|iPhone/', $userAgent)) {
             return 'mobile';
         }
@@ -201,19 +203,32 @@ class NfcAnalytic extends Model
      */
     private static function detectBrowser(?string $userAgent): ?string
     {
-        if (!$userAgent) return null;
+        if (! $userAgent) {
+            return null;
+        }
 
-        if (preg_match('/Firefox/', $userAgent)) return 'Firefox';
-        if (preg_match('/Chrome/', $userAgent)) return 'Chrome';
-        if (preg_match('/Safari/', $userAgent) && !preg_match('/Chrome/', $userAgent)) return 'Safari';
-        if (preg_match('/Edge/', $userAgent)) return 'Edge';
-        if (preg_match('/Opera/', $userAgent)) return 'Opera';
+        if (preg_match('/Firefox/', $userAgent)) {
+            return 'Firefox';
+        }
+        if (preg_match('/Chrome/', $userAgent)) {
+            return 'Chrome';
+        }
+        if (preg_match('/Safari/', $userAgent) && ! preg_match('/Chrome/', $userAgent)) {
+            return 'Safari';
+        }
+        if (preg_match('/Edge/', $userAgent)) {
+            return 'Edge';
+        }
+        if (preg_match('/Opera/', $userAgent)) {
+            return 'Opera';
+        }
 
         return 'Other';
     }
 
     /**
      * Scope para analytics de hoy
+     * @param mixed $query
      */
     public function scopeToday($query)
     {
@@ -222,6 +237,7 @@ class NfcAnalytic extends Model
 
     /**
      * Scope para analytics de esta semana
+     * @param mixed $query
      */
     public function scopeThisWeek($query)
     {
@@ -230,6 +246,7 @@ class NfcAnalytic extends Model
 
     /**
      * Scope para analytics de este mes
+     * @param mixed $query
      */
     public function scopeThisMonth($query)
     {
@@ -238,6 +255,7 @@ class NfcAnalytic extends Model
 
     /**
      * Scope para visitas únicas solamente
+     * @param mixed $query
      */
     public function scopeUniqueVisits($query)
     {

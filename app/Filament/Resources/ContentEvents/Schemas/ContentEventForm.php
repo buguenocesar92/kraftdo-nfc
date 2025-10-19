@@ -20,7 +20,7 @@ class ContentEventForm
                 //     ->label('Contenido Dinámico Asociado')
                 //     ->disabled()
                 //     ->helperText('Se crea automáticamente con los datos del evento'),
-                
+
                 TextInput::make('event_organizer')
                     ->label('Organizador del Evento')
                     ->required()

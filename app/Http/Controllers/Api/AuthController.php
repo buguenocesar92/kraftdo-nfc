@@ -4,9 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
@@ -25,11 +24,11 @@ class AuthController extends Controller
 
             $user = User::where('email', $request->email)->first();
 
-            if (!$user || !Hash::check($request->password, $user->password)) {
+            if (! $user || ! Hash::check($request->password, $user->password)) {
                 return response()->json([
                     'data' => null,
                     'message' => 'Credenciales incorrectas',
-                    'status' => 401
+                    'status' => 401,
                 ], 401);
             }
 
@@ -43,23 +42,23 @@ class AuthController extends Controller
                 'data' => [
                     'user' => $user,
                     'token' => $token,
-                    'token_type' => 'Bearer'
+                    'token_type' => 'Bearer',
                 ],
                 'message' => 'Login exitoso',
-                'status' => 200
+                'status' => 200,
             ]);
         } catch (ValidationException $e) {
             return response()->json([
                 'data' => null,
                 'message' => 'Datos de validación incorrectos',
                 'errors' => $e->errors(),
-                'status' => 422
+                'status' => 422,
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'data' => null,
                 'message' => 'Error interno del servidor',
-                'status' => 500
+                'status' => 500,
             ], 500);
         }
     }
@@ -89,23 +88,23 @@ class AuthController extends Controller
                 'data' => [
                     'user' => $user,
                     'token' => $token,
-                    'token_type' => 'Bearer'
+                    'token_type' => 'Bearer',
                 ],
                 'message' => 'Usuario registrado exitosamente',
-                'status' => 201
+                'status' => 201,
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
                 'data' => null,
                 'message' => 'Datos de validación incorrectos',
                 'errors' => $e->errors(),
-                'status' => 422
+                'status' => 422,
             ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'data' => null,
                 'message' => 'Error interno del servidor',
-                'status' => 500
+                'status' => 500,
             ], 500);
         }
     }
@@ -122,13 +121,13 @@ class AuthController extends Controller
             return response()->json([
                 'data' => null,
                 'message' => 'Logout exitoso',
-                'status' => 200
+                'status' => 200,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'data' => null,
                 'message' => 'Error interno del servidor',
-                'status' => 500
+                'status' => 500,
             ], 500);
         }
     }
@@ -142,13 +141,13 @@ class AuthController extends Controller
             return response()->json([
                 'data' => $request->user(),
                 'message' => 'Información del usuario obtenida exitosamente',
-                'status' => 200
+                'status' => 200,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'data' => null,
                 'message' => 'Error interno del servidor',
-                'status' => 500
+                'status' => 500,
             ], 500);
         }
     }

@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\ContentGifts\Schemas;
 
 use App\Models\DynamicContent;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -21,24 +21,24 @@ class ContentGiftForm
                     ->schema([
                         Select::make('dynamic_content_id')
                             ->relationship(
-                                name: 'dynamicContent', 
+                                name: 'dynamicContent',
                                 titleAttribute: 'title',
                                 modifyQueryUsing: function ($query, $livewire) {
                                     $query->where('type', DynamicContent::TYPE_GIFT)
-                                          ->whereIn('status', ['draft', 'published']);
-                                    
+                                        ->whereIn('status', ['draft', 'published']);
+
                                     // Excluir DynamicContent ya asignados a otros ContentGift
                                     $assignedIds = \App\Models\ContentGift::pluck('dynamic_content_id')->filter();
-                                    
+
                                     // En modo edición, permitir el contenido actualmente asignado
                                     if ($livewire->record) {
-                                        $assignedIds = $assignedIds->reject(fn($id) => $id === $livewire->record->dynamic_content_id);
+                                        $assignedIds = $assignedIds->reject(fn ($id) => $id === $livewire->record->dynamic_content_id);
                                     }
-                                    
+
                                     if ($assignedIds->isNotEmpty()) {
                                         $query->whereNotIn('id', $assignedIds);
                                     }
-                                    
+
                                     return $query;
                                 }
                             )
@@ -101,13 +101,13 @@ class ContentGiftForm
                             ])
                             ->default('direct')
                             ->columnSpan(1),
-                        
+
                         TextInput::make('video_url')
                             ->label('URL del video')
                             ->placeholder('https://www.youtube.com/watch?v=...')
                             ->url()
                             ->columnSpan(1),
-                        
+
                         FileUpload::make('video_file')
                             ->label('Archivo de video')
                             ->directory('videos')
@@ -130,13 +130,13 @@ class ContentGiftForm
                             ])
                             ->default('direct')
                             ->columnSpan(1),
-                        
+
                         TextInput::make('audio_url')
                             ->label('URL del audio')
                             ->placeholder('https://example.com/audio.mp3')
                             ->url()
                             ->columnSpan(1),
-                        
+
                         FileUpload::make('audio_file')
                             ->label('Archivo de audio')
                             ->directory('audio')

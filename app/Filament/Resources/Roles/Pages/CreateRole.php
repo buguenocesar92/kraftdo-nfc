@@ -14,19 +14,19 @@ class CreateRole extends CreateRecord
         // Extract permissions data before creating the role
         $this->permissionsData = $data['permissions'] ?? [];
         unset($data['permissions']);
-        
+
         return $data;
     }
 
     protected function afterCreate(): void
     {
         // Assign permissions after creating the role
-        if (!empty($this->permissionsData)) {
+        if (! empty($this->permissionsData)) {
             // Convert permission IDs to permission names for syncPermissions
             $permissionNames = \Spatie\Permission\Models\Permission::whereIn('id', $this->permissionsData)
                 ->pluck('name')
                 ->toArray();
-            
+
             $this->record->syncPermissions($permissionNames);
         }
     }

@@ -54,7 +54,7 @@ class ContentBusinessGroup extends Model
 
         // Auto-crear DynamicContent cuando se crea un ContentBusinessGroup
         static::creating(function ($businessGroup) {
-            if (!$businessGroup->dynamic_content_id) {
+            if (! $businessGroup->dynamic_content_id) {
                 // Crear NFC Token
                 $nfcToken = \App\Models\NfcToken::create([
                     'name' => 'Token: ' . $businessGroup->group_name,
@@ -74,7 +74,7 @@ class ContentBusinessGroup extends Model
                     'status' => 'published',
                     'user_id' => auth()->id() ?? 1,
                 ]);
-                
+
                 $businessGroup->dynamic_content_id = $dynamicContent->id;
             }
         });
@@ -110,15 +110,15 @@ class ContentBusinessGroup extends Model
             'business_group_id',
             'member_business_id'
         )
-        ->withPivot([
-            'display_order',
-            'is_featured',
-            'custom_position',
-            'member_status',
-            'member_notes'
-        ])
-        ->withTimestamps()
-        ->orderByPivot('display_order');
+            ->withPivot([
+                'display_order',
+                'is_featured',
+                'custom_position',
+                'member_status',
+                'member_notes',
+            ])
+            ->withTimestamps()
+            ->orderByPivot('display_order');
     }
 
     /**
@@ -166,6 +166,7 @@ class ContentBusinessGroup extends Model
 
     /**
      * Scopes
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -185,20 +186,22 @@ class ContentBusinessGroup extends Model
     /**
      * Accessors & Mutators
      */
-    
+
     /**
      * Get the full URL for logo (for frontend display)
      */
     public function getLogoPublicUrlAttribute(): ?string
     {
         $logoUrl = $this->getOriginal('logo_url');
-        
-        if (!$logoUrl) return null;
-        
+
+        if (! $logoUrl) {
+            return null;
+        }
+
         if (str_starts_with($logoUrl, 'http')) {
             return $logoUrl;
         }
-        
+
         return url("storage/{$logoUrl}");
     }
 
@@ -208,13 +211,15 @@ class ContentBusinessGroup extends Model
     public function getBannerPublicUrlAttribute(): ?string
     {
         $bannerImage = $this->getOriginal('banner_image');
-        
-        if (!$bannerImage) return null;
-        
+
+        if (! $bannerImage) {
+            return null;
+        }
+
         if (str_starts_with($bannerImage, 'http')) {
             return $bannerImage;
         }
-        
+
         return url("storage/{$bannerImage}");
     }
 
@@ -273,6 +278,7 @@ class ContentBusinessGroup extends Model
 
     /**
      * Mutator para operating_hours - manejar formato repeater de Filament
+     * @param mixed $value
      */
     public function setOperatingHoursAttribute($value)
     {
@@ -281,21 +287,23 @@ class ContentBusinessGroup extends Model
             'value' => $value,
             'type' => gettype($value),
             'is_array' => is_array($value),
-            'is_string' => is_string($value)
+            'is_string' => is_string($value),
         ]);
-        
+
         // Si es null o vacío, guardar como null
         if (empty($value)) {
             $this->attributes['operating_hours'] = null;
+
             return;
         }
-        
+
         // Si es string (ya JSON), guardar directamente
         if (is_string($value)) {
             $this->attributes['operating_hours'] = $value;
+
             return;
         }
-        
+
         // Si es array, necesitamos procesarlo
         if (is_array($value)) {
             // Si es array numérico con objetos (formato repeater), convertir
@@ -307,7 +315,7 @@ class ContentBusinessGroup extends Model
                     }
                 }
                 $result = json_encode($hours);
-            } 
+            }
             // Si es array asociativo (formato final), usar directamente
             else {
                 $result = json_encode($value);
@@ -315,20 +323,21 @@ class ContentBusinessGroup extends Model
         } else {
             $result = json_encode($value);
         }
-            
+
         \Log::info('🕐 BusinessGroup Model - setOperatingHoursAttribute result:', ['result' => $result]);
-        
+
         $this->attributes['operating_hours'] = $result;
     }
 
     /**
      * Mutator para location_coordinates - convierte JSON string a array
+     * @param mixed $value
      */
     public function setLocationCoordinatesAttribute($value)
     {
         if (is_array($value)) {
             $this->attributes['location_coordinates'] = json_encode($value);
-        } elseif (is_string($value) && !empty($value)) {
+        } elseif (is_string($value) && ! empty($value)) {
             $decoded = json_decode($value, true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 $this->attributes['location_coordinates'] = $value;
@@ -342,12 +351,13 @@ class ContentBusinessGroup extends Model
 
     /**
      * Mutator para amenities - convierte JSON string a array
+     * @param mixed $value
      */
     public function setAmenitiesAttribute($value)
     {
         if (is_array($value)) {
             $this->attributes['amenities'] = json_encode($value);
-        } elseif (is_string($value) && !empty($value)) {
+        } elseif (is_string($value) && ! empty($value)) {
             $decoded = json_decode($value, true);
             if (json_last_error() === JSON_ERROR_NONE) {
                 $this->attributes['amenities'] = $value;

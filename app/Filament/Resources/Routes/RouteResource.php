@@ -19,22 +19,22 @@ class RouteResource extends Resource
     protected static ?string $model = Route::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
-    
+
     public static function canAccess(): bool
     {
         return auth()->user()?->can('view_routes') ?? false;
     }
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Transporte Público';
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Rutas';
     }
-    
+
     public static function getNavigationSort(): ?int
     {
         return 2;

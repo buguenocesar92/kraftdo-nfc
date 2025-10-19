@@ -8,7 +8,6 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Filament\Support\Enums\FontWeight;
 use Illuminate\Support\HtmlString;
 
 class NfcTokensTable
@@ -27,7 +26,7 @@ class NfcTokensTable
                     ->searchable(),
                 TextColumn::make('content_type')
                     ->formatStateUsing(function ($state) {
-                        return match($state) {
+                        return match ($state) {
                             'GIFT' => '🎁 Regalo',
                             'BUSINESS' => '🏢 Negocio',
                             'PROFILE' => '👤 Perfil',
@@ -38,7 +37,7 @@ class NfcTokensTable
                     })
                     ->badge()
                     ->color(function ($state) {
-                        return match($state) {
+                        return match ($state) {
                             'GIFT' => 'success',
                             'BUSINESS' => 'info',
                             'PROFILE' => 'warning',
@@ -74,6 +73,7 @@ class NfcTokensTable
                     ->formatStateUsing(function ($state, $record) {
                         if ($record->is_active) {
                             $url = url("/token/{$record->token_id}");
+
                             return new HtmlString("<a href='{$url}' target='_blank' class='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200'>
                                 <svg class='w-3 h-3 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                     <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'></path>
@@ -81,6 +81,7 @@ class NfcTokensTable
                                 Ver Backend
                             </a>");
                         }
+
                         return new HtmlString("<span class='text-gray-400 text-xs'>Inactivo</span>");
                     })
                     ->html()
@@ -93,6 +94,7 @@ class NfcTokensTable
                     ->formatStateUsing(function ($state, $record) {
                         if ($record->is_active) {
                             $url = "http://127.0.0.1:3000/token/{$record->token_id}";
+
                             return new HtmlString("<a href='{$url}' target='_blank' class='inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors duration-200'>
                                 <svg class='w-3 h-3 mr-1' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                                     <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14'></path>
@@ -100,6 +102,7 @@ class NfcTokensTable
                                 Vista Previa Front
                             </a>");
                         }
+
                         return new HtmlString("<span class='text-gray-400 text-xs'>Inactivo</span>");
                     })
                     ->html()

@@ -14,19 +14,19 @@ class CreateUser extends CreateRecord
         // Extract roles data before creating the user
         $this->rolesData = $data['roles'] ?? [];
         unset($data['roles']);
-        
+
         return $data;
     }
 
     protected function afterCreate(): void
     {
         // Assign roles after creating the user
-        if (!empty($this->rolesData)) {
+        if (! empty($this->rolesData)) {
             // Convert role IDs to role names for syncRoles
             $roleNames = \Spatie\Permission\Models\Role::whereIn('id', $this->rolesData)
                 ->pluck('name')
                 ->toArray();
-            
+
             $this->record->syncRoles($roleNames);
         }
     }

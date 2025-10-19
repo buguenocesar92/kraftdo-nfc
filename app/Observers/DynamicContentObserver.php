@@ -14,7 +14,7 @@ class DynamicContentObserver
     {
         // Invalidar cache del contenido
         NfcCacheService::invalidateContentCache($dynamicContent->content_id);
-        
+
         // Si tiene token asociado, invalidar su cache también
         if ($dynamicContent->nfcToken) {
             NfcCacheService::invalidateTokenCache($dynamicContent->nfcToken->token_id);
@@ -28,7 +28,7 @@ class DynamicContentObserver
     {
         // Limpiar todo el cache relacionado
         NfcCacheService::invalidateContentCache($dynamicContent->content_id);
-        
+
         if ($dynamicContent->nfcToken) {
             NfcCacheService::invalidateTokenCache($dynamicContent->nfcToken->token_id);
         }

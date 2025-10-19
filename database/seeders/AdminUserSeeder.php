@@ -21,7 +21,7 @@ class AdminUserSeeder extends Seeder
         );
 
         // Assign Super Admin role
-        if (!$superAdmin->hasRole('Super Admin')) {
+        if (! $superAdmin->hasRole('Super Admin')) {
             $superAdmin->assignRole('Super Admin');
         }
 
@@ -34,7 +34,7 @@ class AdminUserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (!$admin->hasRole('Admin')) {
+        if (! $admin->hasRole('Admin')) {
             $admin->assignRole('Admin');
         }
 
@@ -46,7 +46,7 @@ class AdminUserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (!$editor->hasRole('Editor')) {
+        if (! $editor->hasRole('Editor')) {
             $editor->assignRole('Editor');
         }
 
@@ -58,7 +58,7 @@ class AdminUserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (!$viewer->hasRole('Viewer')) {
+        if (! $viewer->hasRole('Viewer')) {
             $viewer->assignRole('Viewer');
         }
 
@@ -70,7 +70,7 @@ class AdminUserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (!$contentManager->hasRole('Content Manager')) {
+        if (! $contentManager->hasRole('Content Manager')) {
             $contentManager->assignRole('Content Manager');
         }
 
@@ -83,7 +83,7 @@ class AdminUserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (!$nfcUser->hasRole('NFC')) {
+        if (! $nfcUser->hasRole('NFC')) {
             $nfcUser->assignRole('NFC');
         }
 

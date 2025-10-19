@@ -23,7 +23,7 @@ class NfcTokenObserver
     {
         // Invalidar cache del token específico
         NfcCacheService::invalidateTokenCache($nfcToken->token_id);
-        
+
         // Si cambió el estado activo, limpiar stats globales
         if ($nfcToken->wasChanged('is_active')) {
             \Cache::forget('global_analytics_stats');
@@ -38,7 +38,7 @@ class NfcTokenObserver
         // Limpiar todo el cache relacionado con este token
         NfcCacheService::invalidateTokenCache($nfcToken->token_id);
         \Cache::forget('global_analytics_stats');
-        
+
         // Limpiar analytics relacionadas
         if ($nfcToken->dynamicContent) {
             NfcCacheService::invalidateAnalyticsCache($nfcToken->dynamicContent->content_id);

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContentSkill extends Model
 {
@@ -44,7 +44,7 @@ class ContentSkill extends Model
      */
     public function getLevelDescriptionAttribute(): string
     {
-        return match(true) {
+        return match (true) {
             $this->level >= 9 => 'Experto',
             $this->level >= 7 => 'Avanzado',
             $this->level >= 5 => 'Intermedio',
@@ -55,16 +55,18 @@ class ContentSkill extends Model
 
     /**
      * Scope ordenado por categoría y orden
+     * @param mixed $query
      */
     public function scopeOrdered($query)
     {
         return $query->orderBy('category')
-                    ->orderBy('sort_order')
-                    ->orderBy('name');
+            ->orderBy('sort_order')
+            ->orderBy('name');
     }
 
     /**
      * Scope por categoría
+     * @param mixed $query
      */
     public function scopeByCategory($query, string $category)
     {

@@ -44,6 +44,7 @@ class BusinessGroupMember extends Model
 
     /**
      * Scopes
+     * @param mixed $query
      */
     public function scopeActive($query)
     {

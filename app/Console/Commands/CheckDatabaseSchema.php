@@ -3,8 +3,8 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class CheckDatabaseSchema extends Command
 {
@@ -14,26 +14,27 @@ class CheckDatabaseSchema extends Command
     public function handle()
     {
         $this->info('=== DATABASE SCHEMA CHECK ===');
-        
+
         // Check if table exists
-        if (!Schema::hasTable('content_businesses')) {
+        if (! Schema::hasTable('content_businesses')) {
             $this->error('❌ Table content_businesses does not exist!');
+
             return;
         }
-        
+
         $this->info('✅ Table content_businesses exists');
-        
+
         // Get table columns
         $columns = Schema::getColumnListing('content_businesses');
         $this->info('📋 Table columns:');
         foreach ($columns as $column) {
             $this->line("   - {$column}");
         }
-        
+
         // Check specific fields
         $requiredFields = ['latitude', 'longitude', 'operating_hours', 'address'];
         $this->info('🔍 Checking required fields:');
-        
+
         foreach ($requiredFields as $field) {
             if (Schema::hasColumn('content_businesses', $field)) {
                 $this->info("   ✅ {$field} - EXISTS");
@@ -41,7 +42,7 @@ class CheckDatabaseSchema extends Command
                 $this->error("   ❌ {$field} - MISSING");
             }
         }
-        
+
         // Check column types
         $this->info('📊 Column details:');
         $columnInfo = DB::select("DESCRIBE content_businesses");
@@ -50,24 +51,24 @@ class CheckDatabaseSchema extends Command
                 $this->line("   {$column->Field}: {$column->Type} (Null: {$column->Null}, Default: {$column->Default})");
             }
         }
-        
+
         // Count records
         $count = DB::table('content_businesses')->count();
         $this->info("📈 Total records: {$count}");
-        
+
         // Check for records with missing data
         $withoutLocation = DB::table('content_businesses')
             ->whereNull('latitude')
             ->orWhereNull('longitude')
             ->count();
-        
+
         $withoutHours = DB::table('content_businesses')
             ->whereNull('operating_hours')
             ->count();
-            
+
         $this->info("📊 Records without location: {$withoutLocation}");
         $this->info("📊 Records without hours: {$withoutHours}");
-        
+
         // Show sample data
         $sample = DB::table('content_businesses')->first();
         if ($sample) {

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContentGalleryImage extends Model
 {
@@ -51,6 +51,7 @@ class ContentGalleryImage extends Model
         if ($this->type === self::TYPE_UPLOAD && $this->image_path) {
             return asset('storage/' . $this->image_path);
         }
+
         return $this->image_url;
     }
 
@@ -72,6 +73,7 @@ class ContentGalleryImage extends Model
 
     /**
      * Scope para ordenar por sort_order
+     * @param mixed $query
      */
     public function scopeOrdered($query)
     {
@@ -80,6 +82,7 @@ class ContentGalleryImage extends Model
 
     /**
      * Scope para solo archivos subidos
+     * @param mixed $query
      */
     public function scopeUploads($query)
     {
@@ -88,6 +91,7 @@ class ContentGalleryImage extends Model
 
     /**
      * Scope para solo URLs externas
+     * @param mixed $query
      */
     public function scopeUrls($query)
     {

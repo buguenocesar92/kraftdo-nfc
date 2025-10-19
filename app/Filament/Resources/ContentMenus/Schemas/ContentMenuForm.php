@@ -4,8 +4,8 @@ namespace App\Filament\Resources\ContentMenus\Schemas;
 
 use App\Models\DynamicContent;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class ContentMenuForm
@@ -16,7 +16,7 @@ class ContentMenuForm
             ->components([
                 Select::make('dynamic_content_id')
                     ->relationship(
-                        name: 'dynamicContent', 
+                        name: 'dynamicContent',
                         titleAttribute: 'title',
                         modifyQueryUsing: fn ($query) => $query->where('type', DynamicContent::TYPE_BUSINESS)->where('content_businesses.business_type', 'restaurant')
                     )

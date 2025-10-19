@@ -19,17 +19,17 @@ class ContentBusinessResource extends Resource
     protected static ?string $model = ContentBusiness::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingOffice2;
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Contenido Especializado';
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Negocios & Restaurantes';
     }
-    
+
     public static function getNavigationSort(): ?int
     {
         return 3;

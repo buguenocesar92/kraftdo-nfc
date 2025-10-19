@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
@@ -122,7 +122,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $admin->syncPermissions([
             'access_admin_panel',
             'view_analytics',
-            
+
             // Full content management
             'view_any_dynamic_content', 'create_dynamic_content', 'update_dynamic_content', 'delete_any_dynamic_content',
             'view_any_content_gift', 'create_content_gift', 'update_content_gift', 'delete_any_content_gift',
@@ -131,13 +131,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_any_content_event', 'create_content_event', 'update_content_event', 'delete_any_content_event',
             'view_any_content_product', 'create_content_product', 'update_content_product', 'delete_any_content_product',
             'view_any_content_tourist', 'create_content_tourist', 'update_content_tourist', 'delete_any_content_tourist',
-            
+
             // NFC Token management
             'view_any_nfc_token', 'create_nfc_token', 'update_nfc_token', 'delete_any_nfc_token',
-            
+
             // Limited user management
             'view_any_user', 'create_user', 'update_user',
-            
+
             'bulk_actions',
         ]);
 
@@ -145,7 +145,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $editor = Role::firstOrCreate(['name' => 'Editor']);
         $editor->syncPermissions([
             'access_admin_panel',
-            
+
             // Content management (own content)
             'view_dynamic_content', 'create_dynamic_content', 'update_dynamic_content',
             'view_content_gift', 'create_content_gift', 'update_content_gift',
@@ -154,10 +154,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_content_event', 'create_content_event', 'update_content_event',
             'view_content_product', 'create_content_product', 'update_content_product',
             'view_content_tourist', 'create_content_tourist', 'update_content_tourist',
-            
+
             // Can view but not manage tokens
             'view_nfc_token',
-            
+
             // Own tokens management
             'view_own_tokens',
             'configure_own_tokens',
@@ -168,7 +168,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $viewer = Role::firstOrCreate(['name' => 'Viewer']);
         $viewer->syncPermissions([
             'access_admin_panel',
-            
+
             // View-only permissions
             'view_dynamic_content',
             'view_content_gift',
@@ -185,7 +185,7 @@ class RolesAndPermissionsSeeder extends Seeder
         $contentManager->syncPermissions([
             'access_admin_panel',
             'view_analytics',
-            
+
             // Full content management but no user/system management
             'view_any_dynamic_content', 'create_dynamic_content', 'update_dynamic_content', 'delete_dynamic_content',
             'view_any_content_gift', 'create_content_gift', 'update_content_gift', 'delete_content_gift',
@@ -194,10 +194,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'view_any_content_event', 'create_content_event', 'update_content_event', 'delete_content_event',
             'view_any_content_product', 'create_content_product', 'update_content_product', 'delete_content_product',
             'view_any_content_tourist', 'create_content_tourist', 'update_content_tourist', 'delete_content_tourist',
-            
+
             // NFC Token management
             'view_any_nfc_token', 'create_nfc_token', 'update_nfc_token',
-            
+
             'bulk_actions',
         ]);
 

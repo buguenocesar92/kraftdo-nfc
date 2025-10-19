@@ -43,7 +43,7 @@ class ContentProduct extends Model
 
         // Auto-crear DynamicContent cuando se crea un ContentProduct
         static::creating(function ($product) {
-            if (!$product->dynamic_content_id) {
+            if (! $product->dynamic_content_id) {
                 // Crear NFC Token
                 $nfcToken = \App\Models\NfcToken::create([
                     'name' => 'Token: ' . $product->name,
@@ -63,7 +63,7 @@ class ContentProduct extends Model
                     'status' => 'published',
                     'user_id' => auth()->id() ?? 1,
                 ]);
-                
+
                 $product->dynamic_content_id = $dynamicContent->id;
             }
         });
@@ -118,7 +118,7 @@ class ContentProduct extends Model
     public function getFormattedPrice(): string
     {
         $currency = $this->product_currency ?? 'USD';
-        $symbol = match($currency) {
+        $symbol = match ($currency) {
             'USD' => '$',
             'EUR' => '€',
             'GBP' => '£',
@@ -135,6 +135,7 @@ class ContentProduct extends Model
     {
         if ($this->product_stock >= $quantity) {
             $this->decrement('product_stock', $quantity);
+
             return true;
         }
 

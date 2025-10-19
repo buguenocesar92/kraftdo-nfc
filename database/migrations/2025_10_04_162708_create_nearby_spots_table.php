@@ -4,15 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
     public function up(): void
     {
         // Check if table already exists to avoid conflicts in production
-        if (!Schema::hasTable('nearby_spots')) {
+        if (! Schema::hasTable('nearby_spots')) {
             Schema::create('nearby_spots', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('content_tourist_id')->constrained('content_tourist')->onDelete('cascade');
@@ -28,7 +27,7 @@ return new class extends Migration
                 $table->integer('sort_order')->default(0);
                 $table->boolean('is_active')->default(true);
                 $table->timestamps();
-                
+
                 $table->index(['content_tourist_id', 'spot_type']);
                 $table->index(['latitude', 'longitude']);
                 $table->index(['content_tourist_id', 'sort_order']);

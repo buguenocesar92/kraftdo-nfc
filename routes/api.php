@@ -12,7 +12,7 @@ Route::get('/health', function () {
         'timestamp' => now()->toISOString(),
         'app' => config('app.name'),
         'env' => config('app.env'),
-        'version' => '1.0.0'
+        'version' => '1.0.0',
     ]);
 });
 
@@ -36,13 +36,13 @@ Route::middleware('auth:sanctum')->group(function () {
         return response()->json([
             'data' => $request->user(),
             'message' => 'Usuario obtenido exitosamente',
-            'status' => 200
+            'status' => 200,
         ]);
     });
 
     // CRUD completo de tokens para usuarios autenticados
     Route::apiResource('tokens', TokenController::class)->except(['show']);
-    
+
     // CRUD completo de contenido para usuarios autenticados
     Route::prefix('content')->group(function () {
         Route::delete('{type}/{id}', [ContentController::class, 'destroy']);

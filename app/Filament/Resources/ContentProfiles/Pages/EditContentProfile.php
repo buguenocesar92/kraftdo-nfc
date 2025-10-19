@@ -3,12 +3,12 @@
 namespace App\Filament\Resources\ContentProfiles\Pages;
 
 use App\Filament\Resources\ContentProfiles\ContentProfileResource;
+use App\Models\ContentGalleryImage;
 use App\Models\ContentMultimedia;
 use App\Models\ContentSocialLink;
-use App\Models\ContentGalleryImage;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\EditRecord;
 
 class EditContentProfile extends EditRecord
 {
@@ -28,14 +28,14 @@ class EditContentProfile extends EditRecord
         $data['company'] = $this->record->company;
         $data['location'] = $this->record->location;
         $data['contact_info'] = $this->record->contact_info;
-        
+
         // Cargar contenido multimedia relacionado
         $contentMultimedia = ContentMultimedia::where('dynamic_content_id', $this->record->dynamic_content_id)->first();
-        
+
         if ($contentMultimedia) {
             // Agregar datos de multimedia
             $data = array_merge($data, $contentMultimedia->toArray());
-            
+
             // Cargar imágenes de galería
             $galleryImages = ContentGalleryImage::where('content_multimedia_id', $contentMultimedia->id)
                 ->orderBy('sort_order')
@@ -46,7 +46,7 @@ class EditContentProfile extends EditRecord
                 ->toArray();
             $data['gallery_images'] = $galleryImages;
         }
-        
+
         // Cargar enlaces sociales
         $socialLinks = ContentSocialLink::where('dynamic_content_id', $this->record->dynamic_content_id)
             ->ordered()
@@ -60,7 +60,7 @@ class EditContentProfile extends EditRecord
             })
             ->toArray();
         $data['social_links'] = $socialLinks;
-        
+
         return $data;
     }
 
@@ -72,20 +72,20 @@ class EditContentProfile extends EditRecord
             $this->record->color_palette = $data['color_palette'];
             unset($data['color_palette']);
         }
-        
+
         return $data;
     }
 
     protected function afterSave(): void
     {
         $data = $this->form->getState();
-        
+
         // Manejar contenido multimedia
         $this->handleMultimediaContent($data);
-        
+
         // Manejar enlaces sociales
         $this->handleSocialLinks($data);
-        
+
         Notification::make()
             ->title('Perfil actualizado')
             ->body('Se ha actualizado correctamente el perfil y su contenido relacionado.')
@@ -111,17 +111,17 @@ class EditContentProfile extends EditRecord
             'video_type' => $data['video_type'] ?? 'direct',
             'settings' => array_merge($contentMultimedia->settings ?? [], $data['settings'] ?? []),
         ];
-        
+
         $contentMultimedia->update($multimediaData);
 
         // Manejar galería de imágenes
         if (isset($data['gallery_images']) && is_array($data['gallery_images'])) {
             // Eliminar imágenes existentes
             ContentGalleryImage::where('content_multimedia_id', $contentMultimedia->id)->delete();
-            
+
             // Crear nuevas imágenes
             foreach ($data['gallery_images'] as $index => $imagePath) {
-                if (!empty($imagePath)) {
+                if (! empty($imagePath)) {
                     ContentGalleryImage::create([
                         'content_multimedia_id' => $contentMultimedia->id,
                         'image_path' => $imagePath,
@@ -140,10 +140,10 @@ class EditContentProfile extends EditRecord
         if (isset($data['social_links']) && is_array($data['social_links'])) {
             // Eliminar enlaces existentes
             ContentSocialLink::where('dynamic_content_id', $this->record->dynamic_content_id)->delete();
-            
+
             // Crear nuevos enlaces
             foreach ($data['social_links'] as $index => $link) {
-                if (!empty($link['platform'])) {
+                if (! empty($link['platform'])) {
                     ContentSocialLink::create([
                         'dynamic_content_id' => $this->record->dynamic_content_id,
                         'platform' => $link['platform'],

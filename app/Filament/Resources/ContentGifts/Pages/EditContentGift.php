@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\ContentGifts\Pages;
 
 use App\Filament\Resources\ContentGifts\ContentGiftResource;
-use App\Models\ContentMultimedia;
 use App\Models\ContentGalleryImage;
+use App\Models\ContentMultimedia;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -23,7 +23,7 @@ class EditContentGift extends EditRecord
     {
         $contentGift = $this->record;
         $multimedia = $contentGift->multimedia;
-        
+
         if ($multimedia) {
             // Agregar datos de multimedia
             $data = array_merge($data, [
@@ -35,7 +35,7 @@ class EditContentGift extends EditRecord
                 'audio_type' => $multimedia->audio_type ?? 'direct',
                 'settings' => $multimedia->settings ?? [],
             ]);
-            
+
             // Agregar imágenes de galería
             $galleryImages = $multimedia->galleryImages()
                 ->orderBy('sort_order')
@@ -44,7 +44,7 @@ class EditContentGift extends EditRecord
                 ->filter()
                 ->values()
                 ->toArray();
-            
+
             $data['gallery_images'] = $galleryImages;
         } else {
             // Valores por defecto para multimedia
@@ -55,7 +55,7 @@ class EditContentGift extends EditRecord
                 'gallery_images' => [],
             ]);
         }
-        
+
         return $data;
     }
 
@@ -68,7 +68,7 @@ class EditContentGift extends EditRecord
             'recipient_name' => $data['recipient_name'],
             'message' => $data['message'],
         ];
-        
+
         $multimediaData = [
             'video_url' => $data['video_url'] ?? null,
             'video_file' => $data['video_file'] ?? null,
@@ -78,22 +78,22 @@ class EditContentGift extends EditRecord
             'audio_type' => $data['audio_type'] ?? 'direct',
             'settings' => $data['settings'] ?? ['theme' => 'love'],
         ];
-        
+
         // Guardar o actualizar multimedia
         $multimedia = $this->record->multimedia;
-        if (!$multimedia) {
+        if (! $multimedia) {
             $multimedia = ContentMultimedia::create(array_merge($multimediaData, [
-                'dynamic_content_id' => $data['dynamic_content_id']
+                'dynamic_content_id' => $data['dynamic_content_id'],
             ]));
         } else {
             $multimedia->update($multimediaData);
         }
-        
+
         // Manejar galería de imágenes
         if (isset($data['gallery_images']) && is_array($data['gallery_images'])) {
             // Eliminar imágenes existentes
             $multimedia->galleryImages()->delete();
-            
+
             // Crear nuevas imágenes
             foreach ($data['gallery_images'] as $index => $imagePath) {
                 if ($imagePath) {
@@ -108,7 +108,7 @@ class EditContentGift extends EditRecord
                 }
             }
         }
-        
+
         // Retornar solo datos del regalo para el modelo principal
         return $giftData;
     }

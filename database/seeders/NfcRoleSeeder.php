@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class NfcRoleSeeder extends Seeder
 {
@@ -16,7 +15,7 @@ class NfcRoleSeeder extends Seeder
     {
         // Verificar si el rol NFC ya existe
         $nfcRole = Role::where('name', 'NFC')->first();
-        
+
         if ($nfcRole) {
             $this->command->info('Rol NFC ya existe, actualizando permisos...');
         } else {
@@ -34,12 +33,12 @@ class NfcRoleSeeder extends Seeder
 
         // Obtener solo los permisos que existen
         $existingPermissions = Permission::whereIn('name', $nfcPermissions)->get();
-        
+
         $this->command->info('Permisos encontrados: ' . $existingPermissions->count());
-        
+
         // Asignar permisos al rol NFC
         $nfcRole->syncPermissions($existingPermissions);
-        
+
         $this->command->info('Rol NFC configurado con ' . $nfcRole->permissions()->count() . ' permisos');
         $this->command->info('✅ Rol NFC listo para usuarios de onboarding');
     }

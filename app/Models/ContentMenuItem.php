@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContentMenuItem extends Model
 {
@@ -46,6 +46,7 @@ class ContentMenuItem extends Model
 
     /**
      * Scope para items disponibles
+     * @param mixed $query
      */
     public function scopeAvailable($query)
     {
@@ -54,6 +55,7 @@ class ContentMenuItem extends Model
 
     /**
      * Scope por categoría
+     * @param mixed $query
      */
     public function scopeByCategory($query, string $category)
     {

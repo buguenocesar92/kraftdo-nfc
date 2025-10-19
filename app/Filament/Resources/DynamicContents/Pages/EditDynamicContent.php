@@ -21,7 +21,7 @@ class EditDynamicContent extends EditRecord
     {
         // Cargar datos de relaciones normalizadas
         $record = $this->record;
-        
+
         // Multimedia
         if ($record->multimedia) {
             $data['multimedia'] = [
@@ -32,7 +32,7 @@ class EditDynamicContent extends EditRecord
                 'gallery_images' => $record->multimedia->gallery_images ?? [],
             ];
         }
-        
+
         // Gift
         if ($record->gift && $record->type === 'GIFT') {
             $data['gift'] = [
@@ -41,7 +41,7 @@ class EditDynamicContent extends EditRecord
                 'message' => $record->gift->message,
             ];
         }
-        
+
         // Menu (DEPRECATED - migrado a Business)
         // if ($record->menu && $record->type === 'MENU') {
         //     $data['menu'] = [
@@ -52,7 +52,7 @@ class EditDynamicContent extends EditRecord
         //         'menu_items' => $record->menu->menu_items ?? [],
         //     ];
         // }
-        
+
         // Business (reemplaza a Menu)
         if ($record->business && $record->type === 'BUSINESS') {
             $data['business'] = [
@@ -63,7 +63,7 @@ class EditDynamicContent extends EditRecord
                 'business_type' => $record->business->business_type,
             ];
         }
-        
+
         // Profile
         if ($record->profile && $record->type === 'PROFILE') {
             $data['profile'] = [
@@ -73,7 +73,7 @@ class EditDynamicContent extends EditRecord
                 'bio' => $record->profile->bio,
             ];
         }
-        
+
         // Event
         if ($record->event && $record->type === 'EVENT') {
             $data['event'] = [
@@ -88,7 +88,7 @@ class EditDynamicContent extends EditRecord
                 'ticket_price' => $record->event->ticket_price,
             ];
         }
-        
+
         // Product
         if ($record->product && $record->type === 'PRODUCT') {
             $data['product'] = [
@@ -101,7 +101,7 @@ class EditDynamicContent extends EditRecord
                 'availability_status' => $record->product->availability_status,
             ];
         }
-        
+
         // Tourist
         if ($record->tourist && $record->type === 'TOURIST') {
             $data['tourist'] = [
@@ -129,48 +129,54 @@ class EditDynamicContent extends EditRecord
     {
         $data = $this->form->getState();
         $record = $this->record;
-        
+
         // Guardar multimedia - solo si no se seleccionó uno existente y hay nuevos datos
-        if (!$data['multimedia_id'] && isset($data['multimedia']) && !empty(array_filter($data['multimedia']))) {
+        if (! $data['multimedia_id'] && isset($data['multimedia']) && ! empty(array_filter($data['multimedia']))) {
             $record->createOrUpdateMultimedia($data['multimedia']);
         }
-        
+
         // Guardar según tipo - solo si no se seleccionó uno existente y hay nuevos datos
         switch ($record->type) {
             case 'GIFT':
-                if (!$data['gift_id'] && isset($data['gift']) && !empty(array_filter($data['gift']))) {
+                if (! $data['gift_id'] && isset($data['gift']) && ! empty(array_filter($data['gift']))) {
                     $record->createOrUpdateGift($data['gift']);
                 }
+
                 break;
-                
+
             case 'MENU':
-                if (!$data['menu_id'] && isset($data['menu']) && !empty(array_filter($data['menu']))) {
+                if (! $data['menu_id'] && isset($data['menu']) && ! empty(array_filter($data['menu']))) {
                     $record->createOrUpdateMenu($data['menu']);
                 }
+
                 break;
-                
+
             case 'PROFILE':
-                if (!$data['profile_id'] && isset($data['profile']) && !empty(array_filter($data['profile']))) {
+                if (! $data['profile_id'] && isset($data['profile']) && ! empty(array_filter($data['profile']))) {
                     $record->createOrUpdateProfile($data['profile']);
                 }
+
                 break;
-                
+
             case 'EVENT':
-                if (!$data['event_id'] && isset($data['event']) && !empty(array_filter($data['event']))) {
+                if (! $data['event_id'] && isset($data['event']) && ! empty(array_filter($data['event']))) {
                     $record->createOrUpdateEvent($data['event']);
                 }
+
                 break;
-                
+
             case 'PRODUCT':
-                if (!$data['product_id'] && isset($data['product']) && !empty(array_filter($data['product']))) {
+                if (! $data['product_id'] && isset($data['product']) && ! empty(array_filter($data['product']))) {
                     $record->createOrUpdateProduct($data['product']);
                 }
+
                 break;
-                
+
             case 'TOURIST':
-                if (!$data['tourist_id'] && isset($data['tourist']) && !empty(array_filter($data['tourist']))) {
+                if (! $data['tourist_id'] && isset($data['tourist']) && ! empty(array_filter($data['tourist']))) {
                     $record->createOrUpdateTourist($data['tourist']);
                 }
+
                 break;
         }
     }

@@ -2,10 +2,9 @@
 
 namespace App\Filament\Resources\ContentMultimedia\Schemas;
 
-use App\Models\DynamicContent;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
 
 class ContentMultimediaForm
@@ -16,7 +15,7 @@ class ContentMultimediaForm
             ->components([
                 Select::make('dynamic_content_id')
                     ->relationship(
-                        name: 'dynamicContent', 
+                        name: 'dynamicContent',
                         titleAttribute: 'title'
                         // Multimedia puede estar relacionado con cualquier tipo
                     )

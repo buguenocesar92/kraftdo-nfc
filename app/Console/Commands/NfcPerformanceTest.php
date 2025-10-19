@@ -19,7 +19,7 @@ class NfcPerformanceTest extends Command
     public function handle()
     {
         $iterations = (int) $this->option('iterations');
-        
+
         if ($this->option('clear-cache')) {
             $this->info('🧹 Limpiando cache...');
             Cache::flush();
@@ -30,9 +30,10 @@ class NfcPerformanceTest extends Command
 
         // Obtener un token de prueba
         $token = NfcToken::with('dynamicContent')->active()->first();
-        
-        if (!$token) {
+
+        if (! $token) {
             $this->error('❌ No se encontró ningún token activo para testing');
+
             return 1;
         }
 
@@ -46,7 +47,7 @@ class NfcPerformanceTest extends Command
 
         $this->newLine();
 
-        // Test 2: Performance CON cache  
+        // Test 2: Performance CON cache
         $this->info('🟢 TEST 2: CON CACHE (optimizado)');
         $withCache = $this->testWithCache($token->token_id, $iterations);
 
@@ -64,12 +65,12 @@ class NfcPerformanceTest extends Command
         for ($i = 0; $i < $iterations; $i++) {
             // Limpiar cache para esta iteración
             Cache::forget("nfc_token_full:{$tokenId}");
-            
+
             // Contar queries
             DB::enableQueryLog();
-            
+
             $start = microtime(true);
-            
+
             // Simular el proceso SIN cache (como era antes)
             $token = NfcToken::where('token_id', $tokenId)->first();
             if ($token) {
@@ -82,16 +83,16 @@ class NfcPerformanceTest extends Command
                     }
                 }
             }
-            
+
             $end = microtime(true);
             $times[] = ($end - $start) * 1000; // en milisegundos
-            
+
             $queries = DB::getQueryLog();
             $queryCount += count($queries);
-            
+
             $this->output->write('.');
         }
-        
+
         $this->newLine();
 
         return [
@@ -100,7 +101,7 @@ class NfcPerformanceTest extends Command
             'min_time' => min($times),
             'max_time' => max($times),
             'total_queries' => $queryCount,
-            'avg_queries' => $queryCount / $iterations
+            'avg_queries' => $queryCount / $iterations,
         ];
     }
 
@@ -111,21 +112,21 @@ class NfcPerformanceTest extends Command
 
         for ($i = 0; $i < $iterations; $i++) {
             DB::enableQueryLog();
-            
+
             $start = microtime(true);
-            
+
             // Usar el servicio optimizado CON cache
             $cachedData = NfcCacheService::getTokenWithContent($tokenId);
-            
+
             $end = microtime(true);
             $times[] = ($end - $start) * 1000; // en milisegundos
-            
+
             $queries = DB::getQueryLog();
             $queryCount += count($queries);
-            
+
             $this->output->write('.');
         }
-        
+
         $this->newLine();
 
         return [
@@ -134,7 +135,7 @@ class NfcPerformanceTest extends Command
             'min_time' => min($times),
             'max_time' => max($times),
             'total_queries' => $queryCount,
-            'avg_queries' => $queryCount / $iterations
+            'avg_queries' => $queryCount / $iterations,
         ];
     }
 
@@ -151,26 +152,26 @@ class NfcPerformanceTest extends Command
                     'Tiempo Promedio',
                     number_format($withoutCache['avg_time'], 2) . ' ms',
                     number_format($withCache['avg_time'], 2) . ' ms',
-                    $this->calculateImprovement($withoutCache['avg_time'], $withCache['avg_time'])
+                    $this->calculateImprovement($withoutCache['avg_time'], $withCache['avg_time']),
                 ],
                 [
                     'Tiempo Mínimo',
                     number_format($withoutCache['min_time'], 2) . ' ms',
                     number_format($withCache['min_time'], 2) . ' ms',
-                    $this->calculateImprovement($withoutCache['min_time'], $withCache['min_time'])
+                    $this->calculateImprovement($withoutCache['min_time'], $withCache['min_time']),
                 ],
                 [
                     'Tiempo Máximo',
                     number_format($withoutCache['max_time'], 2) . ' ms',
                     number_format($withCache['max_time'], 2) . ' ms',
-                    $this->calculateImprovement($withoutCache['max_time'], $withCache['max_time'])
+                    $this->calculateImprovement($withoutCache['max_time'], $withCache['max_time']),
                 ],
                 [
                     'Queries Promedio',
                     number_format($withoutCache['avg_queries'], 1),
                     number_format($withCache['avg_queries'], 1),
-                    $this->calculateImprovement($withoutCache['avg_queries'], $withCache['avg_queries'])
-                ]
+                    $this->calculateImprovement($withoutCache['avg_queries'], $withCache['avg_queries']),
+                ],
             ]
         );
 
@@ -184,9 +185,9 @@ class NfcPerformanceTest extends Command
         $this->info("   • La aplicación es {$speedup}x más rápida con cache");
         $this->info("   • Reducción de {$queryReduction}% en queries a la BD");
         $this->info("   • Tiempo ahorrado por request: " . number_format($withoutCache['avg_time'] - $withCache['avg_time'], 2) . " ms");
-        
+
         $this->newLine();
-        
+
         if ($speedup > 2) {
             $this->info('🎉 ¡EXCELENTE! Cache funcionando óptimamente');
         } elseif ($speedup > 1.5) {
@@ -200,7 +201,7 @@ class NfcPerformanceTest extends Command
     {
         $improvement = (($before - $after) / $before) * 100;
         $color = $improvement > 50 ? 'green' : ($improvement > 20 ? 'yellow' : 'red');
-        
+
         return sprintf('<fg=%s>%s%.1f%%</>', $color, $improvement > 0 ? '-' : '+', abs($improvement));
     }
 }

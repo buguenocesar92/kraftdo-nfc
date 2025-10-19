@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -30,7 +29,7 @@ return new class extends Migration
             $table->text('restaurant_address')->nullable();
             $table->string('restaurant_hours')->nullable();
             $table->timestamps();
-            
+
             $table->unique('dynamic_content_id');
         });
 
@@ -46,7 +45,7 @@ return new class extends Migration
             $table->boolean('available')->default(true);
             $table->integer('sort_order')->default(0);
             $table->timestamps();
-            
+
             $table->index(['content_menu_id', 'category']);
             $table->index(['content_menu_id', 'sort_order']);
         });

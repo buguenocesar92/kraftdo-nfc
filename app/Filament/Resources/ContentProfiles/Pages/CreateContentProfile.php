@@ -3,11 +3,11 @@
 namespace App\Filament\Resources\ContentProfiles\Pages;
 
 use App\Filament\Resources\ContentProfiles\ContentProfileResource;
+use App\Models\ContentGalleryImage;
 use App\Models\ContentMultimedia;
 use App\Models\ContentSocialLink;
-use App\Models\ContentGalleryImage;
-use Filament\Resources\Pages\CreateRecord;
 use Filament\Notifications\Notification;
+use Filament\Resources\Pages\CreateRecord;
 
 class CreateContentProfile extends CreateRecord
 {
@@ -19,7 +19,7 @@ class CreateContentProfile extends CreateRecord
         if (isset($data['color_palette'])) {
             // Se guardará directamente en el modelo ContentProfile
         }
-        
+
         // Separar datos del perfil de los datos relacionados
         $profileData = [
             'dynamic_content_id' => $data['dynamic_content_id'],
@@ -34,7 +34,7 @@ class CreateContentProfile extends CreateRecord
             'contact_website' => $data['contact_website'] ?? '',
             'color_palette' => $data['color_palette'] ?? null,
         ];
-        
+
         // Guardar datos relacionados para después
         $this->multimediaData = [
             'video_url' => $data['video_url'] ?? null,
@@ -42,23 +42,23 @@ class CreateContentProfile extends CreateRecord
             'video_type' => $data['video_type'] ?? 'direct',
             'settings' => $data['settings'] ?? [],
         ];
-        
+
         $this->socialLinks = $data['social_links'] ?? [];
         $this->galleryImages = $data['gallery_images'] ?? [];
-        
+
         return $profileData;
     }
 
     protected function afterCreate(): void
     {
         // Crear registro multimedia después de crear el perfil
-        if (!empty($this->multimediaData)) {
+        if (! empty($this->multimediaData)) {
             $multimedia = ContentMultimedia::create(array_merge($this->multimediaData, [
-                'dynamic_content_id' => $this->record->dynamic_content_id
+                'dynamic_content_id' => $this->record->dynamic_content_id,
             ]));
-            
+
             // Crear imágenes de galería si existen
-            if (!empty($this->galleryImages) && is_array($this->galleryImages)) {
+            if (! empty($this->galleryImages) && is_array($this->galleryImages)) {
                 foreach ($this->galleryImages as $index => $imagePath) {
                     if ($imagePath) {
                         ContentGalleryImage::create([
@@ -75,9 +75,9 @@ class CreateContentProfile extends CreateRecord
         }
 
         // Crear enlaces sociales si existen
-        if (!empty($this->socialLinks) && is_array($this->socialLinks)) {
+        if (! empty($this->socialLinks) && is_array($this->socialLinks)) {
             foreach ($this->socialLinks as $index => $link) {
-                if (!empty($link['platform'])) {
+                if (! empty($link['platform'])) {
                     ContentSocialLink::create([
                         'dynamic_content_id' => $this->record->dynamic_content_id,
                         'platform' => $link['platform'],
@@ -88,7 +88,7 @@ class CreateContentProfile extends CreateRecord
                 }
             }
         }
-        
+
         Notification::make()
             ->title('Perfil creado')
             ->body('Se ha creado correctamente el perfil con todo su contenido relacionado.')

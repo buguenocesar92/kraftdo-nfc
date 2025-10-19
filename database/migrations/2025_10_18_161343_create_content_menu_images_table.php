@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -20,7 +19,7 @@ return new class extends Migration
             $table->integer('display_order')->default(0); // Orden de visualización
             $table->boolean('is_active')->default(true); // Para ocultar/mostrar temporalmente
             $table->timestamps();
-            
+
             // Índices para performance
             $table->index(['content_business_id', 'display_order']);
             $table->index(['content_business_id', 'is_active']);

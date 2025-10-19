@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 
 class ContentBusiness extends Model
 {
@@ -170,8 +170,10 @@ class ContentBusiness extends Model
     {
         if ($this->whatsapp_number) {
             $number = preg_replace('/[^0-9]/', '', $this->whatsapp_number);
+
             return "https://wa.me/{$number}";
         }
+
         return null;
     }
 
@@ -183,11 +185,11 @@ class ContentBusiness extends Model
         if ($this->google_maps_url) {
             return $this->google_maps_url;
         }
-        
+
         if ($this->address) {
             return 'https://maps.google.com/maps?q=' . urlencode($this->address);
         }
-        
+
         return '';
     }
 
@@ -196,10 +198,10 @@ class ContentBusiness extends Model
      */
     public function hasContactInfo(): bool
     {
-        return !empty($this->contact_phone) ||
-               !empty($this->contact_email) || 
-               !empty($this->contact_website) ||
-               !empty($this->address);
+        return ! empty($this->contact_phone) ||
+               ! empty($this->contact_email) ||
+               ! empty($this->contact_website) ||
+               ! empty($this->address);
     }
 
     /**
@@ -207,9 +209,9 @@ class ContentBusiness extends Model
      */
     public function hasSocialMedia(): bool
     {
-        return !empty($this->instagram_url) ||
-               !empty($this->facebook_url) ||
-               !empty($this->whatsapp_number);
+        return ! empty($this->instagram_url) ||
+               ! empty($this->facebook_url) ||
+               ! empty($this->whatsapp_number);
     }
 
     /**
@@ -234,7 +236,7 @@ class ContentBusiness extends Model
      */
     public function shouldShowProductCatalog(): bool
     {
-        return $this->catalog_enabled && !$this->hasMenuImages() && $this->products()->count() > 0;
+        return $this->catalog_enabled && ! $this->hasMenuImages() && $this->products()->count() > 0;
     }
 
     /**
@@ -262,25 +264,25 @@ class ContentBusiness extends Model
     {
         $hours = $this->operating_hours ?? [];
         $formatted = [];
-        
+
         $days = [
             'monday' => 'Lunes',
-            'tuesday' => 'Martes', 
+            'tuesday' => 'Martes',
             'wednesday' => 'Miércoles',
             'thursday' => 'Jueves',
             'friday' => 'Viernes',
             'saturday' => 'Sábado',
-            'sunday' => 'Domingo'
+            'sunday' => 'Domingo',
         ];
 
         // Manejar dos formatos posibles de operating_hours
-        if (is_array($hours) && !empty($hours)) {
+        if (is_array($hours) && ! empty($hours)) {
             // Formato 1: Array de objetos [{"day":"monday","hours":"09:00-18:00"}]
             if (isset($hours[0]) && is_array($hours[0]) && isset($hours[0]['day'])) {
                 foreach ($hours as $schedule) {
                     $dayKey = $schedule['day'] ?? null;
                     $hoursValue = $schedule['hours'] ?? null;
-                    
+
                     if ($dayKey && $hoursValue && isset($days[$dayKey])) {
                         $formatted[$days[$dayKey]] = $hoursValue;
                     }
@@ -305,18 +307,19 @@ class ContentBusiness extends Model
     public function isOpenNow(): bool
     {
         $hours = $this->operating_hours ?? [];
-        $currentDay = strtolower(now()->format('l'));
+        $currentDay = mb_strtolower(now()->format('l'));
         $currentTime = now()->format('H:i');
 
         $dayHours = null;
 
         // Manejar dos formatos posibles de operating_hours
-        if (is_array($hours) && !empty($hours)) {
+        if (is_array($hours) && ! empty($hours)) {
             // Formato 1: Array de objetos [{"day":"monday","hours":"09:00-18:00"}]
             if (isset($hours[0]) && is_array($hours[0]) && isset($hours[0]['day'])) {
                 foreach ($hours as $schedule) {
                     if (($schedule['day'] ?? null) === $currentDay) {
                         $dayHours = $schedule['hours'] ?? null;
+
                         break;
                     }
                 }
@@ -335,7 +338,7 @@ class ContentBusiness extends Model
         if (preg_match('/(\d{2}:\d{2})-(\d{2}:\d{2})/', $dayHours, $matches)) {
             $openTime = $matches[1];
             $closeTime = $matches[2];
-            
+
             return $currentTime >= $openTime && $currentTime <= $closeTime;
         }
 
@@ -357,7 +360,7 @@ class ContentBusiness extends Model
      */
     public function getMenuItemsByCategoryAttribute(): array
     {
-        if (!$this->isRestaurant()) {
+        if (! $this->isRestaurant()) {
             return [];
         }
 
@@ -374,7 +377,7 @@ class ContentBusiness extends Model
      */
     public function getAvailableMenuItemsAttribute()
     {
-        if (!$this->isRestaurant()) {
+        if (! $this->isRestaurant()) {
             return collect();
         }
 
@@ -390,7 +393,7 @@ class ContentBusiness extends Model
      */
     public function getMenuCategoriesAttribute(): array
     {
-        if (!$this->isRestaurant()) {
+        if (! $this->isRestaurant()) {
             return [];
         }
 
@@ -405,6 +408,7 @@ class ContentBusiness extends Model
 
     /**
      * Scope para filtrar solo restaurantes
+     * @param mixed $query
      */
     public function scopeRestaurants($query)
     {
@@ -413,6 +417,7 @@ class ContentBusiness extends Model
 
     /**
      * Scope para filtrar negocios (no restaurantes)
+     * @param mixed $query
      */
     public function scopeBusinesses($query)
     {
@@ -430,14 +435,14 @@ class ContentBusiness extends Model
             'member_business_id',
             'business_group_id'
         )
-        ->withPivot([
-            'display_order',
-            'is_featured',
-            'custom_position',
-            'member_status',
-            'member_notes'
-        ])
-        ->withTimestamps();
+            ->withPivot([
+                'display_order',
+                'is_featured',
+                'custom_position',
+                'member_status',
+                'member_notes',
+            ])
+            ->withTimestamps();
     }
 
     /**

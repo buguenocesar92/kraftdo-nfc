@@ -31,70 +31,116 @@ class DynamicContentsTable
                     ->label('Resumen de Datos')
                     ->formatStateUsing(function ($state, $record) {
                         $summary = [];
-                        
+
                         // Mostrar información relevante según el tipo usando tablas normalizadas
                         switch ($record->type) {
                             case 'GIFT':
                                 if ($record->gift) {
-                                    if ($record->gift->sender_name) $summary[] = "De: {$record->gift->sender_name}";
-                                    if ($record->gift->recipient_name) $summary[] = "Para: {$record->gift->recipient_name}";
+                                    if ($record->gift->sender_name) {
+                                        $summary[] = "De: {$record->gift->sender_name}";
+                                    }
+                                    if ($record->gift->recipient_name) {
+                                        $summary[] = "Para: {$record->gift->recipient_name}";
+                                    }
                                 }
                                 if ($record->multimedia) {
-                                    if ($record->multimedia->gallery_images) $summary[] = count($record->multimedia->gallery_images) . " fotos";
-                                    if ($record->multimedia->video_url) $summary[] = "Video";
-                                    if ($record->multimedia->audio_url) $summary[] = "Audio: " . $record->multimedia->audio_type;
+                                    if ($record->multimedia->gallery_images) {
+                                        $summary[] = count($record->multimedia->gallery_images) . " fotos";
+                                    }
+                                    if ($record->multimedia->video_url) {
+                                        $summary[] = "Video";
+                                    }
+                                    if ($record->multimedia->audio_url) {
+                                        $summary[] = "Audio: " . $record->multimedia->audio_type;
+                                    }
                                 }
+
                                 break;
-                                
+
                             case 'MENU': // DEPRECATED - tipo migrado a BUSINESS
                             case 'BUSINESS':
                                 if ($record->business) {
-                                    if ($record->business->contact_phone) $summary[] = "Tel: {$record->business->contact_phone}";
-                                    if ($record->business->directProducts) $summary[] = $record->business->directProducts->count() . " productos";
+                                    if ($record->business->contact_phone) {
+                                        $summary[] = "Tel: {$record->business->contact_phone}";
+                                    }
+                                    if ($record->business->directProducts) {
+                                        $summary[] = $record->business->directProducts->count() . " productos";
+                                    }
                                 }
+
                                 break;
-                                
+
                             case 'PROFILE':
                                 if ($record->profile) {
-                                    if ($record->profile->contact_email) $summary[] = "Email: {$record->profile->contact_email}";
+                                    if ($record->profile->contact_email) {
+                                        $summary[] = "Email: {$record->profile->contact_email}";
+                                    }
                                 }
                                 if ($record->socialLinks) {
                                     $summary[] = $record->socialLinks->count() . " redes";
                                 }
+
                                 break;
-                                
+
                             case 'EVENT':
                                 if ($record->event) {
-                                    if ($record->event->event_location) $summary[] = "Lugar: {$record->event->event_location}";
-                                    if ($record->event->event_start_date) $summary[] = "Fecha: {$record->event->event_start_date->format('d/m/Y')}";
-                                    if ($record->event->event_organizer) $summary[] = "Org: {$record->event->event_organizer}";
+                                    if ($record->event->event_location) {
+                                        $summary[] = "Lugar: {$record->event->event_location}";
+                                    }
+                                    if ($record->event->event_start_date) {
+                                        $summary[] = "Fecha: {$record->event->event_start_date->format('d/m/Y')}";
+                                    }
+                                    if ($record->event->event_organizer) {
+                                        $summary[] = "Org: {$record->event->event_organizer}";
+                                    }
                                 }
+
                                 break;
-                                
+
                             case 'PRODUCT':
                                 if ($record->product) {
-                                    if ($record->product->product_price) $summary[] = "Precio: {$record->product->getFormattedPrice()}";
-                                    if ($record->product->product_stock) $summary[] = "Stock: {$record->product->product_stock}";
-                                    if ($record->product->product_sku) $summary[] = "SKU: {$record->product->product_sku}";
+                                    if ($record->product->product_price) {
+                                        $summary[] = "Precio: {$record->product->getFormattedPrice()}";
+                                    }
+                                    if ($record->product->product_stock) {
+                                        $summary[] = "Stock: {$record->product->product_stock}";
+                                    }
+                                    if ($record->product->product_sku) {
+                                        $summary[] = "SKU: {$record->product->product_sku}";
+                                    }
                                 }
+
                                 break;
-                                
+
                             case 'TOURIST':
                                 if ($record->tourist) {
-                                    if ($record->tourist->location_name) $summary[] = "Lugar: {$record->tourist->location_name}";
-                                    if ($record->tourist->contact_phone) $summary[] = "Tel: {$record->tourist->contact_phone}";
-                                    if ($record->tourist->website_url) $summary[] = "Web";
+                                    if ($record->tourist->location_name) {
+                                        $summary[] = "Lugar: {$record->tourist->location_name}";
+                                    }
+                                    if ($record->tourist->contact_phone) {
+                                        $summary[] = "Tel: {$record->tourist->contact_phone}";
+                                    }
+                                    if ($record->tourist->website_url) {
+                                        $summary[] = "Web";
+                                    }
                                 }
+
                                 break;
                         }
-                        
+
                         // Fallback a JSON para retrocompatibilidad
                         if (empty($summary) && is_array($state)) {
-                            if (isset($state['from'])) $summary[] = "De: {$state['from']}";
-                            if (isset($state['to'])) $summary[] = "Para: {$state['to']}";
-                            if (isset($state['multimedia']['gallery'])) $summary[] = count($state['multimedia']['gallery']) . " fotos";
+                            if (isset($state['from'])) {
+                                $summary[] = "De: {$state['from']}";
+                            }
+                            if (isset($state['to'])) {
+                                $summary[] = "Para: {$state['to']}";
+                            }
+                            if (isset($state['multimedia']['gallery'])) {
+                                $summary[] = count($state['multimedia']['gallery']) . " fotos";
+                            }
                         }
-                        
+
                         return empty($summary) ? 'Datos disponibles' : implode(" | ", $summary);
                     })
                     ->tooltip(fn ($record) => is_array($record->data) ? json_encode($record->data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) : $record->data)

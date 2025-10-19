@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     /**
      * Run the migrations.
      */
@@ -18,7 +17,7 @@ return new class extends Migration
             $table->json('practical_info')->nullable()->after('longitude')->comment('Horarios detallados, precios, accesos');
             $table->json('gallery_images')->nullable()->after('practical_info')->comment('Galería de múltiples imágenes');
             $table->string('slug')->nullable()->after('gallery_images')->comment('URL amigable para la landing page');
-            
+
             // Actualizar campos existentes para ser más específicos
             $table->dropColumn(['opening_hours', 'entrance_fee', 'fee_currency', 'website_url', 'phone']);
         });
@@ -35,7 +34,7 @@ return new class extends Migration
             $table->json('attractions')->nullable()->after('services')->comment('Atracciones principales');
             $table->string('best_time_to_visit')->nullable()->after('attractions');
             $table->json('languages_spoken')->nullable()->after('best_time_to_visit');
-            
+
             // Índices para búsqueda
             $table->index('place_type');
             $table->unique('slug');
@@ -50,10 +49,10 @@ return new class extends Migration
         Schema::table('content_tourist', function (Blueprint $table) {
             $table->dropIndex(['place_type']);
             $table->dropUnique(['slug']);
-            
+
             $table->dropColumn([
                 'place_type',
-                'history', 
+                'history',
                 'practical_info',
                 'gallery_images',
                 'slug',
@@ -66,7 +65,7 @@ return new class extends Migration
                 'services',
                 'attractions',
                 'best_time_to_visit',
-                'languages_spoken'
+                'languages_spoken',
             ]);
         });
 

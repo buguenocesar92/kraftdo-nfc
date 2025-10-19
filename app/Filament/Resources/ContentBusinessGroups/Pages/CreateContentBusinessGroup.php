@@ -18,10 +18,10 @@ class CreateContentBusinessGroup extends CreateRecord
                 'lng' => (float) $data['longitude'],
             ];
         }
-        
+
         // Remove the separate fields
         unset($data['latitude'], $data['longitude']);
-        
+
         return $data;
     }
 }

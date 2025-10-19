@@ -55,7 +55,7 @@ class UserForm
                             ->descriptions(function () {
                                 $descriptions = [];
                                 foreach (Role::all() as $role) {
-                                    $descriptions[$role->id] = match($role->name) {
+                                    $descriptions[$role->id] = match ($role->name) {
                                         'Super Admin' => '🔴 Acceso completo al sistema - ¡Usar con precaución!',
                                         'Admin' => '🟠 Gestión completa de contenido y usuarios limitada',
                                         'Editor' => '🟡 Crear y editar su propio contenido',
@@ -64,6 +64,7 @@ class UserForm
                                         default => '📋 Rol personalizado'
                                     };
                                 }
+
                                 return $descriptions;
                             })
                             ->columns(2)

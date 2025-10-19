@@ -9,9 +9,9 @@ use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
 
 class ContentBusinessGroupsTable
 {
@@ -23,13 +23,13 @@ class ContentBusinessGroupsTable
                     ->label('Logo')
                     ->circular()
                     ->size(40),
-                
+
                 TextColumn::make('group_name')
                     ->label('Nombre del Grupo')
                     ->searchable()
                     ->sortable()
                     ->weight('bold'),
-                
+
                 TextColumn::make('group_type')
                     ->label('Tipo')
                     ->formatStateUsing(fn (string $state): string => match ($state) {
@@ -40,28 +40,29 @@ class ContentBusinessGroupsTable
                         'plaza' => 'Plaza de Comidas',
                         default => ucfirst($state),
                     }),
-                
+
                 TextColumn::make('memberBusinesses_count')
                     ->label('Miembros')
                     ->counts('memberBusinesses'),
-                
+
                 TextColumn::make('address')
                     ->label('Dirección')
                     ->searchable()
                     ->limit(30)
                     ->tooltip(function (TextColumn $column): ?string {
                         $state = $column->getState();
-                        if (strlen($state) <= 30) {
+                        if (mb_strlen($state) <= 30) {
                             return null;
                         }
+
                         return $state;
                     }),
-                
+
                 TextColumn::make('contact_phone')
                     ->label('Teléfono')
                     ->searchable()
                     ->toggleable(),
-                
+
                 IconColumn::make('is_active')
                     ->label('Activo')
                     ->boolean()
@@ -69,13 +70,13 @@ class ContentBusinessGroupsTable
                     ->falseIcon('heroicon-o-x-circle')
                     ->trueColor('success')
                     ->falseColor('danger'),
-                
+
                 TextColumn::make('created_at')
                     ->label('Creado')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-                
+
                 TextColumn::make('updated_at')
                     ->label('Actualizado')
                     ->dateTime('d/m/Y H:i')
@@ -92,7 +93,7 @@ class ContentBusinessGroupsTable
                         'fair' => 'Feria',
                         'plaza' => 'Plaza de Comidas',
                     ]),
-                
+
                 TernaryFilter::make('is_active')
                     ->label('Estado')
                     ->placeholder('Todos')

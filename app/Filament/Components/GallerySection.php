@@ -2,12 +2,7 @@
 
 namespace App\Filament\Components;
 
-use App\Models\ContentGalleryImage;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Components\Section;
 
 class GallerySection

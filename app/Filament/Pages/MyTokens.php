@@ -2,29 +2,29 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\ContentGalleryImage;
 use App\Models\ContentGift;
 use App\Models\ContentMultimedia;
-use App\Models\ContentGalleryImage;
 use App\Models\DynamicContent;
 use App\Models\NfcToken;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Schemas\Components\Section;
-use Filament\Forms\Concerns\InteractsWithForms;
-use Filament\Forms\Contracts\HasForms;
-use Filament\Pages\Page;
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
 use Filament\Actions\Contracts\HasActions;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Illuminate\Database\Eloquent\Model;
 
 class MyTokens extends Page implements HasForms, HasActions
 {
-    use InteractsWithForms, InteractsWithActions;
+    use InteractsWithForms;
+    use InteractsWithActions;
 
     protected static ?string $title = 'Configurar Token';
 
@@ -52,22 +52,23 @@ class MyTokens extends Page implements HasForms, HasActions
         if ($this->token) {
             return "Configurar Token #{$this->token->id}";
         }
+
         return 'Configurar Token';
     }
 
     public function mount($tokenId): void
     {
         // Verificar permisos antes de proceder
-        if (!auth()->user()->can('configure_own_tokens')) {
+        if (! auth()->user()->can('configure_own_tokens')) {
             abort(403, 'No tienes permisos para configurar tokens.');
         }
 
         // El tokenId es requerido ahora
         $this->selectedTokenId = $tokenId;
         $this->loadToken($this->selectedTokenId);
-        
+
         // Si no se pudo cargar el token, mostrar error
-        if (!$this->token) {
+        if (! $this->token) {
             abort(404, 'Token no encontrado o no tienes permisos para acceder a él.');
         }
     }
@@ -76,7 +77,7 @@ class MyTokens extends Page implements HasForms, HasActions
     {
         try {
             $this->token = NfcToken::findOrFail($tokenId);
-            
+
             // Verificar que el token pertenece al usuario actual
             if ($this->token->user_id !== auth()->id()) {
                 Notification::make()
@@ -86,6 +87,7 @@ class MyTokens extends Page implements HasForms, HasActions
                     ->send();
                 $this->token = null;
                 $this->selectedTokenId = null;
+
                 return;
             }
 
@@ -98,12 +100,13 @@ class MyTokens extends Page implements HasForms, HasActions
                     ->send();
                 $this->token = null;
                 $this->selectedTokenId = null;
+
                 return;
             }
 
             // Obtener o crear el ContentGift asociado
             $this->contentGift = $this->getOrCreateContentGift();
-            
+
             if ($this->contentGift) {
                 // Intentar cargar contenido multimedia (sin fallar si hay error)
                 try {
@@ -112,10 +115,10 @@ class MyTokens extends Page implements HasForms, HasActions
                     \Log::warning('Error loading multimedia content', ['error' => $e->getMessage()]);
                     $this->contentMultimedia = null;
                 }
-                
+
                 // Combinar datos de regalo y multimedia
                 $multimediaData = $this->contentMultimedia ? $this->contentMultimedia->toArray() : [];
-                
+
                 // Agregar imágenes de galería si existen
                 if ($this->contentMultimedia) {
                     $galleryImages = $this->contentMultimedia->galleryImages()
@@ -127,7 +130,7 @@ class MyTokens extends Page implements HasForms, HasActions
                         ->toArray();
                     $multimediaData['gallery_images'] = $galleryImages;
                 }
-                
+
                 $data = array_merge(
                     $this->contentGift->toArray(),
                     $multimediaData,
@@ -138,7 +141,7 @@ class MyTokens extends Page implements HasForms, HasActions
                     ]
                 );
                 $this->form->fill($data);
-                
+
                 Notification::make()
                     ->title('Token cargado')
                     ->body('Se ha cargado correctamente el token y su información.')
@@ -158,26 +161,27 @@ class MyTokens extends Page implements HasForms, HasActions
 
     protected function getOrCreateContentGift(): ?ContentGift
     {
-        if (!$this->token) {
+        if (! $this->token) {
             return null;
         }
 
         // Obtener el DynamicContent del token
         $dynamicContent = $this->token->dynamicContent;
-        
-        if (!$dynamicContent) {
+
+        if (! $dynamicContent) {
             Notification::make()
                 ->title('Contenido no encontrado')
                 ->body('El token no tiene contenido dinámico asociado.')
                 ->warning()
                 ->send();
+
             return null;
         }
 
         // Buscar o crear el ContentGift
         $contentGift = ContentGift::where('dynamic_content_id', $dynamicContent->id)->first();
-        
-        if (!$contentGift) {
+
+        if (! $contentGift) {
             $contentGift = ContentGift::create([
                 'dynamic_content_id' => $dynamicContent->id,
                 'sender_name' => auth()->user()->name,
@@ -191,21 +195,21 @@ class MyTokens extends Page implements HasForms, HasActions
 
     protected function getOrCreateContentMultimedia(): ?ContentMultimedia
     {
-        if (!$this->token) {
+        if (! $this->token) {
             return null;
         }
 
         // Obtener el DynamicContent del token
         $dynamicContent = $this->token->dynamicContent;
-        
-        if (!$dynamicContent) {
+
+        if (! $dynamicContent) {
             return null;
         }
 
         // Buscar o crear el ContentMultimedia
         $contentMultimedia = ContentMultimedia::where('dynamic_content_id', $dynamicContent->id)->first();
-        
-        if (!$contentMultimedia) {
+
+        if (! $contentMultimedia) {
             $contentMultimedia = ContentMultimedia::create([
                 'dynamic_content_id' => $dynamicContent->id,
                 'video_url' => null,
@@ -280,13 +284,13 @@ class MyTokens extends Page implements HasForms, HasActions
                             ])
                             ->default('direct')
                             ->columnSpan(1),
-                        
+
                         TextInput::make('video_url')
                             ->label('URL del video')
                             ->placeholder('https://www.youtube.com/watch?v=...')
                             ->url()
                             ->columnSpan(1),
-                        
+
                         FileUpload::make('video_file')
                             ->label('Archivo de video')
                             ->directory('videos')
@@ -309,13 +313,13 @@ class MyTokens extends Page implements HasForms, HasActions
                             ])
                             ->default('direct')
                             ->columnSpan(1),
-                        
+
                         TextInput::make('audio_url')
                             ->label('URL del audio')
                             ->placeholder('https://example.com/audio.mp3')
                             ->url()
                             ->columnSpan(1),
-                        
+
                         FileUpload::make('audio_file')
                             ->label('Archivo de audio')
                             ->directory('audio')
@@ -370,32 +374,33 @@ class MyTokens extends Page implements HasForms, HasActions
 
     public function update(): void
     {
-        if (!$this->contentGift) {
+        if (! $this->contentGift) {
             Notification::make()
                 ->title('Error')
                 ->body('No se encontró el regalo para actualizar.')
                 ->danger()
                 ->send();
+
             return;
         }
 
         $data = $this->form->getState();
-        
+
         // Separar datos por modelo
         $giftData = [
             'sender_name' => $data['sender_name'] ?? '',
             'recipient_name' => $data['recipient_name'] ?? '',
             'message' => $data['message'] ?? '',
         ];
-        
+
         // Actualizar ContentGift
         $this->contentGift->update($giftData);
-        
+
         // Crear o actualizar ContentMultimedia si hay datos multimedia
-        if (!$this->contentMultimedia) {
+        if (! $this->contentMultimedia) {
             $this->contentMultimedia = $this->getOrCreateContentMultimedia();
         }
-        
+
         if ($this->contentMultimedia) {
             $multimediaData = [
                 'video_url' => $data['video_url'] ?? null,
@@ -406,14 +411,14 @@ class MyTokens extends Page implements HasForms, HasActions
                 'audio_type' => $data['audio_type'] ?? 'direct',
                 'settings' => array_merge($this->contentMultimedia->settings ?? [], $data['settings'] ?? []),
             ];
-            
+
             $this->contentMultimedia->update($multimediaData);
-            
+
             // Manejar galería de imágenes
             if (isset($data['gallery_images']) && is_array($data['gallery_images'])) {
                 // Eliminar imágenes existentes
                 $this->contentMultimedia->galleryImages()->delete();
-                
+
                 // Crear nuevas imágenes
                 foreach ($data['gallery_images'] as $index => $imagePath) {
                     if ($imagePath) {
@@ -429,7 +434,7 @@ class MyTokens extends Page implements HasForms, HasActions
                 }
             }
         }
-        
+
         Notification::make()
             ->title('Contenido actualizado exitosamente')
             ->body('Se ha guardado toda la información del regalo y multimedia.')

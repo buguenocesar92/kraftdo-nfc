@@ -19,17 +19,17 @@ class ContentProductResource extends Resource
     protected static ?string $model = ContentProduct::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingBag;
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Contenido Especializado';
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Productos';
     }
-    
+
     public static function getNavigationSort(): ?int
     {
         return 6;

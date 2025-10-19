@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContentMenu extends Model
 {
@@ -41,11 +41,11 @@ class ContentMenu extends Model
     public function getOrderedItemsAttribute()
     {
         return $this->menuItems()
-                   ->orderBy('category')
-                   ->orderBy('sort_order')
-                   ->orderBy('name')
-                   ->get()
-                   ->groupBy('category');
+            ->orderBy('category')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get()
+            ->groupBy('category');
     }
 
     /**

@@ -3,12 +3,12 @@
 namespace App\Filament\Resources\ContentProfiles\Schemas;
 
 use App\Models\DynamicContent;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -23,23 +23,23 @@ class ContentProfileForm
                     ->schema([
                         Select::make('dynamic_content_id')
                             ->relationship(
-                                name: 'dynamicContent', 
+                                name: 'dynamicContent',
                                 titleAttribute: 'title',
                                 modifyQueryUsing: function ($query, $livewire) {
                                     $query->where('type', DynamicContent::TYPE_PROFILE);
-                                    
+
                                     // Excluir DynamicContent ya asignados a otros ContentProfile
                                     $assignedIds = \App\Models\ContentProfile::pluck('dynamic_content_id')->filter();
-                                    
+
                                     // En modo edición, permitir el contenido actualmente asignado
                                     if ($livewire->record) {
-                                        $assignedIds = $assignedIds->reject(fn($id) => $id === $livewire->record->dynamic_content_id);
+                                        $assignedIds = $assignedIds->reject(fn ($id) => $id === $livewire->record->dynamic_content_id);
                                     }
-                                    
+
                                     if ($assignedIds->isNotEmpty()) {
                                         $query->whereNotIn('id', $assignedIds);
                                     }
-                                    
+
                                     return $query;
                                 }
                             )
@@ -50,50 +50,50 @@ class ContentProfileForm
                             ->placeholder('Selecciona contenido dinámico disponible...')
                             ->helperText('Solo se muestran contenidos tipo PROFILE que no estén asignados a otros perfiles')
                             ->columnSpanFull(),
-                        
+
                         TextInput::make('name')
                             ->label('Nombre completo')
                             ->placeholder('Nombre completo del perfil')
                             ->required()
                             ->maxLength(255)
                             ->columnSpanFull(),
-                        
+
                         Textarea::make('bio')
                             ->label('Biografía')
                             ->placeholder('Información sobre la persona o empresa...')
                             ->rows(4)
                             ->columnSpanFull(),
-                        
+
                         TextInput::make('profession')
                             ->label('Profesión/Cargo')
                             ->placeholder('Ej: Desarrollador Senior, CEO, Diseñador...')
                             ->maxLength(255),
-                        
+
                         TextInput::make('company')
                             ->label('Empresa/Organización')
                             ->placeholder('Nombre de la empresa o organización')
                             ->maxLength(255),
-                        
+
                         TextInput::make('location')
                             ->label('Ubicación')
                             ->placeholder('Ciudad, País')
                             ->maxLength(255),
-                        
+
                         TextInput::make('contact_info')
                             ->label('Información de Contacto Principal')
                             ->placeholder('Email principal o método de contacto preferido')
                             ->maxLength(255)
                             ->columnSpanFull(),
-                        
+
                         TextInput::make('contact_email')
                             ->label('Correo Electrónico Adicional')
                             ->email()
                             ->placeholder('contacto@ejemplo.com'),
-                        
+
                         TextInput::make('contact_phone')
                             ->label('Teléfono')
                             ->placeholder('+1 234 567 8900'),
-                        
+
                         TextInput::make('contact_website')
                             ->label('Sitio Web')
                             ->url()
@@ -110,12 +110,12 @@ class ContentProfileForm
                             ->label('Color Primario')
                             ->default('#3B82F6')
                             ->helperText('Color principal del gradiente de fondo'),
-                            
+
                         ColorPicker::make('color_palette.secondary')
                             ->label('Color Secundario')
                             ->default('#8B5CF6')
                             ->helperText('Color secundario del gradiente'),
-                            
+
                         ColorPicker::make('color_palette.accent')
                             ->label('Color Terciario')
                             ->default('#EC4899')
@@ -145,12 +145,12 @@ class ContentProfileForm
                                     ])
                                     ->required()
                                     ->columnSpan(1),
-                                
+
                                 TextInput::make('username')
                                     ->label('Usuario/Nombre')
                                     ->placeholder('nombre_usuario')
                                     ->columnSpan(1),
-                                
+
                                 TextInput::make('url')
                                     ->label('URL Completa (opcional)')
                                     ->url()
@@ -193,13 +193,13 @@ class ContentProfileForm
                             ])
                             ->default('direct')
                             ->columnSpan(1),
-                        
+
                         TextInput::make('video_url')
                             ->label('URL del video de presentación')
                             ->placeholder('https://www.youtube.com/watch?v=...')
                             ->url()
                             ->columnSpanFull(),
-                        
+
                         FileUpload::make('video_file')
                             ->label('Archivo de video de presentación')
                             ->directory('profiles/videos')

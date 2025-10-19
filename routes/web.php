@@ -4,7 +4,7 @@ use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Route;
 
 // Include auth routes
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
 // Home route
 Route::get('/', function () {
@@ -17,7 +17,7 @@ Route::get('/health', function () {
         'status' => 'ok',
         'timestamp' => now()->toISOString(),
         'app' => config('app.name'),
-        'env' => config('app.env')
+        'env' => config('app.env'),
     ]);
 });
 
@@ -26,12 +26,11 @@ Route::get('/token/{tokenId}', [TokenController::class, 'show'])->name('token.sh
     ->where('tokenId', '[A-Za-z0-9\-]+');
 
 // Debug route for testing
-Route::get('/debug-bus-stop', function() {
+Route::get('/debug-bus-stop', function () {
     \Log::info('Debug route hit');
+
     return 'Debug route works';
 });
 
 Route::get('/token/{tokenId}/products', [TokenController::class, 'showProducts'])->name('token.products')
     ->where('tokenId', '[A-Za-z0-9\-]+');
-
-

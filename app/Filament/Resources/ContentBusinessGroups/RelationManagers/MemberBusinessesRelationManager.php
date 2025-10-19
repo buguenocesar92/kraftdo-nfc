@@ -16,7 +16,7 @@ use Filament\Tables\Table;
 class MemberBusinessesRelationManager extends RelationManager
 {
     protected static string $relationship = 'memberBusinesses';
-    
+
     protected static ?string $recordTitleAttribute = 'business_name';
 
     public function form(Schema $schema): Schema
@@ -50,7 +50,7 @@ class MemberBusinessesRelationManager extends RelationManager
                         $assignedBusinessIds = \DB::table('business_group_members')
                             ->pluck('member_business_id')
                             ->unique();
-                        
+
                         // Filtrar solo negocios no asignados - especificar tabla para evitar ambigüedad
                         return $query->whereNotIn('content_businesses.id', $assignedBusinessIds);
                     })

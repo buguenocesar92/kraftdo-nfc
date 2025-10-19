@@ -2,9 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\NfcToken;
 use Closure;
 use Illuminate\Http\Request;
-use App\Models\NfcToken;
 use Symfony\Component\HttpFoundation\Response;
 
 class TokenOwnershipMiddleware
@@ -17,7 +17,7 @@ class TokenOwnershipMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         // Solo aplicar en rutas de configuración de tokens
-        if (!$request->route('tokenId')) {
+        if (! $request->route('tokenId')) {
             return $next($request);
         }
 
@@ -25,14 +25,14 @@ class TokenOwnershipMiddleware
         $user = auth()->user();
 
         // Verificar que el usuario esté autenticado
-        if (!$user) {
+        if (! $user) {
             abort(403, 'No tienes permisos para acceder a este recurso.');
         }
 
         // Verificar que el token existe y pertenece al usuario
         $token = NfcToken::find($tokenId);
-        
-        if (!$token) {
+
+        if (! $token) {
             abort(404, 'Token no encontrado.');
         }
 
@@ -41,7 +41,7 @@ class TokenOwnershipMiddleware
         }
 
         // Verificar permisos específicos
-        if (!$user->can('configure_own_tokens')) {
+        if (! $user->can('configure_own_tokens')) {
             abort(403, 'No tienes permisos para configurar tokens.');
         }
 

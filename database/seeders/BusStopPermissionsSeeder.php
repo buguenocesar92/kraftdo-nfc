@@ -18,7 +18,7 @@ class BusStopPermissionsSeeder extends Seeder
             'update_bus_stop',
             'delete_bus_stop',
             'delete_any_bus_stop',
-            
+
             // Route permissions
             'view_any_route',
             'view_route',
@@ -26,7 +26,7 @@ class BusStopPermissionsSeeder extends Seeder
             'update_route',
             'delete_route',
             'delete_any_route',
-            
+
             // Schedule permissions
             'view_any_schedule',
             'view_schedule',
@@ -34,7 +34,7 @@ class BusStopPermissionsSeeder extends Seeder
             'update_schedule',
             'delete_schedule',
             'delete_any_schedule',
-            
+
             // UtilityPhone permissions
             'view_any_utility_phone',
             'view_utility_phone',

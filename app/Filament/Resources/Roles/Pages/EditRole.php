@@ -21,11 +21,11 @@ class EditRole extends EditRecord
     {
         // Load the permissions relationship
         $this->record->load('permissions');
-        
+
         // Set the permissions as an array of IDs for the CheckboxList
         $data['permissions'] = $this->record->permissions->pluck('id')->toArray();
-        
-        
+
+
         return $data;
     }
 
@@ -34,8 +34,8 @@ class EditRole extends EditRecord
         // Store permissions data for later processing
         $this->permissionsData = $data['permissions'] ?? [];
         unset($data['permissions']);
-        
-        
+
+
         return $data;
     }
 
@@ -47,7 +47,7 @@ class EditRole extends EditRecord
             $permissionNames = \Spatie\Permission\Models\Permission::whereIn('id', $this->permissionsData)
                 ->pluck('name')
                 ->toArray();
-            
+
             $this->record->syncPermissions($permissionNames);
             $this->record->load('permissions');
         }

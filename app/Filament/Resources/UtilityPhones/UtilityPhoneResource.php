@@ -19,22 +19,22 @@ class UtilityPhoneResource extends Resource
     protected static ?string $model = UtilityPhone::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhone;
-    
+
     public static function canAccess(): bool
     {
         return auth()->user()?->can('view_utility_phones') ?? false;
     }
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Transporte Público';
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Teléfonos Útiles';
     }
-    
+
     public static function getNavigationSort(): ?int
     {
         return 4;

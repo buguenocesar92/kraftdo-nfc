@@ -2,7 +2,6 @@
 
 namespace App\Filament\Components;
 
-use App\Models\ContentSocialLink;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;

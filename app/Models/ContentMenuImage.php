@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class ContentMenuImage extends Model
 {
@@ -48,6 +48,7 @@ class ContentMenuImage extends Model
 
     /**
      * Scope para imágenes activas
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -56,6 +57,7 @@ class ContentMenuImage extends Model
 
     /**
      * Scope para ordenar por display_order
+     * @param mixed $query
      */
     public function scopeOrdered($query)
     {

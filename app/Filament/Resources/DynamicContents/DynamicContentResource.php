@@ -19,19 +19,19 @@ class DynamicContentResource extends Resource
     protected static ?string $model = DynamicContent::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
-    
+
     protected static bool $shouldRegisterNavigation = true;
-    
+
     public static function getNavigationGroup(): ?string
     {
         return 'Gestión NFC';
     }
-    
+
     public static function getNavigationLabel(): string
     {
         return 'Contenido Dinámico';
     }
-    
+
     public static function getNavigationSort(): ?int
     {
         return 2;

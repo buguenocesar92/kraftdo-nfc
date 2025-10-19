@@ -15,7 +15,7 @@ class ContentMultimediaObserver
         // Invalidar cache del contenido dinámico relacionado
         if ($contentMultimedia->dynamicContent) {
             NfcCacheService::invalidateContentCache($contentMultimedia->dynamicContent->content_id);
-            
+
             // Si hay token asociado, invalidar su cache
             if ($contentMultimedia->dynamicContent->nfcToken) {
                 NfcCacheService::invalidateTokenCache($contentMultimedia->dynamicContent->nfcToken->token_id);
@@ -31,7 +31,7 @@ class ContentMultimediaObserver
         // Mismo proceso que updated
         if ($contentMultimedia->dynamicContent) {
             NfcCacheService::invalidateContentCache($contentMultimedia->dynamicContent->content_id);
-            
+
             if ($contentMultimedia->dynamicContent->nfcToken) {
                 NfcCacheService::invalidateTokenCache($contentMultimedia->dynamicContent->nfcToken->token_id);
             }
