@@ -101,11 +101,7 @@ class ContentBusinessGroupForm
                     ->imageResizeTargetHeight('675'),
 
                 Repeater::make('operating_hours')
-                    ->label('Horarios de Operación')
-                    ->live()
-                    ->afterStateUpdated(function ($state) {
-                        \Log::info('🕐 BusinessGroup - afterStateUpdated:', ['state' => $state]);
-                    })
+                    ->label('Horarios de Operación (Opcional)')
                     ->schema([
                         Select::make('day')
                             ->label('Día')
@@ -126,32 +122,45 @@ class ContentBusinessGroupForm
                             ->required(),
                     ])
                     ->columns(2)
-                    ->defaultItems(1)
-                    ->default([
-                        ['day' => 'monday', 'hours' => '10:00-22:00'],
-                    ])
+                    ->defaultItems(0)
                     ->addActionLabel('Agregar Día')
                     ->reorderable(false)
                     ->collapsible()
-                    ->helperText('Agrega los horarios de operación para cada día. Puedes agregar tantos días como necesites.')
+                    ->helperText('Agrega los horarios de operación para cada día. Este campo es opcional.')
                     ->formatStateUsing(function ($state) {
-                        // Si el estado es null o vacío, usar el valor por defecto
-                        if (empty($state)) {
-                            return [['day' => 'monday', 'hours' => '10:00-22:00']];
+                        // Manejar diferentes formatos de estado
+                        if (empty($state) || $state === null) {
+                            return [];
+                        }
+
+                        // Si es un string (JSON), decodificarlo
+                        if (is_string($state)) {
+                            $decoded = json_decode($state, true);
+                            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                $state = $decoded;
+                            } else {
+                                return [];
+                            }
                         }
 
                         // Si es un array asociativo (formato de BD), convertir a formato repeater
-                        if (is_array($state) && ! isset($state[0])) {
+                        if (is_array($state) && !empty($state) && !isset($state[0])) {
                             $items = [];
                             foreach ($state as $day => $hours) {
-                                $items[] = ['day' => $day, 'hours' => $hours];
+                                if (is_string($day) && !empty($hours)) {
+                                    $items[] = ['day' => $day, 'hours' => $hours];
+                                }
                             }
-
                             return $items;
                         }
 
-                        // Si ya está en formato repeater, devolverlo tal como está
-                        return $state;
+                        // Si ya está en formato repeater o es un array indexado, devolverlo
+                        if (is_array($state) && (empty($state) || isset($state[0]))) {
+                            return $state;
+                        }
+
+                        // Fallback
+                        return [];
                     }),
 
                 TextInput::make('latitude')

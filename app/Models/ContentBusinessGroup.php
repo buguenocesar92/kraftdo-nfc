@@ -282,51 +282,38 @@ class ContentBusinessGroup extends Model
      */
     public function setOperatingHoursAttribute($value)
     {
-        // Debug logging
-        \Log::info('🕐 BusinessGroup Model - setOperatingHoursAttribute input:', [
-            'value' => $value,
-            'type' => gettype($value),
-            'is_array' => is_array($value),
-            'is_string' => is_string($value),
-        ]);
-
         // Si es null o vacío, guardar como null
         if (empty($value)) {
             $this->attributes['operating_hours'] = null;
-
-            return;
-        }
-
-        // Si es string (ya JSON), guardar directamente
-        if (is_string($value)) {
-            $this->attributes['operating_hours'] = $value;
-
             return;
         }
 
         // Si es array, necesitamos procesarlo
         if (is_array($value)) {
-            // Si es array numérico con objetos (formato repeater), convertir
+            // Si es array numérico con objetos (formato repeater), convertir a formato asociativo
             if (isset($value[0]) && is_array($value[0]) && isset($value[0]['day'])) {
                 $hours = [];
                 foreach ($value as $item) {
-                    if (isset($item['day']) && isset($item['hours'])) {
+                    if (isset($item['day']) && isset($item['hours']) && !empty($item['hours'])) {
                         $hours[$item['day']] = $item['hours'];
                     }
                 }
-                $result = json_encode($hours);
+                // Guardar como JSON porque el cast 'array' lo deserializará automáticamente
+                $this->attributes['operating_hours'] = json_encode($hours);
             }
-            // Si es array asociativo (formato final), usar directamente
+            // Si es array asociativo (formato final), convertir a JSON
             else {
-                $result = json_encode($value);
+                $this->attributes['operating_hours'] = json_encode($value);
             }
-        } else {
-            $result = json_encode($value);
         }
-
-        \Log::info('🕐 BusinessGroup Model - setOperatingHoursAttribute result:', ['result' => $result]);
-
-        $this->attributes['operating_hours'] = $result;
+        // Si es string (JSON), guardar directamente
+        else if (is_string($value)) {
+            $this->attributes['operating_hours'] = $value;
+        }
+        // Otros tipos, convertir a JSON
+        else {
+            $this->attributes['operating_hours'] = json_encode($value);
+        }
     }
 
     /**
