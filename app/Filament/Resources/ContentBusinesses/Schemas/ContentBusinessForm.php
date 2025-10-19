@@ -215,8 +215,15 @@ class ContentBusinessForm
                                     ->helperText('Formato: 09:00-18:00 o escribir "Cerrado"'),
                             ])
                             ->columns(2)
-                            ->defaultItems(0)
+                            ->defaultItems(1)
+                            ->default([
+                                ['day' => 'monday', 'hours' => '09:00-18:00'],
+                            ])
                             ->maxItems(7)
+                            ->addActionLabel('Agregar Día')
+                            ->reorderable(false)
+                            ->collapsible()
+                            ->helperText('Agrega los horarios de atención para cada día. Máximo 7 días.')
                             ->columnSpanFull(),
                     ])
                     ->collapsible(),

@@ -102,6 +102,10 @@ class ContentBusinessGroupForm
                 
                 Repeater::make('operating_hours')
                     ->label('Horarios de Operación')
+                    ->live()
+                    ->afterStateUpdated(function ($state) {
+                        \Log::info('🕐 BusinessGroup - afterStateUpdated:', ['state' => $state]);
+                    })
                     ->schema([
                         Select::make('day')
                             ->label('Día')
@@ -118,41 +122,34 @@ class ContentBusinessGroupForm
                         TextInput::make('hours')
                             ->label('Horario')
                             ->placeholder('10:00-22:00')
+                            ->helperText('Formato: HH:MM-HH:MM o "Cerrado"')
                             ->required(),
                     ])
                     ->columns(2)
-                    ->defaultItems(7)
+                    ->defaultItems(1)
                     ->default([
                         ['day' => 'monday', 'hours' => '10:00-22:00'],
-                        ['day' => 'tuesday', 'hours' => '10:00-22:00'],
-                        ['day' => 'wednesday', 'hours' => '10:00-22:00'],
-                        ['day' => 'thursday', 'hours' => '10:00-22:00'],
-                        ['day' => 'friday', 'hours' => '10:00-23:00'],
-                        ['day' => 'saturday', 'hours' => '09:00-23:00'],
-                        ['day' => 'sunday', 'hours' => '09:00-22:00'],
                     ])
+                    ->addActionLabel('Agregar Día')
+                    ->reorderable(false)
+                    ->collapsible()
+                    ->helperText('Agrega los horarios de operación para cada día. Puedes agregar tantos días como necesites.')
                     ->formatStateUsing(function ($state) {
+                        // Si el estado es null o vacío, usar el valor por defecto
+                        if (empty($state)) {
+                            return [['day' => 'monday', 'hours' => '10:00-22:00']];
+                        }
+                        
+                        // Si es un array asociativo (formato de BD), convertir a formato repeater
                         if (is_array($state) && !isset($state[0])) {
-                            // Convert associative array to repeater format
                             $items = [];
                             foreach ($state as $day => $hours) {
                                 $items[] = ['day' => $day, 'hours' => $hours];
                             }
                             return $items;
                         }
-                        return $state;
-                    })
-                    ->dehydrateStateUsing(function ($state) {
-                        if (is_array($state)) {
-                            // Convert repeater format to associative array
-                            $hours = [];
-                            foreach ($state as $item) {
-                                if (isset($item['day']) && isset($item['hours'])) {
-                                    $hours[$item['day']] = $item['hours'];
-                                }
-                            }
-                            return $hours;
-                        }
+                        
+                        // Si ya está en formato repeater, devolverlo tal como está
                         return $state;
                     }),
                 
