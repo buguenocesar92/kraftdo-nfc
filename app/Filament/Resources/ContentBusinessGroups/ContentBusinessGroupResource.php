@@ -20,6 +20,11 @@ class ContentBusinessGroupResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBuildingStorefront;
     
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('view_content_business_groups') ?? false;
+    }
+    
     public static function getNavigationGroup(): ?string
     {
         return 'Contenido Especializado';

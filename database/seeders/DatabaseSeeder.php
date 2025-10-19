@@ -8,25 +8,20 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Roles y permisos
+        // Roles y permisos base del sistema
         $this->call(RolesAndPermissionsSeeder::class);
 
         // Roles específicos NFC
         $this->call(NfcRoleSeeder::class);
 
-        // Permisos para Content Business
+        // Permisos específicos para módulos
         $this->call(ContentBusinessPermissionsSeeder::class);
+        $this->call(BusStopPermissionsSeeder::class);
 
-        // Usuarios administradores y test
+        // Usuarios administradores del sistema
         $this->call(AdminUserSeeder::class);
 
-        // Datos de demo NFC
-        $this->call(NfcDemoSeeder::class);
-
-        // Demo de negocio para testing
-        $this->call(BusinessDemoSeeder::class);
-
-        // Demo turístico: Cristo de la Hacienda
-        $this->call(CristoMachaliSeeder::class);
+        // Sistema listo para usar - sin datos de prueba
+        // Para agregar datos de prueba, ejecuta seeders específicos manualmente
     }
 }

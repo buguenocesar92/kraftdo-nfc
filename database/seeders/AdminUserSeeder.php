@@ -74,11 +74,25 @@ class AdminUserSeeder extends Seeder
             $contentManager->assignRole('Content Manager');
         }
 
+        // Create NFC test user
+        $nfcUser = User::updateOrCreate(
+            ['email' => 'nfc@example.com'],
+            [
+                'name' => 'NFC Test User',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$nfcUser->hasRole('NFC')) {
+            $nfcUser->assignRole('NFC');
+        }
+
         $this->command->info('Admin users created successfully!');
         $this->command->info('Super Admin: admin@kraftdo-nfc.com / password');
         $this->command->info('Admin: admin@example.com / password');
         $this->command->info('Editor: editor@example.com / password');
         $this->command->info('Viewer: viewer@example.com / password');
         $this->command->info('Content Manager: content@example.com / password');
+        $this->command->info('NFC User: nfc@example.com / password');
     }
 }

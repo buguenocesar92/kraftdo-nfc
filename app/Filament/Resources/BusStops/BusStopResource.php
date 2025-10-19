@@ -20,6 +20,11 @@ class BusStopResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
     
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('view_bus_stops') ?? false;
+    }
+    
     public static function getNavigationGroup(): ?string
     {
         return 'Transporte Público';

@@ -24,9 +24,12 @@ class NfcRoleSeeder extends Seeder
             $nfcRole = Role::create(['name' => 'NFC']);
         }
 
-        // Definir permisos para usuarios NFC - solo acceso al panel
+        // Permisos limitados para usuarios NFC - solo acceso al panel y sus propios tokens
         $nfcPermissions = [
-            'access_admin_panel'
+            'access_admin_panel', // Permiso básico para acceder al panel admin
+            'view_own_tokens',    // Solo puede ver sus propios tokens
+            'configure_own_tokens', // Solo puede configurar sus propios tokens
+            'manage_own_token_content', // Solo puede gestionar contenido de sus tokens
         ];
 
         // Obtener solo los permisos que existen

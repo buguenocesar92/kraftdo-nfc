@@ -20,6 +20,11 @@ class ScheduleResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClock;
     
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('view_schedules') ?? false;
+    }
+    
     public static function getNavigationGroup(): ?string
     {
         return 'Transporte Público';

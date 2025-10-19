@@ -20,6 +20,11 @@ class UtilityPhoneResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedPhone;
     
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->can('view_utility_phones') ?? false;
+    }
+    
     public static function getNavigationGroup(): ?string
     {
         return 'Transporte Público';
