@@ -19,8 +19,8 @@ services:
     volumes:
       - app_storage:/var/www/html/storage
       - app_bootstrap_cache:/var/www/html/bootstrap/cache
-      # Código de solo lectura en producción
-      - .:/var/www/html:ro
+      # Código de solo lectura en producción - COMENTADO para usar código de la imagen
+      # - .:/var/www/html:ro
     networks:
       - laravel-prod
     extra_hosts:
@@ -132,7 +132,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-warning}
     volumes:
       - app_storage:/var/www/html/storage
-      - .:/var/www/html:ro
+      # - .:/var/www/html:ro
     networks:
       - laravel-prod
     depends_on:
@@ -184,7 +184,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-warning}
     volumes:
       - app_storage:/var/www/html/storage
-      - .:/var/www/html:ro
+      # - .:/var/www/html:ro
     networks:
       - laravel-prod
     depends_on:
