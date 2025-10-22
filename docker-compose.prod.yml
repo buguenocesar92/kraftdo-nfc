@@ -8,9 +8,10 @@ services:
   # WEB SERVER - PHP-FPM + Nginx (Production)
   # ==========================================
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile.staging
+    image: ghcr.io/buguenocesar92/kraftdo-nfc:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.staging
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-web
     restart: unless-stopped
     ports:
@@ -29,7 +30,7 @@ services:
       - APP_ENV=${APP_ENV:-production}
       - APP_DEBUG=${APP_DEBUG:-false}
       - APP_KEY=${APP_KEY:?APP_KEY must be set}
-      - APP_URL=${APP_URL:?APP_URL must be set}
+      - APP_URL=${APP_URL:-https://api.kraftdo.cl:8082}
       - ASSET_URL=${ASSET_URL:-${APP_URL}}
       - LIVEWIRE_ASSET_URL=${LIVEWIRE_ASSET_URL:-${APP_URL}}
       # Database Externa
@@ -41,7 +42,7 @@ services:
       - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set}
       - DB_SSLMODE=${DB_SSLMODE:-REQUIRE}
       # Session config - Segura para producción
-      - SESSION_DOMAIN=${SESSION_DOMAIN:?SESSION_DOMAIN must be set}
+      - SESSION_DOMAIN=${SESSION_DOMAIN:-api.kraftdo.cl}
       - SESSION_SECURE_COOKIE=${SESSION_SECURE_COOKIE:-true}
       - SESSION_SAME_SITE=${SESSION_SAME_SITE:-strict}
       # Redis
@@ -101,9 +102,10 @@ services:
   # QUEUE WORKERS
   # ==========================================
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile.staging
+    image: ghcr.io/buguenocesar92/kraftdo-nfc:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.staging
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-worker
     restart: unless-stopped
     extra_hosts:
@@ -156,9 +158,10 @@ services:
   # SCHEDULER (CRON)
   # ==========================================
   scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile.staging
+    image: ghcr.io/buguenocesar92/kraftdo-nfc:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.staging
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-scheduler
     restart: unless-stopped
     extra_hosts:
@@ -205,9 +208,10 @@ services:
   # MONITORING & METRICS (Optional)
   # ==========================================
   monitoring:
-    build:
-      context: .
-      dockerfile: Dockerfile.staging
+    image: ghcr.io/buguenocesar92/kraftdo-nfc:latest
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.staging
     container_name: ${COMPOSE_PROJECT_NAME:-kraftdo-nfc}-prod-monitoring
     restart: unless-stopped
     extra_hosts:
