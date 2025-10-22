@@ -242,9 +242,25 @@ jobs:
           
           # Verify application is working
           echo "🔧 Verifying application..."
+          
+          # Check container status first
+          echo "📊 Container status:"
+          docker ps -f name=$CONTAINER_PREFIX-web
+          
+          # Show recent logs before attempting connection
+          echo "📋 Recent web container logs:"
+          docker logs $CONTAINER_PREFIX-web --tail 50 || echo "No logs available yet"
+          
+          # Wait a bit more for Laravel to fully start
+          echo "⏳ Waiting additional 30 seconds for Laravel to fully initialize..."
+          sleep 30
+          
           if ! docker-compose -f $COMPOSE_FILE exec -T web php artisan --version; then
             echo "❌ Laravel application not working"
-            docker logs $CONTAINER_PREFIX-web --tail 20
+            echo "📋 Full web container logs:"
+            docker logs $CONTAINER_PREFIX-web --tail 100
+            echo "📊 Container inspect:"
+            docker inspect $CONTAINER_PREFIX-web --format='{{.State.Health.Status}}: {{.State.Health.Log}}'
             exit 1
           fi
           

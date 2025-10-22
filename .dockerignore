@@ -28,7 +28,7 @@ yarn-debug.log*
 package-lock.json.bak
 
 # COMPOSER Y PHP
-/vendor
+# /vendor - Comentado para permitir multi-stage build
 composer.lock.bak
 .phpunit.result.cache
 
