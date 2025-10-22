@@ -139,7 +139,7 @@ jobs:
             DOCKER_TAG="develop"
             COMPOSE_FILE="docker-compose.staging.yml"
             URL_BASE="https://staging.kraftdo.cl"
-            CONTAINER_PREFIX="kraftdo-nfc-staging-staging"
+            CONTAINER_PREFIX="kraftdo-nfc-staging"
           fi
           
           echo "🚀 Deploying to $ENV environment..."
@@ -296,8 +296,8 @@ jobs:
           "
           
           # Create admin user if needed
-          echo "👤 Creating admin user..."
-          docker-compose -f $COMPOSE_FILE exec -T web php artisan filament:make-user || true
+          echo "👤 Running seeders..."
+          docker-compose -f $COMPOSE_FILE exec -T web php artisan db:seed --class=AdminUserSeeder || true
           
           # Verify deployment
           if [ "$(docker ps -q -f name=$CONTAINER_PREFIX-web)" ]; then
