@@ -130,7 +130,7 @@ jobs:
             BRANCH="main"
             DOCKER_TAG="latest"
             COMPOSE_FILE="docker-compose.prod.yml"
-            URL_BASE="https://api.kraftdo.cl:8082"
+            URL_BASE="https://api.kraftdo.cl"
             CONTAINER_PREFIX="kraftdo-nfc-prod"
           else
             ENV="staging"
