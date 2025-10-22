@@ -1,4 +1,4 @@
-# 🎯 KraftDo NFC - Dynamic Content Platform 
+# 🎯 KraftDo NFC
 
 [![CI/CD Pipeline](https://github.com/kraftdo/kraftdo-nfc/actions/workflows/deploy.yml/badge.svg)](https://github.com/kraftdo/kraftdo-nfc/actions)
 [![Development Pipeline](https://github.com/kraftdo/kraftdo-nfc/actions/workflows/develop.yml/badge.svg)](https://github.com/kraftdo/kraftdo-nfc/actions)
