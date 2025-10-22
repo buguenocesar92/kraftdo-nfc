@@ -216,6 +216,15 @@ jobs:
           echo "🧹 Cleaning potential mount conflicts..."
           rm -rf public/storage || true
           
+          # Remove volumes with old configuration (production only - to avoid bind mount conflicts)
+          if [ "$ENV" = "production" ]; then
+            echo "🗑️ Removing old volumes with bind mount configuration..."
+            docker volume rm kraftdo-nfc-production_redis_data || true
+            docker volume rm kraftdo-nfc-production_app_storage || true
+            docker volume rm kraftdo-nfc-production_app_bootstrap_cache || true
+            echo "✅ Old volumes removed, will create new Docker-managed volumes"
+          fi
+          
           # Verify docker-compose was downloaded
           if [ ! -f "$COMPOSE_FILE" ]; then
             echo "❌ Failed to download $COMPOSE_FILE"
