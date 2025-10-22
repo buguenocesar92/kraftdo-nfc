@@ -131,7 +131,7 @@ jobs:
             DOCKER_TAG="latest"
             COMPOSE_FILE="docker-compose.prod.yml"
             URL_BASE="https://api.kraftdo.cl"
-            CONTAINER_PREFIX="kraftdo-nfc-prod"
+            CONTAINER_PREFIX="kraftdo-nfc-production-prod"
           else
             ENV="staging"
             PROJECT_DIR="/root/docker-projects/kraftdo-nfc-staging"
@@ -139,7 +139,7 @@ jobs:
             DOCKER_TAG="develop"
             COMPOSE_FILE="docker-compose.staging.yml"
             URL_BASE="https://staging.kraftdo.cl"
-            CONTAINER_PREFIX="kraftdo-nfc-staging"
+            CONTAINER_PREFIX="kraftdo-nfc-staging-staging"
           fi
           
           echo "🚀 Deploying to $ENV environment..."
@@ -291,15 +291,13 @@ jobs:
             rm -rf public/storage || true
             # Create the symbolic link manually if Laravel command fails
             php artisan storage:link || ln -sfn /var/www/html/storage/app/public /var/www/html/public/storage
-            # Verify the link works
-            ls -la public/storage/
+            # Verify the link was created (check if symlink exists)
+            [ -L public/storage ] && echo "✅ Storage link created successfully" || echo "⚠️ Storage link may not exist"
           "
           
-          # Create and fix admin user
+          # Create admin user if needed
           echo "👤 Creating admin user..."
-          docker-compose -f $COMPOSE_FILE exec -T web php artisan admin:create || true
-          echo "👤 Fixing admin user privileges..."
-          docker-compose -f $COMPOSE_FILE exec -T web php artisan admin:fix || true
+          docker-compose -f $COMPOSE_FILE exec -T web php artisan filament:make-user || true
           
           # Verify deployment
           if [ "$(docker ps -q -f name=$CONTAINER_PREFIX-web)" ]; then

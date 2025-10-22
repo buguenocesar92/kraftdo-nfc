@@ -13,7 +13,7 @@ echo ""
 # Información del contenedor web
 echo "🌐 CONTENEDOR WEB (PHP-FPM + Nginx)"
 echo "-----------------------------------"
-WEB_CONTAINER=$(docker ps --format "table {{.Names}}" | grep kraftdo-nfc-staging-web)
+WEB_CONTAINER=$(docker ps --format "table {{.Names}}" | grep -E "(kraftdo-nfc.*-prod-web|kraftdo-nfc.*-staging-web)" | head -1)
 if [ ! -z "$WEB_CONTAINER" ]; then
     echo "📈 CPU y Memoria:"
     docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}" $WEB_CONTAINER
@@ -47,7 +47,7 @@ echo ""
 # Información del contenedor Redis
 echo "🔴 CONTENEDOR REDIS"
 echo "-------------------"
-REDIS_CONTAINER=$(docker ps --format "table {{.Names}}" | grep kraftdo-nfc-staging-redis)
+REDIS_CONTAINER=$(docker ps --format "table {{.Names}}" | grep -E "(kraftdo-nfc.*-prod-redis|kraftdo-nfc.*-staging-redis)" | head -1)
 if [ ! -z "$REDIS_CONTAINER" ]; then
     echo "📈 CPU y Memoria:"
     docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.MemPerc}}" $REDIS_CONTAINER
