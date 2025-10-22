@@ -47,7 +47,7 @@ services:
       - SESSION_SAME_SITE=${SESSION_SAME_SITE:-strict}
       # Redis
       - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-kraftdo2024}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
       - SESSION_DRIVER=${SESSION_DRIVER:-redis}
       - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
@@ -73,7 +73,7 @@ services:
     command: >
       redis-server
       --appendonly yes
-      --requirepass "${REDIS_PASSWORD}"
+      --requirepass "${REDIS_PASSWORD:-kraftdo2024}"
       --maxmemory ${REDIS_MAX_MEMORY:-1gb}
       --maxmemory-policy allkeys-lru
       --save 900 1
@@ -88,7 +88,7 @@ services:
     networks:
       - laravel-prod
     healthcheck:
-      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD}", "ping"]
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-kraftdo2024}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -122,7 +122,7 @@ services:
       - DB_USERNAME=${DB_USERNAME:?DB_USERNAME must be set}
       - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set}
       - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-kraftdo2024}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
       - QUEUE_CONNECTION=${QUEUE_CONNECTION:-redis}
       - QUEUE_WORKER=true
@@ -178,7 +178,7 @@ services:
       - DB_USERNAME=${DB_USERNAME:?DB_USERNAME must be set}
       - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set}
       - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-kraftdo2024}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
       - SCHEDULER=true
       - LOG_LEVEL=${LOG_LEVEL:-warning}
@@ -228,7 +228,7 @@ services:
       - DB_USERNAME=${DB_USERNAME:?DB_USERNAME must be set}
       - DB_PASSWORD=${DB_PASSWORD:?DB_PASSWORD must be set}
       - REDIS_HOST=${REDIS_HOST:-redis}
-      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-kraftdo2024}
       - CACHE_DRIVER=${CACHE_DRIVER:-redis}
       - MONITORING=true
       - LOG_LEVEL=${LOG_LEVEL:-info}
