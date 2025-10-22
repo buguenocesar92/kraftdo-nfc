@@ -30,7 +30,7 @@ services:
       - APP_ENV=${APP_ENV:-production}
       - APP_DEBUG=${APP_DEBUG:-false}
       - APP_KEY=${APP_KEY:?APP_KEY must be set}
-      - APP_URL=${APP_URL:-https://api.kraftdo.cl:8082}
+      - APP_URL=${APP_URL:-https://api.kraftdo.cl}
       - ASSET_URL=${ASSET_URL:-${APP_URL}}
       - LIVEWIRE_ASSET_URL=${LIVEWIRE_ASSET_URL:-${APP_URL}}
       # Database Externa

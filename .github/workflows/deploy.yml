@@ -329,7 +329,7 @@ jobs:
           COLOR="danger"
         fi
         
-        URL="${{ github.ref == 'refs/heads/main' && 'https://api.kraftdo.cl:8082' || 'https://staging.kraftdo.cl' }}"
+        URL="${{ github.ref == 'refs/heads/main' && 'https://api.kraftdo.cl' || 'https://staging.kraftdo.cl' }}"
         
         curl -X POST -H 'Content-type: application/json' \
         --data "{
@@ -357,7 +357,7 @@ jobs:
           COLOR="15158332"
         fi
         
-        URL="${{ github.ref == 'refs/heads/main' && 'https://api.kraftdo.cl:8082' || 'https://staging.kraftdo.cl' }}"
+        URL="${{ github.ref == 'refs/heads/main' && 'https://api.kraftdo.cl' || 'https://staging.kraftdo.cl' }}"
         
         curl -H "Content-Type: application/json" \
              -X POST \
@@ -386,7 +386,7 @@ jobs:
           
           Branch: ${{ github.ref_name }}
           Commit: ${{ github.sha }}
-          URL: ${{ github.ref == 'refs/heads/main' && 'https://api.kraftdo.cl:8082' || 'https://staging.kraftdo.cl' }}
+          URL: ${{ github.ref == 'refs/heads/main' && 'https://api.kraftdo.cl' || 'https://staging.kraftdo.cl' }}
           
           Timestamp: ${{ github.event.head_commit.timestamp }}
         to: ${{ secrets.NOTIFICATION_EMAIL }}
