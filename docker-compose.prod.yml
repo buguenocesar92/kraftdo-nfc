@@ -279,10 +279,3 @@ volumes:
 networks:
   laravel-prod:
     driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: ${NETWORK_SUBNET:-172.30.0.0/24}
-          gateway: ${NETWORK_GATEWAY:-172.30.0.1}
-    driver_opts:
-      com.docker.network.bridge.name: kraftdo-prod-br0
