@@ -259,22 +259,10 @@ services:
 volumes:
   redis_data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${REDIS_DATA_PATH:-./docker/data/redis}
   app_storage:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${STORAGE_PATH:-./storage}
   app_bootstrap_cache:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${BOOTSTRAP_CACHE_PATH:-./bootstrap/cache}
 
 networks:
   laravel-prod:
