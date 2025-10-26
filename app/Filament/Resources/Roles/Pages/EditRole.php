@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\Roles\Pages;
 
 use App\Filament\Resources\Roles\RoleResource;
-use App\Services\PermissionCacheService;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
 
@@ -21,7 +20,7 @@ class EditRole extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         // Cargar permisos solo si no están cargados (evitar duplicación)
-        if (!$this->record->relationLoaded('permissions')) {
+        if (! $this->record->relationLoaded('permissions')) {
             $this->record->load('permissions');
         }
 
@@ -53,7 +52,7 @@ class EditRole extends EditRecord
 
             // Sincronizar permisos (esto ya refresca la relación internamente)
             $this->record->syncPermissions($permissionNames);
-            
+
             // NO volver a cargar - syncPermissions ya actualiza la relación
         }
     }

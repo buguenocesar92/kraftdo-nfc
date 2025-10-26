@@ -45,5 +45,4 @@ class BusStopRenderer implements ContentRendererInterface
             'utilityPhones' => $utilityPhones,
         ];
     }
-
 }

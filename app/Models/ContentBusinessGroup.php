@@ -285,6 +285,7 @@ class ContentBusinessGroup extends Model
         // Si es null o vacío, guardar como null
         if (empty($value)) {
             $this->attributes['operating_hours'] = null;
+
             return;
         }
 
@@ -294,7 +295,7 @@ class ContentBusinessGroup extends Model
             if (isset($value[0]) && is_array($value[0]) && isset($value[0]['day'])) {
                 $hours = [];
                 foreach ($value as $item) {
-                    if (isset($item['day']) && isset($item['hours']) && !empty($item['hours'])) {
+                    if (isset($item['day']) && isset($item['hours']) && ! empty($item['hours'])) {
                         $hours[$item['day']] = $item['hours'];
                     }
                 }
@@ -307,7 +308,7 @@ class ContentBusinessGroup extends Model
             }
         }
         // Si es string (JSON), guardar directamente
-        else if (is_string($value)) {
+        elseif (is_string($value)) {
             $this->attributes['operating_hours'] = $value;
         }
         // Otros tipos, convertir a JSON

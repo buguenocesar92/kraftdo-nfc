@@ -17,7 +17,7 @@ describe('TokenController API', function () {
         $response->assertStatus(200)
             ->assertJson([
                 'message' => 'Token obtenido exitosamente',
-                'status' => 200
+                'status' => 200,
             ])
             ->assertJsonStructure([
                 'data' => [
@@ -26,8 +26,8 @@ describe('TokenController API', function () {
                     'contentGift',
                     'contentMultimedia',
                     'galleryImages',
-                    'theme'
-                ]
+                    'theme',
+                ],
             ]);
     });
 
@@ -41,7 +41,7 @@ describe('TokenController API', function () {
         $response->assertStatus(200)
             ->assertJson([
                 'message' => 'Token obtenido exitosamente',
-                'status' => 200
+                'status' => 200,
             ])
             ->assertJsonStructure([
                 'data' => [
@@ -50,8 +50,8 @@ describe('TokenController API', function () {
                     'contentProfile',
                     'contentMultimedia',
                     'galleryImages',
-                    'socialLinks'
-                ]
+                    'socialLinks',
+                ],
             ]);
     });
 
@@ -63,7 +63,7 @@ describe('TokenController API', function () {
         $response->assertStatus(404)
             ->assertJson([
                 'message' => 'Token no encontrado',
-                'status' => 404
+                'status' => 404,
             ]);
     });
 
@@ -73,7 +73,7 @@ describe('TokenController API', function () {
         $response->assertStatus(404)
             ->assertJson([
                 'message' => 'Token no encontrado',
-                'status' => 404
+                'status' => 404,
             ]);
     });
 
@@ -86,7 +86,7 @@ describe('TokenController API', function () {
         $response->assertStatus(404)
             ->assertJson([
                 'message' => 'Token no encontrado',
-                'status' => 404
+                'status' => 404,
             ]);
     });
 
@@ -101,7 +101,7 @@ describe('TokenController API', function () {
         $response->assertStatus(200)
             ->assertJson([
                 'message' => 'Token obtenido exitosamente',
-                'status' => 200
+                'status' => 200,
             ]);
     });
 
@@ -117,8 +117,8 @@ describe('TokenController API', function () {
             ->assertJsonStructure([
                 'data' => [
                     'galleryImages',
-                    'contentMultimedia'
-                ]
+                    'contentMultimedia',
+                ],
             ]);
 
         $data = $response->json('data');
@@ -136,8 +136,8 @@ describe('TokenController API', function () {
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
-                    'socialLinks'
-                ]
+                    'socialLinks',
+                ],
             ]);
 
         $data = $response->json('data');
@@ -154,8 +154,8 @@ describe('TokenController API', function () {
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'data' => [
-                    'theme'
-                ]
+                    'theme',
+                ],
             ]);
 
         $data = $response->json('data');
@@ -178,7 +178,7 @@ describe('TokenController API', function () {
     test('actualiza last_used_at del token al acceder via JSON', function () {
         $token = NfcToken::factory()->gift()->create([
             'is_active' => true,
-            'last_used_at' => null
+            'last_used_at' => null,
         ]);
         $content = DynamicContent::factory()->gift()->create(['nfc_token_id' => $token->id]);
         $gift = ContentGift::factory()->create(['dynamic_content_id' => $content->id]);
@@ -202,7 +202,7 @@ describe('TokenController API', function () {
 
         $response1->assertStatus(200);
         $response2->assertStatus(200);
-        
+
         // Verificar que ambas respuestas tienen la misma estructura
         expect($response1->json('message'))->toBe($response2->json('message'));
         expect($response1->json('status'))->toBe($response2->json('status'));

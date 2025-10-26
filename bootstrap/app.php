@@ -13,6 +13,9 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->trustProxies(at: '*');
+        
+        // Add middleware to extract auth token from cookies GLOBALLY
+        $middleware->append(\App\Http\Middleware\AuthTokenFromCookie::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

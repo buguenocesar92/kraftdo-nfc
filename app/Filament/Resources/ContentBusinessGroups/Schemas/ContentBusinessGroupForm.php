@@ -144,13 +144,14 @@ class ContentBusinessGroupForm
                         }
 
                         // Si es un array asociativo (formato de BD), convertir a formato repeater
-                        if (is_array($state) && !empty($state) && !isset($state[0])) {
+                        if (is_array($state) && ! empty($state) && ! isset($state[0])) {
                             $items = [];
                             foreach ($state as $day => $hours) {
-                                if (is_string($day) && !empty($hours)) {
+                                if (is_string($day) && ! empty($hours)) {
                                     $items[] = ['day' => $day, 'hours' => $hours];
                                 }
                             }
+
                             return $items;
                         }
 

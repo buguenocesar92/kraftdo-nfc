@@ -35,6 +35,7 @@ class ContentMenuImage extends Model
 
     /**
      * Scope para imágenes activas
+     * @param mixed $query
      */
     public function scopeActive($query)
     {
@@ -43,6 +44,7 @@ class ContentMenuImage extends Model
 
     /**
      * Scope para ordenar por display_order
+     * @param mixed $query
      */
     public function scopeOrdered($query)
     {

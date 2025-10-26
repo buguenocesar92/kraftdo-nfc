@@ -1,5 +1,5 @@
-# PHPStan Configuration for KraftDo NFC
-# Static analysis tool for PHP code quality
+includes:
+    - vendor/larastan/larastan/extension.neon
 
 parameters:
     level: 8
@@ -31,32 +31,3 @@ parameters:
         # Filament Admin Panel
         - '#Call to an undefined method Filament\\#'
         - '#Property .* \(Filament\\.*\) does not accept#'
-    
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
-    
-    # Laravel-specific extensions
-    scanFiles:
-        - vendor/laravel/framework/src/Illuminate/Foundation/helpers.php
-        - vendor/laravel/framework/src/Illuminate/Support/helpers.php
-    
-    # Include Larastan for Laravel-specific analysis
-    includes:
-        - vendor/larastan/larastan/extension.neon
-    
-    # Custom rules for better analysis
-    universalObjectCratesClasses:
-        - Illuminate\Http\Request
-        - Illuminate\Support\Collection
-        
-    # Treat mixed as any for better Laravel compatibility
-    treatPhpDocTypesAsCertain: false
-    
-    # Memory limit for large codebases
-    memoryLimitFile: 1G
-    
-    # Parallel processing
-    parallel:
-        jobSize: 20
-        maximumNumberOfProcesses: 4
-        minimumNumberOfJobsPerProcess: 2

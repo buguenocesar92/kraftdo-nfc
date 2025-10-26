@@ -75,7 +75,7 @@ class RoleResource extends Resource
         return RolesTable::configure($table)
             ->modifyQueryUsing(fn ($query) => $query->withCount(['permissions', 'users']));
     }
-    
+
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         // NO cargar permissions automáticamente - se cargarán bajo demanda

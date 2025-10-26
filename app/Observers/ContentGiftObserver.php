@@ -38,8 +38,8 @@ class ContentGiftObserver
     {
         // Obtener el DynamicContent relacionado
         $dynamicContent = $contentGift->dynamicContent;
-        
-        if (!$dynamicContent) {
+
+        if (! $dynamicContent) {
             return;
         }
 

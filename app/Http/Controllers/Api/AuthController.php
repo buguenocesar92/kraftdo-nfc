@@ -4,151 +4,220 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     /**
-     * Login del usuario
-     */
-    public function login(Request $request): JsonResponse
-    {
-        try {
-            $request->validate([
-                'email' => 'required|email',
-                'password' => 'required|string',
-            ]);
-
-            $user = User::where('email', $request->email)->first();
-
-            if (! $user || ! Hash::check($request->password, $user->password)) {
-                return response()->json([
-                    'data' => null,
-                    'message' => 'Credenciales incorrectas',
-                    'status' => 401,
-                ], 401);
-            }
-
-            // Revocar tokens existentes para evitar acumulación
-            $user->tokens()->delete();
-
-            // Crear nuevo token
-            $token = $user->createToken('auth-token')->plainTextToken;
-
-            return response()->json([
-                'data' => [
-                    'user' => $user,
-                    'token' => $token,
-                    'token_type' => 'Bearer',
-                ],
-                'message' => 'Login exitoso',
-                'status' => 200,
-            ]);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Datos de validación incorrectos',
-                'errors' => $e->errors(),
-                'status' => 422,
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
-        }
-    }
-
-    /**
-     * Registro de nuevo usuario
+     * Register a new user for SPA frontend
      */
     public function register(Request $request): JsonResponse
     {
-        try {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => 'required|string|email|max:255|unique:users',
-                'password' => 'required|string|min:8|confirmed',
-            ]);
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+        ]);
 
-            $user = User::create([
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-                'password' => Hash::make($validatedData['password']),
-            ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
 
-            // Crear token para el nuevo usuario
-            $token = $user->createToken('auth-token')->plainTextToken;
+        // Assign NFC role to frontend users
+        $user->assignRole('NFC');
 
-            return response()->json([
-                'data' => [
-                    'user' => $user,
-                    'token' => $token,
-                    'token_type' => 'Bearer',
+        event(new Registered($user));
+
+        // Create token for immediate login
+        $token = $user->createToken('auth-token')->plainTextToken;
+
+        return response()->json([
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
                 ],
-                'message' => 'Usuario registrado exitosamente',
-                'status' => 201,
-            ], 201);
-        } catch (ValidationException $e) {
+            ],
+            'message' => 'User registered successfully',
+        ], 201)->cookie(
+            'auth_token',
+            $token,
+            60 * 24 * 7, // 7 days
+            '/', // path
+            null, // domain
+            request()->secure(), // secure (only HTTPS in production)
+            true, // httpOnly
+            false, // raw
+            'lax' // sameSite
+        );
+    }
+
+
+    /**
+     * Login user and return token
+     */
+    public function login(Request $request): JsonResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        $this->ensureIsNotRateLimited($request);
+
+        if (! Auth::attempt($request->only('email', 'password'))) {
+            
+            RateLimiter::hit($this->throttleKey($request), 300); // 5 minutes
+
             return response()->json([
-                'data' => null,
-                'message' => 'Datos de validación incorrectos',
-                'errors' => $e->errors(),
-                'status' => 422,
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
+                'message' => 'Invalid credentials',
+            ], 401);
         }
+
+        $user = Auth::user();
+
+        // Verify user has NFC role (frontend users only)
+        if (! $user->hasRole('NFC')) {
+            Auth::logout();
+
+            return response()->json([
+                'message' => 'Access denied. Please use the admin panel.',
+            ], 403);
+        }
+
+        RateLimiter::clear($this->throttleKey($request));
+
+        // Delete old tokens if not remember me
+        if (! $request->boolean('remember')) {
+            $user->tokens()->delete();
+        }
+
+        $token = $user->createToken('auth-token')->plainTextToken;
+        
+        // Calculate cookie expiration based on remember me
+        $cookieMinutes = $request->boolean('remember') ? 60 * 24 * 30 : 60 * 24; // 30 days or 1 day
+
+        return response()->json([
+            'data' => [
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ],
+            ],
+            'message' => 'Login successful',
+        ])->cookie(
+            'auth_token',
+            $token,
+            $cookieMinutes,
+            '/', // path
+            null, // domain (works for same-origin)
+            request()->secure(), // secure (let Laravel decide)
+            true, // httpOnly
+            false, // raw
+            'lax' // sameSite
+        );
     }
 
     /**
-     * Logout del usuario
+     * Logout user and revoke tokens
      */
     public function logout(Request $request): JsonResponse
     {
-        try {
-            // Revocar el token actual
-            $request->user()->currentAccessToken()->delete();
+        $user = $request->user();
 
-            return response()->json([
-                'data' => null,
-                'message' => 'Logout exitoso',
-                'status' => 200,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
+        if ($user) {
+            // Revoke current token
+            $user->currentAccessToken()->delete();
+
+            // Optionally revoke all tokens
+            // $user->tokens()->delete();
         }
+
+        return response()->json([
+            'message' => 'Successfully logged out',
+        ])->cookie(
+            'auth_token',
+            '', // empty value
+            -1, // expire immediately
+            '/', // path
+            null, // domain
+            request()->secure(), // secure (only HTTPS in production)
+            true, // httpOnly
+            false, // raw
+            'lax' // sameSite
+        );
     }
 
     /**
-     * Obtener información del usuario autenticado
+     * Get authenticated user data
+     */
+    public function user(Request $request): JsonResponse
+    {
+        
+        $user = $request->user();
+
+        $user->load('roles');
+
+        return response()->json([
+            'data' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->roles->map(function ($role) {
+                    return [
+                        'id' => $role->id,
+                        'name' => $role->name,
+                    ];
+                }),
+            ],
+            'message' => 'User data retrieved successfully',
+        ]);
+    }
+
+    /**
+     * Legacy method for compatibility (alias for user)
      */
     public function me(Request $request): JsonResponse
     {
-        try {
-            return response()->json([
-                'data' => $request->user(),
-                'message' => 'Información del usuario obtenida exitosamente',
-                'status' => 200,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
+        return $this->user($request);
+    }
+
+    /**
+     * Ensure the login request is not rate limited.
+     */
+    protected function ensureIsNotRateLimited(Request $request): void
+    {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey($request), 5)) {
+            return;
         }
+
+        $seconds = RateLimiter::availableIn($this->throttleKey($request));
+
+        throw ValidationException::withMessages([
+            'email' => __('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ])->status(429);
+    }
+
+    /**
+     * Get the rate limiting throttle key for the request.
+     */
+    protected function throttleKey(Request $request): string
+    {
+        return Str::transliterate(Str::lower($request->input('email')) . '|' . $request->ip());
     }
 }

@@ -7,11 +7,11 @@ use Spatie\Permission\Models\Permission;
 
 class PermissionCacheService
 {
-    const CACHE_TTL = 3600; // 1 hora
-    const COLLECTION_KEY = 'all_permissions_collection';
-    const MAP_KEY = 'all_permissions_map';
-    const OPTIONS_KEY = 'permissions_options';
-    const DESCRIPTIONS_KEY = 'permissions_descriptions';
+    public const CACHE_TTL = 3600; // 1 hora
+    public const COLLECTION_KEY = 'all_permissions_collection';
+    public const MAP_KEY = 'all_permissions_map';
+    public const OPTIONS_KEY = 'permissions_options';
+    public const DESCRIPTIONS_KEY = 'permissions_descriptions';
 
     // Cache en memoria para evitar múltiples deserializaciones
     private static $memoryCache = [
@@ -32,6 +32,7 @@ class PermissionCacheService
                 return \DB::table('permissions')->select(['id', 'name'])->get()->toArray();
             });
         }
+
         return self::$memoryCache['permissions'];
     }
 
@@ -48,9 +49,11 @@ class PermissionCacheService
                 foreach ($permissions as $permission) {
                     $map[$permission->id] = (object) ['id' => $permission->id, 'name' => $permission->name];
                 }
+
                 return $map;
             });
         }
+
         return self::$memoryCache['map'];
     }
 
@@ -65,6 +68,7 @@ class PermissionCacheService
                 return Permission::select(['id', 'name'])->pluck('name', 'id')->toArray();
             });
         }
+
         return self::$memoryCache['options'];
     }
 
@@ -76,17 +80,18 @@ class PermissionCacheService
         if (self::$memoryCache['descriptions'] === null) {
             self::$memoryCache['descriptions'] = Cache::remember(self::DESCRIPTIONS_KEY, self::CACHE_TTL, function () {
                 $descriptions = [];
-                
+
                 // Usar DB directo para evitar objetos Eloquent
                 $permissions = \DB::table('permissions')->select(['id', 'name'])->get();
-                
+
                 foreach ($permissions as $permission) {
                     $descriptions[$permission->id] = self::getPermissionDescription($permission->name);
                 }
-                
+
                 return $descriptions;
             });
         }
+
         return self::$memoryCache['descriptions'];
     }
 
@@ -99,7 +104,7 @@ class PermissionCacheService
         Cache::forget(self::MAP_KEY);
         Cache::forget(self::OPTIONS_KEY);
         Cache::forget(self::DESCRIPTIONS_KEY);
-        
+
         // Limpiar cache en memoria
         self::$memoryCache = [
             'permissions' => null,
@@ -132,7 +137,7 @@ class PermissionCacheService
             'view_analytics' => '📊 Ver análisis y estadísticas del sistema',
             'manage_system_settings' => '⚙️ Gestionar configuración del sistema',
             'bulk_actions' => '📦 Realizar acciones masivas en registros',
-            
+
             // Tokens propios
             'view_own_tokens' => '🔖 Ver sus propios tokens NFC',
             'configure_own_tokens' => '⚙️ Configurar sus propios tokens NFC',

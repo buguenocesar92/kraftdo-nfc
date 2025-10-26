@@ -1,8 +1,8 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\TokenController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Health check para el API
@@ -14,6 +14,25 @@ Route::get('/health', function () {
         'env' => config('app.env'),
         'version' => '1.0.0',
     ]);
+});
+
+// SPA Authentication routes (Frontend Next.js)
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+
+    Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctum'])->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
+        Route::get('/user', [AuthController::class, 'user']);
+    });
+});
+
+// Legacy auth routes (keep for backward compatibility)
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
+Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctum'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
 });
 
 // Rutas de contenido - acceso público
@@ -30,15 +49,8 @@ Route::prefix('tokens')->group(function () {
 });
 
 // Rutas protegidas con autenticación (Sanctum)
-Route::middleware('auth:sanctum')->group(function () {
-    // Usuario autenticado
-    Route::get('/user', function (Request $request) {
-        return response()->json([
-            'data' => $request->user(),
-            'message' => 'Usuario obtenido exitosamente',
-            'status' => 200,
-        ]);
-    });
+Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctum'])->group(function () {
+    // Usuario autenticado handled by AuthController above
 
     // CRUD completo de tokens para usuarios autenticados
     Route::apiResource('tokens', TokenController::class)->except(['show']);
@@ -52,4 +64,4 @@ Route::middleware('auth:sanctum')->group(function () {
 // Rutas de autenticación (sin Sanctum)
 Route::post('/login', [App\Http\Controllers\Api\AuthController::class, 'login']);
 Route::post('/register', [App\Http\Controllers\Api\AuthController::class, 'register']);
-Route::post('/logout', [App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::post('/logout', [App\Http\Controllers\Api\AuthController::class, 'logout'])->middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctum']);

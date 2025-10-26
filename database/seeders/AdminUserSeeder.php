@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 
 class AdminUserSeeder extends Seeder
 {
@@ -24,7 +23,7 @@ class AdminUserSeeder extends Seeder
         if (! $superAdmin->hasRole('Super Admin')) {
             $superAdmin->assignRole('Super Admin');
         }
-        
+
         // Asegurar que tenga TODOS los permisos existentes (incluye nuevos permisos automáticamente)
         $superAdmin->syncPermissions(\Spatie\Permission\Models\Permission::all());
 
