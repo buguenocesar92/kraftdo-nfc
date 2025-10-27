@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ContentType;
+use App\Models\NfcToken;
 use App\Services\AnalyticsService;
 use App\Services\TokenService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TokenController extends Controller
 {
@@ -94,6 +96,138 @@ class TokenController extends Controller
             ],
             'message' => 'Productos obtenidos exitosamente',
             'status' => 200,
+        ]);
+    }
+
+    // ========================================
+    // CRUD METHODS FOR AUTHENTICATED USERS
+    // ========================================
+
+    /**
+     * Display a listing of the user's tokens
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        
+        $query = NfcToken::where('user_id', $user->id)
+            ->with(['dynamicContent'])
+            ->orderBy('created_at', 'desc');
+
+        // Apply filters
+        if ($request->has('content_type') && $request->content_type !== '') {
+            $query->where('content_type', $request->content_type);
+        }
+
+        if ($request->has('is_active') && $request->is_active !== '') {
+            $query->where('is_active', $request->boolean('is_active'));
+        }
+
+        if ($request->has('search') && $request->search !== '') {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('token_id', 'like', "%{$search}%");
+            });
+        }
+
+        // Pagination
+        $perPage = min($request->get('per_page', 12), 50); // Max 50 per page
+        $tokens = $query->paginate($perPage);
+
+        return response()->json([
+            'data' => $tokens->items(),
+            'meta' => [
+                'current_page' => $tokens->currentPage(),
+                'last_page' => $tokens->lastPage(),
+                'per_page' => $tokens->perPage(),
+                'total' => $tokens->total(),
+                'from' => $tokens->firstItem(),
+                'to' => $tokens->lastItem(),
+            ],
+            'message' => 'Tokens obtenidos exitosamente',
+        ]);
+    }
+
+    /**
+     * Store a newly created token
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'content_type' => 'required|string|in:PROFILE,BUSINESS,GIFT,EVENT,TOURIST,BUS_STOP',
+            'customization_plan' => 'nullable|string|in:BASIC,STANDARD,PREMIUM,DELUXE',
+        ]);
+
+        $token = NfcToken::create([
+            'user_id' => $user->id,
+            'name' => $request->name,
+            'content_type' => $request->content_type,
+            'customization_plan' => $request->customization_plan ?? 'BASIC',
+            'is_active' => true,
+        ]);
+
+        // Load relationships for response
+        $token->load(['dynamicContent']);
+
+        return response()->json([
+            'data' => $token,
+            'message' => 'Token creado exitosamente',
+        ], 201);
+    }
+
+    /**
+     * Update the specified token
+     */
+    public function update(Request $request, string $id): JsonResponse
+    {
+        $user = Auth::user();
+
+        $token = NfcToken::where('user_id', $user->id)->findOrFail($id);
+
+        $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'content_type' => 'sometimes|required|string|in:PROFILE,BUSINESS,GIFT,EVENT,TOURIST,BUS_STOP',
+            'customization_plan' => 'nullable|string|in:BASIC,STANDARD,PREMIUM,DELUXE',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $token->update($request->only([
+            'name',
+            'content_type', 
+            'customization_plan',
+            'is_active'
+        ]));
+
+        $token->load(['dynamicContent']);
+
+        return response()->json([
+            'data' => $token,
+            'message' => 'Token actualizado exitosamente',
+        ]);
+    }
+
+    /**
+     * Remove the specified token
+     */
+    public function destroy(string $id): JsonResponse
+    {
+        $user = Auth::user();
+
+        $token = NfcToken::where('user_id', $user->id)->findOrFail($id);
+
+        // Delete associated dynamic content if exists
+        if ($token->dynamicContent) {
+            $token->dynamicContent->delete();
+        }
+
+        $token->delete();
+
+        return response()->json([
+            'message' => 'Token eliminado exitosamente',
         ]);
     }
 }
