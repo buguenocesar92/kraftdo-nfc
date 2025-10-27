@@ -23,30 +23,50 @@ class TokenController extends Controller
      */
     public function show(Request $request, string $tokenId): JsonResponse
     {
-        // Get token with cached content
+        // First try to get token with cached content (for tokens with content)
         $tokenData = $this->tokenService->getTokenWithContent($tokenId);
+        
+        if ($tokenData && $this->tokenService->validateToken($tokenData)) {
+            $token = $tokenData['token'];
 
-        if (! $this->tokenService->validateToken($tokenData)) {
-            return $this->tokenService->handleNotFound($request);
+            // Validate content type is supported
+            if (! ContentType::isSupported($token->content_type)) {
+                return $this->tokenService->handleNotFound($request, 'Tipo de contenido no disponible');
+            }
+
+            // Handle inactive tokens
+            if (! $token->is_active) {
+                return $this->tokenService->handleInactiveToken($request, $token);
+            }
+
+            // Record analytics asynchronously
+            $this->analyticsService->recordAccess($tokenData);
+
+            // Render response based on content type
+            return $this->tokenService->renderResponse($request, $tokenData);
         }
 
-        $token = $tokenData['token'];
-
-        // Validate content type is supported
-        if (! ContentType::isSupported($token->content_type)) {
-            return $this->tokenService->handleNotFound($request, 'Tipo de contenido no disponible');
+        // If cached content not found, try to get basic token info (for content management)
+        $token = NfcToken::where('token_id', $tokenId)->first();
+        
+        if (!$token) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Token no encontrado',
+                'status' => 404,
+            ], 404);
         }
 
-        // Handle inactive tokens
-        if (! $token->is_active) {
-            return $this->tokenService->handleInactiveToken($request, $token);
-        }
-
-        // Record analytics asynchronously
-        $this->analyticsService->recordAccess($tokenData);
-
-        // Render response based on content type
-        return $this->tokenService->renderResponse($request, $tokenData);
+        // Return token with null dynamic content (for content management interface)
+        return response()->json([
+            'data' => [
+                'token' => $token,
+                'dynamicContent' => $token->dynamicContent,
+                'content' => [],
+            ],
+            'message' => 'Token obtenido exitosamente',
+            'status' => 200,
+        ], 200);
     }
 
     /**

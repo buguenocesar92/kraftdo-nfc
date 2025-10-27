@@ -35,7 +35,56 @@ Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctu
     Route::get('/user', [AuthController::class, 'user']);
 });
 
-// Rutas de contenido - acceso público
+// Rutas protegidas con autenticación (Sanctum) - DEFINIR PRIMERO
+Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctum'])->group(function () {
+    // Usuario autenticado handled by AuthController above
+
+    // CRUD completo de tokens para usuarios autenticados
+    Route::apiResource('tokens', TokenController::class)->except(['show']);
+
+    // CRUD completo de contenido para usuarios autenticados
+    Route::prefix('content')->group(function () {
+        // Dynamic content management - ESTAS RUTAS DEBEN IR PRIMERO
+        Route::post('dynamic', [ContentController::class, 'createDynamicContent']);
+        Route::get('dynamic/{id}', [ContentController::class, 'getDynamicContent']);
+        Route::put('dynamic/{id}', [ContentController::class, 'updateDynamicContent']);
+        Route::delete('dynamic/{id}', [ContentController::class, 'deleteDynamicContent']);
+        
+        // Specific content types linked to dynamic content
+        Route::post('profile/{dynamicContentId}', [ContentController::class, 'createProfileContent']);
+        Route::get('profile/{dynamicContentId}', [ContentController::class, 'getProfileContent']);
+        Route::put('profile/{profileId}', [ContentController::class, 'updateProfileContent']);
+        
+        Route::post('business/{dynamicContentId}', [ContentController::class, 'createBusinessContent']);
+        Route::get('business/{dynamicContentId}', [ContentController::class, 'getBusinessContent']);
+        Route::put('business/{businessId}', [ContentController::class, 'updateBusinessContent']);
+        
+        Route::post('gift/{dynamicContentId}', [ContentController::class, 'createGiftContent']);
+        Route::get('gift/{dynamicContentId}', [ContentController::class, 'getGiftContent']);
+        Route::put('gift/{giftId}', [ContentController::class, 'updateGiftContent']);
+        
+        // Social links for profiles
+        Route::get('profile/{profileId}/social-links', [ContentController::class, 'getSocialLinks']);
+        Route::post('profile/{profileId}/social-links', [ContentController::class, 'createSocialLink']);
+        Route::delete('social-links/{linkId}', [ContentController::class, 'deleteSocialLink']);
+        
+        // Business products
+        Route::get('business/{businessId}/products', [ContentController::class, 'getBusinessProducts']);
+        Route::post('business/{businessId}/products', [ContentController::class, 'createBusinessProduct']);
+        Route::put('products/{productId}', [ContentController::class, 'updateBusinessProduct']);
+        Route::delete('products/{productId}', [ContentController::class, 'deleteBusinessProduct']);
+        
+        // Gift gallery
+        Route::get('gift/{giftId}/gallery', [ContentController::class, 'getGiftGallery']);
+        Route::post('gift/{giftId}/gallery', [ContentController::class, 'createGiftGalleryItem']);
+        Route::delete('gallery/{itemId}', [ContentController::class, 'deleteGiftGalleryItem']);
+        
+        // Legacy routes - ESTAS VAN AL FINAL
+        Route::delete('{type}/{id}', [ContentController::class, 'destroy']);
+    });
+});
+
+// Rutas de contenido - acceso público - DESPUÉS DE LAS PROTEGIDAS
 Route::prefix('content')->group(function () {
     Route::get('{type}/{id}', [ContentController::class, 'show']);
     Route::put('{type}/{id}', [ContentController::class, 'update']);
@@ -46,19 +95,6 @@ Route::prefix('content')->group(function () {
 Route::prefix('tokens')->group(function () {
     Route::get('{tokenId}', [TokenController::class, 'show']);
     Route::get('{tokenId}/products', [TokenController::class, 'showProducts']);
-});
-
-// Rutas protegidas con autenticación (Sanctum)
-Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctum'])->group(function () {
-    // Usuario autenticado handled by AuthController above
-
-    // CRUD completo de tokens para usuarios autenticados
-    Route::apiResource('tokens', TokenController::class)->except(['show']);
-
-    // CRUD completo de contenido para usuarios autenticados
-    Route::prefix('content')->group(function () {
-        Route::delete('{type}/{id}', [ContentController::class, 'destroy']);
-    });
 });
 
 // Rutas de autenticación (sin Sanctum)
