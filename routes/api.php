@@ -79,6 +79,12 @@ Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctu
         Route::post('gift/{giftId}/gallery', [ContentController::class, 'createGiftGalleryItem']);
         Route::delete('gallery/{itemId}', [ContentController::class, 'deleteGiftGalleryItem']);
         
+        // File upload routes
+        Route::post('multimedia/{multimediaId}/audio', [ContentController::class, 'uploadAudioFile']);
+        Route::post('multimedia/{multimediaId}/video', [ContentController::class, 'uploadVideoFile']);
+        Route::post('gallery/{multimediaId}', [ContentController::class, 'uploadGalleryImage']);
+        Route::post('profile/{profileId}/image', [ContentController::class, 'uploadProfileImage']);
+        
         // Legacy routes - ESTAS VAN AL FINAL
         Route::delete('{type}/{id}', [ContentController::class, 'destroy']);
     });

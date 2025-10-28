@@ -8,7 +8,7 @@ use App\Services\AnalyticsService;
 use App\Services\TokenService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
-use Mockery;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class);

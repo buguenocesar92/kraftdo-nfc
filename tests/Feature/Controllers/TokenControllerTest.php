@@ -55,15 +55,19 @@ describe('TokenController API', function () {
             ]);
     });
 
-    test('retorna JSON 404 para token inactivo', function () {
+    test('retorna JSON 200 para token inactivo con mensaje apropiado', function () {
         $token = NfcToken::factory()->inactive()->create();
 
         $response = $this->getJson("/token/{$token->token_id}");
 
-        $response->assertStatus(404)
+        $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Token no encontrado',
-                'status' => 404,
+                'message' => 'Token inactivo',
+                'status' => 200,
+                'data' => [
+                    'token_id' => $token->token_id,
+                    'is_active' => false
+                ]
             ]);
     });
 
@@ -77,16 +81,23 @@ describe('TokenController API', function () {
             ]);
     });
 
-    test('retorna JSON 404 para token sin contenido asociado', function () {
+    test('retorna JSON 200 para token sin contenido asociado', function () {
         $token = NfcToken::factory()->create(['is_active' => true]);
         // No crear contenido dinámico para este token
 
         $response = $this->getJson("/token/{$token->token_id}");
 
-        $response->assertStatus(404)
+        $response->assertStatus(200)
             ->assertJson([
-                'message' => 'Token no encontrado',
-                'status' => 404,
+                'message' => 'Token obtenido exitosamente',
+                'status' => 200,
+                'data' => [
+                    'token' => [
+                        'token_id' => $token->token_id,
+                    ],
+                    'dynamicContent' => null,
+                    'content' => [],
+                ]
             ]);
     });
 

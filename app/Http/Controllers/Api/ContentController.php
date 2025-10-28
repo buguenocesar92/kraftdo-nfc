@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BusStop;
 use App\Models\ContentBusiness;
 use App\Models\ContentGift;
+use App\Models\ContentMultimedia;
 use App\Models\ContentProduct;
 use App\Models\ContentProfile;
 use App\Models\ContentSocialLink;
@@ -877,5 +878,260 @@ class ContentController extends Controller
     public function deleteGiftGalleryItem(int $itemId): JsonResponse
     {
         return response()->json(['data' => null, 'message' => 'Método no implementado', 'status' => 501], 501);
+    }
+
+    /**
+     * Subir archivo de audio a contenido multimedia
+     */
+    public function uploadAudioFile(Request $request, int $multimediaId): JsonResponse
+    {
+        try {
+            $request->validate([
+                'audio' => 'required|file|mimes:mp3,wav,m4a,aac,ogg|max:10240', // 10MB max
+                'type' => 'required|string|in:file_upload'
+            ]);
+
+            // Verificar que el multimedia existe y pertenece al usuario
+            $multimedia = \App\Models\ContentMultimedia::where('id', $multimediaId)
+                ->whereHas('dynamicContent', function($query) {
+                    $query->where('user_id', Auth::id());
+                })
+                ->firstOrFail();
+
+            $audioFile = $request->file('audio');
+            $fileName = time() . '_' . $audioFile->getClientOriginalName();
+            $filePath = $audioFile->storeAs('audio', $fileName, 'public');
+
+            // Actualizar el registro de multimedia
+            $multimedia->update([
+                'audio_file' => $filePath,
+                'audio_type' => 'file_upload',
+                'audio_url' => asset('storage/' . $filePath)
+            ]);
+
+            return response()->json([
+                'data' => [
+                    'audio_url' => asset('storage/' . $filePath),
+                    'audio_file' => $filePath,
+                    'audio_type' => 'file_upload'
+                ],
+                'message' => 'Archivo de audio subido exitosamente',
+                'status' => 200
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Datos de validación incorrectos',
+                'errors' => $e->errors(),
+                'status' => 422
+            ], 422);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Contenido multimedia no encontrado',
+                'status' => 404
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Error al subir archivo de audio: ' . $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+
+    /**
+     * Subir archivo de video a contenido multimedia
+     */
+    public function uploadVideoFile(Request $request, int $multimediaId): JsonResponse
+    {
+        try {
+            $request->validate([
+                'video' => 'required|file|mimes:mp4,mov,avi,webm,mkv|max:51200', // 50MB max
+                'type' => 'required|string|in:file_upload'
+            ]);
+
+            // Verificar que el multimedia existe y pertenece al usuario
+            $multimedia = \App\Models\ContentMultimedia::where('id', $multimediaId)
+                ->whereHas('dynamicContent', function($query) {
+                    $query->where('user_id', Auth::id());
+                })
+                ->firstOrFail();
+
+            $videoFile = $request->file('video');
+            $fileName = time() . '_' . $videoFile->getClientOriginalName();
+            $filePath = $videoFile->storeAs('videos', $fileName, 'public');
+
+            // Actualizar el registro de multimedia
+            $multimedia->update([
+                'video_file' => $filePath,
+                'video_type' => 'file_upload',
+                'video_url' => asset('storage/' . $filePath)
+            ]);
+
+            return response()->json([
+                'data' => [
+                    'video_url' => asset('storage/' . $filePath),
+                    'video_file' => $filePath,
+                    'video_type' => 'file_upload'
+                ],
+                'message' => 'Archivo de video subido exitosamente',
+                'status' => 200
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Datos de validación incorrectos',
+                'errors' => $e->errors(),
+                'status' => 422
+            ], 422);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Contenido multimedia no encontrado',
+                'status' => 404
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Error al subir archivo de video: ' . $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+
+    /**
+     * Subir imagen de perfil
+     */
+    public function uploadProfileImage(Request $request, int $profileId): JsonResponse
+    {
+        try {
+            $request->validate([
+                'image' => 'required|file|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
+                'type' => 'required|string|in:file_upload'
+            ]);
+
+            // Verificar que el perfil existe y pertenece al usuario
+            $profile = ContentProfile::where('id', $profileId)
+                ->whereHas('dynamicContent', function($query) {
+                    $query->where('user_id', Auth::id());
+                })
+                ->firstOrFail();
+
+            $imageFile = $request->file('image');
+            $fileName = time() . '_' . $imageFile->getClientOriginalName();
+            $filePath = $imageFile->storeAs('profiles', $fileName, 'public');
+
+            // Get or create the ContentMultimedia for this profile
+            $multimedia = ContentMultimedia::firstOrCreate(
+                ['dynamic_content_id' => $profile->dynamic_content_id],
+                ['settings' => []]
+            );
+
+            // Update the multimedia settings to include the profile image
+            $settings = $multimedia->settings ?? [];
+            $settings['profile_image'] = $filePath; // Store relative path, not full URL
+            
+            $multimedia->update([
+                'settings' => $settings
+            ]);
+
+            return response()->json([
+                'data' => [
+                    'url' => asset('storage/' . $filePath),
+                    'file_path' => $filePath
+                ],
+                'message' => 'Imagen de perfil subida exitosamente',
+                'status' => 200
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Datos de validación incorrectos',
+                'errors' => $e->errors(),
+                'status' => 422
+            ], 422);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Perfil no encontrado',
+                'status' => 404
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Error al subir imagen de perfil: ' . $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
+    }
+
+    /**
+     * Subir imagen a galería de multimedia
+     */
+    public function uploadGalleryImage(Request $request, int $multimediaId): JsonResponse
+    {
+        try {
+            $request->validate([
+                'image' => 'required|file|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
+                'alt_text' => 'nullable|string|max:255',
+                'type' => 'required|string|in:file_upload'
+            ]);
+
+            // Verificar que el multimedia existe y pertenece al usuario
+            $multimedia = \App\Models\ContentMultimedia::where('id', $multimediaId)
+                ->whereHas('dynamicContent', function($query) {
+                    $query->where('user_id', Auth::id());
+                })
+                ->firstOrFail();
+
+            $imageFile = $request->file('image');
+            $fileName = time() . '_' . $imageFile->getClientOriginalName();
+            $filePath = $imageFile->storeAs('gallery', $fileName, 'public');
+
+            // Crear registro en galería de imágenes
+            $galleryImage = \App\Models\ContentGalleryImage::create([
+                'content_multimedia_id' => $multimediaId,
+                'image_path' => $filePath,
+                'image_url' => asset('storage/' . $filePath),
+                'alt_text' => $request->alt_text ?? 'Imagen de galería',
+                'type' => 'upload'
+            ]);
+
+            return response()->json([
+                'data' => [
+                    'id' => $galleryImage->id,
+                    'image_url' => asset('storage/' . $filePath),
+                    'image_path' => $filePath,
+                    'alt_text' => $galleryImage->alt_text,
+                    'type' => 'upload'
+                ],
+                'message' => 'Imagen subida a galería exitosamente',
+                'status' => 200
+            ]);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Datos de validación incorrectos',
+                'errors' => $e->errors(),
+                'status' => 422
+            ], 422);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Contenido multimedia no encontrado',
+                'status' => 404
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Error al subir imagen a galería: ' . $e->getMessage(),
+                'status' => 500
+            ], 500);
+        }
     }
 }

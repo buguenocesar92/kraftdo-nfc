@@ -50,11 +50,12 @@ class TokenController extends Controller
         $token = NfcToken::where('token_id', $tokenId)->first();
         
         if (!$token) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Token no encontrado',
-                'status' => 404,
-            ], 404);
+            return $this->tokenService->handleNotFound($request, 'Token no encontrado');
+        }
+
+        // Handle inactive tokens even without dynamic content
+        if (!$token->is_active) {
+            return $this->tokenService->handleInactiveToken($request, $token);
         }
 
         // Return token with null dynamic content (for content management interface)
