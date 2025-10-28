@@ -41,7 +41,7 @@ describe('Upload Audio File', function () {
         $invalidFile = UploadedFile::fake()->create('test.txt', 100, 'text/plain');
         
         $response = $this->postJson("/api/content/multimedia/{$this->multimedia->id}/audio", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'audio' => $invalidFile
         ]);
         
@@ -53,7 +53,7 @@ describe('Upload Audio File', function () {
         $largeFile = UploadedFile::fake()->create('test.mp3', 11000, 'audio/mp3'); // 11MB > 10MB limit
         
         $response = $this->postJson("/api/content/multimedia/{$this->multimedia->id}/audio", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'audio' => $largeFile
         ]);
         
@@ -65,7 +65,7 @@ describe('Upload Audio File', function () {
         $audioFile = UploadedFile::fake()->create('test.mp3', 1000, 'audio/mp3');
         
         $response = $this->postJson("/api/content/multimedia/{$this->multimedia->id}/audio", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'audio' => $audioFile
         ]);
         
@@ -97,7 +97,7 @@ describe('Upload Audio File', function () {
         $audioFile = UploadedFile::fake()->create('test.mp3', 1000, 'audio/mp3');
         
         $response = $this->postJson("/api/content/multimedia/{$this->multimedia->id}/audio", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'audio' => $audioFile
         ]);
         
@@ -110,7 +110,7 @@ describe('Upload Video File', function () {
         $videoFile = UploadedFile::fake()->create('test.mp4', 5000, 'video/mp4');
         
         $response = $this->postJson("/api/content/multimedia/{$this->multimedia->id}/video", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'video' => $videoFile
         ]);
         
@@ -139,7 +139,7 @@ describe('Upload Video File', function () {
         $largeFile = UploadedFile::fake()->create('test.mp4', 52000, 'video/mp4'); // 52MB > 50MB limit
         
         $response = $this->postJson("/api/content/multimedia/{$this->multimedia->id}/video", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'video' => $largeFile
         ]);
         
@@ -153,7 +153,7 @@ describe('Upload Profile Image', function () {
         $imageFile = UploadedFile::fake()->image('profile.jpg', 200, 200);
         
         $response = $this->postJson("/api/content/profile/{$this->profile->id}/image", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'image' => $imageFile
         ]);
         
@@ -169,18 +169,18 @@ describe('Upload Profile Image', function () {
         $filePath = $response->json('data.file_path');
         expect(Storage::disk('public')->exists($filePath))->toBeTrue();
         
-        // Verify profile contact_info was updated
-        $this->profile->refresh();
-        $contactInfo = json_decode($this->profile->contact_info, true);
-        expect($contactInfo)->toHaveKey('profile_image');
-        expect($contactInfo['profile_image'])->toBe($response->json('data.url'));
+        // Verify multimedia settings were updated
+        $multimedia = \App\Models\ContentMultimedia::where('dynamic_content_id', $this->profile->dynamic_content_id)->first();
+        expect($multimedia)->not->toBeNull();
+        expect($multimedia->settings)->toHaveKey('profile_image');
+        expect($multimedia->settings['profile_image'])->toBe($response->json('data.file_path'));
     });
 
     it('validates file type', function () {
         $invalidFile = UploadedFile::fake()->create('test.txt', 100, 'text/plain');
         
         $response = $this->postJson("/api/content/profile/{$this->profile->id}/image", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'image' => $invalidFile
         ]);
         
@@ -194,7 +194,7 @@ describe('Upload Gallery Image', function () {
         $imageFile = UploadedFile::fake()->image('gallery.jpg', 500, 300);
         
         $response = $this->postJson("/api/content/gallery/{$this->multimedia->id}", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'alt_text' => 'Test gallery image',
             'image' => $imageFile
         ]);
@@ -228,7 +228,7 @@ describe('Upload Gallery Image', function () {
         $imageFile = UploadedFile::fake()->image('gallery.jpg', 500, 300);
         
         $response = $this->postJson("/api/content/gallery/{$this->multimedia->id}", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'image' => $imageFile
         ]);
         
@@ -240,7 +240,7 @@ describe('Upload Gallery Image', function () {
         $largeFile = UploadedFile::fake()->create('large.jpg', 6000, 'image/jpeg'); // 6MB > 5MB limit
         
         $response = $this->postJson("/api/content/gallery/{$this->multimedia->id}", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'image' => $largeFile
         ]);
         
@@ -257,28 +257,28 @@ describe('Authentication', function () {
         
         // Audio upload should fail without auth
         $audioResponse = $this->postJson("/api/content/multimedia/{$this->multimedia->id}/audio", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'audio' => $file
         ]);
         $audioResponse->assertStatus(401);
         
         // Video upload should fail without auth
         $videoResponse = $this->postJson("/api/content/multimedia/{$this->multimedia->id}/video", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'video' => $file
         ]);
         $videoResponse->assertStatus(401);
         
         // Profile image upload should fail without auth
         $profileResponse = $this->postJson("/api/content/profile/{$this->profile->id}/image", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'image' => $file
         ]);
         $profileResponse->assertStatus(401);
         
         // Gallery image upload should fail without auth
         $galleryResponse = $this->postJson("/api/content/gallery/{$this->multimedia->id}", [
-            'type' => 'file',
+            'type' => 'file_upload',
             'image' => $file
         ]);
         $galleryResponse->assertStatus(401);

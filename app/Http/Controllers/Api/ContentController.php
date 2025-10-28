@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\BusStop;
 use App\Models\ContentBusiness;
+use App\Models\ContentGalleryImage;
 use App\Models\ContentGift;
 use App\Models\ContentMultimedia;
 use App\Models\ContentProduct;
@@ -778,7 +779,7 @@ class ContentController extends Controller
     {
         try {
             $validatedData = $request->validate([
-                'title' => 'required|string|max:255',
+                'title' => 'nullable|string|max:255',
                 'message' => 'required|string|max:2000',
                 'recipient_name' => 'nullable|string|max:255',
                 'sender_name' => 'nullable|string|max:255',
@@ -786,6 +787,13 @@ class ContentController extends Controller
                 'special_date' => 'nullable|date',
                 'delivery_date' => 'nullable|date',
             ]);
+            
+            // Generate title if not provided
+            if (empty($validatedData['title'])) {
+                $recipientName = $validatedData['recipient_name'] ?? 'alguien especial';
+                $senderName = $validatedData['sender_name'] ?? 'alguien que te quiere';
+                $validatedData['title'] = "Regalo de {$senderName} para {$recipientName}";
+            }
 
             // Verify user owns the dynamic content
             $dynamicContent = DynamicContent::where('id', $dynamicContentId)
@@ -803,6 +811,12 @@ class ContentController extends Controller
                 'delivery_date' => $validatedData['delivery_date'] ?? null,
             ]);
 
+            // Create ContentMultimedia for the gift to enable file uploads
+            ContentMultimedia::firstOrCreate(
+                ['dynamic_content_id' => $dynamicContentId],
+                ['settings' => ['theme' => $validatedData['theme'] ?? 'romantic']]
+            );
+
             return response()->json([
                 'data' => $giftContent,
                 'message' => 'Contenido de regalo creado exitosamente',
@@ -818,15 +832,40 @@ class ContentController extends Controller
     }
 
     /**
-     * Get gift content - placeholder
+     * Get gift content by dynamic content ID
      */
     public function getGiftContent(int $dynamicContentId): JsonResponse
     {
-        return response()->json([
-            'data' => null,
-            'message' => 'Método no implementado todavía',
-            'status' => 501,
-        ], 501);
+        try {
+            // Verify user owns the dynamic content
+            $dynamicContent = DynamicContent::where('id', $dynamicContentId)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            $giftContent = ContentGift::where('dynamic_content_id', $dynamicContentId)
+                ->with(['multimedia.galleryImages' => function ($query) {
+                    $query->orderBy('sort_order')->orderBy('id');
+                }])
+                ->firstOrFail();
+
+            return response()->json([
+                'data' => $giftContent,
+                'message' => 'Contenido de regalo obtenido exitosamente',
+                'status' => 200,
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Contenido de regalo no encontrado',
+                'status' => 404,
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Error interno del servidor',
+                'status' => 500,
+            ], 500);
+        }
     }
 
     /**
@@ -881,6 +920,89 @@ class ContentController extends Controller
     }
 
     /**
+     * Delete gallery image by ID
+     */
+    public function deleteGalleryImage(int $imageId): JsonResponse
+    {
+        try {
+            $galleryImage = ContentGalleryImage::whereHas('contentMultimedia.dynamicContent', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->findOrFail($imageId);
+
+            // Delete the file if it exists
+            if ($galleryImage->image_path && file_exists(storage_path('app/public/' . $galleryImage->image_path))) {
+                unlink(storage_path('app/public/' . $galleryImage->image_path));
+            }
+
+            $galleryImage->delete();
+
+            return response()->json([
+                'data' => null,
+                'message' => 'Imagen eliminada exitosamente',
+                'status' => 200,
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Imagen no encontrada',
+                'status' => 404,
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Error interno del servidor',
+                'status' => 500,
+            ], 500);
+        }
+    }
+
+    /**
+     * Get multimedia content by dynamic content ID
+     */
+    public function getMultimediaContent(int $dynamicContentId): JsonResponse
+    {
+        try {
+            \Log::info('🔍 getMultimediaContent called', [
+                'dynamicContentId' => $dynamicContentId,
+                'userId' => Auth::id(),
+                'user' => Auth::user()?->email
+            ]);
+            
+            // Verify user owns the dynamic content
+            $dynamicContent = DynamicContent::where('id', $dynamicContentId)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            // Get or create multimedia content
+            $multimedia = ContentMultimedia::with(['galleryImages' => function ($query) {
+                $query->orderBy('sort_order')->orderBy('id');
+            }])->firstOrCreate(
+                ['dynamic_content_id' => $dynamicContentId],
+                ['settings' => []]
+            );
+
+            return response()->json([
+                'data' => $multimedia,
+                'message' => 'Contenido multimedia obtenido exitosamente',
+                'status' => 200
+            ]);
+
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Contenido dinámico no encontrado',
+                'status' => 404
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'data' => null,
+                'message' => 'Error interno del servidor',
+                'status' => 500
+            ], 500);
+        }
+    }
+
+    /**
      * Subir archivo de audio a contenido multimedia
      */
     public function uploadAudioFile(Request $request, int $multimediaId): JsonResponse
@@ -892,7 +1014,7 @@ class ContentController extends Controller
             ]);
 
             // Verificar que el multimedia existe y pertenece al usuario
-            $multimedia = \App\Models\ContentMultimedia::where('id', $multimediaId)
+            $multimedia = ContentMultimedia::where('id', $multimediaId)
                 ->whereHas('dynamicContent', function($query) {
                     $query->where('user_id', Auth::id());
                 })
@@ -953,7 +1075,7 @@ class ContentController extends Controller
             ]);
 
             // Verificar que el multimedia existe y pertenece al usuario
-            $multimedia = \App\Models\ContentMultimedia::where('id', $multimediaId)
+            $multimedia = ContentMultimedia::where('id', $multimediaId)
                 ->whereHas('dynamicContent', function($query) {
                     $query->where('user_id', Auth::id());
                 })
@@ -1082,7 +1204,7 @@ class ContentController extends Controller
             ]);
 
             // Verificar que el multimedia existe y pertenece al usuario
-            $multimedia = \App\Models\ContentMultimedia::where('id', $multimediaId)
+            $multimedia = ContentMultimedia::where('id', $multimediaId)
                 ->whereHas('dynamicContent', function($query) {
                     $query->where('user_id', Auth::id());
                 })
@@ -1093,7 +1215,7 @@ class ContentController extends Controller
             $filePath = $imageFile->storeAs('gallery', $fileName, 'public');
 
             // Crear registro en galería de imágenes
-            $galleryImage = \App\Models\ContentGalleryImage::create([
+            $galleryImage = ContentGalleryImage::create([
                 'content_multimedia_id' => $multimediaId,
                 'image_path' => $filePath,
                 'image_url' => asset('storage/' . $filePath),

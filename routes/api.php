@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\TokenController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // Health check para el API
@@ -13,6 +14,15 @@ Route::get('/health', function () {
         'app' => config('app.name'),
         'env' => config('app.env'),
         'version' => '1.0.0',
+    ]);
+});
+
+// Debug endpoint - TEMPORAL
+Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctum'])->get('/debug/user', function () {
+    return response()->json([
+        'user_id' => Auth::id(),
+        'user_email' => Auth::user()?->email,
+        'user_data' => Auth::user(),
     ]);
 });
 
@@ -78,6 +88,10 @@ Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctu
         Route::get('gift/{giftId}/gallery', [ContentController::class, 'getGiftGallery']);
         Route::post('gift/{giftId}/gallery', [ContentController::class, 'createGiftGalleryItem']);
         Route::delete('gallery/{itemId}', [ContentController::class, 'deleteGiftGalleryItem']);
+        Route::delete('gallery/image/{imageId}', [ContentController::class, 'deleteGalleryImage']);
+        
+        // Multimedia content management
+        Route::get('multimedia/{dynamicContentId}', [ContentController::class, 'getMultimediaContent']);
         
         // File upload routes
         Route::post('multimedia/{multimediaId}/audio', [ContentController::class, 'uploadAudioFile']);
