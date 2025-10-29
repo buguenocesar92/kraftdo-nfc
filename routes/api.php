@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -47,7 +48,13 @@ Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctu
 
 // Rutas protegidas con autenticación (Sanctum) - DEFINIR PRIMERO
 Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctum'])->group(function () {
-    // Usuario autenticado handled by AuthController above
+    // User status and onboarding routes
+    Route::prefix('user')->group(function () {
+        Route::get('status', [UserController::class, 'status']);
+        Route::get('progress', [UserController::class, 'progress']);
+        Route::put('onboarding/progress', [UserController::class, 'updateOnboardingProgress']);
+        Route::put('onboarding/complete', [UserController::class, 'completeOnboarding']);
+    });
 
     // CRUD completo de tokens para usuarios autenticados
     Route::apiResource('tokens', TokenController::class)->except(['show']);

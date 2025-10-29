@@ -29,6 +29,10 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'onboarding_completed' => false,
+            'onboarding_completed_at' => null,
+            'onboarding_progress' => null,
+            'is_first_time_user' => true,
         ];
     }
 

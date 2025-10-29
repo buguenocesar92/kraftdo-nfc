@@ -29,6 +29,10 @@ class User extends Authenticatable implements FilamentUser
         'name',
         'email',
         'password',
+        'onboarding_completed',
+        'onboarding_completed_at',
+        'onboarding_progress',
+        'is_first_time_user',
     ];
 
     /**
@@ -51,6 +55,10 @@ class User extends Authenticatable implements FilamentUser
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'onboarding_completed' => 'boolean',
+            'onboarding_completed_at' => 'datetime',
+            'onboarding_progress' => 'array',
+            'is_first_time_user' => 'boolean',
         ];
     }
 
@@ -88,5 +96,50 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         return $this->can('access_admin_panel');
+    }
+
+    /**
+     * Check if user needs onboarding
+     */
+    public function needsOnboarding(): bool
+    {
+        return $this->is_first_time_user || !$this->onboarding_completed;
+    }
+
+    /**
+     * Mark onboarding as completed
+     */
+    public function completeOnboarding(): void
+    {
+        $this->update([
+            'onboarding_completed' => true,
+            'onboarding_completed_at' => now(),
+            'is_first_time_user' => false,
+        ]);
+    }
+
+    /**
+     * Update onboarding progress
+     */
+    public function updateOnboardingProgress(array $progress): void
+    {
+        $this->update([
+            'onboarding_progress' => array_merge($this->onboarding_progress ?? [], $progress)
+        ]);
+    }
+
+    /**
+     * Get user status for API
+     */
+    public function getStatusAttribute(): array
+    {
+        return [
+            'is_first_time_user' => $this->is_first_time_user,
+            'onboarding_completed' => $this->onboarding_completed,
+            'has_tokens' => $this->nfcTokens()->count() > 0,
+            'tokens_count' => $this->nfcTokens()->count(),
+            'needs_onboarding' => $this->needsOnboarding(),
+            'onboarding_progress' => $this->onboarding_progress,
+        ];
     }
 }
