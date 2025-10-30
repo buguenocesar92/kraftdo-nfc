@@ -31,6 +31,19 @@ class ContentMultimedia extends Model
     ];
 
     /**
+     * Accessor para settings que asegura que siempre retorne un array
+     */
+    public function getSettingsAttribute($value)
+    {
+        if (is_null($value)) {
+            return [];
+        }
+        
+        $decoded = json_decode($value, true);
+        return $decoded ?? [];
+    }
+
+    /**
      * Relación con el contenido dinámico principal
      */
     public function dynamicContent(): BelongsTo

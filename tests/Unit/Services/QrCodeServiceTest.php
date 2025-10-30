@@ -97,7 +97,7 @@ class QrCodeServiceTest extends TestCase
         
         $url = $this->qrCodeService->getTokenUrl($this->token);
         
-        $this->assertEquals("https://example.com/token/{$this->token->id}", $url);
+        $this->assertEquals("https://example.com/token/{$this->token->token_id}", $url);
     }
 
     public function test_get_token_url_with_default_config(): void
@@ -106,7 +106,7 @@ class QrCodeServiceTest extends TestCase
         $url = $this->qrCodeService->getTokenUrl($this->token);
         
         // The default configuration should return the full URL
-        $this->assertEquals("http://127.0.0.1:3000/token/{$this->token->id}", $url);
+        $this->assertEquals("http://127.0.0.1:3000/token/{$this->token->token_id}", $url);
     }
 
     public function test_generates_branded_qr_code(): void

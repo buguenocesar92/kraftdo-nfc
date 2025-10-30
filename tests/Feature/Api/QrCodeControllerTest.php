@@ -53,7 +53,7 @@ class QrCodeControllerTest extends TestCase
             ]);
 
         $this->assertStringStartsWith('data:image/png;base64,', $response->json('data.qr_code'));
-        $this->assertStringContainsString("/token/{$this->token->id}", $response->json('data.url'));
+        $this->assertStringContainsString("/token/{$this->token->token_id}", $response->json('data.url'));
     }
 
     public function test_generate_qr_code_raw_success(): void
@@ -367,7 +367,7 @@ class QrCodeControllerTest extends TestCase
 
         $response->assertStatus(200);
         $url = $response->json('data.url');
-        $this->assertEquals("https://test.example.com/token/{$this->token->id}", $url);
+        $this->assertEquals("https://test.example.com/token/{$this->token->token_id}", $url);
     }
 
     public function test_qr_code_caching_behavior(): void

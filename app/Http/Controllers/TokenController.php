@@ -203,11 +203,16 @@ class TokenController extends Controller
     /**
      * Update the specified token
      */
-    public function update(Request $request, string $id): JsonResponse
+    public function update(Request $request, string $tokenId): JsonResponse
     {
         $user = Auth::user();
 
-        $token = NfcToken::where('user_id', $user->id)->findOrFail($id);
+        $token = NfcToken::where('user_id', $user->id)->find($tokenId);
+        if (!$token) {
+            return response()->json([
+                'message' => 'Token not found or access denied'
+            ], 404);
+        }
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -234,11 +239,16 @@ class TokenController extends Controller
     /**
      * Remove the specified token
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $tokenId): JsonResponse
     {
         $user = Auth::user();
 
-        $token = NfcToken::where('user_id', $user->id)->findOrFail($id);
+        $token = NfcToken::where('user_id', $user->id)->find($tokenId);
+        if (!$token) {
+            return response()->json([
+                'message' => 'Token not found or access denied'
+            ], 404);
+        }
 
         // Delete associated dynamic content if exists
         if ($token->dynamicContent) {

@@ -14,19 +14,20 @@ class ContentMultimediaFactory extends Factory
     {
         return [
             'dynamic_content_id' => DynamicContent::factory(),
-            'video_url' => $this->faker->optional()->url(),
-            'video_type' => $this->faker->randomElement(['file_upload', 'youtube', 'vimeo', 'direct']),
-            'audio_url' => $this->faker->optional()->url(),
-            'audio_type' => $this->faker->randomElement(['file_upload', 'youtube_music', 'spotify', 'soundcloud', 'direct']),
-            'gallery_images' => [],
+            'video_url' => fake()->optional()->url(),
+            'video_file' => fake()->optional()->filePath(),
+            'video_type' => fake()->randomElement(['file_upload', 'youtube', 'vimeo', 'direct']),
+            'audio_url' => fake()->optional()->url(),
+            'audio_file' => fake()->optional()->filePath(),
+            'audio_type' => fake()->randomElement(['file_upload', 'youtube_music', 'spotify', 'soundcloud', 'direct']),
             'settings' => [
                 'video' => [
-                    'autoplay' => $this->faker->boolean(),
-                    'muted' => $this->faker->boolean(),
+                    'autoplay' => fake()->boolean(),
+                    'muted' => fake()->boolean(),
                 ],
                 'audio' => [
-                    'autoplay' => $this->faker->boolean(),
-                    'loop' => $this->faker->boolean(),
+                    'autoplay' => fake()->boolean(),
+                    'loop' => fake()->boolean(),
                 ],
             ],
         ];

@@ -13,6 +13,7 @@ use App\Observers\ContentProfileObserver;
 use App\Observers\DynamicContentObserver;
 use App\Observers\NfcTokenObserver;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -33,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
         // Force clean URLs without index.php globally
         URL::forceRootUrl(config('app.url'));
         URL::forceScheme(parse_url(config('app.url'), PHP_URL_SCHEME) ?: 'https');
+
+        // Configure route model binding
+        Route::model('token', NfcToken::class);
 
         // 🚀 Registrar observers para invalidación automática de cache
         NfcToken::observe(NfcTokenObserver::class);

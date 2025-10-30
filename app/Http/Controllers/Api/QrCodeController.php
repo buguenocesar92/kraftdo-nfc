@@ -18,9 +18,17 @@ class QrCodeController extends Controller
     /**
      * Generate QR code for a token
      */
-    public function generate(Request $request, NfcToken $token)
+    public function generate(Request $request, $tokenId)
     {
         try {
+            // Find the token
+            $token = NfcToken::find($tokenId);
+            if (!$token) {
+                return response()->json([
+                    'message' => 'Token not found'
+                ], 404);
+            }
+            
             // Validate request
             $validator = Validator::make($request->all(), [
                 'size' => 'sometimes|integer|min:100|max:1000',
@@ -92,9 +100,17 @@ class QrCodeController extends Controller
     /**
      * Generate multiple QR code formats
      */
-    public function generateMultiple(NfcToken $token)
+    public function generateMultiple($tokenId)
     {
         try {
+            // Find the token
+            $token = NfcToken::find($tokenId);
+            if (!$token) {
+                return response()->json([
+                    'message' => 'Token not found'
+                ], 404);
+            }
+            
             $qrCodes = $this->qrCodeService->generateMultipleFormats($token);
             
             // Track generation for each format
@@ -121,9 +137,17 @@ class QrCodeController extends Controller
     /**
      * Generate branded QR code
      */
-    public function generateBranded(Request $request, NfcToken $token)
+    public function generateBranded(Request $request, $tokenId)
     {
         try {
+            // Find the token
+            $token = NfcToken::find($tokenId);
+            if (!$token) {
+                return response()->json([
+                    'message' => 'Token not found'
+                ], 404);
+            }
+            
             $validator = Validator::make($request->all(), [
                 'size' => 'sometimes|integer|min:200|max:800',
                 'margin' => 'sometimes|integer|min:2|max:8',
@@ -159,9 +183,17 @@ class QrCodeController extends Controller
     /**
      * Generate print-ready QR code
      */
-    public function generatePrint(NfcToken $token)
+    public function generatePrint($tokenId)
     {
         try {
+            // Find the token
+            $token = NfcToken::find($tokenId);
+            if (!$token) {
+                return response()->json([
+                    'message' => 'Token not found'
+                ], 404);
+            }
+            
             $qrCode = $this->qrCodeService->generatePrintQrCode($token);
             
             $this->qrCodeService->trackGeneration($token, 'png');
@@ -180,9 +212,17 @@ class QrCodeController extends Controller
     /**
      * Get QR code analytics
      */
-    public function analytics(NfcToken $token)
+    public function analytics($tokenId)
     {
         try {
+            // Find the token
+            $token = NfcToken::find($tokenId);
+            if (!$token) {
+                return response()->json([
+                    'message' => 'Token not found'
+                ], 404);
+            }
+            
             $analytics = $this->qrCodeService->getQrCodeAnalytics($token);
 
             return response()->json([
@@ -204,9 +244,17 @@ class QrCodeController extends Controller
     /**
      * Clear QR code cache
      */
-    public function clearCache(NfcToken $token)
+    public function clearCache($tokenId)
     {
         try {
+            // Find the token
+            $token = NfcToken::find($tokenId);
+            if (!$token) {
+                return response()->json([
+                    'message' => 'Token not found'
+                ], 404);
+            }
+            
             $this->qrCodeService->clearCache($token);
 
             return response()->json([
@@ -226,9 +274,17 @@ class QrCodeController extends Controller
     /**
      * Get QR code info
      */
-    public function info(NfcToken $token)
+    public function info($tokenId)
     {
         try {
+            // Find the token
+            $token = NfcToken::find($tokenId);
+            if (!$token) {
+                return response()->json([
+                    'message' => 'Token not found'
+                ], 404);
+            }
+            
             return response()->json([
                 'data' => [
                     'token_id' => $token->id,

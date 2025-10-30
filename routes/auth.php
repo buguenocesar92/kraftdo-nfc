@@ -24,7 +24,7 @@ Route::middleware('guest')->group(function () {
     Route::post('forgot-password', [PasswordResetController::class, 'sendResetLinkEmail'])
         ->name('password.email');
 
-    Route::get('reset-password/{token}', [PasswordResetController::class, 'showResetForm'])
+    Volt::route('reset-password/{token}', 'auth.reset-password')
         ->name('password.reset');
     Route::post('reset-password', [PasswordResetController::class, 'reset'])
         ->name('password.update');
