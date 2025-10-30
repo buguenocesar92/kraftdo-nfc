@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
+use App\Http\Controllers\Api\QrCodeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Auth;
@@ -58,6 +59,17 @@ Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctu
 
     // CRUD completo de tokens para usuarios autenticados
     Route::apiResource('tokens', TokenController::class)->except(['show']);
+    
+    // QR Code generation routes for tokens
+    Route::prefix('tokens/{token}/qr')->group(function () {
+        Route::get('/', [QrCodeController::class, 'generate'])->name('api.tokens.qr.generate');
+        Route::get('/multiple', [QrCodeController::class, 'generateMultiple'])->name('api.tokens.qr.multiple');
+        Route::get('/branded', [QrCodeController::class, 'generateBranded'])->name('api.tokens.qr.branded');
+        Route::get('/print', [QrCodeController::class, 'generatePrint'])->name('api.tokens.qr.print');
+        Route::get('/analytics', [QrCodeController::class, 'analytics'])->name('api.tokens.qr.analytics');
+        Route::get('/info', [QrCodeController::class, 'info'])->name('api.tokens.qr.info');
+        Route::delete('/cache', [QrCodeController::class, 'clearCache'])->name('api.tokens.qr.cache');
+    });
 
     // CRUD completo de contenido para usuarios autenticados
     Route::prefix('content')->group(function () {
@@ -122,6 +134,13 @@ Route::prefix('content')->group(function () {
 Route::prefix('tokens')->group(function () {
     Route::get('{tokenId}', [TokenController::class, 'show']);
     Route::get('{tokenId}/products', [TokenController::class, 'showProducts']);
+    
+    // QR Code generation routes - public access for sharing
+    Route::prefix('{token}/qr')->group(function () {
+        Route::get('/', [QrCodeController::class, 'generate'])->name('api.public.tokens.qr.generate');
+        Route::get('/multiple', [QrCodeController::class, 'generateMultiple'])->name('api.public.tokens.qr.multiple');
+        Route::get('/info', [QrCodeController::class, 'info'])->name('api.public.tokens.qr.info');
+    });
 });
 
 // Rutas de autenticación (sin Sanctum)

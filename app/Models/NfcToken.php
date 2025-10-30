@@ -39,6 +39,14 @@ class NfcToken extends Model
     ];
 
     /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'token_id';
+    }
+
+    /**
      * Boot method para generar token_id automáticamente
      */
     protected static function boot()

@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Frontend URL
+    |--------------------------------------------------------------------------
+    |
+    | This value is the URL of the frontend application that will be used
+    | for generating QR codes and other cross-application references.
+    |
+    */
+
+    'frontend_url' => env('FRONTEND_URL', 'http://127.0.0.1:3000'),
+
 ];
