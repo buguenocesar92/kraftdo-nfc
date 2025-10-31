@@ -14,13 +14,9 @@ class ContentGift extends Model
 
     protected $fillable = [
         'dynamic_content_id',
-        'title',
         'sender_name',
         'recipient_name',
         'message',
-        'theme',
-        'special_date',
-        'delivery_date',
     ];
 
     /**

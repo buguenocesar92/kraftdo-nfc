@@ -3,6 +3,9 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Api\GiftContentController;
+use App\Http\Requests\CreateGiftContentRequest;
+use App\Http\Requests\UpdateGiftContentRequest;
 use App\Models\BusStop;
 use App\Models\ContentBusiness;
 use App\Models\ContentGalleryImage;
@@ -239,7 +242,6 @@ class ContentController extends Controller
                 'logo' => 'nullable|string|max:500',
             ],
             'gift' => [
-                'title' => "{$required}|string|max:255",
                 'message' => 'nullable|string|max:2000',
                 'sender_name' => 'nullable|string|max:255',
                 'recipient_name' => 'nullable|string|max:255',
@@ -769,115 +771,42 @@ class ContentController extends Controller
     }
 
     // ========================================
-    // GIFT CONTENT METHODS (Simplified)
+    // GIFT CONTENT METHODS (Delegated to GiftContentController)
     // ========================================
 
     /**
-     * Create gift content - simplified implementation
+     * Create gift content - delegates to GiftContentController
+     * @deprecated Use GiftContentController directly
      */
     public function createGiftContent(Request $request, int $dynamicContentId): JsonResponse
     {
-        try {
-            $validatedData = $request->validate([
-                'title' => 'nullable|string|max:255',
-                'message' => 'required|string|max:2000',
-                'recipient_name' => 'nullable|string|max:255',
-                'sender_name' => 'nullable|string|max:255',
-                'theme' => 'nullable|string|max:50',
-                'special_date' => 'nullable|date',
-                'delivery_date' => 'nullable|date',
-            ]);
-            
-            // Generate title if not provided
-            if (empty($validatedData['title'])) {
-                $recipientName = $validatedData['recipient_name'] ?? 'alguien especial';
-                $senderName = $validatedData['sender_name'] ?? 'alguien que te quiere';
-                $validatedData['title'] = "Regalo de {$senderName} para {$recipientName}";
-            }
-
-            // Verify user owns the dynamic content
-            $dynamicContent = DynamicContent::where('id', $dynamicContentId)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
-
-            $giftContent = ContentGift::create([
-                'dynamic_content_id' => $dynamicContentId,
-                'title' => $validatedData['title'],
-                'message' => $validatedData['message'],
-                'recipient_name' => $validatedData['recipient_name'] ?? null,
-                'sender_name' => $validatedData['sender_name'] ?? null,
-                'theme' => $validatedData['theme'] ?? null,
-                'special_date' => $validatedData['special_date'] ?? null,
-                'delivery_date' => $validatedData['delivery_date'] ?? null,
-            ]);
-
-            // Create ContentMultimedia for the gift to enable file uploads
-            ContentMultimedia::firstOrCreate(
-                ['dynamic_content_id' => $dynamicContentId],
-                ['settings' => ['theme' => $validatedData['theme'] ?? 'romantic']]
-            );
-
-            return response()->json([
-                'data' => $giftContent,
-                'message' => 'Contenido de regalo creado exitosamente',
-                'status' => 201,
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor: ' . $e->getMessage(),
-                'status' => 500,
-            ], 500);
-        }
+        $giftController = app(GiftContentController::class);
+        $createRequest = CreateGiftContentRequest::createFrom($request);
+        
+        return $giftController->store($createRequest, $dynamicContentId);
     }
 
     /**
-     * Get gift content by dynamic content ID
+     * Get gift content by dynamic content ID - delegates to GiftContentController
+     * @deprecated Use GiftContentController directly
      */
     public function getGiftContent(int $dynamicContentId): JsonResponse
     {
-        try {
-            // Verify user owns the dynamic content
-            $dynamicContent = DynamicContent::where('id', $dynamicContentId)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
-
-            $giftContent = ContentGift::where('dynamic_content_id', $dynamicContentId)
-                ->with(['multimedia.galleryImages' => function ($query) {
-                    $query->orderBy('sort_order')->orderBy('id');
-                }])
-                ->firstOrFail();
-
-            return response()->json([
-                'data' => $giftContent,
-                'message' => 'Contenido de regalo obtenido exitosamente',
-                'status' => 200,
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Contenido de regalo no encontrado',
-                'status' => 404,
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
-        }
+        $giftController = app(GiftContentController::class);
+        
+        return $giftController->show($dynamicContentId);
     }
 
     /**
-     * Update gift content - placeholder
+     * Update gift content - delegates to GiftContentController
+     * @deprecated Use GiftContentController directly
      */
     public function updateGiftContent(Request $request, int $giftId): JsonResponse
     {
-        return response()->json([
-            'data' => null,
-            'message' => 'Método no implementado todavía',
-            'status' => 501,
-        ], 501);
+        $giftController = app(GiftContentController::class);
+        $updateRequest = UpdateGiftContentRequest::createFrom($request);
+        
+        return $giftController->update($updateRequest, $giftId);
     }
 
     // ========================================
