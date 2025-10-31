@@ -14,18 +14,24 @@ class ProfileContentResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'dynamic_content_id' => $this->dynamic_content_id,
             'name' => $this->name,
+            'contact_email' => $this->contact_email,
+            'contact_phone' => $this->contact_phone,
+            'contact_website' => $this->contact_website,
             'bio' => $this->bio,
-            'avatar' => $this->avatar,
-            'phone' => $this->phone,
-            'email' => $this->email,
-            'website' => $this->website,
+            'profession' => $this->profession,
+            'company' => $this->company,
+            'location' => $this->location,
             'color_palette' => $this->color_palette,
-            'skills' => $this->when($this->relationLoaded('skills'), function () {
-                return $this->skills;
-            }),
             'social_links' => $this->when($this->relationLoaded('socialLinks'), function () {
                 return $this->socialLinks;
+            }),
+            'multimedia' => $this->when($this->relationLoaded('multimedia'), function () {
+                return $this->multimedia;
+            }),
+            'gallery_images' => $this->when($this->relationLoaded('galleryImages'), function () {
+                return $this->galleryImages;
             }),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

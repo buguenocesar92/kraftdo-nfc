@@ -4,8 +4,15 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\GiftContentController;
+use App\Http\Controllers\Api\ProfileContentController;
+use App\Http\Controllers\Api\BusinessContentController;
 use App\Http\Requests\CreateGiftContentRequest;
 use App\Http\Requests\UpdateGiftContentRequest;
+use App\Http\Requests\CreateProfileContentRequest;
+use App\Http\Requests\UpdateProfileContentRequest;
+use App\Http\Requests\CreateSocialLinkRequest;
+use App\Http\Requests\CreateBusinessContentRequest;
+use App\Http\Requests\UpdateBusinessContentRequest;
 use App\Models\BusStop;
 use App\Models\ContentBusiness;
 use App\Models\ContentGalleryImage;
@@ -24,6 +31,17 @@ use Illuminate\Validation\ValidationException;
 
 class ContentController extends Controller
 {
+    protected ProfileContentController $profileContentController;
+    protected BusinessContentController $businessContentController;
+
+    public function __construct(
+        ProfileContentController $profileContentController,
+        BusinessContentController $businessContentController
+    ) {
+        $this->profileContentController = $profileContentController;
+        $this->businessContentController = $businessContentController;
+    }
+
     /**
      * Mostrar contenido específico por tipo e ID
      */
@@ -437,145 +455,29 @@ class ContentController extends Controller
 
     /**
      * Create profile content
+     * @deprecated Use ProfileContentController directly for new implementations
      */
-    public function createProfileContent(Request $request, int $dynamicContentId): JsonResponse
+    public function createProfileContent(CreateProfileContentRequest $request, int $dynamicContentId): JsonResponse
     {
-        try {
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'contact_email' => 'nullable|email|max:255',
-                'contact_phone' => 'nullable|string|max:20',
-                'contact_website' => 'nullable|url|max:500',
-                'bio' => 'nullable|string|max:1000',
-                'profession' => 'nullable|string|max:255',
-                'company' => 'nullable|string|max:255',
-                'location' => 'nullable|string|max:255',
-                'color_palette' => 'nullable|array',
-            ]);
-
-            // Verify user owns the dynamic content
-            $dynamicContent = DynamicContent::where('id', $dynamicContentId)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
-
-            $profileContent = ContentProfile::create([
-                'dynamic_content_id' => $dynamicContentId,
-                'name' => $validatedData['name'],
-                'contact_email' => $validatedData['contact_email'] ?? null,
-                'contact_phone' => $validatedData['contact_phone'] ?? null,
-                'contact_website' => $validatedData['contact_website'] ?? null,
-                'bio' => $validatedData['bio'] ?? null,
-                'profession' => $validatedData['profession'] ?? null,
-                'company' => $validatedData['company'] ?? null,
-                'location' => $validatedData['location'] ?? null,
-                'color_palette' => $validatedData['color_palette'] ?? null,
-            ]);
-
-            return response()->json([
-                'data' => $profileContent,
-                'message' => 'Contenido de perfil creado exitosamente',
-                'status' => 201,
-            ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Datos de validación incorrectos',
-                'errors' => $e->errors(),
-                'status' => 422,
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
-        }
+        return $this->profileContentController->createProfileContent($request, $dynamicContentId);
     }
 
     /**
      * Get profile content by dynamic content ID
+     * @deprecated Use ProfileContentController directly for new implementations
      */
     public function getProfileContent(int $dynamicContentId): JsonResponse
     {
-        try {
-            // Verify user owns the dynamic content
-            $dynamicContent = DynamicContent::where('id', $dynamicContentId)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
-
-            $profileContent = ContentProfile::where('dynamic_content_id', $dynamicContentId)
-                ->with(['socialLinks'])
-                ->firstOrFail();
-
-            return response()->json([
-                'data' => $profileContent,
-                'message' => 'Contenido de perfil obtenido exitosamente',
-                'status' => 200,
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Contenido de perfil no encontrado',
-                'status' => 404,
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
-        }
+        return $this->profileContentController->getProfileContent($dynamicContentId);
     }
 
     /**
      * Update profile content
+     * @deprecated Use ProfileContentController directly for new implementations
      */
-    public function updateProfileContent(Request $request, int $profileId): JsonResponse
+    public function updateProfileContent(UpdateProfileContentRequest $request, int $profileId): JsonResponse
     {
-        try {
-            $validatedData = $request->validate([
-                'name' => 'sometimes|required|string|max:255',
-                'contact_email' => 'nullable|email|max:255',
-                'contact_phone' => 'nullable|string|max:20',
-                'contact_website' => 'nullable|url|max:500',
-                'bio' => 'nullable|string|max:1000',
-                'profession' => 'nullable|string|max:255',
-                'company' => 'nullable|string|max:255',
-                'location' => 'nullable|string|max:255',
-                'color_palette' => 'nullable|array',
-            ]);
-
-            $profileContent = ContentProfile::whereHas('dynamicContent', function ($query) {
-                $query->where('user_id', Auth::id());
-            })->findOrFail($profileId);
-
-            $profileContent->update($validatedData);
-
-            return response()->json([
-                'data' => $profileContent->fresh(),
-                'message' => 'Contenido de perfil actualizado exitosamente',
-                'status' => 200,
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Contenido de perfil no encontrado',
-                'status' => 404,
-            ], 404);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Datos de validación incorrectos',
-                'errors' => $e->errors(),
-                'status' => 422,
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
-        }
+        return $this->profileContentController->updateProfileContent($request, $profileId);
     }
 
     // ========================================
@@ -584,114 +486,29 @@ class ContentController extends Controller
 
     /**
      * Get social links for a profile
+     * @deprecated Use ProfileContentController directly for new implementations
      */
     public function getSocialLinks(int $profileId): JsonResponse
     {
-        try {
-            $profileContent = ContentProfile::whereHas('dynamicContent', function ($query) {
-                $query->where('user_id', Auth::id());
-            })->findOrFail($profileId);
-
-            $socialLinks = ContentSocialLink::where('dynamic_content_id', $profileContent->dynamic_content_id)
-                ->orderBy('sort_order')
-                ->get();
-
-            return response()->json([
-                'data' => $socialLinks,
-                'message' => 'Enlaces sociales obtenidos exitosamente',
-                'status' => 200,
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Perfil no encontrado',
-                'status' => 404,
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
-        }
+        return $this->profileContentController->getSocialLinks($profileId);
     }
 
     /**
      * Create social link for a profile
+     * @deprecated Use ProfileContentController directly for new implementations
      */
-    public function createSocialLink(Request $request, int $profileId): JsonResponse
+    public function createSocialLink(CreateSocialLinkRequest $request, int $profileId): JsonResponse
     {
-        try {
-            $validatedData = $request->validate([
-                'platform' => 'required|string|max:50',
-                'url' => 'required|url|max:500',
-                'username' => 'nullable|string|max:100',
-                'sort_order' => 'nullable|integer|min:0',
-            ]);
-
-            $profileContent = ContentProfile::whereHas('dynamicContent', function ($query) {
-                $query->where('user_id', Auth::id());
-            })->findOrFail($profileId);
-
-            $socialLink = ContentSocialLink::create([
-                'dynamic_content_id' => $profileContent->dynamic_content_id,
-                'platform' => $validatedData['platform'],
-                'url' => $validatedData['url'],
-                'username' => $validatedData['username'] ?? null,
-                'sort_order' => $validatedData['sort_order'] ?? 0,
-            ]);
-
-            return response()->json([
-                'data' => $socialLink,
-                'message' => 'Enlace social creado exitosamente',
-                'status' => 201,
-            ], 201);
-        } catch (ValidationException $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Datos de validación incorrectos',
-                'errors' => $e->errors(),
-                'status' => 422,
-            ], 422);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
-        }
+        return $this->profileContentController->createSocialLink($request, $profileId);
     }
 
     /**
      * Delete social link
+     * @deprecated Use ProfileContentController directly for new implementations
      */
     public function deleteSocialLink(int $linkId): JsonResponse
     {
-        try {
-            $socialLink = ContentSocialLink::whereHas('dynamicContent', function ($query) {
-                $query->where('user_id', Auth::id());
-            })->findOrFail($linkId);
-
-            $socialLink->delete();
-
-            return response()->json([
-                'data' => null,
-                'message' => 'Enlace social eliminado exitosamente',
-                'status' => 200,
-            ]);
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Enlace social no encontrado',
-                'status' => 404,
-            ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor',
-                'status' => 500,
-            ], 500);
-        }
+        return $this->profileContentController->deleteSocialLink($linkId);
     }
 
     // ========================================
@@ -699,75 +516,30 @@ class ContentController extends Controller
     // ========================================
 
     /**
-     * Create business content - simplified implementation
+     * Create business content
+     * @deprecated Use BusinessContentController directly for new implementations
      */
-    public function createBusinessContent(Request $request, int $dynamicContentId): JsonResponse
+    public function createBusinessContent(CreateBusinessContentRequest $request, int $dynamicContentId): JsonResponse
     {
-        try {
-            $validatedData = $request->validate([
-                'business_name' => 'required|string|max:255',
-                'description' => 'nullable|string|max:1000',
-                'contact_email' => 'nullable|email|max:255',
-                'contact_phone' => 'nullable|string|max:20',
-                'website' => 'nullable|url|max:500',
-                'location' => 'nullable|string|max:255',
-                'business_hours' => 'nullable|string|max:255',
-                'color_palette' => 'nullable|array',
-            ]);
-
-            // Verify user owns the dynamic content
-            $dynamicContent = DynamicContent::where('id', $dynamicContentId)
-                ->where('user_id', Auth::id())
-                ->firstOrFail();
-
-            $businessContent = ContentBusiness::create([
-                'dynamic_content_id' => $dynamicContentId,
-                'name' => $validatedData['business_name'],
-                'description' => $validatedData['description'] ?? null,
-                'contact_email' => $validatedData['contact_email'] ?? null,
-                'contact_phone' => $validatedData['contact_phone'] ?? null,
-                'website' => $validatedData['website'] ?? null,
-                'location' => $validatedData['location'] ?? null,
-                'business_hours' => $validatedData['business_hours'] ?? null,
-                'color_palette' => $validatedData['color_palette'] ?? null,
-            ]);
-
-            return response()->json([
-                'data' => $businessContent,
-                'message' => 'Contenido de negocio creado exitosamente',
-                'status' => 201,
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'data' => null,
-                'message' => 'Error interno del servidor: ' . $e->getMessage(),
-                'status' => 500,
-            ], 500);
-        }
+        return $this->businessContentController->createBusinessContent($request, $dynamicContentId);
     }
 
     /**
-     * Get business content - placeholder
+     * Get business content
+     * @deprecated Use BusinessContentController directly for new implementations
      */
     public function getBusinessContent(int $dynamicContentId): JsonResponse
     {
-        return response()->json([
-            'data' => null,
-            'message' => 'Método no implementado todavía',
-            'status' => 501,
-        ], 501);
+        return $this->businessContentController->getBusinessContent($dynamicContentId);
     }
 
     /**
-     * Update business content - placeholder
+     * Update business content
+     * @deprecated Use BusinessContentController directly for new implementations
      */
-    public function updateBusinessContent(Request $request, int $businessId): JsonResponse
+    public function updateBusinessContent(UpdateBusinessContentRequest $request, int $businessId): JsonResponse
     {
-        return response()->json([
-            'data' => null,
-            'message' => 'Método no implementado todavía',
-            'status' => 501,
-        ], 501);
+        return $this->businessContentController->updateBusinessContent($request, $businessId);
     }
 
     // ========================================

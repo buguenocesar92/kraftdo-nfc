@@ -13,6 +13,8 @@ use App\Observers\ContentProfileObserver;
 use App\Observers\DynamicContentObserver;
 use App\Observers\NfcTokenObserver;
 use App\Services\GiftContentService;
+use App\Services\ProfileContentService;
+use App\Services\BusinessContentService;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +29,14 @@ class AppServiceProvider extends ServiceProvider
         // Register services
         $this->app->singleton(GiftContentService::class, function () {
             return new GiftContentService();
+        });
+
+        $this->app->singleton(ProfileContentService::class, function () {
+            return new ProfileContentService();
+        });
+
+        $this->app->singleton(BusinessContentService::class, function () {
+            return new BusinessContentService();
         });
     }
 
