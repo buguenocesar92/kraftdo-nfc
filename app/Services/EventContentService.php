@@ -4,6 +4,8 @@ namespace App\Services;
 
 use App\Models\ContentEvent;
 use App\Models\DynamicContent;
+use App\Services\ContentObservabilityService;
+use App\Events\ContentEventCreated;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -29,8 +31,17 @@ class EventContentService
                 'event_end_date' => $data['event_end_date'] ?? null,
                 'event_organizer' => $data['event_organizer'] ?? null,
                 'ticket_price' => $data['ticket_price'] ?? null,
-                'ticket_currency' => $data['ticket_currency'] ?? 'USD',
+                'ticket_currency' => $data['ticket_currency'] ?? $data['currency'] ?? 'USD',
                 'registration_url' => $data['registration_url'] ?? null,
+            ]);
+
+            // Log event creation
+            ContentObservabilityService::logContentCreation('EVENT', $eventContent->id, $data);
+
+            // Dispatch event for further processing
+            ContentEventCreated::dispatch($eventContent, [
+                'source' => 'api',
+                'original_data' => $data,
             ]);
 
             return $eventContent;

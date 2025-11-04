@@ -4,6 +4,12 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\QrCodeController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ProfileContentController;
+use App\Http\Controllers\Api\BusinessContentController;
+use App\Http\Controllers\Api\GiftContentController;
+use App\Http\Controllers\Api\EventContentController;
+use App\Http\Controllers\Api\TouristContentController;
+use App\Http\Controllers\Api\BusStopContentController;
 use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -120,6 +126,74 @@ Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctu
         
         // Legacy routes - ESTAS VAN AL FINAL
         Route::delete('{type}/{id}', [ContentController::class, 'destroy']);
+    });
+
+    // ========================================
+    // DEDICATED CONTENT TYPE ROUTES (New Architecture)
+    // ========================================
+    
+    // Profile Content Routes
+    Route::prefix('profiles')->group(function () {
+        Route::post('{dynamicContentId}', [ProfileContentController::class, 'createProfileContent']);
+        Route::get('{dynamicContentId}', [ProfileContentController::class, 'getProfileContent']);
+        Route::put('{profileId}', [ProfileContentController::class, 'updateProfileContent']);
+        Route::delete('{profileId}', [ProfileContentController::class, 'deleteProfileContent']);
+        
+        // Social Links
+        Route::get('{profileId}/social-links', [ProfileContentController::class, 'getSocialLinks']);
+        Route::post('{profileId}/social-links', [ProfileContentController::class, 'createSocialLink']);
+        Route::delete('social-links/{linkId}', [ProfileContentController::class, 'deleteSocialLink']);
+    });
+    
+    // Business Content Routes
+    Route::prefix('businesses')->group(function () {
+        Route::post('{dynamicContentId}', [BusinessContentController::class, 'createBusinessContent']);
+        Route::get('{dynamicContentId}', [BusinessContentController::class, 'getBusinessContent']);
+        Route::put('{businessId}', [BusinessContentController::class, 'updateBusinessContent']);
+        Route::delete('{businessId}', [BusinessContentController::class, 'deleteBusinessContent']);
+        
+        // Business Products
+        Route::get('{businessId}/products', [BusinessContentController::class, 'getBusinessProducts']);
+        Route::post('{businessId}/products', [BusinessContentController::class, 'createBusinessProduct']);
+        Route::put('products/{productId}', [BusinessContentController::class, 'updateBusinessProduct']);
+        Route::delete('products/{productId}', [BusinessContentController::class, 'deleteBusinessProduct']);
+    });
+    
+    // Gift Content Routes
+    Route::prefix('gifts')->group(function () {
+        Route::post('{dynamicContentId}', [GiftContentController::class, 'store']);
+        Route::get('{dynamicContentId}', [GiftContentController::class, 'show']);
+        Route::put('{giftId}', [GiftContentController::class, 'update']);
+        Route::delete('{giftId}', [GiftContentController::class, 'destroy']);
+        
+        // Gift Gallery
+        Route::get('{giftId}/gallery', [GiftContentController::class, 'getGiftGallery']);
+        Route::post('{giftId}/gallery', [GiftContentController::class, 'createGiftGalleryItem']);
+        Route::delete('gallery/{itemId}', [GiftContentController::class, 'deleteGiftGalleryItem']);
+    });
+    
+    // Event Content Routes
+    Route::prefix('events')->group(function () {
+        Route::post('{dynamicContentId}', [EventContentController::class, 'createEventContent']);
+        Route::get('{dynamicContentId}', [EventContentController::class, 'getEventContent']);
+        Route::put('{eventId}', [EventContentController::class, 'updateEventContent']);
+        Route::delete('{eventId}', [EventContentController::class, 'deleteEventContent']);
+    });
+    
+    // Tourist Content Routes
+    Route::prefix('tourists')->group(function () {
+        Route::post('{dynamicContentId}', [TouristContentController::class, 'createTouristContent']);
+        Route::get('{dynamicContentId}', [TouristContentController::class, 'getTouristContent']);
+        Route::put('{touristId}', [TouristContentController::class, 'updateTouristContent']);
+        Route::delete('{touristId}', [TouristContentController::class, 'deleteTouristContent']);
+    });
+    
+    // Bus Stop Content Routes
+    Route::prefix('bus-stops')->group(function () {
+        Route::post('{dynamicContentId}', [BusStopContentController::class, 'createBusStopContent']);
+        Route::get('{dynamicContentId}', [BusStopContentController::class, 'getBusStopContent']);
+        Route::put('{busStopId}', [BusStopContentController::class, 'updateBusStopContent']);
+        Route::delete('{busStopId}', [BusStopContentController::class, 'deleteBusStopContent']);
     });
 });
 
