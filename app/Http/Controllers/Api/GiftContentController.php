@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\CreateGiftContentRequest;
 use App\Http\Requests\UpdateGiftContentRequest;
+use App\Http\Requests\CreateGalleryItemRequest;
 use App\Http\Resources\GiftContentResource;
 use App\Http\Traits\ApiResponseTrait;
 use App\Services\GiftContentService;
@@ -100,6 +101,73 @@ class GiftContentController extends Controller
             );
         } catch (ModelNotFoundException) {
             return $this->notFoundResponse('Contenido de regalo no encontrado');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error interno del servidor');
+        }
+    }
+
+    // ========================================
+    // GIFT GALLERY METHODS
+    // ========================================
+
+    /**
+     * Get gallery images for a gift
+     */
+    public function getGiftGallery(int $giftId): JsonResponse
+    {
+        try {
+            $galleryImages = $this->giftContentService->getGiftGallery($giftId);
+
+            return $this->successResponse(
+                $galleryImages,
+                'Galería obtenida exitosamente'
+            );
+        } catch (ModelNotFoundException $e) {
+            return $this->notFoundResponse('Regalo no encontrado');
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error interno del servidor');
+        }
+    }
+
+    /**
+     * Create gallery item for a gift
+     */
+    public function createGiftGalleryItem(CreateGalleryItemRequest $request, int $giftId): JsonResponse
+    {
+        try {
+            $galleryItem = $this->giftContentService->createGiftGalleryItem(
+                $giftId,
+                $request->validated()
+            );
+
+            return $this->successResponse(
+                $galleryItem,
+                'Elemento de galería creado exitosamente',
+                201
+            );
+        } catch (ModelNotFoundException $e) {
+            return $this->notFoundResponse('Regalo no encontrado');
+        } catch (ValidationException $e) {
+            return $this->validationErrorResponse('Datos de validación incorrectos', $e->errors());
+        } catch (\Exception $e) {
+            return $this->errorResponse('Error interno del servidor: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete gift gallery item
+     */
+    public function deleteGiftGalleryItem(int $itemId): JsonResponse
+    {
+        try {
+            $this->giftContentService->deleteGiftGalleryItem($itemId);
+
+            return $this->successResponse(
+                null,
+                'Elemento de galería eliminado exitosamente'
+            );
+        } catch (ModelNotFoundException $e) {
+            return $this->notFoundResponse('Elemento de galería no encontrado');
         } catch (\Exception $e) {
             return $this->errorResponse('Error interno del servidor');
         }

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ContentBusiness;
+use App\Models\ContentProduct;
 use App\Models\DynamicContent;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
@@ -95,6 +96,80 @@ class BusinessContentService
             })->findOrFail($businessId);
 
             return $businessContent->delete();
+        });
+    }
+
+    // ========================================
+    // BUSINESS PRODUCTS METHODS
+    // ========================================
+
+    /**
+     * Get products for a business
+     */
+    public function getBusinessProducts(int $businessId): \Illuminate\Database\Eloquent\Collection
+    {
+        $businessContent = ContentBusiness::whereHas('dynamicContent', function ($query) {
+            $query->where('user_id', Auth::id());
+        })->findOrFail($businessId);
+
+        return ContentProduct::where('content_business_id', $businessContent->id)
+            ->orderBy('name')
+            ->get();
+    }
+
+    /**
+     * Create product for a business
+     */
+    public function createBusinessProduct(int $businessId, array $data): ContentProduct
+    {
+        return DB::transaction(function () use ($businessId, $data) {
+            $businessContent = ContentBusiness::whereHas('dynamicContent', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->findOrFail($businessId);
+
+            return ContentProduct::create([
+                'content_business_id' => $businessContent->id,
+                'dynamic_content_id' => $businessContent->dynamic_content_id,
+                'name' => $data['name'],
+                'price' => $data['price'] ?? null,
+                'currency' => $data['currency'] ?? 'USD',
+                'sku' => $data['sku'] ?? null,
+                'stock' => $data['stock'] ?? 0,
+                'in_stock' => $data['in_stock'] ?? true,
+                'brand' => $data['brand'] ?? null,
+                'specifications' => $data['specifications'] ?? null,
+                'purchase_url' => $data['purchase_url'] ?? null,
+            ]);
+        });
+    }
+
+    /**
+     * Update business product
+     */
+    public function updateBusinessProduct(int $productId, array $data): ContentProduct
+    {
+        return DB::transaction(function () use ($productId, $data) {
+            $product = ContentProduct::whereHas('contentBusiness.dynamicContent', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->findOrFail($productId);
+
+            $product->update($data);
+
+            return $product->fresh();
+        });
+    }
+
+    /**
+     * Delete business product
+     */
+    public function deleteBusinessProduct(int $productId): bool
+    {
+        return DB::transaction(function () use ($productId) {
+            $product = ContentProduct::whereHas('contentBusiness.dynamicContent', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->findOrFail($productId);
+
+            return $product->delete();
         });
     }
 }

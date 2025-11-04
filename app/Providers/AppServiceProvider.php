@@ -15,6 +15,9 @@ use App\Observers\NfcTokenObserver;
 use App\Services\GiftContentService;
 use App\Services\ProfileContentService;
 use App\Services\BusinessContentService;
+use App\Services\EventContentService;
+use App\Services\TouristContentService;
+use App\Services\BusStopContentService;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -37,6 +40,18 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(BusinessContentService::class, function () {
             return new BusinessContentService();
+        });
+
+        $this->app->singleton(EventContentService::class, function () {
+            return new EventContentService();
+        });
+
+        $this->app->singleton(TouristContentService::class, function () {
+            return new TouristContentService();
+        });
+
+        $this->app->singleton(BusStopContentService::class, function () {
+            return new BusStopContentService();
         });
     }
 

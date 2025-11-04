@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\ContentGift;
+use App\Models\ContentGalleryImage;
 use App\Models\ContentMultimedia;
 use App\Models\DynamicContent;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -93,5 +94,73 @@ class GiftContentService
         return ContentGift::whereHas('dynamicContent', function ($query) {
             $query->where('user_id', Auth::id());
         })->where('id', $giftId)->exists();
+    }
+
+    // ========================================
+    // GIFT GALLERY METHODS
+    // ========================================
+
+    /**
+     * Get gallery images for a gift
+     */
+    public function getGiftGallery(int $giftId): \Illuminate\Database\Eloquent\Collection
+    {
+        $giftContent = ContentGift::whereHas('dynamicContent', function ($query) {
+            $query->where('user_id', Auth::id());
+        })->findOrFail($giftId);
+
+        // Get multimedia for this gift
+        $multimedia = ContentMultimedia::where('dynamic_content_id', $giftContent->dynamic_content_id)->first();
+        
+        if (!$multimedia) {
+            return collect();
+        }
+
+        return ContentGalleryImage::where('content_multimedia_id', $multimedia->id)
+            ->orderBy('sort_order')
+            ->get();
+    }
+
+    /**
+     * Create gallery item for a gift
+     */
+    public function createGiftGalleryItem(int $giftId, array $data): ContentGalleryImage
+    {
+        return DB::transaction(function () use ($giftId, $data) {
+            $giftContent = ContentGift::whereHas('dynamicContent', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->findOrFail($giftId);
+
+            // Get or create multimedia for this gift
+            $multimedia = ContentMultimedia::firstOrCreate([
+                'dynamic_content_id' => $giftContent->dynamic_content_id
+            ], [
+                'settings' => []
+            ]);
+
+            return ContentGalleryImage::create([
+                'content_multimedia_id' => $multimedia->id,
+                'image_path' => $data['image_path'],
+                'image_url' => $data['image_url'] ?? null,
+                'alt_text' => $data['alt_text'] ?? 'Imagen de galería',
+                'caption' => $data['caption'] ?? null,
+                'sort_order' => $data['sort_order'] ?? 0,
+                'type' => $data['type'] ?? 'gallery',
+            ]);
+        });
+    }
+
+    /**
+     * Delete gift gallery item
+     */
+    public function deleteGiftGalleryItem(int $itemId): bool
+    {
+        return DB::transaction(function () use ($itemId) {
+            $galleryImage = ContentGalleryImage::whereHas('contentMultimedia.dynamicContent', function ($query) {
+                $query->where('user_id', Auth::id());
+            })->findOrFail($itemId);
+
+            return $galleryImage->delete();
+        });
     }
 }

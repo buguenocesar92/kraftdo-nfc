@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\GiftContentController;
 use App\Http\Controllers\Api\ProfileContentController;
 use App\Http\Controllers\Api\BusinessContentController;
+use App\Http\Controllers\Api\EventContentController;
+use App\Http\Controllers\Api\TouristContentController;
+use App\Http\Controllers\Api\BusStopContentController;
 use App\Http\Requests\CreateGiftContentRequest;
 use App\Http\Requests\UpdateGiftContentRequest;
 use App\Http\Requests\CreateProfileContentRequest;
@@ -13,9 +16,19 @@ use App\Http\Requests\UpdateProfileContentRequest;
 use App\Http\Requests\CreateSocialLinkRequest;
 use App\Http\Requests\CreateBusinessContentRequest;
 use App\Http\Requests\UpdateBusinessContentRequest;
+use App\Http\Requests\CreateProductRequest;
+use App\Http\Requests\UpdateProductRequest;
+use App\Http\Requests\CreateGalleryItemRequest;
+use App\Http\Requests\CreateEventContentRequest;
+use App\Http\Requests\UpdateEventContentRequest;
+use App\Http\Requests\CreateTouristContentRequest;
+use App\Http\Requests\UpdateTouristContentRequest;
+use App\Http\Requests\CreateBusStopContentRequest;
+use App\Http\Requests\UpdateBusStopContentRequest;
 use App\Models\BusStop;
 use App\Models\ContentBusiness;
 use App\Models\ContentGalleryImage;
+use App\Models\ContentEvent;
 use App\Models\ContentGift;
 use App\Models\ContentMultimedia;
 use App\Models\ContentProduct;
@@ -33,13 +46,25 @@ class ContentController extends Controller
 {
     protected ProfileContentController $profileContentController;
     protected BusinessContentController $businessContentController;
+    protected GiftContentController $giftContentController;
+    protected EventContentController $eventContentController;
+    protected TouristContentController $touristContentController;
+    protected BusStopContentController $busStopContentController;
 
     public function __construct(
         ProfileContentController $profileContentController,
-        BusinessContentController $businessContentController
+        BusinessContentController $businessContentController,
+        GiftContentController $giftContentController,
+        EventContentController $eventContentController,
+        TouristContentController $touristContentController,
+        BusStopContentController $busStopContentController
     ) {
         $this->profileContentController = $profileContentController;
         $this->businessContentController = $businessContentController;
+        $this->giftContentController = $giftContentController;
+        $this->eventContentController = $eventContentController;
+        $this->touristContentController = $touristContentController;
+        $this->busStopContentController = $busStopContentController;
     }
 
     /**
@@ -212,6 +237,7 @@ class ContentController extends Controller
             'profile' => ContentProfile::class,
             'business' => ContentBusiness::class,
             'gift' => ContentGift::class,
+            'event' => ContentEvent::class,
             'tourist' => ContentTourist::class,
             'bus_stop' => BusStop::class,
             default => throw new \InvalidArgumentException("Tipo de contenido no soportado: {$type}")
@@ -227,6 +253,7 @@ class ContentController extends Controller
             'profile' => ['skills', 'socialLinks', 'galleryImages'],
             'business' => ['products'],
             'gift' => ['multimedia'],
+            'event' => ['dynamicContent'],
             'tourist' => ['nearbySpots'],
             'bus_stop' => ['routes', 'schedules', 'utilityPhones'],
             default => []
@@ -263,6 +290,15 @@ class ContentController extends Controller
                 'message' => 'nullable|string|max:2000',
                 'sender_name' => 'nullable|string|max:255',
                 'recipient_name' => 'nullable|string|max:255',
+            ],
+            'event' => [
+                'event_location' => 'nullable|string|max:500',
+                'event_start_date' => 'nullable|date',
+                'event_end_date' => 'nullable|date|after:event_start_date',
+                'event_organizer' => 'nullable|string|max:255',
+                'ticket_price' => 'nullable|numeric|min:0|max:999999.99',
+                'ticket_currency' => 'nullable|string|in:USD,EUR,GBP,CLP,MXN,ARS',
+                'registration_url' => 'nullable|url|max:500',
             ],
             'tourist' => [
                 'name' => "{$required}|string|max:255",
@@ -585,39 +621,187 @@ class ContentController extends Controller
     // PLACEHOLDER METHODS FOR OTHER FEATURES
     // ========================================
 
+    /**
+     * Get business products
+     * @deprecated Use BusinessContentController directly for new implementations
+     */
     public function getBusinessProducts(int $businessId): JsonResponse
     {
-        return response()->json(['data' => [], 'message' => 'Método no implementado', 'status' => 501], 501);
+        return $this->businessContentController->getBusinessProducts($businessId);
     }
 
-    public function createBusinessProduct(Request $request, int $businessId): JsonResponse
+    /**
+     * Create business product
+     * @deprecated Use BusinessContentController directly for new implementations
+     */
+    public function createBusinessProduct(CreateProductRequest $request, int $businessId): JsonResponse
     {
-        return response()->json(['data' => null, 'message' => 'Método no implementado', 'status' => 501], 501);
+        return $this->businessContentController->createBusinessProduct($request, $businessId);
     }
 
-    public function updateBusinessProduct(Request $request, int $productId): JsonResponse
+    /**
+     * Update business product
+     * @deprecated Use BusinessContentController directly for new implementations
+     */
+    public function updateBusinessProduct(UpdateProductRequest $request, int $productId): JsonResponse
     {
-        return response()->json(['data' => null, 'message' => 'Método no implementado', 'status' => 501], 501);
+        return $this->businessContentController->updateBusinessProduct($request, $productId);
     }
 
+    /**
+     * Delete business product
+     * @deprecated Use BusinessContentController directly for new implementations
+     */
     public function deleteBusinessProduct(int $productId): JsonResponse
     {
-        return response()->json(['data' => null, 'message' => 'Método no implementado', 'status' => 501], 501);
+        return $this->businessContentController->deleteBusinessProduct($productId);
     }
 
+    /**
+     * Get gift gallery
+     * @deprecated Use GiftContentController directly for new implementations
+     */
     public function getGiftGallery(int $giftId): JsonResponse
     {
-        return response()->json(['data' => [], 'message' => 'Método no implementado', 'status' => 501], 501);
+        return $this->giftContentController->getGiftGallery($giftId);
     }
 
-    public function createGiftGalleryItem(Request $request, int $giftId): JsonResponse
+    /**
+     * Create gift gallery item
+     * @deprecated Use GiftContentController directly for new implementations
+     */
+    public function createGiftGalleryItem(CreateGalleryItemRequest $request, int $giftId): JsonResponse
     {
-        return response()->json(['data' => null, 'message' => 'Método no implementado', 'status' => 501], 501);
+        return $this->giftContentController->createGiftGalleryItem($request, $giftId);
     }
 
+    /**
+     * Delete gift gallery item
+     * @deprecated Use GiftContentController directly for new implementations
+     */
     public function deleteGiftGalleryItem(int $itemId): JsonResponse
     {
-        return response()->json(['data' => null, 'message' => 'Método no implementado', 'status' => 501], 501);
+        return $this->giftContentController->deleteGiftGalleryItem($itemId);
+    }
+
+    // ========================================
+    // EVENT CONTENT METHODS (Delegated to EventContentController)
+    // ========================================
+
+    /**
+     * Create event content - delegates to EventContentController
+     * @deprecated Use EventContentController directly
+     */
+    public function createEventContent(CreateEventContentRequest $request, int $dynamicContentId): JsonResponse
+    {
+        return $this->eventContentController->createEventContent($request, $dynamicContentId);
+    }
+
+    /**
+     * Get event content by dynamic content ID - delegates to EventContentController
+     * @deprecated Use EventContentController directly
+     */
+    public function getEventContent(int $dynamicContentId): JsonResponse
+    {
+        return $this->eventContentController->getEventContent($dynamicContentId);
+    }
+
+    /**
+     * Update event content - delegates to EventContentController
+     * @deprecated Use EventContentController directly
+     */
+    public function updateEventContent(UpdateEventContentRequest $request, int $eventId): JsonResponse
+    {
+        return $this->eventContentController->updateEventContent($request, $eventId);
+    }
+
+    /**
+     * Delete event content - delegates to EventContentController
+     * @deprecated Use EventContentController directly
+     */
+    public function deleteEventContent(int $eventId): JsonResponse
+    {
+        return $this->eventContentController->deleteEventContent($eventId);
+    }
+
+    // ========================================
+    // TOURIST CONTENT METHODS (Delegated to TouristContentController)
+    // ========================================
+
+    /**
+     * Create tourist content - delegates to TouristContentController
+     * @deprecated Use TouristContentController directly
+     */
+    public function createTouristContent(CreateTouristContentRequest $request, int $dynamicContentId): JsonResponse
+    {
+        return $this->touristContentController->createTouristContent($request, $dynamicContentId);
+    }
+
+    /**
+     * Get tourist content by dynamic content ID - delegates to TouristContentController
+     * @deprecated Use TouristContentController directly
+     */
+    public function getTouristContent(int $dynamicContentId): JsonResponse
+    {
+        return $this->touristContentController->getTouristContent($dynamicContentId);
+    }
+
+    /**
+     * Update tourist content - delegates to TouristContentController
+     * @deprecated Use TouristContentController directly
+     */
+    public function updateTouristContent(UpdateTouristContentRequest $request, int $touristId): JsonResponse
+    {
+        return $this->touristContentController->updateTouristContent($request, $touristId);
+    }
+
+    /**
+     * Delete tourist content - delegates to TouristContentController
+     * @deprecated Use TouristContentController directly
+     */
+    public function deleteTouristContent(int $touristId): JsonResponse
+    {
+        return $this->touristContentController->deleteTouristContent($touristId);
+    }
+
+    // ========================================
+    // BUS STOP CONTENT METHODS (Delegated to BusStopContentController)
+    // ========================================
+
+    /**
+     * Create bus stop content - delegates to BusStopContentController
+     * @deprecated Use BusStopContentController directly
+     */
+    public function createBusStopContent(CreateBusStopContentRequest $request, int $dynamicContentId): JsonResponse
+    {
+        return $this->busStopContentController->createBusStopContent($request, $dynamicContentId);
+    }
+
+    /**
+     * Get bus stop content by dynamic content ID - delegates to BusStopContentController
+     * @deprecated Use BusStopContentController directly
+     */
+    public function getBusStopContent(int $dynamicContentId): JsonResponse
+    {
+        return $this->busStopContentController->getBusStopContent($dynamicContentId);
+    }
+
+    /**
+     * Update bus stop content - delegates to BusStopContentController
+     * @deprecated Use BusStopContentController directly
+     */
+    public function updateBusStopContent(UpdateBusStopContentRequest $request, int $busStopId): JsonResponse
+    {
+        return $this->busStopContentController->updateBusStopContent($request, $busStopId);
+    }
+
+    /**
+     * Delete bus stop content - delegates to BusStopContentController
+     * @deprecated Use BusStopContentController directly
+     */
+    public function deleteBusStopContent(int $busStopId): JsonResponse
+    {
+        return $this->busStopContentController->deleteBusStopContent($busStopId);
     }
 
     /**
