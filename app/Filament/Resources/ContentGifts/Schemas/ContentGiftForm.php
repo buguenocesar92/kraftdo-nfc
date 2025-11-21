@@ -158,7 +158,7 @@ class ContentGiftForm
                             ->directory('gallery')
                             ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp'])
                             ->maxSize(10 * 1024) // 10MB por imagen
-                            ->maxFiles(10)
+                            ->maxFiles(20)
                             ->multiple()
                             ->reorderable()
                             ->disk('public')
