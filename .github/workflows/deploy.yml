@@ -216,13 +216,24 @@ jobs:
           echo "🧹 Cleaning potential mount conflicts..."
           rm -rf public/storage || true
           
-          # Remove volumes with old configuration (production only - to avoid bind mount conflicts)
+          # PRESERVING MULTIMEDIA FILES WITH BACKUP STRATEGY
           if [ "$ENV" = "production" ]; then
-            echo "🗑️ Removing old volumes with bind mount configuration..."
-            docker volume rm kraftdo-nfc-production_redis_data || true
-            docker volume rm kraftdo-nfc-production_app_storage || true
+            echo "💾 Creating backup of multimedia files before deploy..."
+            
+            # Create backup directory
+            BACKUP_DIR="/root/kraftdo-nfc-backups/$(date +%Y%m%d_%H%M%S)"
+            mkdir -p $BACKUP_DIR
+            
+            # Backup storage volume if it exists
+            if docker volume inspect kraftdo-nfc-production_app_storage >/dev/null 2>&1; then
+              echo "📦 Backing up storage volume..."
+              docker run --rm -v kraftdo-nfc-production_app_storage:/source -v $BACKUP_DIR:/backup alpine tar czf /backup/storage.tar.gz -C /source .
+              echo "✅ Storage backup created at $BACKUP_DIR/storage.tar.gz"
+            fi
+            
+            # Only remove cache volumes that can be safely recreated
             docker volume rm kraftdo-nfc-production_app_bootstrap_cache || true
-            echo "✅ Old volumes removed, will create new Docker-managed volumes"
+            echo "✅ Cache volumes cleared, storage volumes preserved with backup"
           fi
           
           # Verify docker-compose was downloaded
@@ -304,9 +315,24 @@ jobs:
             echo "✅ Deployment successful!"
             echo "📋 Recent application logs:"
             docker logs $CONTAINER_PREFIX-web --tail 50
+            
+            # Clean old backups (keep last 5)
+            if [ "$ENV" = "production" ] && [ -d "/root/kraftdo-nfc-backups" ]; then
+              echo "🧹 Cleaning old backups (keeping last 5)..."
+              ls -t /root/kraftdo-nfc-backups | tail -n +6 | xargs -r -I {} rm -rf "/root/kraftdo-nfc-backups/{}"
+            fi
           else
             echo "❌ Deployment failed!"
             docker logs $CONTAINER_PREFIX-web
+            
+            # Try to restore from backup if deployment fails
+            if [ "$ENV" = "production" ] && [ -n "$BACKUP_DIR" ] && [ -f "$BACKUP_DIR/storage.tar.gz" ]; then
+              echo "🔄 Attempting to restore from backup..."
+              docker volume create kraftdo-nfc-production_app_storage
+              docker run --rm -v kraftdo-nfc-production_app_storage:/target -v $BACKUP_DIR:/backup alpine tar xzf /backup/storage.tar.gz -C /target
+              echo "✅ Backup restored, please check manually"
+            fi
+            
             exit 1
           fi
           
