@@ -586,12 +586,11 @@ class ContentController extends Controller
      * Create gift content - delegates to GiftContentController
      * @deprecated Use GiftContentController directly
      */
-    public function createGiftContent(Request $request, int $dynamicContentId): JsonResponse
+    public function createGiftContent(CreateGiftContentRequest $request, int $dynamicContentId): JsonResponse
     {
         $giftController = app(GiftContentController::class);
-        $createRequest = CreateGiftContentRequest::createFrom($request);
         
-        return $giftController->store($createRequest, $dynamicContentId);
+        return $giftController->store($request, $dynamicContentId);
     }
 
     /**
@@ -609,12 +608,11 @@ class ContentController extends Controller
      * Update gift content - delegates to GiftContentController
      * @deprecated Use GiftContentController directly
      */
-    public function updateGiftContent(Request $request, int $giftId): JsonResponse
+    public function updateGiftContent(UpdateGiftContentRequest $request, int $giftId): JsonResponse
     {
         $giftController = app(GiftContentController::class);
-        $updateRequest = UpdateGiftContentRequest::createFrom($request);
         
-        return $giftController->update($updateRequest, $giftId);
+        return $giftController->update($request, $giftId);
     }
 
     // ========================================
