@@ -66,64 +66,48 @@ class EditContentProfile extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        // Procesar paleta de colores
-        if (isset($data['color_palette'])) {
-            // La paleta de colores se guarda como JSON
-            $this->record->color_palette = $data['color_palette'];
-            unset($data['color_palette']);
-        }
+        // Separar datos del perfil de los datos relacionados
+        $profileData = [
+            'dynamic_content_id' => $data['dynamic_content_id'],
+            'name' => $data['name'],
+            'bio' => $data['bio'] ?? '',
+            'profession' => $data['profession'] ?? '',
+            'company' => $data['company'] ?? '',
+            'location' => $data['location'] ?? '',
+            'contact_info' => $data['contact_info'] ?? '',
+            'contact_email' => $data['contact_email'] ?? '',
+            'contact_phone' => $data['contact_phone'] ?? '',
+            'contact_website' => $data['contact_website'] ?? '',
+            'color_palette' => $data['color_palette'] ?? null,
+        ];
 
-        return $data;
-    }
-
-    protected function afterSave(): void
-    {
-        $data = $this->form->getState();
-
-        // Manejar contenido multimedia
-        $this->handleMultimediaContent($data);
-
-        // Manejar enlaces sociales
-        $this->handleSocialLinks($data);
-
-        Notification::make()
-            ->title('Perfil actualizado')
-            ->body('Se ha actualizado correctamente el perfil y su contenido relacionado.')
-            ->success()
-            ->send();
-    }
-
-    private function handleMultimediaContent(array $data): void
-    {
-        $contentMultimedia = ContentMultimedia::firstOrCreate(
-            ['dynamic_content_id' => $this->record->dynamic_content_id],
-            [
-                'video_type' => 'direct',
-                'audio_type' => 'direct',
-                'settings' => [],
-            ]
-        );
-
-        // Actualizar campos de multimedia
         $multimediaData = [
             'video_url' => $data['video_url'] ?? null,
             'video_file' => $data['video_file'] ?? null,
             'video_type' => $data['video_type'] ?? 'direct',
-            'settings' => array_merge($contentMultimedia->settings ?? [], $data['settings'] ?? []),
+            'settings' => $data['settings'] ?? [],
         ];
 
-        $contentMultimedia->update($multimediaData);
+        // Guardar o actualizar multimedia inmediatamente (como en ContentGift)
+        $multimedia = $this->record->multimedia;
+        if (!$multimedia) {
+            $multimedia = ContentMultimedia::create(array_merge($multimediaData, [
+                'dynamic_content_id' => $data['dynamic_content_id'],
+            ]));
+        } else {
+            $multimedia->update($multimediaData);
+        }
 
-        // Manejar galería de imágenes
+        // Manejar galería de imágenes inmediatamente
         if (isset($data['gallery_images']) && is_array($data['gallery_images'])) {
             // Eliminar imágenes existentes
-            ContentGalleryImage::where('content_multimedia_id', $contentMultimedia->id)->delete();
+            $multimedia->galleryImages()->delete();
 
             // Crear nuevas imágenes
             foreach ($data['gallery_images'] as $index => $imagePath) {
-                if (! empty($imagePath)) {
+                if ($imagePath) {
                     ContentGalleryImage::create([
-                        'content_multimedia_id' => $contentMultimedia->id,
+                        'content_multimedia_id' => $multimedia->id,
                         'image_path' => $imagePath,
                         'image_url' => null,
                         'type' => ContentGalleryImage::TYPE_UPLOAD,
@@ -133,19 +117,17 @@ class EditContentProfile extends EditRecord
                 }
             }
         }
-    }
 
-    private function handleSocialLinks(array $data): void
-    {
+        // Manejar enlaces sociales inmediatamente
         if (isset($data['social_links']) && is_array($data['social_links'])) {
             // Eliminar enlaces existentes
-            ContentSocialLink::where('dynamic_content_id', $this->record->dynamic_content_id)->delete();
+            ContentSocialLink::where('dynamic_content_id', $data['dynamic_content_id'])->delete();
 
             // Crear nuevos enlaces
             foreach ($data['social_links'] as $index => $link) {
-                if (! empty($link['platform'])) {
+                if (!empty($link['platform'])) {
                     ContentSocialLink::create([
-                        'dynamic_content_id' => $this->record->dynamic_content_id,
+                        'dynamic_content_id' => $data['dynamic_content_id'],
                         'platform' => $link['platform'],
                         'username' => $link['username'] ?? '',
                         'url' => $link['url'] ?? '',
@@ -154,5 +136,18 @@ class EditContentProfile extends EditRecord
                 }
             }
         }
+
+        // Retornar solo datos del perfil para el modelo principal
+        return $profileData;
     }
+
+    protected function afterSave(): void
+    {
+        Notification::make()
+            ->title('Perfil actualizado')
+            ->body('Se ha actualizado correctamente el perfil y su contenido relacionado.')
+            ->success()
+            ->send();
+    }
+
 }
