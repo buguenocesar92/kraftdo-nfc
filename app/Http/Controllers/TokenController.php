@@ -6,6 +6,7 @@ use App\Enums\ContentType;
 use App\Models\NfcToken;
 use App\Services\AnalyticsService;
 use App\Services\TokenService;
+use App\Services\ViewingLockService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +15,8 @@ class TokenController extends Controller
 {
     public function __construct(
         private TokenService $tokenService,
-        private AnalyticsService $analyticsService
+        private AnalyticsService $analyticsService,
+        private ViewingLockService $viewingLock,
     ) {
     }
 
@@ -23,9 +25,20 @@ class TokenController extends Controller
      */
     public function show(Request $request, string $tokenId): JsonResponse
     {
+        $isPhysical = $this->viewingLock->isPhysicalScan($request);
+
+        // Link compartido bloqueado mientras alguien lo está viendo físicamente
+        if (! $isPhysical && $this->viewingLock->hasLock($tokenId)) {
+            return response()->json([
+                'message' => 'Este cuadro está siendo visualizado en este momento. Inténtalo en unos segundos.',
+                'status' => 423,
+                'retry_after' => ViewingLockService::VIEWING_TTL,
+            ], 423);
+        }
+
         // First try to get token with cached content (for tokens with content)
         $tokenData = $this->tokenService->getTokenWithContent($tokenId);
-        
+
         if ($tokenData && $this->tokenService->validateToken($tokenData)) {
             $token = $tokenData['token'];
 
@@ -42,20 +55,30 @@ class TokenController extends Controller
             // Record analytics asynchronously
             $this->analyticsService->recordAccess($tokenData);
 
+            // Scan físico: activar/renovar bandera de visualización
+            if ($isPhysical) {
+                $this->viewingLock->setLock($tokenId);
+            }
+
             // Render response based on content type
             return $this->tokenService->renderResponse($request, $tokenData);
         }
 
         // If cached content not found, try to get basic token info (for content management)
         $token = NfcToken::where('token_id', $tokenId)->first();
-        
-        if (!$token) {
+
+        if (! $token) {
             return $this->tokenService->handleNotFound($request, 'Token no encontrado');
         }
 
         // Handle inactive tokens even without dynamic content
-        if (!$token->is_active) {
+        if (! $token->is_active) {
             return $this->tokenService->handleInactiveToken($request, $token);
+        }
+
+        // Scan físico sin contenido aún: activar bandera igual
+        if ($isPhysical) {
+            $this->viewingLock->setLock($tokenId);
         }
 
         // Return token with null dynamic content (for content management interface)
@@ -68,6 +91,22 @@ class TokenController extends Controller
             'message' => 'Token obtenido exitosamente',
             'status' => 200,
         ], 200);
+    }
+
+    /**
+     * Renueva el TTL de la bandera de visualización activa (heartbeat del frontend).
+     */
+    public function heartbeat(string $tokenId): JsonResponse
+    {
+        $renewed = $this->viewingLock->refreshLock($tokenId);
+
+        return response()->json([
+            'renewed' => $renewed,
+            'message' => $renewed
+                ? 'Visualización renovada.'
+                : 'No hay visualización activa para este token.',
+            'retry_after' => $renewed ? ViewingLockService::VIEWING_TTL : null,
+        ]);
     }
 
     /**

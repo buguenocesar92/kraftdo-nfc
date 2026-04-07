@@ -207,6 +207,7 @@ Route::prefix('content')->group(function () {
 // Rutas de tokens - acceso público para visualización
 Route::prefix('tokens')->middleware('throttle:nfc-token-scan')->group(function () {
     Route::get('{tokenId}', [TokenController::class, 'show']);
+    Route::put('{tokenId}/heartbeat', [TokenController::class, 'heartbeat']);
     Route::get('{tokenId}/products', [TokenController::class, 'showProducts']);
     
     // QR Code generation routes - public access for sharing
