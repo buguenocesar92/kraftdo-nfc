@@ -205,7 +205,7 @@ Route::prefix('content')->group(function () {
 });
 
 // Rutas de tokens - acceso público para visualización
-Route::prefix('tokens')->group(function () {
+Route::prefix('tokens')->middleware('throttle:nfc-token-scan')->group(function () {
     Route::get('{tokenId}', [TokenController::class, 'show']);
     Route::get('{tokenId}/products', [TokenController::class, 'showProducts']);
     

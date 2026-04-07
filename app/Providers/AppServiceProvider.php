@@ -29,6 +29,9 @@ use App\Policies\ContentBusStopPolicy;
 use App\Models\ContentEvent;
 use App\Models\ContentTourist;
 use App\Models\BusStop;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Gate;
@@ -86,6 +89,20 @@ class AppServiceProvider extends ServiceProvider
 
         // Configure route model binding
         Route::model('token', NfcToken::class);
+
+        // Rate limiting por UUID para el endpoint público de tokens NFC
+        RateLimiter::for('nfc-token-scan', function (Request $request) {
+            $tokenId = $request->route('tokenId') ?? 'unknown';
+
+            return Limit::perHour(200)
+                ->by($tokenId)
+                ->response(function () {
+                    return response()->json([
+                        'message' => 'Has realizado demasiadas solicitudes para este token. Intenta nuevamente en una hora.',
+                        'status' => 429,
+                    ], 429);
+                });
+        });
 
         // 🚀 Registrar observers para invalidación automática de cache
         NfcToken::observe(NfcTokenObserver::class);
