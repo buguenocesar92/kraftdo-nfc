@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\TokenController;
+use App\Livewire\TokenDisplay;
 use Illuminate\Support\Facades\Route;
 
 // Include auth routes
@@ -22,7 +23,7 @@ Route::get('/health', function () {
 });
 
 
-Route::get('/token/{tokenId}', [TokenController::class, 'show'])->name('token.show')
+Route::get('/token/{tokenId}', TokenDisplay::class)->name('token.show')
     ->where('tokenId', '[A-Za-z0-9\-]+');
 
 // Debug route for testing
