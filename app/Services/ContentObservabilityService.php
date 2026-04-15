@@ -26,8 +26,6 @@ class ContentObservabilityService
         // Log specific metrics by content type
         match (strtoupper($contentType)) {
             'EVENT' => self::logEventMetrics('created', $contentId, $data),
-            'TOURIST' => self::logTouristMetrics('created', $contentId, $data),
-            'BUS_STOP' => self::logBusStopMetrics('created', $contentId, $data),
             default => null,
         };
     }
@@ -67,8 +65,6 @@ class ContentObservabilityService
         // Log specific metrics by content type
         match (strtoupper($contentType)) {
             'EVENT' => self::logEventMetrics('updated', $contentId, $changes),
-            'TOURIST' => self::logTouristMetrics('updated', $contentId, $changes),
-            'BUS_STOP' => self::logBusStopMetrics('updated', $contentId, $changes),
             default => null,
         };
     }
@@ -179,46 +175,6 @@ class ContentObservabilityService
         }
 
         Log::info("Event content metrics", $metrics);
-    }
-
-    /**
-     * Log tourist-specific metrics
-     */
-    private static function logTouristMetrics(string $action, int $touristId, array $data): void
-    {
-        $metrics = [
-            'event' => "content.tourist.{$action}",
-            'tourist_id' => $touristId,
-            'has_coordinates' => isset($data['latitude']) && isset($data['longitude']),
-            'has_address' => !empty($data['location_address']),
-            'has_contact' => !empty($data['contact_phone']) || !empty($data['contact_email']),
-            'has_website' => !empty($data['website_url']),
-        ];
-
-        if (isset($data['latitude'], $data['longitude'])) {
-            $metrics['coordinates'] = [
-                'lat' => $data['latitude'],
-                'lng' => $data['longitude'],
-            ];
-        }
-
-        Log::info("Tourist content metrics", $metrics);
-    }
-
-    /**
-     * Log bus stop specific metrics
-     */
-    private static function logBusStopMetrics(string $action, int $busStopId, array $data): void
-    {
-        $metrics = [
-            'event' => "content.bus_stop.{$action}",
-            'bus_stop_id' => $busStopId,
-            'has_stop_id' => !empty($data['stop_id']),
-            'has_coordinates' => isset($data['latitude']) && isset($data['longitude']),
-            'has_municipality' => !empty($data['municipality_name']),
-        ];
-
-        Log::info("Bus stop content metrics", $metrics);
     }
 
     /**

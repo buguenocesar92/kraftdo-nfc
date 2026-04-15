@@ -7,8 +7,6 @@ use App\Http\Controllers\Api\GiftContentController;
 use App\Http\Controllers\Api\ProfileContentController;
 use App\Http\Controllers\Api\BusinessContentController;
 use App\Http\Controllers\Api\EventContentController;
-use App\Http\Controllers\Api\TouristContentController;
-use App\Http\Controllers\Api\BusStopContentController;
 use App\Http\Requests\CreateGiftContentRequest;
 use App\Http\Requests\UpdateGiftContentRequest;
 use App\Http\Requests\CreateProfileContentRequest;
@@ -21,11 +19,6 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Http\Requests\CreateGalleryItemRequest;
 use App\Http\Requests\CreateEventContentRequest;
 use App\Http\Requests\UpdateEventContentRequest;
-use App\Http\Requests\CreateTouristContentRequest;
-use App\Http\Requests\UpdateTouristContentRequest;
-use App\Http\Requests\CreateBusStopContentRequest;
-use App\Http\Requests\UpdateBusStopContentRequest;
-use App\Models\BusStop;
 use App\Models\ContentBusiness;
 use App\Models\ContentGalleryImage;
 use App\Models\ContentEvent;
@@ -34,7 +27,6 @@ use App\Models\ContentMultimedia;
 use App\Models\ContentProduct;
 use App\Models\ContentProfile;
 use App\Models\ContentSocialLink;
-use App\Models\ContentTourist;
 use App\Models\DynamicContent;
 use App\Models\NfcToken;
 use Illuminate\Http\JsonResponse;
@@ -48,23 +40,17 @@ class ContentController extends Controller
     protected BusinessContentController $businessContentController;
     protected GiftContentController $giftContentController;
     protected EventContentController $eventContentController;
-    protected TouristContentController $touristContentController;
-    protected BusStopContentController $busStopContentController;
 
     public function __construct(
         ProfileContentController $profileContentController,
         BusinessContentController $businessContentController,
         GiftContentController $giftContentController,
-        EventContentController $eventContentController,
-        TouristContentController $touristContentController,
-        BusStopContentController $busStopContentController
+        EventContentController $eventContentController
     ) {
         $this->profileContentController = $profileContentController;
         $this->businessContentController = $businessContentController;
         $this->giftContentController = $giftContentController;
         $this->eventContentController = $eventContentController;
-        $this->touristContentController = $touristContentController;
-        $this->busStopContentController = $busStopContentController;
     }
 
     /**
@@ -238,8 +224,6 @@ class ContentController extends Controller
             'business' => ContentBusiness::class,
             'gift' => ContentGift::class,
             'event' => ContentEvent::class,
-            'tourist' => ContentTourist::class,
-            'bus_stop' => BusStop::class,
             default => throw new \InvalidArgumentException("Tipo de contenido no soportado: {$type}")
         };
     }
@@ -254,8 +238,6 @@ class ContentController extends Controller
             'business' => ['products'],
             'gift' => ['multimedia'],
             'event' => ['dynamicContent'],
-            'tourist' => ['nearbySpots'],
-            'bus_stop' => ['routes', 'schedules', 'utilityPhones'],
             default => []
         };
     }
@@ -300,23 +282,6 @@ class ContentController extends Controller
                 'ticket_currency' => 'nullable|string|in:USD,EUR,GBP,CLP,MXN,ARS',
                 'registration_url' => 'nullable|url|max:500',
             ],
-            'tourist' => [
-                'name' => "{$required}|string|max:255",
-                'description' => 'nullable|string|max:1000',
-                'latitude' => 'nullable|numeric|between:-90,90',
-                'longitude' => 'nullable|numeric|between:-180,180',
-                'address' => 'nullable|string|max:500',
-                'phone' => 'nullable|string|max:20',
-                'email' => 'nullable|email|max:255',
-                'website' => 'nullable|url|max:500',
-            ],
-            'bus_stop' => [
-                'name' => "{$required}|string|max:255",
-                'code' => "{$required}|string|max:50|unique:bus_stops,code" . ($isUpdate ? ',{id}' : ''),
-                'latitude' => 'nullable|numeric|between:-90,90',
-                'longitude' => 'nullable|numeric|between:-180,180',
-                'address' => 'nullable|string|max:500',
-            ],
             default => throw new \InvalidArgumentException("Tipo de contenido no soportado: {$type}")
         };
     }
@@ -333,7 +298,7 @@ class ContentController extends Controller
         try {
             $validatedData = $request->validate([
                 'token_id' => 'required|exists:nfc_tokens,id',
-                'type' => 'required|string|in:PROFILE,BUSINESS,GIFT,EVENT,TOURIST,BUS_STOP',
+                'type' => 'required|string|in:PROFILE,BUSINESS,GIFT,EVENT',
                 'title' => 'required|string|max:255',
                 'description' => 'nullable|string|max:1000',
             ]);
@@ -720,86 +685,6 @@ class ContentController extends Controller
     public function deleteEventContent(int $eventId): JsonResponse
     {
         return $this->eventContentController->deleteEventContent($eventId);
-    }
-
-    // ========================================
-    // TOURIST CONTENT METHODS (Delegated to TouristContentController)
-    // ========================================
-
-    /**
-     * Create tourist content - delegates to TouristContentController
-     * @deprecated Use TouristContentController directly
-     */
-    public function createTouristContent(CreateTouristContentRequest $request, int $dynamicContentId): JsonResponse
-    {
-        return $this->touristContentController->createTouristContent($request, $dynamicContentId);
-    }
-
-    /**
-     * Get tourist content by dynamic content ID - delegates to TouristContentController
-     * @deprecated Use TouristContentController directly
-     */
-    public function getTouristContent(int $dynamicContentId): JsonResponse
-    {
-        return $this->touristContentController->getTouristContent($dynamicContentId);
-    }
-
-    /**
-     * Update tourist content - delegates to TouristContentController
-     * @deprecated Use TouristContentController directly
-     */
-    public function updateTouristContent(UpdateTouristContentRequest $request, int $touristId): JsonResponse
-    {
-        return $this->touristContentController->updateTouristContent($request, $touristId);
-    }
-
-    /**
-     * Delete tourist content - delegates to TouristContentController
-     * @deprecated Use TouristContentController directly
-     */
-    public function deleteTouristContent(int $touristId): JsonResponse
-    {
-        return $this->touristContentController->deleteTouristContent($touristId);
-    }
-
-    // ========================================
-    // BUS STOP CONTENT METHODS (Delegated to BusStopContentController)
-    // ========================================
-
-    /**
-     * Create bus stop content - delegates to BusStopContentController
-     * @deprecated Use BusStopContentController directly
-     */
-    public function createBusStopContent(CreateBusStopContentRequest $request, int $dynamicContentId): JsonResponse
-    {
-        return $this->busStopContentController->createBusStopContent($request, $dynamicContentId);
-    }
-
-    /**
-     * Get bus stop content by dynamic content ID - delegates to BusStopContentController
-     * @deprecated Use BusStopContentController directly
-     */
-    public function getBusStopContent(int $dynamicContentId): JsonResponse
-    {
-        return $this->busStopContentController->getBusStopContent($dynamicContentId);
-    }
-
-    /**
-     * Update bus stop content - delegates to BusStopContentController
-     * @deprecated Use BusStopContentController directly
-     */
-    public function updateBusStopContent(UpdateBusStopContentRequest $request, int $busStopId): JsonResponse
-    {
-        return $this->busStopContentController->updateBusStopContent($request, $busStopId);
-    }
-
-    /**
-     * Delete bus stop content - delegates to BusStopContentController
-     * @deprecated Use BusStopContentController directly
-     */
-    public function deleteBusStopContent(int $busStopId): JsonResponse
-    {
-        return $this->busStopContentController->deleteBusStopContent($busStopId);
     }
 
     /**

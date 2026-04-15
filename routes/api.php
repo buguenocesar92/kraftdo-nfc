@@ -8,8 +8,6 @@ use App\Http\Controllers\Api\ProfileContentController;
 use App\Http\Controllers\Api\BusinessContentController;
 use App\Http\Controllers\Api\GiftContentController;
 use App\Http\Controllers\Api\EventContentController;
-use App\Http\Controllers\Api\TouristContentController;
-use App\Http\Controllers\Api\BusStopContentController;
 use App\Http\Controllers\TokenController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -178,22 +176,6 @@ Route::middleware([\App\Http\Middleware\AuthTokenFromCookie::class, 'auth:sanctu
         Route::get('{dynamicContentId}', [EventContentController::class, 'getEventContent']);
         Route::put('{eventId}', [EventContentController::class, 'updateEventContent']);
         Route::delete('{eventId}', [EventContentController::class, 'deleteEventContent']);
-    });
-    
-    // Tourist Content Routes
-    Route::prefix('tourists')->group(function () {
-        Route::post('{dynamicContentId}', [TouristContentController::class, 'createTouristContent']);
-        Route::get('{dynamicContentId}', [TouristContentController::class, 'getTouristContent']);
-        Route::put('{touristId}', [TouristContentController::class, 'updateTouristContent']);
-        Route::delete('{touristId}', [TouristContentController::class, 'deleteTouristContent']);
-    });
-    
-    // Bus Stop Content Routes
-    Route::prefix('bus-stops')->group(function () {
-        Route::post('{dynamicContentId}', [BusStopContentController::class, 'createBusStopContent']);
-        Route::get('{dynamicContentId}', [BusStopContentController::class, 'getBusStopContent']);
-        Route::put('{busStopId}', [BusStopContentController::class, 'updateBusStopContent']);
-        Route::delete('{busStopId}', [BusStopContentController::class, 'deleteBusStopContent']);
     });
 });
 

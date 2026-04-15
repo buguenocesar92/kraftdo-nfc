@@ -52,8 +52,6 @@ class TokenResource extends JsonResource
             ContentType::BUSINESS, ContentType::MENU => new BusinessContentResource($this->dynamicContent->content),
             ContentType::PROFILE => new ProfileContentResource($this->dynamicContent->content),
             ContentType::GIFT => new GiftContentResource($this->dynamicContent->content),
-            ContentType::TOURIST => new TouristContentResource($this->dynamicContent->content),
-            ContentType::BUS_STOP => new BusStopContentResource($this->dynamicContent->content),
             ContentType::BUSINESS_GROUP => new BusinessGroupContentResource($this->dynamicContent->content),
         };
     }

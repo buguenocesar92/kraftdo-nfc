@@ -7,7 +7,6 @@ use App\Models\ContentBusinessGroup;
 use App\Models\ContentGift;
 use App\Models\ContentMultimedia;
 use App\Models\ContentProfile;
-use App\Models\ContentTourist;
 use App\Models\NfcAnalytic;
 use App\Models\NfcToken;
 use Illuminate\Support\Facades\Cache;
@@ -66,12 +65,6 @@ class NfcCacheService
                         $query->orderBy('sort_order')->orderBy('id');
                     }])->where('dynamic_content_id', $dynamicContent->id)->first(),
                 ];
-            } elseif ($token->content_type === 'TOURIST') {
-                $contentData = [
-                    'tourist' => ContentTourist::with(['nearbySpots' => function ($query) {
-                        $query->where('is_active', true)->orderBy('distance_km')->orderBy('sort_order');
-                    }])->where('dynamic_content_id', $dynamicContent->id)->first(),
-                ];
             } elseif ($token->content_type === 'MENU') {
                 // MENU is deprecated - treating as BUSINESS (restaurantes)
                 $contentData = [
@@ -81,10 +74,6 @@ class NfcCacheService
                     'multimedia' => ContentMultimedia::with(['galleryImages' => function ($query) {
                         $query->orderBy('sort_order')->orderBy('id');
                     }])->where('dynamic_content_id', $dynamicContent->id)->first(),
-                ];
-            } elseif ($token->content_type === 'BUS_STOP') {
-                $contentData = [
-                    'bus_stop' => \App\Models\BusStop::with(['routes.schedules', 'utilityPhones'])->where('dynamic_content_id', $dynamicContent->id)->first(),
                 ];
             } elseif ($token->content_type === 'BUSINESS_GROUP') {
                 $businessGroup = ContentBusinessGroup::with([

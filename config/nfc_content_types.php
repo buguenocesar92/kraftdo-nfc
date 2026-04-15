@@ -40,26 +40,12 @@ return [
             'resource_class' => 'App\\Filament\\Resources\\ContentProducts\\ContentProductResource',
             'model_class' => 'App\\Models\\ContentProduct',
         ],
-        'TOURIST' => [
-            'label' => '🗺️ Información Turística',
-            'description' => 'Lugares turísticos con multimedia',
-            'has_resource' => true,
-            'resource_class' => 'App\\Filament\\Resources\\ContentTourists\\ContentTouristResource',
-            'model_class' => 'App\\Models\\ContentTourist',
-        ],
         'BUSINESS' => [
             'label' => '🏢 Negocio / Restaurante',
             'description' => 'Negocios, restaurantes y ferias con catálogos de productos',
             'has_resource' => true,
             'resource_class' => 'App\\Filament\\Resources\\ContentBusinesses\\ContentBusinessResource',
             'model_class' => 'App\\Models\\ContentBusiness',
-        ],
-        'BUS_STOP' => [
-            'label' => '🚌 Paradero de Transporte',
-            'description' => 'Información de paraderos de transporte público',
-            'has_resource' => true,
-            'resource_class' => 'App\\Filament\\Resources\\BusStops\\BusStopResource',
-            'model_class' => 'App\\Models\\BusStop',
         ],
     ],
 
