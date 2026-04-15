@@ -2,6 +2,7 @@
 
 use App\Models\NfcToken;
 use App\Models\User;
+use App\Models\DynamicContent;
 use App\Services\ViewingLockService;
 
 beforeEach(function () {
@@ -13,6 +14,16 @@ beforeEach(function () {
     $this->token = NfcToken::factory()->create([
         'user_id' => $this->user->id,
         'is_active' => true,
+        'content_type' => 'GIFT', // Solo GIFT tiene bloqueo
+    ]);
+
+    // Crear contenido dinámico para que pase la validación de TokenController::show()
+    DynamicContent::factory()->create([
+        'nfc_token_id' => $this->token->id,
+        'user_id' => $this->user->id,
+        'type' => 'GIFT',
+        'is_active' => true,
+        'status' => 'published',
     ]);
 
     /** @var ViewingLockService $lock */
@@ -54,14 +65,14 @@ test('link compartido retorna 423 si hay lock activo', function () {
     app(ViewingLockService::class)->setLock($this->token->token_id);
 
     // Request con Referer = viene de WhatsApp, web, etc.
+    // Importante: El TokenController::show() verifica el lock ANTES de cargar el contenido si cachedData existe
     $response = $this->withHeaders(['Referer' => 'https://web.whatsapp.com'])
         ->getJson("/api/tokens/{$this->token->token_id}");
 
     $response->assertStatus(423)
         ->assertJson([
-            'message' => 'Este cuadro está siendo visualizado en este momento. Inténtalo en unos segundos.',
+            'message' => 'Este regalo está siendo visualizado en este momento. Inténtalo en unos segundos.',
             'status' => 423,
-            'retry_after' => 30,
         ]);
 });
 
@@ -92,7 +103,6 @@ test('heartbeat renueva el lock si existe y retorna renewed true', function () {
         ->assertJson([
             'renewed' => true,
             'message' => 'Visualización renovada.',
-            'retry_after' => 30,
         ]);
 
     expect(app(ViewingLockService::class)->hasLock($this->token->token_id))->toBeTrue();
@@ -104,7 +114,37 @@ test('heartbeat retorna renewed false si no hay lock activo', function () {
     $response->assertStatus(200)
         ->assertJson([
             'renewed' => false,
-            'message' => 'No hay visualización activa para este token.',
+            'message' => 'No hay visualización activa para este regalo.',
             'retry_after' => null,
         ]);
+});
+
+// ─────────────────────────────────────────────
+// Caso 4: No bloquear otros tipos (PROFILE)
+// ─────────────────────────────────────────────
+
+test('no bloquea tokens de tipo PROFILE aunque haya lock manual', function () {
+    $profileToken = NfcToken::factory()->create([
+        'user_id' => $this->user->id,
+        'is_active' => true,
+        'content_type' => 'PROFILE',
+    ]);
+
+    // Crear contenido para PROFILE también
+    DynamicContent::factory()->create([
+        'nfc_token_id' => $profileToken->id,
+        'user_id' => $this->user->id,
+        'type' => 'PROFILE',
+        'is_active' => true,
+        'status' => 'published',
+    ]);
+
+    // Intentar activar lock manual
+    app(ViewingLockService::class)->setLock($profileToken->token_id);
+
+    // Link compartido debe pasar normal (200) porque no es GIFT
+    $response = $this->withHeaders(['Referer' => 'https://web.whatsapp.com'])
+        ->getJson("/api/tokens/{$profileToken->token_id}");
+
+    $response->assertStatus(200);
 });

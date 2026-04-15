@@ -27,20 +27,28 @@ class TokenController extends Controller
     {
         $isPhysical = $this->viewingLock->isPhysicalScan($request);
 
-        // Link compartido bloqueado mientras alguien lo está viendo físicamente
-        if (! $isPhysical && $this->viewingLock->hasLock($tokenId)) {
-            return response()->json([
-                'message' => 'Este cuadro está siendo visualizado en este momento. Inténtalo en unos segundos.',
-                'status' => 423,
-                'retry_after' => ViewingLockService::VIEWING_TTL,
-            ], 423);
-        }
-
         // First try to get token with cached content (for tokens with content)
         $tokenData = $this->tokenService->getTokenWithContent($tokenId);
 
         if ($tokenData && $this->tokenService->validateToken($tokenData)) {
             $token = $tokenData['token'];
+
+            // === LÓGICA ANTIVIRAL (SOLO PARA GIFTS) ===
+            if ($token->content_type === ContentType::GIFT->value) {
+                // Link compartido bloqueado mientras alguien lo está viendo físicamente
+                if (! $isPhysical && $this->viewingLock->hasLock($tokenId)) {
+                    return response()->json([
+                        'message' => 'Este regalo está siendo visualizado en este momento. Inténtalo en unos segundos.',
+                        'status' => 423,
+                        'retry_after' => ViewingLockService::VIEWING_TTL,
+                    ], 423);
+                }
+
+                // Scan físico: activar/renovar bandera de visualización
+                if ($isPhysical) {
+                    $this->viewingLock->setLock($tokenId);
+                }
+            }
 
             // Validate content type is supported
             if (! ContentType::isSupported($token->content_type)) {
@@ -55,11 +63,6 @@ class TokenController extends Controller
             // Record analytics asynchronously
             $this->analyticsService->recordAccess($tokenData);
 
-            // Scan físico: activar/renovar bandera de visualización
-            if ($isPhysical) {
-                $this->viewingLock->setLock($tokenId);
-            }
-
             // Render response based on content type
             return $this->tokenService->renderResponse($request, $tokenData);
         }
@@ -71,14 +74,16 @@ class TokenController extends Controller
             return $this->tokenService->handleNotFound($request, 'Token no encontrado');
         }
 
+        // === LÓGICA ANTIVIRAL (SOLO PARA GIFTS) ===
+        if ($token->content_type === ContentType::GIFT->value) {
+            if ($isPhysical) {
+                $this->viewingLock->setLock($tokenId);
+            }
+        }
+
         // Handle inactive tokens even without dynamic content
         if (! $token->is_active) {
             return $this->tokenService->handleInactiveToken($request, $token);
-        }
-
-        // Scan físico sin contenido aún: activar bandera igual
-        if ($isPhysical) {
-            $this->viewingLock->setLock($tokenId);
         }
 
         // Return token with null dynamic content (for content management interface)
@@ -98,14 +103,26 @@ class TokenController extends Controller
      */
     public function heartbeat(string $tokenId): JsonResponse
     {
-        $renewed = $this->viewingLock->refreshLock($tokenId);
+        $token = NfcToken::where('token_id', $tokenId)->first();
+        
+        // El bloqueo solo aplica para tokens tipo GIFT
+        if ($token && $token->content_type === ContentType::GIFT->value) {
+            $renewed = $this->viewingLock->refreshLock($tokenId);
 
+            return response()->json([
+                'renewed' => $renewed,
+                'message' => $renewed
+                    ? 'Visualización renovada.'
+                    : 'No hay visualización activa para este regalo.',
+                'retry_after' => $renewed ? ViewingLockService::VIEWING_TTL : null,
+            ]);
+        }
+
+        // Para otros tipos, no hacer nada pero devolver 200 OK
         return response()->json([
-            'renewed' => $renewed,
-            'message' => $renewed
-                ? 'Visualización renovada.'
-                : 'No hay visualización activa para este token.',
-            'retry_after' => $renewed ? ViewingLockService::VIEWING_TTL : null,
+            'renewed' => true,
+            'message' => 'Token no requiere bloqueo de visualización.',
+            'retry_after' => null,
         ]);
     }
 
@@ -218,7 +235,7 @@ class TokenController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'content_type' => 'required|string|in:PROFILE,BUSINESS,GIFT,EVENT,TOURIST,BUS_STOP',
+            'content_type' => 'required|string|in:PROFILE,BUSINESS,GIFT,EVENT',
             'customization_plan' => 'nullable|string|in:BASIC,STANDARD,PREMIUM,DELUXE',
         ]);
 
@@ -255,7 +272,7 @@ class TokenController extends Controller
 
         $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'content_type' => 'sometimes|required|string|in:PROFILE,BUSINESS,GIFT,EVENT,TOURIST,BUS_STOP',
+            'content_type' => 'sometimes|required|string|in:PROFILE,BUSINESS,GIFT,EVENT',
             'customization_plan' => 'nullable|string|in:BASIC,STANDARD,PREMIUM,DELUXE',
             'is_active' => 'sometimes|boolean',
         ]);

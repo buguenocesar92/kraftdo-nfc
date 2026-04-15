@@ -31,7 +31,7 @@ describe('TokenController Refactored Tests', function () {
         $viewingLock = Mockery::mock(ViewingLockService::class);
 
         $viewingLock->shouldReceive('isPhysicalScan')->andReturn(true);
-        $viewingLock->shouldReceive('setLock')->andReturn(null);
+        // setLock no se llama porque no hay token (no se sabe si es GIFT)
 
         $tokenService->shouldReceive('getTokenWithContent')
             ->with('invalid-token')
@@ -72,7 +72,8 @@ describe('TokenController Refactored Tests', function () {
         $viewingLock = Mockery::mock(ViewingLockService::class);
 
         $viewingLock->shouldReceive('isPhysicalScan')->andReturn(true);
-        $viewingLock->shouldReceive('setLock')->andReturn(null);
+        $viewingLock->shouldReceive('hasLock')->andReturn(false);
+        $viewingLock->shouldReceive('setLock')->with($token->token_id)->once();
 
         $tokenService->shouldReceive('getTokenWithContent')
             ->with($token->token_id)
@@ -119,6 +120,8 @@ describe('TokenController Refactored Tests', function () {
         $viewingLock = Mockery::mock(ViewingLockService::class);
 
         $viewingLock->shouldReceive('isPhysicalScan')->andReturn(true);
+        $viewingLock->shouldReceive('hasLock')->andReturn(false);
+        $viewingLock->shouldReceive('setLock')->once();
 
         $tokenService->shouldReceive('getTokenWithContent')
             ->andReturn($tokenData);
