@@ -209,6 +209,21 @@ class ContentProfileForm
                             ->visibility('public')
                             ->preserveFilenames()
                             ->columnSpanFull(),
+
+                        // Documentos PDF (CV, portafolio, catálogo, etc.)
+                        FileUpload::make('settings.pdf_files')
+                            ->label('Documentos PDF')
+                            ->directory('profiles/documents')
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->maxSize(10 * 1024) // 10MB por archivo
+                            ->maxFiles(5)
+                            ->multiple()
+                            ->reorderable()
+                            ->disk('public')
+                            ->visibility('public')
+                            ->preserveFilenames()
+                            ->helperText('Sube documentos PDF (CV, portafolio, catálogo…). Máximo 10MB por archivo.')
+                            ->columnSpanFull(),
                     ])
                     ->columns(2)
                     ->collapsible(),
