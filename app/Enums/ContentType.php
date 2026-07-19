@@ -2,20 +2,16 @@
 
 namespace App\Enums;
 
-use App\Models\BusStop;
 use App\Models\ContentBusiness;
 use App\Models\ContentBusinessGroup;
 use App\Models\ContentGift;
 use App\Models\ContentProfile;
-use App\Models\ContentTourist;
 
 enum ContentType: string
 {
     case GIFT = 'GIFT';
     case PROFILE = 'PROFILE';
     case BUSINESS = 'BUSINESS';
-    case TOURIST = 'TOURIST';
-    case BUS_STOP = 'BUS_STOP';
     case BUSINESS_GROUP = 'BUSINESS_GROUP';
     case MENU = 'MENU'; // Legacy compatibility
 
@@ -28,8 +24,6 @@ enum ContentType: string
             self::GIFT => ContentGift::class,
             self::PROFILE => ContentProfile::class,
             self::BUSINESS => ContentBusiness::class,
-            self::TOURIST => ContentTourist::class,
-            self::BUS_STOP => BusStop::class,
             self::BUSINESS_GROUP => ContentBusinessGroup::class,
             self::MENU => ContentBusiness::class, // Legacy - treat as business
         };
@@ -44,8 +38,6 @@ enum ContentType: string
             self::GIFT => 'token.gift',
             self::PROFILE => 'token.profile',
             self::BUSINESS => 'token.business',
-            self::TOURIST => 'token.tourist',
-            self::BUS_STOP => 'token.bus-stop',
             self::BUSINESS_GROUP => 'token.business-group',
             self::MENU => 'token.business', // Legacy
         };
@@ -60,8 +52,6 @@ enum ContentType: string
             self::GIFT => ['multimedia'],
             self::PROFILE => ['skills', 'socialLinks', 'galleryImages'],
             self::BUSINESS => ['products', 'socialLinks'],
-            self::TOURIST => ['nearbySpots'],
-            self::BUS_STOP => ['routes.schedules', 'utilityPhones'],
             self::BUSINESS_GROUP => ['memberBusinesses'],
             self::MENU => ['products'], // Legacy
         };
@@ -92,8 +82,6 @@ enum ContentType: string
             self::GIFT => 'Regalo',
             self::PROFILE => 'Perfil',
             self::BUSINESS => 'Negocio',
-            self::TOURIST => 'Turístico',
-            self::BUS_STOP => 'Paradero',
             self::BUSINESS_GROUP => 'Grupo de Negocios',
             self::MENU => 'Menú (Legacy)',
         };

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "laravel-server": {
+      "command": "",
+      "args": [
+        "php",
+        "artisan,mcp:serve"
+      ]
+    }
+  }
+}

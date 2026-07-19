@@ -6,6 +6,7 @@ use App\Models\DynamicContent;
 use App\Models\NfcToken;
 use App\Services\AnalyticsService;
 use App\Services\TokenService;
+use App\Services\ViewingLockService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Request;
 use Mockery\MockInterface;
@@ -17,8 +18,9 @@ describe('TokenController Refactored Tests', function () {
     test('controller puede ser instanciado con dependencias', function () {
         $tokenService = Mockery::mock(TokenService::class);
         $analyticsService = Mockery::mock(AnalyticsService::class);
+        $viewingLock = Mockery::mock(ViewingLockService::class);
 
-        $controller = new TokenController($tokenService, $analyticsService);
+        $controller = new TokenController($tokenService, $analyticsService, $viewingLock);
 
         expect($controller)->toBeInstanceOf(TokenController::class);
     });
@@ -26,6 +28,10 @@ describe('TokenController Refactored Tests', function () {
     test('show method maneja token no encontrado', function () {
         $tokenService = Mockery::mock(TokenService::class);
         $analyticsService = Mockery::mock(AnalyticsService::class);
+        $viewingLock = Mockery::mock(ViewingLockService::class);
+
+        $viewingLock->shouldReceive('isPhysicalScan')->andReturn(true);
+        // setLock no se llama porque no hay token (no se sabe si es GIFT)
 
         $tokenService->shouldReceive('getTokenWithContent')
             ->with('invalid-token')
@@ -39,7 +45,7 @@ describe('TokenController Refactored Tests', function () {
             ->once()
             ->andReturn(response()->json(['message' => 'Token no encontrado'], 404));
 
-        $controller = new TokenController($tokenService, $analyticsService);
+        $controller = new TokenController($tokenService, $analyticsService, $viewingLock);
         $request = Request::create('/token/invalid-token');
         $request->headers->set('Accept', 'application/json');
 
@@ -63,6 +69,11 @@ describe('TokenController Refactored Tests', function () {
 
         $tokenService = Mockery::mock(TokenService::class);
         $analyticsService = Mockery::mock(AnalyticsService::class);
+        $viewingLock = Mockery::mock(ViewingLockService::class);
+
+        $viewingLock->shouldReceive('isPhysicalScan')->andReturn(true);
+        $viewingLock->shouldReceive('hasLock')->andReturn(false);
+        $viewingLock->shouldReceive('setLock')->with($token->token_id)->once();
 
         $tokenService->shouldReceive('getTokenWithContent')
             ->with($token->token_id)
@@ -80,7 +91,7 @@ describe('TokenController Refactored Tests', function () {
             ->once()
             ->andReturn(response()->json(['data' => $tokenData]));
 
-        $controller = new TokenController($tokenService, $analyticsService);
+        $controller = new TokenController($tokenService, $analyticsService, $viewingLock);
         $request = Request::create('/token/' . $token->token_id);
         $request->headers->set('Accept', 'application/json');
 
@@ -106,6 +117,11 @@ describe('TokenController Refactored Tests', function () {
 
         $tokenService = Mockery::mock(TokenService::class);
         $analyticsService = Mockery::mock(AnalyticsService::class);
+        $viewingLock = Mockery::mock(ViewingLockService::class);
+
+        $viewingLock->shouldReceive('isPhysicalScan')->andReturn(true);
+        $viewingLock->shouldReceive('hasLock')->andReturn(false);
+        $viewingLock->shouldReceive('setLock')->once();
 
         $tokenService->shouldReceive('getTokenWithContent')
             ->andReturn($tokenData);
@@ -117,7 +133,7 @@ describe('TokenController Refactored Tests', function () {
             ->once()
             ->andReturn(response()->json(['message' => 'Token inactivo']));
 
-        $controller = new TokenController($tokenService, $analyticsService);
+        $controller = new TokenController($tokenService, $analyticsService, $viewingLock);
         $request = Request::create('/token/' . $token->token_id);
         $request->headers->set('Accept', 'application/json');
 
@@ -141,6 +157,9 @@ describe('TokenController Refactored Tests', function () {
 
         $tokenService = Mockery::mock(TokenService::class);
         $analyticsService = Mockery::mock(AnalyticsService::class);
+        $viewingLock = Mockery::mock(ViewingLockService::class);
+
+        $viewingLock->shouldReceive('isPhysicalScan')->andReturn(true);
 
         $tokenService->shouldReceive('getTokenWithContent')
             ->andReturn($tokenData);
@@ -153,7 +172,7 @@ describe('TokenController Refactored Tests', function () {
             ->with(Mockery::any(), 'Esta página solo está disponible para negocios')
             ->andReturn(response()->json(['message' => 'No disponible'], 404));
 
-        $controller = new TokenController($tokenService, $analyticsService);
+        $controller = new TokenController($tokenService, $analyticsService, $viewingLock);
         $request = Request::create('/token/' . $token->token_id . '/products');
         $request->headers->set('Accept', 'application/json');
 

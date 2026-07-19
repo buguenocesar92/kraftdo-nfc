@@ -5,11 +5,9 @@ namespace App\Services;
 use App\Enums\ContentType;
 use App\Services\Renderers\BusinessGroupRenderer;
 use App\Services\Renderers\BusinessRenderer;
-use App\Services\Renderers\BusStopRenderer;
 use App\Services\Renderers\ContentRendererInterface;
 use App\Services\Renderers\GiftRenderer;
 use App\Services\Renderers\ProfileRenderer;
-use App\Services\Renderers\TouristRenderer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -70,8 +68,6 @@ class TokenService
             ContentType::GIFT => new GiftRenderer(),
             ContentType::PROFILE => new ProfileRenderer(),
             ContentType::BUSINESS, ContentType::MENU => new BusinessRenderer(),
-            ContentType::TOURIST => new TouristRenderer(),
-            ContentType::BUS_STOP => new BusStopRenderer(),
             ContentType::BUSINESS_GROUP => new BusinessGroupRenderer(),
         };
     }

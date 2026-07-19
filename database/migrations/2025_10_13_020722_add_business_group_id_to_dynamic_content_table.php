@@ -11,7 +11,7 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('dynamic_content', function (Blueprint $table) {
-            $table->unsignedBigInteger('business_group_id')->nullable()->after('bus_stop_id');
+            $table->unsignedBigInteger('business_group_id')->nullable();
 
             $table->index('business_group_id');
         });

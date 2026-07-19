@@ -12,7 +12,7 @@ describe('TokenController API', function () {
         $content = DynamicContent::factory()->gift()->create(['nfc_token_id' => $token->id]);
         $gift = ContentGift::factory()->create(['dynamic_content_id' => $content->id]);
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200)
             ->assertJson([
@@ -36,7 +36,7 @@ describe('TokenController API', function () {
         $content = DynamicContent::factory()->profile()->create(['nfc_token_id' => $token->id]);
         $profile = ContentProfile::factory()->create(['dynamic_content_id' => $content->id]);
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200)
             ->assertJson([
@@ -58,7 +58,7 @@ describe('TokenController API', function () {
     test('retorna JSON 200 para token inactivo con mensaje apropiado', function () {
         $token = NfcToken::factory()->inactive()->create();
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200)
             ->assertJson([
@@ -72,7 +72,7 @@ describe('TokenController API', function () {
     });
 
     test('retorna JSON 404 para token inexistente', function () {
-        $response = $this->getJson('/token/non-existent-token-id');
+        $response = $this->getJson('/api/tokens/non-existent-token-id');
 
         $response->assertStatus(404)
             ->assertJson([
@@ -85,7 +85,7 @@ describe('TokenController API', function () {
         $token = NfcToken::factory()->create(['is_active' => true]);
         // No crear contenido dinámico para este token
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200)
             ->assertJson([
@@ -107,7 +107,7 @@ describe('TokenController API', function () {
         // Crear gift asociado
         \App\Models\ContentGift::factory()->create(['dynamic_content_id' => $content->id]);
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200)
             ->assertJson([
@@ -122,7 +122,7 @@ describe('TokenController API', function () {
         $gift = ContentGift::factory()->create(['dynamic_content_id' => $content->id]);
         $multimedia = ContentMultimedia::factory()->create(['dynamic_content_id' => $content->id]);
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -142,7 +142,7 @@ describe('TokenController API', function () {
         $content = DynamicContent::factory()->profile()->create(['nfc_token_id' => $token->id]);
         $profile = ContentProfile::factory()->create(['dynamic_content_id' => $content->id]);
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -160,7 +160,7 @@ describe('TokenController API', function () {
         $content = DynamicContent::factory()->gift()->create(['nfc_token_id' => $token->id]);
         $gift = ContentGift::factory()->create(['dynamic_content_id' => $content->id]);
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200)
             ->assertJsonStructure([
@@ -180,7 +180,7 @@ describe('TokenController API', function () {
 
         expect(\App\Models\NfcAnalytic::count())->toBe(0);
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200);
         expect(\App\Models\NfcAnalytic::count())->toBe(1);
@@ -194,7 +194,7 @@ describe('TokenController API', function () {
         $content = DynamicContent::factory()->gift()->create(['nfc_token_id' => $token->id]);
         $gift = ContentGift::factory()->create(['dynamic_content_id' => $content->id]);
 
-        $response = $this->getJson("/token/{$token->token_id}");
+        $response = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response->assertStatus(200);
         expect($token->fresh()->last_used_at)->not->toBeNull();
@@ -206,10 +206,10 @@ describe('TokenController API', function () {
         $gift = ContentGift::factory()->create(['dynamic_content_id' => $content->id]);
 
         // Primera llamada debería cachear
-        $response1 = $this->getJson("/token/{$token->token_id}");
+        $response1 = $this->getJson("/api/tokens/{$token->token_id}");
 
         // Segunda llamada debería usar cache
-        $response2 = $this->getJson("/token/{$token->token_id}");
+        $response2 = $this->getJson("/api/tokens/{$token->token_id}");
 
         $response1->assertStatus(200);
         $response2->assertStatus(200);

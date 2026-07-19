@@ -38,9 +38,7 @@ class DynamicContent extends Model
         'profile_id',
         'event_id',
         'product_id',
-        'tourist_id',
         'business_id',
-        'bus_stop_id',
         'business_group_id',
     ];
 
@@ -57,12 +55,10 @@ class DynamicContent extends Model
     public const TYPE_GIFT = 'GIFT';
     public const TYPE_BUSINESS = 'BUSINESS'; // Incluye negocios y restaurantes
     public const TYPE_PROFILE = 'PROFILE';
-    public const TYPE_TOURIST = 'TOURIST';
     public const TYPE_EVENT = 'EVENT';
     public const TYPE_PRODUCT = 'PRODUCT';
 
     // Constantes para tipos especializados
-    public const TYPE_BUS_STOP = 'BUS_STOP';
     public const TYPE_BUSINESS_GROUP = 'BUSINESS_GROUP'; // Para agrupar múltiples negocios
     public const TYPE_PORTFOLIO = 'PORTFOLIO';
     public const TYPE_CONTACT = 'CONTACT';
@@ -76,12 +72,10 @@ class DynamicContent extends Model
         self::TYPE_GIFT => '🎁 Regalo Personalizado',
         self::TYPE_PROFILE => '👤 Perfil Personal',
         self::TYPE_BUSINESS => '🏢 Negocio / Restaurante',
-        self::TYPE_TOURIST => '🗺️ Información Turística',
         self::TYPE_EVENT => '📅 Evento',
         self::TYPE_PRODUCT => '📦 Producto',
 
         // Tipos especializados
-        self::TYPE_BUS_STOP => '🚌 Paradero de Transporte',
         self::TYPE_BUSINESS_GROUP => '🏪 Grupo de Negocios',
         self::TYPE_PORTFOLIO => '🎨 Portafolio Creativo',
         self::TYPE_CONTACT => '📞 Información de Contacto',
@@ -100,10 +94,8 @@ class DynamicContent extends Model
             self::TYPE_GIFT => self::TYPES[self::TYPE_GIFT],
             self::TYPE_PROFILE => self::TYPES[self::TYPE_PROFILE],
             self::TYPE_BUSINESS => self::TYPES[self::TYPE_BUSINESS],
-            self::TYPE_TOURIST => self::TYPES[self::TYPE_TOURIST],
             self::TYPE_EVENT => self::TYPES[self::TYPE_EVENT],
             self::TYPE_PRODUCT => self::TYPES[self::TYPE_PRODUCT],
-            self::TYPE_BUS_STOP => self::TYPES[self::TYPE_BUS_STOP],
             self::TYPE_BUSINESS_GROUP => self::TYPES[self::TYPE_BUSINESS_GROUP],
         ];
     }
@@ -160,16 +152,6 @@ class DynamicContent extends Model
     }
 
     /**
-     * Relación con contenido menu (DEPRECATED - usar business() en su lugar)
-     * COMENTADO: La tabla content_menus fue eliminada
-     */
-    // public function menu()
-    // {
-    //     // DEPRECATED: MENU type migrated to BUSINESS type
-    //     return $this->hasOne(ContentMenu::class);
-    // }
-
-    /**
      * Relación con contenido profile
      */
     public function profile()
@@ -210,27 +192,11 @@ class DynamicContent extends Model
     }
 
     /**
-     * Relación con contenido tourist
-     */
-    public function tourist()
-    {
-        return $this->hasOne(ContentTourist::class);
-    }
-
-    /**
      * Relación con contenido business
      */
     public function business()
     {
         return $this->hasOne(ContentBusiness::class);
-    }
-
-    /**
-     * Relación con contenido bus stop
-     */
-    public function busStop()
-    {
-        return $this->hasOne(BusStop::class);
     }
 
     /**
@@ -265,10 +231,6 @@ class DynamicContent extends Model
                 }
 
                 break;
-                // MENU type deprecated - now handled by BUSINESS type
-                // case 'MENU': // DEPRECATED - tabla eliminada
-                //     if ($this->menu) $updates['menu_id'] = $this->menu->id;
-                //     break;
             case self::TYPE_PROFILE:
                 if ($this->profile) {
                     $updates['profile_id'] = $this->profile->id;
@@ -287,21 +249,9 @@ class DynamicContent extends Model
                 }
 
                 break;
-            case self::TYPE_TOURIST:
-                if ($this->tourist) {
-                    $updates['tourist_id'] = $this->tourist->id;
-                }
-
-                break;
             case self::TYPE_BUSINESS:
                 if ($this->business) {
                     $updates['business_id'] = $this->business->id;
-                }
-
-                break;
-            case self::TYPE_BUS_STOP:
-                if ($this->busStop) {
-                    $updates['bus_stop_id'] = $this->busStop->id;
                 }
 
                 break;
@@ -349,23 +299,6 @@ class DynamicContent extends Model
     }
 
     /**
-     * Crear o actualizar contenido menu (DEPRECATED - usar createOrUpdateBusiness en su lugar)
-     * COMENTADO: La tabla content_menus fue eliminada
-     */
-    // public function createOrUpdateMenu(array $data): ContentMenu
-    // {
-    //     // DEPRECATED: MENU type migrated to BUSINESS type
-    //     $menu = $this->menu ?? new ContentMenu(['dynamic_content_id' => $this->id]);
-    //     $menu->fill($data);
-    //     $menu->save();
-    //
-    //     // Sincronizar referencia
-    //     $this->update(['menu_id' => $menu->id]);
-    //
-    //     return $menu;
-    // }
-
-    /**
      * Crear o actualizar contenido profile
      */
     public function createOrUpdateProfile(array $data): ContentProfile
@@ -411,21 +344,6 @@ class DynamicContent extends Model
     }
 
     /**
-     * Crear o actualizar contenido tourist
-     */
-    public function createOrUpdateTourist(array $data): ContentTourist
-    {
-        $tourist = $this->tourist ?? new ContentTourist(['dynamic_content_id' => $this->id]);
-        $tourist->fill($data);
-        $tourist->save();
-
-        // Sincronizar referencia
-        $this->update(['tourist_id' => $tourist->id]);
-
-        return $tourist;
-    }
-
-    /**
      * Crear o actualizar contenido business
      */
     public function createOrUpdateBusiness(array $data): ContentBusiness
@@ -468,10 +386,8 @@ class DynamicContent extends Model
             self::TYPE_GIFT => ['primary' => '#E91E63', 'secondary' => '#FCE4EC'],
             self::TYPE_BUSINESS => ['primary' => '#FF6B35', 'secondary' => '#FFF3E0'], // Incluye restaurantes
             self::TYPE_PROFILE => ['primary' => '#9C27B0', 'secondary' => '#F3E5F5'],
-            self::TYPE_TOURIST => ['primary' => '#2196F3', 'secondary' => '#E3F2FD'],
             self::TYPE_EVENT => ['primary' => '#FF9800', 'secondary' => '#FFF3E0'],
             self::TYPE_PRODUCT => ['primary' => '#4CAF50', 'secondary' => '#E8F5E8'],
-            self::TYPE_BUS_STOP => ['primary' => '#673AB7', 'secondary' => '#F3E5F5'],
             self::TYPE_BUSINESS_GROUP => ['primary' => '#795548', 'secondary' => '#EFEBE9'],
             default => ['primary' => '#607D8B', 'secondary' => '#ECEFF1'],
         };
@@ -486,10 +402,8 @@ class DynamicContent extends Model
             self::TYPE_GIFT => '🎁',
             self::TYPE_BUSINESS => '🏢', // Incluye restaurantes 🍽️
             self::TYPE_PROFILE => '👤',
-            self::TYPE_TOURIST => '🗺️',
             self::TYPE_EVENT => '📅',
             self::TYPE_PRODUCT => '📦',
-            self::TYPE_BUS_STOP => '🚌',
             self::TYPE_BUSINESS_GROUP => '🏪',
             default => '📄',
         };
