@@ -58,7 +58,7 @@ RUN ls -la public/build/ && cat public/build/manifest.json
 # -----------------------------------------------------------------------------
 # Etapa 3: Imagen final extendiendo kraftdo-base externa
 # -----------------------------------------------------------------------------
-FROM ghcr.io/buguenocesar92/kraftdo-base:develop
+FROM ghcr.io/buguenocesar92/kraftdo-base:latest
 
 # Configurar PHP con archivos optimizados específicos del CMS
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
